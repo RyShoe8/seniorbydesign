@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getPortfolioCategories, getProjects } from '../actions';
 import PortfolioMap from '@/components/PortfolioMap';
 import styles from './page.module.css';
@@ -56,9 +57,11 @@ export default async function Portfolio() {
                 >
                   {category?.images[0] ? (
                     <div className={styles.categoryImageWrapper}>
-                      <img
+                      <Image
                         src={category.images[0]}
                         alt={type.name}
+                        width={400}
+                        height={400}
                         className={styles.categoryImage}
                       />
                       <div className={styles.categoryOverlay}>

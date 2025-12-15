@@ -78,7 +78,7 @@ export default async function Home() {
             <div className={styles.testimonialsGrid}>
               {homepageContent.testimonials.map((testimonial, index) => (
                 <div key={index} className={styles.testimonialCard}>
-                  <p className={styles.testimonialText}>"{testimonial.review}"</p>
+                  <p className={styles.testimonialText}>&ldquo;{testimonial.review}&rdquo;</p>
                   <div className={styles.testimonialAuthor}>
                     <p className={styles.testimonialName}>{testimonial.name}</p>
                     <p className={styles.testimonialPosition}>
