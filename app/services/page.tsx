@@ -81,7 +81,7 @@ export default async function Services() {
       description: '',
       bullets: {
         left: [
-          'Review of scope of the project with Owner's objectives and determine agreed FF&E budget criteria and furniture preferences.',
+          'Review of scope of the project with Owner\'s objectives and determine agreed FF&E budget criteria and furniture preferences.',
           'Prepare preliminary furniture layouts for all areas.',
         ],
         right: [

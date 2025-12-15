@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import NewsletterCTA from '@/components/NewsletterCTA';
 import { getHomepageContent, getPortfolioCategories, getPartners } from './actions';
 import Image from 'next/image';
+import styles from './page.module.css';
 
 export const metadata: Metadata = {
   title: 'Senior By Design - Soul Warming Interiors',
@@ -16,27 +17,27 @@ export default async function Home() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero-section">
-        <div className="hero-video-container">
+      <section className={styles.heroSection}>
+        <div className={styles.heroVideoContainer}>
           {homepageContent?.heroVideo ? (
             <video
               autoPlay
               loop
               muted
               playsInline
-              className="hero-video"
+              className={styles.heroVideo}
             >
               <source src={homepageContent.heroVideo} type="video/mp4" />
             </video>
           ) : (
-            <div className="hero-placeholder" />
+            <div className={styles.heroPlaceholder} />
           )}
-          <div className="hero-overlay">
-            <div className="hero-content">
-              <h1 className="hero-headline">
+          <div className={styles.heroOverlay}>
+            <div className={styles.heroContent}>
+              <h1 className={styles.heroHeadline}>
                 {homepageContent?.heroHeadline || 'Soul Warming Interiors'}
               </h1>
-              <p className="hero-subheadline">
+              <p className={styles.heroSubheadline}>
                 {homepageContent?.heroSubheadline || 
                   'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.'}
               </p>
@@ -47,19 +48,19 @@ export default async function Home() {
       </section>
 
       {/* Our Work Section */}
-      <section id="our-work" className="our-work-section section-padding">
+      <section id="our-work" className={`${styles.ourWorkSection} section-padding`}>
         <div className="container">
-          <h2 className="section-heading">Our Work</h2>
-          <div className="portfolio-carousel">
+          <h2 className={styles.sectionHeading}>Our Work</h2>
+          <div className={styles.portfolioCarousel}>
             {portfolioCategories.slice(0, 6).map((category) => (
-              <div key={category._id?.toString()} className="portfolio-card">
+              <div key={category._id?.toString()} className={styles.portfolioCard}>
                 {category.images[0] && (
                   <Image
                     src={category.images[0]}
                     alt={category.name}
                     width={400}
                     height={300}
-                    className="portfolio-image"
+                    className={styles.portfolioImage}
                   />
                 )}
                 <h3>{category.name}</h3>
@@ -73,14 +74,14 @@ export default async function Home() {
       {homepageContent?.testimonials && homepageContent.testimonials.length > 0 && (
         <section className="testimonials-section section-padding bg-warm-grey">
           <div className="container">
-            <h2 className="section-heading text-center">Words from our clients</h2>
-            <div className="testimonials-grid">
+            <h2 className={`${styles.sectionHeading} text-center`}>Words from our clients</h2>
+            <div className={styles.testimonialsGrid}>
               {homepageContent.testimonials.map((testimonial, index) => (
-                <div key={index} className="testimonial-card">
-                  <p className="testimonial-text">"{testimonial.review}"</p>
-                  <div className="testimonial-author">
-                    <p className="testimonial-name">{testimonial.name}</p>
-                    <p className="testimonial-position">
+                <div key={index} className={styles.testimonialCard}>
+                  <p className={styles.testimonialText}>"{testimonial.review}"</p>
+                  <div className={styles.testimonialAuthor}>
+                    <p className={styles.testimonialName}>{testimonial.name}</p>
+                    <p className={styles.testimonialPosition}>
                       {testimonial.position}, {testimonial.company}
                     </p>
                   </div>
@@ -98,10 +99,10 @@ export default async function Home() {
       {partners.length > 0 && (
         <section className="partners-section section-padding">
           <div className="container">
-            <h2 className="section-heading text-center">You Are In Good Hands</h2>
-            <div className="partners-grid">
+            <h2 className={`${styles.sectionHeading} text-center`}>You Are In Good Hands</h2>
+            <div className={styles.partnersGrid}>
               {partners.map((partner) => (
-                <div key={partner._id?.toString()} className="partner-logo">
+                <div key={partner._id?.toString()} className={styles.partnerLogo}>
                   {partner.url ? (
                     <a href={partner.url} target="_blank" rel="noopener noreferrer">
                       <Image
@@ -125,173 +126,6 @@ export default async function Home() {
           </div>
         </section>
       )}
-
-      <style jsx>{`
-        .hero-section {
-          position: relative;
-          height: 100vh;
-          min-height: 600px;
-          overflow: hidden;
-        }
-
-        .hero-video-container {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-        }
-
-        .hero-video {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .hero-placeholder {
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(135deg, var(--warm-grey-1) 0%, var(--warm-grey-3) 100%);
-        }
-
-        .hero-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: rgba(89, 56, 37, 0.4);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .hero-content {
-          text-align: center;
-          color: #fff;
-          max-width: 800px;
-          padding: 0 var(--container-padding);
-        }
-
-        .hero-headline {
-          font-size: 75px;
-          color: #fff;
-          margin-bottom: var(--spacing-md);
-        }
-
-        .hero-subheadline {
-          font-size: 24px;
-          margin-bottom: var(--spacing-lg);
-          line-height: 1.6;
-        }
-
-        .our-work-section {
-          background: #fff;
-        }
-
-        .section-heading {
-          text-align: center;
-          margin-bottom: var(--spacing-lg);
-        }
-
-        .portfolio-carousel {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: var(--spacing-md);
-          overflow-x: auto;
-          padding-bottom: var(--spacing-sm);
-        }
-
-        .portfolio-card {
-          background: #fff;
-          border-radius: 8px;
-          overflow: hidden;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          transition: transform 0.3s ease;
-        }
-
-        .portfolio-card:hover {
-          transform: translateY(-5px);
-        }
-
-        .portfolio-image {
-          width: 100%;
-          height: 250px;
-          object-fit: cover;
-        }
-
-        .portfolio-card h3 {
-          padding: var(--spacing-sm);
-          font-size: 24px;
-          text-align: center;
-        }
-
-        .testimonials-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: var(--spacing-md);
-        }
-
-        .testimonial-card {
-          background: #fff;
-          padding: var(--spacing-md);
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .testimonial-text {
-          font-size: 19px;
-          font-style: italic;
-          margin-bottom: var(--spacing-sm);
-          color: var(--sbd-brown);
-        }
-
-        .testimonial-author {
-          border-top: 1px solid var(--warm-grey-3);
-          padding-top: var(--spacing-sm);
-        }
-
-        .testimonial-name {
-          font-weight: 600;
-          color: var(--sbd-brown);
-        }
-
-        .testimonial-position {
-          font-size: 16px;
-          color: var(--warm-grey-3);
-        }
-
-        .partners-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-          gap: var(--spacing-lg);
-          align-items: center;
-          justify-items: center;
-        }
-
-        .partner-logo {
-          opacity: 0.7;
-          transition: opacity 0.3s ease;
-        }
-
-        .partner-logo:hover {
-          opacity: 1;
-        }
-
-        @media (max-width: 768px) {
-          .hero-headline {
-            font-size: 48px;
-          }
-
-          .hero-subheadline {
-            font-size: 20px;
-          }
-
-          .portfolio-carousel {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
     </>
   );
 }
