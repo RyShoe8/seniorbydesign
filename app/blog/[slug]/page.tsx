@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getBlogPost } from '../../actions';
 import Image from 'next/image';
+import styles from './page.module.css';
 
 type Props = {
   params: { slug: string };
@@ -35,11 +36,11 @@ export default async function BlogPostPage({ params }: Props) {
       <article className="blog-post">
         <div className="blog-post-header section-padding">
           <div className="container">
-            <Link href="/blog" className="back-link">
+            <Link href="/blog" className={styles.backLink}>
               ← Back to Blog
             </Link>
             {post.featuredImage && (
-              <div className="blog-post-image">
+              <div className={styles.blogPostImage}>
                 <Image
                   src={post.featuredImage}
                   alt={post.title}
@@ -50,7 +51,7 @@ export default async function BlogPostPage({ params }: Props) {
             )}
             <h1>{post.title}</h1>
             {post.publishedAt && (
-              <p className="blog-post-date">
+              <p className={styles.blogPostDate}>
                 {new Date(post.publishedAt).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
@@ -63,7 +64,7 @@ export default async function BlogPostPage({ params }: Props) {
 
         <div className="blog-post-content section-padding">
           <div className="container">
-            <div className="blog-post-body">
+            <div className={styles.blogPostBody}>
               {post.body.split('\n\n').map((paragraph, i) => (
                 <p key={i}>{paragraph}</p>
               ))}
@@ -71,43 +72,6 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
         </div>
       </article>
-
-      <style jsx>{`
-        .back-link {
-          display: inline-block;
-          margin-bottom: var(--spacing-md);
-          color: var(--sbd-brown);
-          font-weight: 500;
-        }
-
-        .blog-post-image {
-          margin-bottom: var(--spacing-lg);
-          border-radius: 8px;
-          overflow: hidden;
-        }
-
-        .blog-post-image img {
-          width: 100%;
-          height: auto;
-        }
-
-        .blog-post-date {
-          color: var(--sbd-gold);
-          font-size: 18px;
-          margin-bottom: var(--spacing-md);
-        }
-
-        .blog-post-body {
-          max-width: 800px;
-          margin: 0 auto;
-        }
-
-        .blog-post-body p {
-          margin-bottom: var(--spacing-md);
-          font-size: 19px;
-          line-height: 1.8;
-        }
-      `}</style>
     </>
   );
 }

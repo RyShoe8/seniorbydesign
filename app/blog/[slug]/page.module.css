@@ -1,0 +1,35 @@
+.backLink {
+  display: inline-block;
+  margin-bottom: var(--spacing-md);
+  color: var(--sbd-brown);
+  font-weight: 500;
+}
+
+.blogPostImage {
+  margin-bottom: var(--spacing-lg);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.blogPostImage img {
+  width: 100%;
+  height: auto;
+}
+
+.blogPostDate {
+  color: var(--sbd-gold);
+  font-size: 18px;
+  margin-bottom: var(--spacing-md);
+}
+
+.blogPostBody {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.blogPostBody p {
+  margin-bottom: var(--spacing-md);
+  font-size: 19px;
+  line-height: 1.8;
+}
+
