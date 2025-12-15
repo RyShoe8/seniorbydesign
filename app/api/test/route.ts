@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import getClientPromise from '@/lib/mongodb';
+
+// Force dynamic rendering to prevent build-time execution
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    const clientPromise = getClientPromise();
     const client = await clientPromise;
     const db = client.db();
     
