@@ -12,7 +12,12 @@ export const metadata: Metadata = {
 
 export default async function Portfolio() {
   const categories = await getPortfolioCategories();
-  const projects = await getProjects();
+  const projectsData = await getProjects();
+  // Convert MongoDB ObjectId to string for client component
+  const projects = projectsData.map(p => ({
+    ...p,
+    _id: p._id?.toString(),
+  }));
 
   const portfolioTypes = [
     { slug: 'active-adult-55', name: 'Active Adult 55+' },
@@ -40,7 +45,7 @@ export default async function Portfolio() {
       <section className="portfolio-map-section section-padding bg-warm-grey">
         <div className="container">
           <h2>Project Locations</h2>
-          <PortfolioMap projects={projects} />
+          <PortfolioMap projects={projects.map(p => ({ ...p, _id: p._id?.toString() }))} />
         </div>
       </section>
 

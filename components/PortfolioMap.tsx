@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 interface Project {
-  _id?: string;
+  _id?: string | { toString(): string };
   name: string;
   zipCode: string;
   latitude?: number;
