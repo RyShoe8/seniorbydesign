@@ -33,7 +33,7 @@ export default function Header() {
       <div className="header-container">
         <Link href="/" className="header-logo">
           <Image
-            src="/images/SBD_Logo.webp"
+            src="/images/SBD Logo.webp"
             alt="Senior By Design"
             width={150}
             height={150}
