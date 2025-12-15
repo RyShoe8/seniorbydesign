@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Metadata } from 'next';
+import styles from './page.module.css';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -56,9 +56,9 @@ export default function Contact() {
 
   return (
     <>
-      <section className="contact-hero section-padding">
+      <section className={`${styles.contactHero} section-padding`}>
         <div className="container">
-          <div className="hero-image-placeholder">
+          <div className={styles.heroImagePlaceholder}>
             <h1>Contact Us</h1>
           </div>
         </div>
@@ -66,12 +66,12 @@ export default function Contact() {
 
       <section className="contact-content section-padding">
         <div className="container">
-          <div className="contact-grid">
-            <div className="contact-form-wrapper">
+          <div className={styles.contactGrid}>
+            <div className={styles.contactFormWrapper}>
               <h2>Drop us a Note</h2>
               <form onSubmit={handleSubmit} className="contact-form">
-                <div className="form-row">
-                  <div className="form-group">
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
                     <label htmlFor="firstName">First Name *</label>
                     <input
                       type="text"
@@ -82,7 +82,7 @@ export default function Contact() {
                       onChange={handleChange}
                     />
                   </div>
-                  <div className="form-group">
+                  <div className={styles.formGroup}>
                     <label htmlFor="lastName">Last Name *</label>
                     <input
                       type="text"
@@ -95,8 +95,8 @@ export default function Contact() {
                   </div>
                 </div>
 
-                <div className="form-row">
-                  <div className="form-group">
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
                     <label htmlFor="phone">Phone #</label>
                     <input
                       type="tel"
@@ -106,7 +106,7 @@ export default function Contact() {
                       onChange={handleChange}
                     />
                   </div>
-                  <div className="form-group">
+                  <div className={styles.formGroup}>
                     <label htmlFor="email">Email *</label>
                     <input
                       type="email"
@@ -119,7 +119,7 @@ export default function Contact() {
                   </div>
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label htmlFor="company">Company</label>
                   <input
                     type="text"
@@ -130,7 +130,7 @@ export default function Contact() {
                   />
                 </div>
 
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label htmlFor="message">Message *</label>
                   <textarea
                     id="message"
@@ -143,13 +143,13 @@ export default function Contact() {
                 </div>
 
                 {submitStatus === 'success' && (
-                  <div className="form-message success">
+                  <div className={`${styles.formMessage} ${styles.success}`}>
                     Thank you! Your message has been sent successfully.
                   </div>
                 )}
 
                 {submitStatus === 'error' && (
-                  <div className="form-message error">
+                  <div className={`${styles.formMessage} ${styles.error}`}>
                     There was an error sending your message. Please try again.
                   </div>
                 )}
@@ -160,92 +160,15 @@ export default function Contact() {
               </form>
             </div>
 
-            <div className="contact-info">
+            <div className={styles.contactInfo}>
               <h2>Or give us a call</h2>
-              <p className="phone-number">
+              <p className={styles.phoneNumber}>
                 <a href="tel:8337733744">(833) 773-3744</a>
               </p>
             </div>
           </div>
         </div>
       </section>
-
-      <style jsx>{`
-        .contact-hero {
-          background: linear-gradient(135deg, var(--warm-grey-1) 0%, var(--warm-grey-3) 100%);
-          text-align: center;
-        }
-
-        .hero-image-placeholder {
-          height: 300px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: var(--warm-grey-1);
-          border-radius: 8px;
-        }
-
-        .contact-grid {
-          display: grid;
-          grid-template-columns: 2fr 1fr;
-          gap: var(--spacing-xl);
-        }
-
-        .contact-form-wrapper h2,
-        .contact-info h2 {
-          margin-bottom: var(--spacing-md);
-        }
-
-        .form-row {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: var(--spacing-md);
-        }
-
-        .form-group {
-          margin-bottom: var(--spacing-md);
-        }
-
-        .form-group label {
-          display: block;
-          margin-bottom: 0.5rem;
-        }
-
-        .form-message {
-          padding: var(--spacing-sm);
-          border-radius: 4px;
-          margin-bottom: var(--spacing-md);
-        }
-
-        .form-message.success {
-          background: #d4edda;
-          color: #155724;
-        }
-
-        .form-message.error {
-          background: #f8d7da;
-          color: #721c24;
-        }
-
-        .phone-number {
-          font-size: 32px;
-          font-weight: 600;
-        }
-
-        .phone-number a {
-          color: var(--sbd-gold);
-        }
-
-        @media (max-width: 968px) {
-          .contact-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .form-row {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
     </>
   );
 }

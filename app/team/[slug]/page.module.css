@@ -1,0 +1,64 @@
+.memberHeader {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: var(--spacing-xl);
+  align-items: start;
+}
+
+.memberImage {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.memberImage img {
+  width: 100%;
+  height: auto;
+}
+
+.memberInfo h1 {
+  margin-bottom: var(--spacing-sm);
+}
+
+.memberTitle {
+  font-size: 30px;
+  color: var(--sbd-gold);
+  margin-bottom: var(--spacing-md);
+}
+
+.memberSocial {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.memberSocial a {
+  color: var(--sbd-brown);
+  text-decoration: underline;
+}
+
+.bioContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.bioContent p {
+  margin-bottom: var(--spacing-md);
+  font-size: 19px;
+  line-height: 1.8;
+}
+
+.backLinkContainer {
+  padding: var(--spacing-lg) 0;
+  border-top: 1px solid var(--warm-grey-1);
+}
+
+.backLink {
+  color: var(--sbd-brown);
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .memberHeader {
+    grid-template-columns: 1fr;
+  }
+}
+

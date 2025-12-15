@@ -1,0 +1,42 @@
+.serviceHero {
+  background: var(--warm-grey-1);
+}
+
+.serviceHeroImage {
+  margin-bottom: var(--spacing-md);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.heroImg {
+  width: 100%;
+  height: auto;
+}
+
+.serviceBody {
+  max-width: 800px;
+  margin: 0 auto var(--spacing-xl);
+}
+
+.serviceBody p {
+  margin-bottom: var(--spacing-md);
+  font-size: 19px;
+  line-height: 1.8;
+}
+
+.serviceGallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.galleryItem {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.galleryItem img {
+  width: 100%;
+  height: auto;
+}
+

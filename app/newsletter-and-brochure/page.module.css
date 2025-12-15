@@ -1,0 +1,71 @@
+.newsletterHero {
+  background: linear-gradient(135deg, var(--warm-grey-1) 0%, var(--warm-grey-3) 100%);
+  text-align: center;
+}
+
+.heroImagePlaceholder {
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--warm-grey-1);
+  border-radius: 8px;
+}
+
+.newsletterFormWrapper {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.newsletterFormWrapper h2 {
+  text-align: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.newsletterFormWrapper p {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.formGroup {
+  margin-bottom: var(--spacing-md);
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.formGroup input[type="checkbox"] {
+  width: auto;
+  margin-right: 0.5rem;
+}
+
+.formMessage {
+  padding: var(--spacing-sm);
+  border-radius: 4px;
+  margin-bottom: var(--spacing-md);
+}
+
+.formMessage.success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.formMessage.error {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+@media (max-width: 768px) {
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+}
+

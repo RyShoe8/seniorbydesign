@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import NewsletterCTA from '@/components/NewsletterCTA';
 import { getService } from '../../actions';
 import Image from 'next/image';
+import styles from './page.module.css';
 
 type Props = {
   params: { slug: string };
@@ -32,16 +33,16 @@ export default async function ServicePage({ params }: Props) {
 
   return (
     <>
-      <section className="service-hero section-padding">
+      <section className={`${styles.serviceHero} section-padding`}>
         <div className="container">
           {service.heroImage && (
-            <div className="service-hero-image">
+            <div className={styles.serviceHeroImage}>
               <Image
                 src={service.heroImage}
                 alt={service.title}
                 width={1200}
                 height={400}
-                className="hero-img"
+                className={styles.heroImg}
               />
             </div>
           )}
@@ -51,16 +52,16 @@ export default async function ServicePage({ params }: Props) {
 
       <section className="service-content section-padding">
         <div className="container">
-          <div className="service-body">
+          <div className={styles.serviceBody}>
             {service.body.split('\n\n').map((paragraph, i) => (
               <p key={i}>{paragraph}</p>
             ))}
           </div>
 
           {service.images && service.images.length > 0 && (
-            <div className="service-gallery">
+            <div className={styles.serviceGallery}>
               {service.images.map((image, i) => (
-                <div key={i} className="gallery-item">
+                <div key={i} className={styles.galleryItem}>
                   <Image
                     src={image}
                     alt={`${service.title} - Image ${i + 1}`}
@@ -75,50 +76,6 @@ export default async function ServicePage({ params }: Props) {
       </section>
 
       <NewsletterCTA />
-
-      <style jsx>{`
-        .service-hero {
-          background: var(--warm-grey-1);
-        }
-
-        .service-hero-image {
-          margin-bottom: var(--spacing-md);
-          border-radius: 8px;
-          overflow: hidden;
-        }
-
-        .hero-img {
-          width: 100%;
-          height: auto;
-        }
-
-        .service-body {
-          max-width: 800px;
-          margin: 0 auto var(--spacing-xl);
-        }
-
-        .service-body p {
-          margin-bottom: var(--spacing-md);
-          font-size: 19px;
-          line-height: 1.8;
-        }
-
-        .service-gallery {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: var(--spacing-md);
-        }
-
-        .gallery-item {
-          border-radius: 8px;
-          overflow: hidden;
-        }
-
-        .gallery-item img {
-          width: 100%;
-          height: auto;
-        }
-      `}</style>
     </>
   );
 }

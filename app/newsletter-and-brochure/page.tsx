@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import styles from './page.module.css';
 
 export default function NewsletterAndBrochure() {
   const [formData, setFormData] = useState({
@@ -62,9 +63,9 @@ export default function NewsletterAndBrochure() {
 
   return (
     <>
-      <section className="newsletter-hero section-padding">
+      <section className={`${styles.newsletterHero} section-padding`}>
         <div className="container">
-          <div className="hero-image-placeholder">
+          <div className={styles.heroImagePlaceholder}>
             <h1>Newsletter & Brochure</h1>
           </div>
         </div>
@@ -72,13 +73,13 @@ export default function NewsletterAndBrochure() {
 
       <section className="newsletter-content section-padding">
         <div className="container">
-          <div className="newsletter-form-wrapper">
+          <div className={styles.newsletterFormWrapper}>
             <h2>Join our family and receive our monthly newsletter</h2>
             <p>Download our digital brochure or have a physical copy sent to you.</p>
 
             <form onSubmit={handleSubmit} className="newsletter-form">
-              <div className="form-row">
-                <div className="form-group">
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
                   <label htmlFor="firstName">First Name *</label>
                   <input
                     type="text"
@@ -89,7 +90,7 @@ export default function NewsletterAndBrochure() {
                     onChange={handleChange}
                   />
                 </div>
-                <div className="form-group">
+                <div className={styles.formGroup}>
                   <label htmlFor="lastName">Last Name *</label>
                   <input
                     type="text"
@@ -102,7 +103,7 @@ export default function NewsletterAndBrochure() {
                 </div>
               </div>
 
-              <div className="form-group">
+              <div className={styles.formGroup}>
                 <label htmlFor="email">Email *</label>
                 <input
                   type="email"
@@ -114,7 +115,7 @@ export default function NewsletterAndBrochure() {
                 />
               </div>
 
-              <div className="form-group">
+              <div className={styles.formGroup}>
                 <label>
                   <input
                     type="checkbox"
@@ -126,7 +127,7 @@ export default function NewsletterAndBrochure() {
                 </label>
               </div>
 
-              <div className="form-group">
+              <div className={styles.formGroup}>
                 <label htmlFor="brochureType">Brochure Type *</label>
                 <select
                   id="brochureType"
@@ -142,7 +143,7 @@ export default function NewsletterAndBrochure() {
 
               {formData.brochureType === 'physical' && (
                 <>
-                  <div className="form-group">
+                  <div className={styles.formGroup}>
                     <label htmlFor="address">Address *</label>
                     <input
                       type="text"
@@ -154,8 +155,8 @@ export default function NewsletterAndBrochure() {
                     />
                   </div>
 
-                  <div className="form-row">
-                    <div className="form-group">
+                  <div className={styles.formRow}>
+                    <div className={styles.formGroup}>
                       <label htmlFor="city">City *</label>
                       <input
                         type="text"
@@ -166,7 +167,7 @@ export default function NewsletterAndBrochure() {
                         onChange={handleChange}
                       />
                     </div>
-                    <div className="form-group">
+                    <div className={styles.formGroup}>
                       <label htmlFor="state">State *</label>
                       <input
                         type="text"
@@ -177,7 +178,7 @@ export default function NewsletterAndBrochure() {
                         onChange={handleChange}
                       />
                     </div>
-                    <div className="form-group">
+                    <div className={styles.formGroup}>
                       <label htmlFor="zip">ZIP Code *</label>
                       <input
                         type="text"
@@ -193,13 +194,13 @@ export default function NewsletterAndBrochure() {
               )}
 
               {submitStatus === 'success' && (
-                <div className="form-message success">
+                <div className={`${styles.formMessage} ${styles.success}`}>
                   Thank you! {formData.brochureType === 'digital' ? 'Your download link has been sent to your email.' : 'Your brochure will be mailed to you shortly.'}
                 </div>
               )}
 
               {submitStatus === 'error' && (
-                <div className="form-message error">
+                <div className={`${styles.formMessage} ${styles.error}`}>
                   There was an error processing your request. Please try again.
                 </div>
               )}
@@ -211,79 +212,6 @@ export default function NewsletterAndBrochure() {
           </div>
         </div>
       </section>
-
-      <style jsx>{`
-        .newsletter-hero {
-          background: linear-gradient(135deg, var(--warm-grey-1) 0%, var(--warm-grey-3) 100%);
-          text-align: center;
-        }
-
-        .hero-image-placeholder {
-          height: 300px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: var(--warm-grey-1);
-          border-radius: 8px;
-        }
-
-        .newsletter-form-wrapper {
-          max-width: 700px;
-          margin: 0 auto;
-        }
-
-        .newsletter-form-wrapper h2 {
-          text-align: center;
-          margin-bottom: var(--spacing-sm);
-        }
-
-        .newsletter-form-wrapper p {
-          text-align: center;
-          margin-bottom: var(--spacing-lg);
-        }
-
-        .form-row {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: var(--spacing-md);
-        }
-
-        .form-group {
-          margin-bottom: var(--spacing-md);
-        }
-
-        .form-group label {
-          display: block;
-          margin-bottom: 0.5rem;
-        }
-
-        .form-group input[type="checkbox"] {
-          width: auto;
-          margin-right: 0.5rem;
-        }
-
-        .form-message {
-          padding: var(--spacing-sm);
-          border-radius: 4px;
-          margin-bottom: var(--spacing-md);
-        }
-
-        .form-message.success {
-          background: #d4edda;
-          color: #155724;
-        }
-
-        .form-message.error {
-          background: #f8d7da;
-          color: #721c24;
-        }
-
-        @media (max-width: 768px) {
-          .form-row {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
     </>
   );
 }

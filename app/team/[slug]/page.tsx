@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getTeamMember } from '../../actions';
 import Image from 'next/image';
 import Link from 'next/link';
+import styles from './page.module.css';
 
 type Props = {
   params: { slug: string };
@@ -34,9 +35,9 @@ export default async function TeamMemberPage({ params }: Props) {
     <div className="team-member-page">
       <section className="member-hero section-padding">
         <div className="container">
-          <div className="member-header">
+          <div className={styles.memberHeader}>
             {member.profileImage && (
-              <div className="member-image">
+              <div className={styles.memberImage}>
                 <Image
                   src={member.profileImage}
                   alt={member.name}
@@ -45,11 +46,11 @@ export default async function TeamMemberPage({ params }: Props) {
                 />
               </div>
             )}
-            <div className="member-info">
+            <div className={styles.memberInfo}>
               <h1>{member.name}</h1>
-              <h2 className="member-title">{member.title}</h2>
+              <h2 className={styles.memberTitle}>{member.title}</h2>
               {(member.linkedin || member.facebook || member.instagram) && (
-                <div className="member-social">
+                <div className={styles.memberSocial}>
                   {member.linkedin && (
                     <a href={member.linkedin} target="_blank" rel="noopener noreferrer">
                       LinkedIn
@@ -74,7 +75,7 @@ export default async function TeamMemberPage({ params }: Props) {
 
       <section className="member-bio section-padding">
         <div className="container">
-          <div className="bio-content">
+          <div className={styles.bioContent}>
             {member.bio.split('\n\n').map((paragraph, i) => (
               <p key={i}>{paragraph}</p>
             ))}
@@ -82,79 +83,13 @@ export default async function TeamMemberPage({ params }: Props) {
         </div>
       </section>
 
-      <div className="back-link-container">
+      <div className={styles.backLinkContainer}>
         <div className="container">
-          <Link href="/team" className="back-link">
+          <Link href="/team" className={styles.backLink}>
             ← Back to Team
           </Link>
         </div>
       </div>
-
-      <style jsx>{`
-        .member-header {
-          display: grid;
-          grid-template-columns: 300px 1fr;
-          gap: var(--spacing-xl);
-          align-items: start;
-        }
-
-        .member-image {
-          border-radius: 8px;
-          overflow: hidden;
-        }
-
-        .member-image img {
-          width: 100%;
-          height: auto;
-        }
-
-        .member-info h1 {
-          margin-bottom: var(--spacing-sm);
-        }
-
-        .member-title {
-          font-size: 30px;
-          color: var(--sbd-gold);
-          margin-bottom: var(--spacing-md);
-        }
-
-        .member-social {
-          display: flex;
-          gap: var(--spacing-sm);
-        }
-
-        .member-social a {
-          color: var(--sbd-brown);
-          text-decoration: underline;
-        }
-
-        .bio-content {
-          max-width: 800px;
-          margin: 0 auto;
-        }
-
-        .bio-content p {
-          margin-bottom: var(--spacing-md);
-          font-size: 19px;
-          line-height: 1.8;
-        }
-
-        .back-link-container {
-          padding: var(--spacing-lg) 0;
-          border-top: 1px solid var(--warm-grey-1);
-        }
-
-        .back-link {
-          color: var(--sbd-brown);
-          font-weight: 500;
-        }
-
-        @media (max-width: 768px) {
-          .member-header {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
     </div>
   );
 }
