@@ -1,0 +1,26 @@
+.dashboardStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+.statCard {
+  background: #fff;
+  padding: var(--spacing-md);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.statCard h3 {
+  font-size: 18px;
+  margin-bottom: var(--spacing-sm);
+  color: var(--warm-grey-3);
+}
+
+.statNumber {
+  font-size: 36px;
+  font-weight: bold;
+  color: var(--sbd-brown);
+}
+
