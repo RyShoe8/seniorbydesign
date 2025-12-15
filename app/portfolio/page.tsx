@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { getPortfolioCategories, getProjects } from '../actions';
 import PortfolioMap from '@/components/PortfolioMap';
+import styles from './page.module.css';
 
 export const metadata: Metadata = {
   title: 'Portfolio - Senior By Design',
@@ -24,12 +25,12 @@ export default async function Portfolio() {
 
   return (
     <>
-      <section className="portfolio-hero section-padding">
+      <section className={`${styles.portfolioHero} section-padding`}>
         <div className="container">
-          <div className="hero-image-placeholder">
+          <div className={styles.heroImagePlaceholder}>
             <h1>Our Portfolio</h1>
           </div>
-          <p className="hero-text">
+          <p className={styles.heroText}>
             Explore our extensive portfolio of beautifully designed senior living communities and spaces across the United States.
           </p>
         </div>
@@ -44,28 +45,28 @@ export default async function Portfolio() {
 
       <section className="portfolio-categories section-padding">
         <div className="container">
-          <div className="portfolio-grid">
+          <div className={styles.portfolioGrid}>
             {portfolioTypes.map((type) => {
               const category = categories.find((c) => c.slug === type.slug);
               return (
                 <Link
                   key={type.slug}
                   href={`/portfolio/${type.slug}`}
-                  className="portfolio-category-card"
+                  className={styles.portfolioCategoryCard}
                 >
                   {category?.images[0] ? (
-                    <div className="category-image-wrapper">
+                    <div className={styles.categoryImageWrapper}>
                       <img
                         src={category.images[0]}
                         alt={type.name}
-                        className="category-image"
+                        className={styles.categoryImage}
                       />
-                      <div className="category-overlay">
+                      <div className={styles.categoryOverlay}>
                         <h3>{type.name}</h3>
                       </div>
                     </div>
                   ) : (
-                    <div className="category-placeholder">
+                    <div className={styles.categoryPlaceholder}>
                       <h3>{type.name}</h3>
                     </div>
                   )}
@@ -75,93 +76,6 @@ export default async function Portfolio() {
           </div>
         </div>
       </section>
-
-      <style jsx>{`
-        .portfolio-hero {
-          background: linear-gradient(135deg, var(--warm-grey-1) 0%, var(--warm-grey-3) 100%);
-          text-align: center;
-        }
-
-        .hero-image-placeholder {
-          height: 300px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: var(--warm-grey-1);
-          border-radius: 8px;
-          margin-bottom: var(--spacing-md);
-        }
-
-        .hero-text {
-          font-size: 20px;
-          max-width: 700px;
-          margin: 0 auto;
-        }
-
-        .portfolio-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-          gap: var(--spacing-md);
-        }
-
-        .portfolio-category-card {
-          display: block;
-          border-radius: 8px;
-          overflow: hidden;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          transition: transform 0.3s ease;
-          height: 400px;
-        }
-
-        .portfolio-category-card:hover {
-          transform: translateY(-5px);
-        }
-
-        .category-image-wrapper {
-          position: relative;
-          width: 100%;
-          height: 100%;
-        }
-
-        .category-image {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .category-overlay {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          background: linear-gradient(to top, rgba(89, 56, 37, 0.9), transparent);
-          padding: var(--spacing-md);
-        }
-
-        .category-overlay h3 {
-          color: #fff;
-          margin: 0;
-        }
-
-        .category-placeholder {
-          width: 100%;
-          height: 100%;
-          background: var(--warm-grey-1);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .category-placeholder h3 {
-          color: var(--sbd-brown);
-        }
-
-        @media (max-width: 768px) {
-          .portfolio-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
     </>
   );
 }

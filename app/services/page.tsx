@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { getServices } from '../actions';
 import Image from 'next/image';
+import styles from './page.module.css';
 
 export const metadata: Metadata = {
   title: 'Services - Senior By Design',
@@ -95,7 +96,7 @@ export default async function Services() {
 
   return (
     <div className="services-page">
-      <section className="services-hero section-padding">
+      <section className={`${styles.servicesHero} section-padding`}>
         <div className="container">
           <h1>Services</h1>
         </div>
@@ -106,22 +107,22 @@ export default async function Services() {
           {servicePromotions.map((promo) => {
             const service = services.find((s) => s.slug === promo.slug);
             return (
-              <div key={promo.slug} className="service-promo">
-                <div className="service-header">
+              <div key={promo.slug} className={styles.servicePromo}>
+                <div className={styles.serviceHeader}>
                   <h2>{promo.title}</h2>
                   <p>{promo.description || service?.body}</p>
                 </div>
 
-                <div className="service-content-grid">
-                  <div className="service-bullets">
-                    <div className="bullets-column">
+                <div className={styles.serviceContentGrid}>
+                  <div className={styles.serviceBullets}>
+                    <div className={styles.bulletsColumn}>
                       <ul>
                         {promo.bullets.left.map((bullet, i) => (
                           <li key={i}>{bullet}</li>
                         ))}
                       </ul>
                     </div>
-                    <div className="bullets-column">
+                    <div className={styles.bulletsColumn}>
                       <ul>
                         {promo.bullets.right.map((bullet, i) => (
                           <li key={i}>{bullet}</li>
@@ -131,9 +132,9 @@ export default async function Services() {
                   </div>
 
                   {promo.images > 0 && (
-                    <div className={`service-images images-${promo.images}`}>
+                    <div className={promo.images === 1 ? styles.images1 : styles.images2}>
                       {Array.from({ length: promo.images }).map((_, i) => (
-                        <div key={i} className="service-image-placeholder">
+                        <div key={i} className={styles.serviceImagePlaceholder}>
                           Image {i + 1}
                         </div>
                       ))}
@@ -141,7 +142,7 @@ export default async function Services() {
                   )}
                 </div>
 
-                <div className="service-cta">
+                <div className={styles.serviceCta}>
                   <Link href={`/services/${promo.slug}`} className="btn">
                     Learn More
                   </Link>
@@ -151,100 +152,6 @@ export default async function Services() {
           })}
         </div>
       </section>
-
-      <style jsx>{`
-        .services-hero {
-          background: linear-gradient(135deg, var(--warm-grey-1) 0%, var(--warm-grey-3) 100%);
-          text-align: center;
-        }
-
-        .service-promo {
-          margin-bottom: var(--spacing-2xl);
-          padding-bottom: var(--spacing-xl);
-          border-bottom: 2px solid var(--warm-grey-1);
-        }
-
-        .service-promo:last-child {
-          border-bottom: none;
-        }
-
-        .service-header {
-          margin-bottom: var(--spacing-lg);
-        }
-
-        .service-header h2 {
-          margin-bottom: var(--spacing-sm);
-        }
-
-        .service-content-grid {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: var(--spacing-lg);
-          margin-bottom: var(--spacing-md);
-        }
-
-        .service-bullets {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: var(--spacing-md);
-        }
-
-        .bullets-column ul {
-          list-style: none;
-        }
-
-        .bullets-column li {
-          padding: 0.5rem 0;
-          padding-left: 1.5rem;
-          position: relative;
-        }
-
-        .bullets-column li:before {
-          content: '•';
-          position: absolute;
-          left: 0;
-          color: var(--sbd-gold);
-          font-weight: bold;
-        }
-
-        .service-images {
-          display: grid;
-          gap: var(--spacing-md);
-        }
-
-        .images-1 {
-          grid-template-columns: 1fr;
-        }
-
-        .images-2 {
-          grid-template-columns: 1fr 1fr;
-        }
-
-        .service-image-placeholder {
-          width: 100%;
-          height: 300px;
-          background: var(--warm-grey-1);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: var(--warm-grey-3);
-          border-radius: 8px;
-        }
-
-        .service-cta {
-          text-align: center;
-        }
-
-        @media (max-width: 768px) {
-          .service-bullets {
-            grid-template-columns: 1fr;
-          }
-
-          .images-2 {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
     </div>
   );
 }

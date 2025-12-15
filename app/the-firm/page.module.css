@@ -1,0 +1,139 @@
+.firmHero {
+  height: 400px;
+  background: linear-gradient(135deg, var(--warm-grey-1) 0%, var(--warm-grey-3) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.firmHeroImage h1 {
+  color: var(--sbd-brown);
+  font-size: 75px;
+}
+
+.twoColumn {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xl);
+  align-items: center;
+}
+
+.columnContent h2 {
+  margin-bottom: var(--spacing-md);
+}
+
+.columnContent p {
+  margin-bottom: var(--spacing-sm);
+}
+
+.columnImage {
+  width: 100%;
+}
+
+.placeholderImage {
+  width: 100%;
+  height: 400px;
+  background: var(--warm-grey-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--warm-grey-3);
+  border-radius: 8px;
+}
+
+.largeText {
+  font-size: 24px;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.videoWrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  background: var(--warm-grey-1);
+  border-radius: 8px;
+}
+
+.videoPlaceholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--warm-grey-3);
+}
+
+.twoColumnList {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xl);
+}
+
+.columnList h4 {
+  margin-bottom: var(--spacing-sm);
+  color: var(--sbd-gold);
+}
+
+.columnList ul {
+  list-style: none;
+}
+
+.columnList li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--warm-grey-1);
+}
+
+.featureList {
+  margin-top: var(--spacing-md);
+  list-style: none;
+}
+
+.featureList li {
+  padding: 0.75rem 0;
+  padding-left: 2rem;
+  position: relative;
+}
+
+.featureList li:before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--sbd-gold);
+  font-weight: bold;
+}
+
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md);
+}
+
+.galleryItem .placeholderImage {
+  height: 300px;
+}
+
+@media (max-width: 968px) {
+  .twoColumn,
+  .twoColumnList {
+    grid-template-columns: 1fr;
+  }
+
+  .galleryGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .firmHeroImage h1 {
+    font-size: 48px;
+  }
+
+  .galleryGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
