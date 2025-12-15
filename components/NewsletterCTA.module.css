@@ -1,0 +1,30 @@
+.newsletterCta {
+  background-color: var(--warm-grey-1);
+  padding: var(--spacing-xl) 0;
+  text-align: center;
+}
+
+.newsletterCtaContainer {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+.newsletterCtaHeading {
+  font-size: 42px;
+  color: var(--sbd-brown);
+  margin-bottom: var(--spacing-sm);
+}
+
+.newsletterCtaText {
+  font-size: 19px;
+  color: var(--sbd-brown);
+  margin-bottom: var(--spacing-md);
+}
+
+@media (max-width: 768px) {
+  .newsletterCtaHeading {
+    font-size: 32px;
+  }
+}
+

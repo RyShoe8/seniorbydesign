@@ -32,7 +32,14 @@ export default function Header() {
     <header className="header">
       <div className="header-container">
         <Link href="/" className="header-logo">
-          <span className="logo-text">Senior By Design</span>
+          <Image
+            src="/images/SBD_Logo.webp"
+            alt="Senior By Design"
+            width={150}
+            height={150}
+            className="logo-image"
+            priority
+          />
         </Link>
 
         {/* Desktop Navigation */}
@@ -92,11 +99,14 @@ export default function Header() {
         }
 
         .header-logo {
-          font-family: var(--font-heading);
-          font-size: 28px;
-          font-weight: 600;
-          color: var(--sbd-brown);
+          display: flex;
+          align-items: center;
           text-decoration: none;
+        }
+
+        .logo-image {
+          height: 150px;
+          width: auto;
         }
 
         .desktop-nav {
@@ -176,8 +186,8 @@ export default function Header() {
             height: 70px;
           }
 
-          .header-logo {
-            font-size: 22px;
+          .logo-image {
+            height: 90px;
           }
 
           .desktop-nav {
