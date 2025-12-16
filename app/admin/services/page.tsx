@@ -16,6 +16,10 @@ export default function ServicesManagement() {
   const [isLoading, setIsLoading] = useState(true);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [uploadingHero, setUploadingHero] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [heroImageUrl, setHeroImageUrl] = useState<string>('');
+  const [additionalImages, setAdditionalImages] = useState<string[]>([]);
 
   useEffect(() => {
     fetchServices();
@@ -50,18 +54,101 @@ export default function ServicesManagement() {
 
   const handleEdit = (service: Service) => {
     setEditingService(service);
+    setHeroImageUrl(service.heroImage || '');
+    setAdditionalImages(service.images || []);
     setShowForm(true);
+  };
+
+  const handleHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingHero(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', 'services');
+
+    try {
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setHeroImageUrl(data.url);
+      } else {
+        alert('Failed to upload hero image');
+      }
+    } catch (error) {
+      console.error('Error uploading hero image:', error);
+      alert('Error uploading hero image');
+    } finally {
+      setUploadingHero(false);
+    }
+  };
+
+  const handleAdditionalImagesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingImages(true);
+    const uploadedUrls: string[] = [];
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', 'services');
+
+        const response = await fetch('/api/admin/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          uploadedUrls.push(data.url);
+        }
+      }
+
+      setAdditionalImages([...additionalImages, ...uploadedUrls]);
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      alert('Error uploading images');
+    } finally {
+      setUploadingImages(false);
+      // Reset the input
+      e.target.value = '';
+    }
+  };
+
+  const removeAdditionalImage = (index: number) => {
+    setAdditionalImages(additionalImages.filter((_, i) => i !== index));
   };
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    
+    // Get manually entered URLs (only new ones not already in additionalImages)
+    const manualImages = (formData.get('images') as string)
+      ?.split('\n')
+      .filter(img => img.trim() && !additionalImages.includes(img.trim())) || [];
+    
+    // Combine uploaded/existing images with manually entered URLs
+    const allImages = [...additionalImages, ...manualImages];
+
+    // Use uploaded hero image or fall back to manual URL input
+    const finalHeroImage = heroImageUrl || (formData.get('heroImage') as string) || '';
+
     const data = {
       slug: formData.get('slug') as string,
       title: formData.get('title') as string,
-      heroImage: formData.get('heroImage') as string,
+      heroImage: finalHeroImage,
       body: formData.get('body') as string,
-      images: (formData.get('images') as string).split('\n').filter(img => img.trim()),
+      images: allImages,
     };
 
     try {
@@ -79,10 +166,13 @@ export default function ServicesManagement() {
         fetchServices();
         setShowForm(false);
         setEditingService(null);
+        setHeroImageUrl('');
+        setAdditionalImages([]);
         (e.target as HTMLFormElement).reset();
       }
     } catch (error) {
       console.error('Error saving service:', error);
+      alert('Error saving service');
     }
   };
 
@@ -90,7 +180,15 @@ export default function ServicesManagement() {
     <div className="admin-page">
       <div className="admin-header">
         <h1>Services Management</h1>
-        <button onClick={() => { setShowForm(true); setEditingService(null); }} className="btn">
+        <button 
+          onClick={() => { 
+            setShowForm(true); 
+            setEditingService(null);
+            setHeroImageUrl('');
+            setAdditionalImages([]);
+          }} 
+          className="btn"
+        >
           Add Service
         </button>
       </div>
@@ -122,13 +220,38 @@ export default function ServicesManagement() {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="heroImage">Hero Image URL</label>
+                <label htmlFor="heroImageUpload">Hero Image</label>
                 <input
-                  type="url"
-                  id="heroImage"
-                  name="heroImage"
-                  defaultValue={editingService?.heroImage || ''}
+                  type="file"
+                  id="heroImageUpload"
+                  name="heroImageUpload"
+                  accept="image/*"
+                  onChange={handleHeroImageUpload}
+                  disabled={uploadingHero}
                 />
+                {uploadingHero && <p className="upload-status">Uploading...</p>}
+                {heroImageUrl && (
+                  <div className="image-preview">
+                    <img src={heroImageUrl} alt="Hero preview" className="preview-image" />
+                    <button
+                      type="button"
+                      className="btn-small btn-danger"
+                      onClick={() => setHeroImageUrl('')}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+                <div className="form-group" style={{ marginTop: '1rem' }}>
+                  <label htmlFor="heroImage">Or enter Hero Image URL</label>
+                  <input
+                    type="url"
+                    id="heroImage"
+                    name="heroImage"
+                    defaultValue={editingService?.heroImage || ''}
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
               </div>
               <div className="form-group">
                 <label htmlFor="body">Body Content *</label>
@@ -141,18 +264,61 @@ export default function ServicesManagement() {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="images">Image URLs (one per line)</label>
-                <textarea
-                  id="images"
-                  name="images"
-                  rows={6}
-                  defaultValue={editingService?.images.join('\n') || ''}
-                  placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
+                <label htmlFor="imagesUpload">Additional Images</label>
+                <input
+                  type="file"
+                  id="imagesUpload"
+                  name="imagesUpload"
+                  accept="image/*"
+                  multiple
+                  onChange={handleAdditionalImagesUpload}
+                  disabled={uploadingImages}
                 />
+                {uploadingImages && <p className="upload-status">Uploading...</p>}
+                {additionalImages.length > 0 && (
+                  <div className="uploaded-images">
+                    <p>Uploaded Images:</p>
+                    <div className="images-grid">
+                      {additionalImages.map((url, index) => (
+                        <div key={index} className="image-item">
+                          <img src={url} alt={`Upload ${index + 1}`} className="preview-image-small" />
+                          <button
+                            type="button"
+                            className="btn-small btn-danger"
+                            onClick={() => removeAdditionalImage(index)}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div className="form-group" style={{ marginTop: '1rem' }}>
+                  <label htmlFor="images">Or add Image URLs (one per line)</label>
+                  <textarea
+                    id="images"
+                    name="images"
+                    rows={6}
+                    placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
+                  />
+                  <small style={{ color: 'var(--warm-grey-3)', fontSize: '14px', display: 'block', marginTop: '0.5rem' }}>
+                    Note: Images uploaded above and URLs entered here will both be included
+                  </small>
+                </div>
               </div>
               <div className="form-actions">
                 <button type="submit" className="btn">Save</button>
-                <button type="button" className="btn-secondary" onClick={() => { setShowForm(false); setEditingService(null); }}>
+                <button 
+                  type="button" 
+                  className="btn-secondary" 
+                  onClick={() => { 
+                    setShowForm(false); 
+                    setEditingService(null);
+                    setHeroImageUrl('');
+                    setAdditionalImages([]);
+                  }}
+                >
                   Cancel
                 </button>
               </div>
@@ -281,6 +447,63 @@ export default function ServicesManagement() {
 
         .btn-danger {
           background: #dc3545;
+          color: #fff;
+        }
+
+        .btn-danger:hover {
+          background: #c82333;
+        }
+
+        .upload-status {
+          color: var(--sbd-gold);
+          font-size: 14px;
+          margin-top: 0.5rem;
+        }
+
+        .image-preview {
+          margin-top: 1rem;
+          padding: 1rem;
+          background: var(--warm-grey-1);
+          border-radius: 4px;
+        }
+
+        .preview-image {
+          max-width: 100%;
+          max-height: 200px;
+          display: block;
+          margin-bottom: 0.5rem;
+          border-radius: 4px;
+        }
+
+        .preview-image-small {
+          max-width: 100%;
+          max-height: 100px;
+          display: block;
+          border-radius: 4px;
+        }
+
+        .uploaded-images {
+          margin-top: 1rem;
+        }
+
+        .images-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          gap: 1rem;
+          margin-top: 0.5rem;
+        }
+
+        .image-item {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          padding: 0.5rem;
+          background: var(--warm-grey-1);
+          border-radius: 4px;
+        }
+
+        .image-item button {
+          width: 100%;
         }
       `}</style>
     </div>

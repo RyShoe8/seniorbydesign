@@ -38,13 +38,23 @@ export async function POST(request: Request) {
     
     const existing = await collection.findOne({});
     
+    const existing = await collection.findOne({});
+    const currentContent = existing || {
+      heroHeadline: 'Soul Warming Interiors',
+      heroSubheadline: 'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.',
+      heroVideo: '',
+      portfolioHighlights: [],
+      testimonials: [],
+      partners: [],
+    };
+
     const content = {
-      heroHeadline: body.heroHeadline,
-      heroSubheadline: body.heroSubheadline,
-      heroVideo: body.heroVideo || '',
-      portfolioHighlights: body.portfolioHighlights || [],
-      testimonials: body.testimonials || [],
-      partners: body.partners || [],
+      heroHeadline: currentContent.heroHeadline,
+      heroSubheadline: currentContent.heroSubheadline,
+      heroVideo: currentContent.heroVideo || '',
+      portfolioHighlights: body.portfolioHighlights || currentContent.portfolioHighlights || [],
+      testimonials: currentContent.testimonials || [],
+      partners: currentContent.partners || [],
       updatedAt: new Date(),
     };
 

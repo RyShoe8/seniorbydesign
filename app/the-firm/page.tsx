@@ -75,8 +75,8 @@ export default function TheFirm() {
       {/* Communities We Serve */}
       <section className="firm-section section-padding">
         <div className="container">
-          <h2>Communities We Serve</h2>
-          <div className={styles.twoColumnList}>
+          <h2 className={styles.centeredHeading}>Communities We Serve</h2>
+          <div className={styles.twoColumnListCentered}>
             <div className={styles.columnList}>
               <h4>Senior Living</h4>
               <ul>
@@ -114,17 +114,19 @@ export default function TheFirm() {
       {/* 35,000 sq.ft. Design Center */}
       <section className="firm-section section-padding bg-warm-grey">
         <div className="container">
-          <h2>35,000 sq.ft. Design Center</h2>
-          <p>
-            Working beyond the constraints of catalogs gives us the opportunity to foster longstanding relationships with international artisans across Europe, Indonesia, Bali, Mexico, and China, so we can incorporate bespoke pieces that transform otherwise ordinary spaces. Our 35,000 square foot warehouse enables us to source and store readily available, timeless pieces. Our turnkey approach results in individualized design that is intelligent, elegant, unique and functional. We consider every piece of furniture from the perspective of our senior residents to ensure that our spaces are not only beautiful, but also maintain the highest standards for both comfort and long-term wearability.
-          </p>
-          <ul className={styles.featureList}>
-            <li>Saves money not using receivers</li>
-            <li>Product always arrives on time</li>
-            <li>Packaged with staging photography for easy & precise assembly</li>
-            <li>Fine furniture at a great price</li>
-            <li>Unique world wide assortment of product</li>
-          </ul>
+          <div className={styles.centeredContent}>
+            <h2 className={styles.centeredHeading}>35,000 sq.ft. Design Center</h2>
+            <p className={styles.centeredParagraph}>
+              Working beyond the constraints of catalogs gives us the opportunity to foster longstanding relationships with international artisans across Europe, Indonesia, Bali, Mexico, and China, so we can incorporate bespoke pieces that transform otherwise ordinary spaces. Our 35,000 square foot warehouse enables us to source and store readily available, timeless pieces. Our turnkey approach results in individualized design that is intelligent, elegant, unique and functional. We consider every piece of furniture from the perspective of our senior residents to ensure that our spaces are not only beautiful, but also maintain the highest standards for both comfort and long-term wearability.
+            </p>
+            <ul className={styles.featureListCentered}>
+              <li>Saves money not using receivers</li>
+              <li>Product always arrives on time</li>
+              <li>Packaged with staging photography for easy & precise assembly</li>
+              <li>Fine furniture at a great price</li>
+              <li>Unique world wide assortment of product</li>
+            </ul>
+          </div>
         </div>
       </section>
 

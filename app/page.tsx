@@ -19,27 +19,22 @@ export default async function Home() {
       {/* Hero Section */}
       <section className={styles.heroSection}>
         <div className={styles.heroVideoContainer}>
-          {homepageContent?.heroVideo ? (
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className={styles.heroVideo}
-            >
-              <source src={homepageContent.heroVideo} type="video/mp4" />
-            </video>
-          ) : (
-            <div className={styles.heroPlaceholder} />
-          )}
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className={styles.heroVideo}
+          >
+            <source src="/videos/hero-video.mp4" type="video/mp4" />
+          </video>
           <div className={styles.heroOverlay}>
             <div className={styles.heroContent}>
               <h1 className={styles.heroHeadline}>
-                {homepageContent?.heroHeadline || 'Soul Warming Interiors'}
+                Soul Warming Interiors
               </h1>
               <p className={styles.heroSubheadline}>
-                {homepageContent?.heroSubheadline || 
-                  'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.'}
+                From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.
               </p>
               <a href="#our-work" className="btn">Explore Our Work</a>
             </div>
