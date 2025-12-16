@@ -96,7 +96,7 @@ export default async function Home() {
       {partners.length > 0 && (
         <section className="partners-section section-padding">
           <div className="container">
-            <h2 className={`${styles.sectionHeading} text-center`}>You're In Good Hands</h2>
+            <h2 className={`${styles.sectionHeading} text-center`}>You&apos;re In Good Hands</h2>
             <div className={styles.partnersGrid}>
               {partners.map((partner) => (
                 <div key={partner._id?.toString()} className={styles.partnerLogo}>
