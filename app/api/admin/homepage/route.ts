@@ -37,8 +37,6 @@ export async function POST(request: Request) {
     const collection = await getHomepageContentCollection();
     
     const existing = await collection.findOne({});
-    
-    const existing = await collection.findOne({});
     const currentContent = existing || {
       heroHeadline: 'Soul Warming Interiors',
       heroSubheadline: 'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.',
