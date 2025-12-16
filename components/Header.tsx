@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   const navItems = [
     { href: '/', label: 'Home' },
@@ -44,11 +46,18 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <nav className="header-nav desktop-nav">
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className="nav-link">
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href));
+            return (
+              <Link 
+                key={item.href} 
+                href={item.href} 
+                className={`nav-link ${isActive ? 'active' : ''}`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Mobile Menu Button */}
@@ -67,16 +76,19 @@ export default function Header() {
 
       {/* Mobile Navigation */}
       <nav className={`mobile-nav ${isMobileMenuOpen ? 'open' : ''}`}>
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="mobile-nav-link"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            {item.label}
-          </Link>
-        ))}
+        {navItems.map((item) => {
+          const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href));
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`mobile-nav-link ${isActive ? 'active' : ''}`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
 
       <style jsx>{`
@@ -119,11 +131,53 @@ export default function Header() {
           font-size: 19px;
           color: var(--sbd-brown);
           text-decoration: none;
-          transition: color 0.3s ease;
+          padding: 0.75rem 1.25rem;
+          border-radius: 6px;
+          position: relative;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          display: inline-block;
+        }
+
+        .nav-link::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(203, 172, 109, 0.1);
+          border-radius: 6px;
+          opacity: 0;
+          transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: -1;
         }
 
         .nav-link:hover {
           color: var(--sbd-gold);
+          transform: translateY(-3px);
+          box-shadow: 0 6px 16px rgba(89, 56, 37, 0.2);
+        }
+
+        .nav-link:hover::before {
+          opacity: 1;
+          background: rgba(203, 172, 109, 0.15);
+        }
+
+        .nav-link:active {
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(89, 56, 37, 0.15);
+        }
+
+        .nav-link.active {
+          color: var(--sbd-gold);
+          background-color: rgba(203, 172, 109, 0.15);
+          box-shadow: 0 4px 12px rgba(89, 56, 37, 0.15);
+          font-weight: 500;
+        }
+
+        .nav-link.active:hover {
+          background-color: rgba(203, 172, 109, 0.2);
+          box-shadow: 0 6px 16px rgba(89, 56, 37, 0.25);
         }
 
         .mobile-menu-button {
@@ -188,6 +242,13 @@ export default function Header() {
           color: var(--sbd-gold);
           background-color: rgba(203, 172, 109, 0.1);
           box-shadow: 0 2px 8px rgba(89, 56, 37, 0.1);
+          transform: translateX(4px);
+        }
+
+        .mobile-nav-link.active {
+          color: var(--sbd-gold);
+          background-color: rgba(203, 172, 109, 0.15);
+          font-weight: 600;
         }
 
         @media (max-width: 768px) {
