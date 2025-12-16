@@ -70,20 +70,22 @@ export default async function Home() {
         <section className="testimonials-section section-padding bg-warm-grey">
           <div className="container">
             <h2 className={`${styles.sectionHeading} text-center`}>Words From Our Clients</h2>
-            <div className={styles.testimonialsGrid}>
-              {homepageContent.testimonials.map((testimonial, index) => (
-                testimonial && testimonial.review ? (
-                  <div key={index} className={styles.testimonialCard}>
-                    <p className={styles.testimonialText}>&ldquo;{testimonial.review}&rdquo;</p>
-                    <div className={styles.testimonialAuthor}>
-                      <p className={styles.testimonialName}>{testimonial.name || ''}</p>
-                      <p className={styles.testimonialPosition}>
-                        {testimonial.position || ''}{testimonial.position && testimonial.company ? ', ' : ''}{testimonial.company || ''}
-                      </p>
+            <div className={styles.testimonialsCarousel}>
+              <div className={styles.testimonialsCarouselTrack}>
+                {homepageContent.testimonials.map((testimonial, index) => (
+                  testimonial && testimonial.review ? (
+                    <div key={index} className={styles.testimonialCard}>
+                      <p className={styles.testimonialText}>&ldquo;{testimonial.review}&rdquo;</p>
+                      <div className={styles.testimonialAuthor}>
+                        <p className={styles.testimonialName}>{testimonial.name || ''}</p>
+                        <p className={styles.testimonialPosition}>
+                          {testimonial.position || ''}{testimonial.position && testimonial.company ? ', ' : ''}{testimonial.company || ''}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ) : null
-              ))}
+                  ) : null
+                ))}
+              </div>
             </div>
           </div>
         </section>
