@@ -70,11 +70,11 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Words From Our Clients Section */}
       {homepageContent?.testimonials && homepageContent.testimonials.length > 0 && (
         <section className="testimonials-section section-padding bg-warm-grey">
           <div className="container">
-            <h2 className={`${styles.sectionHeading} text-center`}>Words from our clients</h2>
+            <h2 className={`${styles.sectionHeading} text-center`}>Words From Our Clients</h2>
             <div className={styles.testimonialsGrid}>
               {homepageContent.testimonials.map((testimonial, index) => (
                 <div key={index} className={styles.testimonialCard}>
@@ -92,14 +92,11 @@ export default async function Home() {
         </section>
       )}
 
-      {/* Newsletter CTA */}
-      <NewsletterCTA />
-
-      {/* Partners Section */}
+      {/* You're In Good Hands Section */}
       {partners.length > 0 && (
         <section className="partners-section section-padding">
           <div className="container">
-            <h2 className={`${styles.sectionHeading} text-center`}>You Are In Good Hands</h2>
+            <h2 className={`${styles.sectionHeading} text-center`}>You're In Good Hands</h2>
             <div className={styles.partnersGrid}>
               {partners.map((partner) => (
                 <div key={partner._id?.toString()} className={styles.partnerLogo}>
@@ -126,6 +123,9 @@ export default async function Home() {
           </div>
         </section>
       )}
+
+      {/* Newsletter CTA */}
+      <NewsletterCTA />
     </>
   );
 }

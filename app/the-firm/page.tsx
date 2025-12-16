@@ -14,6 +14,13 @@ export default function TheFirm() {
       {/* Header Image */}
       <section className={styles.firmHero}>
         <div className={styles.firmHeroImage}>
+          <Image
+            src="/images/The Firm/The Firm Header.webp"
+            alt="The Firm"
+            fill
+            className={styles.heroImage}
+            priority
+          />
           <h1>The Firm</h1>
         </div>
       </section>
@@ -35,7 +42,13 @@ export default function TheFirm() {
               </p>
             </div>
             <div className={styles.columnImage}>
-              <div className={styles.placeholderImage}>Image Placeholder</div>
+              <Image
+                src="/images/The Firm/Culture.webp"
+                alt="Company Culture"
+                width={600}
+                height={400}
+                className={styles.cultureImage}
+              />
             </div>
           </div>
         </div>
@@ -128,9 +141,15 @@ export default function TheFirm() {
       <section className="firm-gallery section-padding">
         <div className="container">
           <div className={styles.galleryGrid}>
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+            {[2, 3, 4, 5, 6].map((i) => (
               <div key={i} className={styles.galleryItem}>
-                <div className={styles.placeholderImage}>Image {i}</div>
+                <Image
+                  src={`/images/The Firm/The Firm Warehouse ${i}.webp`}
+                  alt={`Warehouse ${i}`}
+                  width={400}
+                  height={300}
+                  className={styles.galleryImage}
+                />
               </div>
             ))}
           </div>

@@ -70,3 +70,4 @@ export async function getHomepageContentCollection() {
   return db.collection<HomepageContent>('homepageContent');
 }
 
+

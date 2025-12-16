@@ -3,14 +3,13 @@ import Link from 'next/link';
 export default function Footer() {
   const companyLinks = [
     { href: '/the-firm', label: 'The Firm' },
-    { href: '/the-firm#about', label: 'About Us' },
+    { href: '/team', label: 'The Team' },
     { href: '/contact', label: 'Contact' },
     { href: '/privacy-policy', label: 'Privacy Policy' },
   ];
 
   const servicesLinks = [
     { href: '/services', label: 'Services' },
-    { href: '/team', label: 'The Team' },
   ];
 
   const workLinks = [
@@ -156,4 +155,5 @@ export default function Footer() {
     </footer>
   );
 }
+
 

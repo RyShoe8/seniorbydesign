@@ -12,7 +12,7 @@ export default function Header() {
     { href: '/the-firm', label: 'The Firm' },
     { href: '/services', label: 'Services' },
     { href: '/portfolio', label: 'Portfolio' },
-    { href: '/team', label: 'Team' },
+    { href: '/team', label: 'The Team' },
     { href: '/blog', label: 'Blog' },
     { href: '/contact', label: 'Contact' },
   ];
@@ -174,11 +174,20 @@ export default function Header() {
         }
 
         .mobile-nav-link {
-          padding: 1rem 0;
+          padding: 1rem;
           font-family: var(--font-body);
           font-size: 19px;
           color: var(--sbd-brown);
           border-bottom: 1px solid var(--warm-grey-1);
+          transition: all 0.3s ease;
+          border-radius: 4px;
+          margin: 0.25rem 0;
+        }
+
+        .mobile-nav-link:hover {
+          color: var(--sbd-gold);
+          background-color: rgba(203, 172, 109, 0.1);
+          box-shadow: 0 2px 8px rgba(89, 56, 37, 0.1);
         }
 
         @media (max-width: 768px) {

@@ -1,14 +1,39 @@
 .firmHero {
-  height: 400px;
-  background: linear-gradient(135deg, var(--warm-grey-1) 0%, var(--warm-grey-3) 100%);
+  position: relative;
+  height: 500px;
+  overflow: hidden;
+}
+
+.firmHeroImage {
+  position: relative;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.firmHeroImage::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(89, 56, 37, 0.4);
+  z-index: 1;
+}
+
 .firmHeroImage h1 {
-  color: var(--sbd-brown);
+  position: relative;
+  z-index: 2;
+  color: #fff;
   font-size: 75px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.heroImage {
+  object-fit: cover;
 }
 
 .twoColumn {
@@ -28,6 +53,13 @@
 
 .columnImage {
   width: 100%;
+}
+
+.cultureImage {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
 }
 
 .placeholderImage {
@@ -112,6 +144,24 @@
   gap: var(--spacing-md);
 }
 
+.galleryItem {
+  overflow: hidden;
+  border-radius: 8px;
+  aspect-ratio: 4 / 3;
+  position: relative;
+}
+
+.galleryImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.galleryItem:hover .galleryImage {
+  transform: scale(1.05);
+}
+
 .galleryItem .placeholderImage {
   height: 300px;
 }
@@ -136,4 +186,5 @@
     grid-template-columns: 1fr;
   }
 }
+
 
