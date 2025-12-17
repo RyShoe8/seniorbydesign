@@ -111,7 +111,7 @@ export default function MediaManagement() {
                 </div>
               </div>
               
-              {editingItem?._id === item._id ? (
+              {editingItem?._id === item._id && editingItem ? (
                 <div className="media-edit-form">
                   <div className="form-group">
                     <label>Display Name</label>
