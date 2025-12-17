@@ -143,6 +143,9 @@
 
 .testimonials-section {
   overflow: visible !important;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
 }
 
 @media (max-width: 768px) {
