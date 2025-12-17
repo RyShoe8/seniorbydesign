@@ -80,6 +80,9 @@ export default function AdminLayout({
           <Link href="/admin/resources" className={`nav-item ${pathname === '/admin/resources' ? 'active' : ''}`}>
             Resources & Links
           </Link>
+          <Link href="/admin/media" className={`nav-item ${pathname === '/admin/media' ? 'active' : ''}`}>
+            Media Library
+          </Link>
         </nav>
       </aside>
       <main className="admin-main">

@@ -111,4 +111,17 @@ export interface HomepageContent {
   updatedAt: Date;
 }
 
+export interface Media {
+  _id?: ObjectId;
+  filePath: string;
+  displayName: string;
+  altText: string;
+  folder?: string;
+  fileSize?: number;
+  width?: number;
+  height?: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 

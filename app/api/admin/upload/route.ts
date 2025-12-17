@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { getMediaCollection } from '@/lib/db';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
@@ -46,6 +47,24 @@ export async function POST(request: Request) {
 
     // Return the public URL
     const publicUrl = `/images/${folder}/${filename}`;
+    
+    // Add to media collection
+    try {
+      const mediaCollection = await getMediaCollection();
+      const displayName = originalName.replace(/\.[^/.]+$/, '');
+      await mediaCollection.insertOne({
+        filePath: publicUrl,
+        displayName: displayName,
+        altText: '',
+        folder: `images/${folder}`,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    } catch (error) {
+      console.error('Error adding to media collection:', error);
+      // Don't fail the upload if media collection update fails
+    }
+    
     return NextResponse.json({ url: publicUrl });
   } catch (error) {
     console.error('Error uploading file:', error);

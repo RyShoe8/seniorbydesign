@@ -10,6 +10,7 @@ import {
   Resource,
   Partner,
   HomepageContent,
+  Media,
 } from './models';
 
 const DB_NAME = 'seniorbydesign';
@@ -68,6 +69,11 @@ export async function getPartnersCollection() {
 export async function getHomepageContentCollection() {
   const db = await getDb();
   return db.collection<HomepageContent>('homepageContent');
+}
+
+export async function getMediaCollection() {
+  const db = await getDb();
+  return db.collection<Media>('media');
 }
 
 
