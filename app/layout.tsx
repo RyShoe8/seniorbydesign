@@ -6,6 +6,10 @@ import ConditionalLayout from '@/components/ConditionalLayout'
 export const metadata: Metadata = {
   title: 'Senior By Design',
   description: 'High-end corporate website for designing spaces for seniors',
+  icons: {
+    icon: '/images/SBD Logo.webp',
+    apple: '/images/SBD Logo.webp',
+  },
 }
 
 export default function RootLayout({

@@ -17,6 +17,7 @@
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  min-width: 0;
 }
 
 .carousel::-webkit-scrollbar {
@@ -36,8 +37,8 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   flex: 0 0 auto;
-  width: calc((min(100vw, var(--container-max-width)) - 56px * 2 - var(--spacing-sm) * 2 - var(--spacing-md)) / 2);
-  max-width: 550px;
+  width: calc((min(100vw, var(--container-max-width)) - 56px * 2 - var(--spacing-sm) * 2 - var(--spacing-md) * 2) / 2);
+  max-width: 520px;
   min-width: 300px;
   scroll-snap-align: start;
   scroll-snap-stop: always;

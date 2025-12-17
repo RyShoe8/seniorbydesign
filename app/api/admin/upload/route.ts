@@ -93,10 +93,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ url: publicUrl });
   } catch (error: any) {
     console.error('Error uploading file:', error);
+    
+    // Provide more specific error messages
+    let errorMessage = 'Failed to upload file';
+    let errorDetails = error.message || 'Unknown error';
+    
+    if (error.message?.includes('BLOB_READ_WRITE_TOKEN')) {
+      errorMessage = 'Vercel Blob Storage token is missing or invalid';
+      errorDetails = 'Please configure BLOB_READ_WRITE_TOKEN in your Vercel environment variables';
+    } else if (error.message?.includes('Cannot find module')) {
+      errorMessage = 'Vercel Blob Storage package not installed';
+      errorDetails = 'Please install @vercel/blob package: npm install @vercel/blob';
+    }
+    
     return NextResponse.json(
       { 
-        error: 'Failed to upload file',
-        details: error.message || 'Unknown error'
+        error: errorMessage,
+        details: errorDetails,
+        code: error.code || 'UPLOAD_ERROR'
       },
       { status: 500 }
     );

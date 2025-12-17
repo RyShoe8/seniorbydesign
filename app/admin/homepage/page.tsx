@@ -191,11 +191,12 @@ export default function HomepageManagement() {
         const data = await response.json();
         setLogoUrl(data.url);
       } else {
-        alert('Failed to upload logo');
+        const errorData = await response.json().catch(() => ({ error: 'Failed to upload logo' }));
+        alert(`Failed to upload logo: ${errorData.error || 'Unknown error'}\n\n${errorData.details || ''}\n\n${errorData.instructions || ''}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading logo:', error);
-      alert('Error uploading logo');
+      alert(`Error uploading logo: ${error.message || 'Unknown error'}`);
     } finally {
       setUploadingLogo(false);
     }
