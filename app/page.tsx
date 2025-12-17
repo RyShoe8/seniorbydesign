@@ -10,10 +10,18 @@ export const metadata: Metadata = {
   description: 'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.',
 };
 
+export const revalidate = 0; // Always fetch fresh data
+
 export default async function Home() {
   const homepageContent = await getHomepageContent();
   const portfolioCategories = await getPortfolioCategories();
   const partners = await getPartners();
+  
+  // Debug logging
+  console.log('Homepage partners count:', partners?.length || 0);
+  if (partners && partners.length > 0) {
+    console.log('First partner:', partners[0]);
+  }
 
   return (
     <>
@@ -80,29 +88,37 @@ export default async function Home() {
       <section className="partners-section section-padding">
         <div className="container">
           <h2 className={`${styles.sectionHeading} text-center`}>You&apos;re In Good Hands</h2>
-          {partners.length > 0 ? (
+          {partners && Array.isArray(partners) && partners.length > 0 ? (
             <div className={styles.partnersGrid}>
-              {partners.map((partner) => (
-                <div key={partner._id?.toString()} className={styles.partnerLogo}>
-                  {partner.url ? (
-                    <a href={partner.url} target="_blank" rel="noopener noreferrer">
+              {partners.map((partner) => {
+                if (!partner || !partner.logo) return null;
+                const logoUrl = partner.logo;
+                const altText = partner.altText || partner.displayName || partner.name || 'Partner logo';
+                
+                return (
+                  <div key={partner._id?.toString()} className={styles.partnerLogo}>
+                    {partner.url ? (
+                      <a href={partner.url} target="_blank" rel="noopener noreferrer">
+                        <Image
+                          src={logoUrl}
+                          alt={altText}
+                          width={150}
+                          height={100}
+                          unoptimized={logoUrl.startsWith('http')}
+                        />
+                      </a>
+                    ) : (
                       <Image
-                        src={partner.logo}
-                        alt={partner.altText || partner.displayName || partner.name}
+                        src={logoUrl}
+                        alt={altText}
                         width={150}
                         height={100}
+                        unoptimized={logoUrl.startsWith('http')}
                       />
-                    </a>
-                  ) : (
-                    <Image
-                      src={partner.logo}
-                      alt={partner.altText || partner.displayName || partner.name}
-                      width={150}
-                      height={100}
-                    />
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <p className="text-center" style={{ color: 'var(--warm-grey-3)', padding: 'var(--spacing-lg)' }}>
