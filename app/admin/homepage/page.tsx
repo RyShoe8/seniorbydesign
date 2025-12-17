@@ -355,7 +355,7 @@ export default function HomepageManagement() {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="displayName">Display Name *</label>
+                  <label htmlFor="displayName">File Name (Display Name) *</label>
                   <input
                     type="text"
                     id="displayName"
@@ -364,6 +364,9 @@ export default function HomepageManagement() {
                     defaultValue={editingPartner?.displayName || editingPartner?.name || ''}
                     placeholder="Company Name"
                   />
+                  <p style={{ fontSize: '14px', color: 'var(--warm-grey-3)', marginTop: '0.5rem' }}>
+                    This is the file name/display name for the logo.
+                  </p>
                 </div>
                 <div className="form-group">
                   <label htmlFor="altText">Alt Text *</label>

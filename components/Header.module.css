@@ -62,7 +62,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(203, 172, 109, 0.25), rgba(203, 172, 109, 0.4));
+  background: linear-gradient(135deg, rgba(203, 172, 109, 0.1), rgba(203, 172, 109, 0.2));
   border-radius: 10px;
   opacity: 0;
   transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -72,24 +72,24 @@
 .navLink::after {
   content: '';
   position: absolute;
-  bottom: 0.4rem;
+  bottom: 0.5rem;
   left: 50%;
   transform: translateX(-50%) scaleX(0);
-  width: 70%;
-  height: 4px;
+  width: 60%;
+  height: 2px;
   background: var(--sbd-gold);
-  border-radius: 2px;
+  border-radius: 1px;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .navLink:hover {
   color: var(--sbd-gold);
-  transform: translateY(-8px) scale(1.1);
-  box-shadow: 0 15px 35px rgba(89, 56, 37, 0.5), 0 0 0 4px rgba(203, 172, 109, 0.6);
-  border-color: rgba(203, 172, 109, 0.7);
-  font-weight: 700;
-  background: linear-gradient(135deg, rgba(203, 172, 109, 0.3), rgba(203, 172, 109, 0.4));
-  letter-spacing: 0.5px;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(89, 56, 37, 0.15);
+  border-color: rgba(203, 172, 109, 0.4);
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(203, 172, 109, 0.15), rgba(203, 172, 109, 0.2));
+  letter-spacing: 0.1px;
 }
 
 .navLink:hover::before {
@@ -101,16 +101,16 @@
 }
 
 .navLink:active {
-  transform: translateY(-3px) scale(1.04);
-  box-shadow: 0 6px 18px rgba(89, 56, 37, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(89, 56, 37, 0.2);
 }
 
 .navLink.active {
   color: var(--sbd-gold);
-  background: linear-gradient(135deg, rgba(203, 172, 109, 0.25), rgba(203, 172, 109, 0.3));
-  box-shadow: 0 8px 24px rgba(89, 56, 37, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.2);
-  border-color: rgba(203, 172, 109, 0.6);
-  font-weight: 700;
+  background: linear-gradient(135deg, rgba(203, 172, 109, 0.15), rgba(203, 172, 109, 0.2));
+  box-shadow: 0 2px 8px rgba(89, 56, 37, 0.1);
+  border-color: rgba(203, 172, 109, 0.4);
+  font-weight: 600;
 }
 
 .navLink.active::after {
@@ -118,10 +118,10 @@
 }
 
 .navLink.active:hover {
-  background: linear-gradient(135deg, rgba(203, 172, 109, 0.4), rgba(203, 172, 109, 0.5));
-  box-shadow: 0 15px 35px rgba(89, 56, 37, 0.5), 0 0 0 4px rgba(203, 172, 109, 0.7);
-  transform: translateY(-8px) scale(1.1);
-  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, rgba(203, 172, 109, 0.2), rgba(203, 172, 109, 0.25));
+  box-shadow: 0 4px 12px rgba(89, 56, 37, 0.15);
+  transform: translateY(-2px);
+  letter-spacing: 0.1px;
 }
 
 .mobileMenuButton {
@@ -215,11 +215,11 @@
 
 .mobileNavLink.active {
   color: var(--sbd-gold);
-  background: linear-gradient(90deg, rgba(203, 172, 109, 0.25), rgba(203, 172, 109, 0.15));
+  background: linear-gradient(90deg, rgba(203, 172, 109, 0.15), rgba(203, 172, 109, 0.1));
   border-left-color: var(--sbd-gold);
-  font-weight: 700;
-  padding-left: 1.5rem;
-  box-shadow: 0 4px 12px rgba(89, 56, 37, 0.15);
+  font-weight: 600;
+  padding-left: 1.25rem;
+  box-shadow: 0 2px 6px rgba(89, 56, 37, 0.1);
 }
 
 .mobileNavLink.active::before {

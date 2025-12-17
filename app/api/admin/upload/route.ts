@@ -30,8 +30,18 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create directory if it doesn't exist
-    const uploadDir = join(process.cwd(), 'public', 'images', folder);
+    // Create directory structure if it doesn't exist
+    const publicDir = join(process.cwd(), 'public');
+    const imagesDir = join(publicDir, 'images');
+    const uploadDir = join(imagesDir, folder);
+    
+    // Ensure all parent directories exist
+    if (!existsSync(publicDir)) {
+      await mkdir(publicDir, { recursive: true });
+    }
+    if (!existsSync(imagesDir)) {
+      await mkdir(imagesDir, { recursive: true });
+    }
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true });
     }

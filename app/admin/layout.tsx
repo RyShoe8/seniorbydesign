@@ -74,9 +74,6 @@ export default function AdminLayout({
           <Link href="/admin/homepage" className={`nav-item ${pathname === '/admin/homepage' ? 'active' : ''}`}>
             Homepage Content
           </Link>
-          <Link href="/admin/partners" className={`nav-item ${pathname === '/admin/partners' ? 'active' : ''}`}>
-            Partners
-          </Link>
           <Link href="/admin/resources" className={`nav-item ${pathname === '/admin/resources' ? 'active' : ''}`}>
             Resources & Links
           </Link>
