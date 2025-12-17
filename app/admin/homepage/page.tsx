@@ -425,26 +425,26 @@ export default function HomepageManagement() {
             </div>
           )}
 
-          <div className="testimonials-grid">
+          <div className="partners-grid">
             {partners.map((partner) => (
-              <div key={partner._id} className="testimonial-box">
+              <div key={partner._id} className="partner-box">
                 <div className="testimonial-content">
                   {partner.logo && (
-                    <div style={{ marginBottom: 'var(--spacing-sm)' }}>
-                      <img src={partner.logo} alt={partner.altText || partner.displayName || partner.name} style={{ maxWidth: '150px', maxHeight: '75px', objectFit: 'contain' }} />
+                    <div style={{ marginBottom: '0.25rem' }}>
+                      <img src={partner.logo} alt={partner.altText || partner.displayName || partner.name} style={{ maxWidth: '100px', maxHeight: '50px', objectFit: 'contain' }} />
                     </div>
                   )}
-                  <p className="testimonial-name">{partner.displayName || partner.name}</p>
-                  <p className="testimonial-details">Order: {partner.order}</p>
+                  <p className="testimonial-name" style={{ fontSize: '12px', marginBottom: '0.15rem', fontWeight: '600' }}>{partner.displayName || partner.name}</p>
+                  <p className="testimonial-details" style={{ fontSize: '11px', marginBottom: '0.15rem' }}>Order: {partner.order}</p>
                   {partner.url && (
-                    <p className="testimonial-details" style={{ marginTop: '0.25rem' }}>
+                    <p className="testimonial-details" style={{ marginTop: '0.15rem', fontSize: '10px', wordBreak: 'break-all', lineHeight: '1.3' }}>
                       <a href={partner.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--sbd-gold)' }}>
-                        {partner.url}
+                        {partner.url.length > 25 ? partner.url.substring(0, 25) + '...' : partner.url}
                       </a>
                     </p>
                   )}
                 </div>
-                <div className="testimonial-actions">
+                <div className="testimonial-actions" style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid var(--warm-grey-1)' }}>
                   <button 
                     className="btn-small" 
                     onClick={() => {
@@ -659,11 +659,28 @@ export default function HomepageManagement() {
           margin-top: var(--spacing-md);
         }
 
+        .partners-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          gap: var(--spacing-xs);
+          margin-top: var(--spacing-md);
+        }
+
         .testimonial-box {
           background: #fff;
           border: 1px solid var(--warm-grey-3);
           border-radius: 8px;
           padding: var(--spacing-md);
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+        }
+
+        .partner-box {
+          background: #fff;
+          border: 1px solid var(--warm-grey-3);
+          border-radius: 4px;
+          padding: 0.5rem;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
@@ -707,8 +724,8 @@ export default function HomepageManagement() {
         }
 
         .btn-small {
-          padding: 0.5rem 1rem;
-          font-size: 14px;
+          padding: 0.35rem 0.75rem;
+          font-size: 12px;
         }
 
         .btn-danger {
@@ -729,6 +746,10 @@ export default function HomepageManagement() {
 
         @media (max-width: 768px) {
           .testimonials-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .partners-grid {
             grid-template-columns: 1fr;
           }
 
