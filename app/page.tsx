@@ -79,8 +79,8 @@ export default async function Home() {
         <section className="testimonials-section section-padding bg-warm-grey">
           <div className="container">
             <h2 className={`${styles.sectionHeading} text-center`}>Words From Our Clients</h2>
-            <TestimonialsCarousel testimonials={homepageContent.testimonials} />
           </div>
+          <TestimonialsCarousel testimonials={homepageContent.testimonials} />
         </section>
       )}
 
