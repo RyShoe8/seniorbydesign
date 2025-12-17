@@ -141,6 +141,10 @@
   }
 }
 
+.testimonials-section {
+  overflow: visible !important;
+}
+
 @media (max-width: 768px) {
   .heroHeadline {
     font-size: 48px;

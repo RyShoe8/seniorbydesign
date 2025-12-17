@@ -3,11 +3,13 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 0 calc((100vw - min(100vw, var(--container-max-width))) / 2 + var(--container-padding));
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  padding-left: max(calc(50vw - calc(var(--container-max-width) / 2) + var(--container-padding)), var(--container-padding));
+  padding-right: max(calc(50vw - calc(var(--container-max-width) / 2) + var(--container-padding)), var(--container-padding));
   box-sizing: border-box;
+  overflow: visible;
 }
 
 .carousel {
@@ -39,9 +41,9 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   flex: 0 0 auto;
-  width: calc((min(100vw, var(--container-max-width)) - 56px * 2 - var(--spacing-sm) * 2 - var(--spacing-md) - var(--container-padding) * 2 - 20px) / 2);
-  max-width: 460px;
-  min-width: 280px;
+  width: calc((100vw - 56px * 2 - var(--spacing-md) * 3 - var(--container-padding) * 2) / 2);
+  max-width: 500px;
+  min-width: 300px;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   box-sizing: border-box;
@@ -123,6 +125,8 @@
 @media (max-width: 768px) {
   .carouselWrapper {
     gap: var(--spacing-xs);
+    padding-left: var(--container-padding);
+    padding-right: var(--container-padding);
   }
 
   .navButton {

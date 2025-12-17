@@ -4,7 +4,8 @@
   z-index: 1000;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  min-height: 100px;
+  min-height: 150px;
+  overflow: visible;
 }
 
 .headerContainer {
@@ -14,7 +15,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 100px;
+  min-height: 100px;
+  height: auto;
+  overflow: visible;
 }
 
 .headerLogo {
@@ -22,9 +25,11 @@
   align-items: center;
   text-decoration: none;
   min-width: 150px;
+  width: 150px;
   height: 150px;
   flex-shrink: 0;
   margin-left: -100px;
+  overflow: visible;
 }
 
 .logoImage {
@@ -32,6 +37,7 @@
   width: 150px;
   display: block;
   object-fit: contain;
+  flex-shrink: 0;
 }
 
 .desktopNav {
@@ -228,18 +234,25 @@
 }
 
 @media (max-width: 768px) {
+  .header {
+    min-height: 90px;
+  }
+
   .headerContainer {
-    height: 70px;
+    min-height: 70px;
+    height: auto;
   }
 
   .headerLogo {
     min-width: 90px;
+    width: 90px;
     height: 90px;
     margin-left: -50px;
   }
 
   .logoImage {
     height: 90px;
+    width: 90px;
   }
 
   .desktopNav {
