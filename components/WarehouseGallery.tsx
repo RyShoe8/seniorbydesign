@@ -37,9 +37,9 @@ export default function WarehouseGallery() {
             <Image
               src={image.src}
               alt={image.alt}
-              width={400}
-              height={300}
+              fill
               className={styles.galleryImage}
+              sizes="(max-width: 768px) 100vw, (max-width: 968px) 50vw, 33vw"
             />
           </div>
         ))}

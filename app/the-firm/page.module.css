@@ -40,7 +40,8 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-xl);
-  align-items: center;
+  align-items: start;
+  min-height: 400px;
 }
 
 .columnContent h2 {
@@ -53,11 +54,14 @@
 
 .columnImage {
   width: 100%;
+  position: relative;
+  aspect-ratio: 3 / 2;
+  min-height: 400px;
 }
 
 .cultureImage {
   width: 100%;
-  height: auto;
+  height: 100%;
   border-radius: 8px;
   object-fit: cover;
 }

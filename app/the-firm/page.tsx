@@ -46,9 +46,10 @@ export default function TheFirm() {
               <Image
                 src="/images/The Firm/Culture.webp"
                 alt="Company Culture"
-                width={600}
-                height={400}
+                fill
                 className={styles.cultureImage}
+                priority
+                sizes="(max-width: 968px) 100vw, 50vw"
               />
             </div>
           </div>
