@@ -30,33 +30,45 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create directory structure if it doesn't exist
-    const publicDir = join(process.cwd(), 'public');
-    const imagesDir = join(publicDir, 'images');
-    const uploadDir = join(imagesDir, folder);
-    
-    // Ensure all parent directories exist
-    if (!existsSync(publicDir)) {
-      await mkdir(publicDir, { recursive: true });
-    }
-    if (!existsSync(imagesDir)) {
-      await mkdir(imagesDir, { recursive: true });
-    }
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
-
     // Generate unique filename
     const timestamp = Date.now();
     const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
     const filename = `${timestamp}-${originalName}`;
-    const filepath = join(uploadDir, filename);
 
-    // Write file
-    await writeFile(filepath, buffer);
+    // Try to use local file system first (for local development)
+    const uploadDir = join(process.cwd(), 'public', 'images', folder);
+    let publicUrl: string;
 
-    // Return the public URL
-    const publicUrl = `/images/${folder}/${filename}`;
+    try {
+      // Try to create directory with recursive flag (creates all parent dirs)
+      if (!existsSync(uploadDir)) {
+        await mkdir(uploadDir, { recursive: true });
+      }
+
+      const filepath = join(uploadDir, filename);
+      await writeFile(filepath, buffer);
+      publicUrl = `/images/${folder}/${filename}`;
+    } catch (fsError: any) {
+      // If file system write fails (e.g., in serverless environment),
+      // we need to use cloud storage. For now, return a helpful error.
+      console.error('File system write failed (likely serverless environment):', fsError);
+      
+      // Check if we're in a serverless environment
+      const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+      
+      if (isServerless) {
+        return NextResponse.json(
+          { 
+            error: 'File uploads require cloud storage in serverless environments. Please configure Vercel Blob Storage or another cloud storage solution.',
+            code: 'SERVERLESS_STORAGE_REQUIRED'
+          },
+          { status: 500 }
+        );
+      }
+      
+      // If not serverless but still failed, throw the original error
+      throw fsError;
+    }
     
     // Add to media collection
     try {
@@ -76,10 +88,13 @@ export async function POST(request: Request) {
     }
     
     return NextResponse.json({ url: publicUrl });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error uploading file:', error);
     return NextResponse.json(
-      { error: 'Failed to upload file' },
+      { 
+        error: 'Failed to upload file',
+        details: error.message || 'Unknown error'
+      },
       { status: 500 }
     );
   }
