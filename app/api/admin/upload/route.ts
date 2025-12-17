@@ -6,6 +6,15 @@ import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
 
+// Try to import Vercel Blob Storage (optional dependency)
+let putBlob: any = null;
+try {
+  const blobModule = require('@vercel/blob');
+  putBlob = blobModule.put;
+} catch (e) {
+  // @vercel/blob not installed, will use file system
+}
+
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
@@ -34,40 +43,60 @@ export async function POST(request: Request) {
     const timestamp = Date.now();
     const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
     const filename = `${timestamp}-${originalName}`;
-
-    // Try to use local file system first (for local development)
-    const uploadDir = join(process.cwd(), 'public', 'images', folder);
     let publicUrl: string;
 
-    try {
-      // Try to create directory with recursive flag (creates all parent dirs)
-      if (!existsSync(uploadDir)) {
-        await mkdir(uploadDir, { recursive: true });
-      }
-
-      const filepath = join(uploadDir, filename);
-      await writeFile(filepath, buffer);
-      publicUrl = `/images/${folder}/${filename}`;
-    } catch (fsError: any) {
-      // If file system write fails (e.g., in serverless environment),
-      // we need to use cloud storage. For now, return a helpful error.
-      console.error('File system write failed (likely serverless environment):', fsError);
-      
-      // Check if we're in a serverless environment
-      const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
-      
-      if (isServerless) {
+    // Check if we're in a serverless environment
+    const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+    
+    // Try Vercel Blob Storage first if available and in serverless environment
+    if (isServerless && putBlob && process.env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        const blobPath = `images/${folder}/${filename}`;
+        const blob = await putBlob(blobPath, buffer, {
+          access: 'public',
+          contentType: file.type,
+        });
+        publicUrl = blob.url;
+      } catch (blobError: any) {
+        console.error('Vercel Blob upload failed:', blobError);
         return NextResponse.json(
           { 
-            error: 'File uploads require cloud storage in serverless environments. Please configure Vercel Blob Storage or another cloud storage solution.',
-            code: 'SERVERLESS_STORAGE_REQUIRED'
+            error: 'Failed to upload to Vercel Blob Storage',
+            details: blobError.message,
+            code: 'BLOB_UPLOAD_FAILED'
           },
           { status: 500 }
         );
       }
+    } else {
+      // Try to use local file system (for local development)
+      const uploadDir = join(process.cwd(), 'public', 'images', folder);
       
-      // If not serverless but still failed, throw the original error
-      throw fsError;
+      try {
+        // Try to create directory with recursive flag (creates all parent dirs)
+        if (!existsSync(uploadDir)) {
+          await mkdir(uploadDir, { recursive: true });
+        }
+
+        const filepath = join(uploadDir, filename);
+        await writeFile(filepath, buffer);
+        publicUrl = `/images/${folder}/${filename}`;
+      } catch (fsError: any) {
+        // If file system write fails in serverless environment
+        if (isServerless) {
+          return NextResponse.json(
+            { 
+              error: 'File uploads require cloud storage in serverless environments. Please install @vercel/blob and configure BLOB_READ_WRITE_TOKEN environment variable.',
+              code: 'SERVERLESS_STORAGE_REQUIRED',
+              instructions: '1. Install: npm install @vercel/blob\n2. Set up Blob Storage in Vercel dashboard\n3. Add BLOB_READ_WRITE_TOKEN to environment variables'
+            },
+            { status: 500 }
+          );
+        }
+        
+        // If not serverless but still failed, throw the original error
+        throw fsError;
+      }
     }
     
     // Add to media collection
