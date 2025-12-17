@@ -20,11 +20,45 @@ export async function PUT(
     const body = await request.json();
     const collection = await getPartnersCollection();
     
+    // Get the current partner to check old order
+    const currentPartner = await collection.findOne({ _id: new ObjectId(params.id) });
+    if (!currentPartner) {
+      return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
+    }
+    
+    const oldOrder = currentPartner.order;
+    const newOrder = body.order !== undefined ? parseInt(body.order) : oldOrder;
+    
+    // Handle order shifting
+    if (newOrder !== oldOrder) {
+      if (newOrder > oldOrder) {
+        // Moving forward: shift items between oldOrder and newOrder back by 1
+        await collection.updateMany(
+          { 
+            _id: { $ne: new ObjectId(params.id) },
+            order: { $gt: oldOrder, $lte: newOrder }
+          },
+          { $inc: { order: -1 } }
+        );
+      } else {
+        // Moving backward: shift items between newOrder and oldOrder forward by 1
+        await collection.updateMany(
+          { 
+            _id: { $ne: new ObjectId(params.id) },
+            order: { $gte: newOrder, $lt: oldOrder }
+          },
+          { $inc: { order: 1 } }
+        );
+      }
+    }
+    
     const update = {
-      name: body.name,
-      logo: body.logo,
-      url: body.url || '',
-      order: body.order || 0,
+      name: body.name || currentPartner.name,
+      logo: body.logo || currentPartner.logo,
+      displayName: body.displayName !== undefined ? body.displayName : currentPartner.displayName,
+      altText: body.altText !== undefined ? body.altText : currentPartner.altText,
+      url: body.url !== undefined ? body.url : currentPartner.url,
+      order: newOrder,
       updatedAt: new Date(),
     };
 

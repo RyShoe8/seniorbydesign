@@ -9,6 +9,16 @@ interface Testimonial {
   company: string;
 }
 
+interface Partner {
+  _id?: string;
+  name: string;
+  logo: string;
+  displayName?: string;
+  altText?: string;
+  url?: string;
+  order: number;
+}
+
 interface HomepageContent {
   _id?: string;
   portfolioHighlights: string[];
@@ -17,13 +27,19 @@ interface HomepageContent {
 
 export default function HomepageManagement() {
   const [content, setContent] = useState<HomepageContent | null>(null);
+  const [partners, setPartners] = useState<Partner[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<{ index: number; testimonial: Testimonial } | null>(null);
   const [showTestimonialForm, setShowTestimonialForm] = useState(false);
+  const [editingPartner, setEditingPartner] = useState<Partner | null>(null);
+  const [showPartnerForm, setShowPartnerForm] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<string>('');
 
   useEffect(() => {
     fetchContent();
+    fetchPartners();
   }, []);
 
   const fetchContent = async () => {
@@ -38,6 +54,16 @@ export default function HomepageManagement() {
       console.error('Error fetching homepage content:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchPartners = async () => {
+    try {
+      const response = await fetch('/api/admin/partners');
+      const data = await response.json();
+      setPartners(data.sort((a: Partner, b: Partner) => a.order - b.order));
+    } catch (error) {
+      console.error('Error fetching partners:', error);
     }
   };
 
@@ -146,6 +172,100 @@ export default function HomepageManagement() {
     (e.target as HTMLFormElement).reset();
   };
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingLogo(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', 'partners');
+
+    try {
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setLogoUrl(data.url);
+      } else {
+        alert('Failed to upload logo');
+      }
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      alert('Error uploading logo');
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  const handlePartnerFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    
+    // Use logoUrl state if set, otherwise fall back to editingPartner's logo
+    const logo = logoUrl || editingPartner?.logo;
+    if (!logo) {
+      alert('Please upload a logo or provide a logo URL');
+      return;
+    }
+
+    const partnerData = {
+      name: formData.get('displayName') as string,
+      logo: logo,
+      displayName: formData.get('displayName') as string,
+      altText: formData.get('altText') as string,
+      url: formData.get('url') as string || '',
+      order: parseInt(formData.get('order') as string) || partners.length + 1,
+    };
+
+    try {
+      const url = editingPartner?._id 
+        ? `/api/admin/partners/${editingPartner._id}`
+        : '/api/admin/partners';
+      
+      const response = await fetch(url, {
+        method: editingPartner?._id ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(partnerData),
+      });
+
+      if (response.ok) {
+        fetchPartners();
+        setShowPartnerForm(false);
+        setEditingPartner(null);
+        setLogoUrl('');
+        (e.target as HTMLFormElement).reset();
+      } else {
+        alert('Error saving partner');
+      }
+    } catch (error) {
+      console.error('Error saving partner:', error);
+      alert('Error saving partner');
+    }
+  };
+
+  const handleDeletePartner = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this partner?')) return;
+    
+    try {
+      const response = await fetch(`/api/admin/partners/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        fetchPartners();
+      } else {
+        alert('Error deleting partner');
+      }
+    } catch (error) {
+      console.error('Error deleting partner:', error);
+      alert('Error deleting partner');
+    }
+  };
+
   return (
     <div className="admin-page">
       <h1>Homepage Content Management</h1>
@@ -177,20 +297,172 @@ export default function HomepageManagement() {
         <div className="form-section">
           <div className="section-header">
             <h2>Partners - You&apos;re In Good Hands</h2>
-            <a href="/admin/partners" className="btn" style={{ textDecoration: 'none' }}>
-              Manage Partners
-            </a>
+            <button 
+              type="button" 
+              className="btn" 
+              onClick={() => {
+                setEditingPartner(null);
+                setLogoUrl('');
+                setShowPartnerForm(true);
+              }}
+            >
+              Add Partner
+            </button>
           </div>
-          <div style={{ background: 'var(--warm-grey-1)', padding: 'var(--spacing-md)', borderRadius: '8px', marginTop: 'var(--spacing-md)' }}>
-            <p style={{ color: 'var(--sbd-brown)', marginBottom: 'var(--spacing-sm)', fontWeight: '500' }}>
-              Partner logos appear in the &quot;You&apos;re In Good Hands&quot; section on the homepage.
-            </p>
-            <p style={{ color: 'var(--warm-grey-3)', fontSize: '14px', marginBottom: 'var(--spacing-sm)' }}>
-              Click &quot;Manage Partners&quot; to add, edit, or delete partner logos. You can upload logo images and optionally add click-through URLs.
-            </p>
-            <a href="/admin/partners" className="btn" style={{ textDecoration: 'none', display: 'inline-block', marginTop: 'var(--spacing-sm)' }}>
-              Go to Partners Management →
-            </a>
+
+          {showPartnerForm && (
+            <div className="testimonial-form-box">
+              <h3>{editingPartner ? 'Edit' : 'Add'} Partner</h3>
+              <form onSubmit={handlePartnerFormSubmit}>
+                <div className="form-group">
+                  <label htmlFor="logoUpload">Logo Image *</label>
+                  <input
+                    type="file"
+                    id="logoUpload"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    disabled={uploadingLogo}
+                  />
+                  {uploadingLogo && <p style={{ color: 'var(--sbd-brown)', marginTop: '0.5rem' }}>Uploading...</p>}
+                  {logoUrl && (
+                    <div style={{ marginTop: 'var(--spacing-sm)' }}>
+                      <img src={logoUrl} alt="Logo preview" style={{ maxWidth: '200px', maxHeight: '100px', objectFit: 'contain' }} />
+                      <button 
+                        type="button" 
+                        className="btn-small btn-danger" 
+                        onClick={() => setLogoUrl('')}
+                        style={{ marginLeft: 'var(--spacing-sm)' }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                  <input
+                    type="hidden"
+                    name="logo"
+                    value={logoUrl}
+                  />
+                  <p style={{ fontSize: '14px', color: 'var(--warm-grey-3)', marginTop: '0.5rem' }}>
+                    Or enter a URL:
+                  </p>
+                  <input
+                    type="url"
+                    name="logoUrl"
+                    placeholder="https://example.com/logo.png"
+                    value={logoUrl || ''}
+                    onChange={(e) => setLogoUrl(e.target.value)}
+                    style={{ marginTop: '0.5rem' }}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="displayName">Display Name *</label>
+                  <input
+                    type="text"
+                    id="displayName"
+                    name="displayName"
+                    required
+                    defaultValue={editingPartner?.displayName || editingPartner?.name || ''}
+                    placeholder="Company Name"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="altText">Alt Text *</label>
+                  <input
+                    type="text"
+                    id="altText"
+                    name="altText"
+                    required
+                    defaultValue={editingPartner?.altText || ''}
+                    placeholder="Logo description for accessibility"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="url">Website URL (optional)</label>
+                  <input
+                    type="url"
+                    id="url"
+                    name="url"
+                    defaultValue={editingPartner?.url || ''}
+                    placeholder="https://example.com"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="order">Display Order *</label>
+                  <input
+                    type="number"
+                    id="order"
+                    name="order"
+                    required
+                    min="1"
+                    defaultValue={editingPartner?.order || partners.length + 1}
+                    placeholder="1"
+                  />
+                  <p style={{ fontSize: '14px', color: 'var(--warm-grey-3)', marginTop: '0.5rem' }}>
+                    Setting order to 3 will place this partner 3rd and automatically shift others back.
+                  </p>
+                </div>
+                <div className="form-actions">
+                  <button type="submit" className="btn" disabled={!logoUrl && !editingPartner?.logo}>
+                    Save
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn-secondary" 
+                    onClick={() => {
+                      setShowPartnerForm(false);
+                      setEditingPartner(null);
+                      setLogoUrl('');
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          <div className="testimonials-grid">
+            {partners.map((partner) => (
+              <div key={partner._id} className="testimonial-box">
+                <div className="testimonial-content">
+                  {partner.logo && (
+                    <div style={{ marginBottom: 'var(--spacing-sm)' }}>
+                      <img src={partner.logo} alt={partner.altText || partner.displayName || partner.name} style={{ maxWidth: '150px', maxHeight: '75px', objectFit: 'contain' }} />
+                    </div>
+                  )}
+                  <p className="testimonial-name">{partner.displayName || partner.name}</p>
+                  <p className="testimonial-details">Order: {partner.order}</p>
+                  {partner.url && (
+                    <p className="testimonial-details" style={{ marginTop: '0.25rem' }}>
+                      <a href={partner.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--sbd-gold)' }}>
+                        {partner.url}
+                      </a>
+                    </p>
+                  )}
+                </div>
+                <div className="testimonial-actions">
+                  <button 
+                    className="btn-small" 
+                    onClick={() => {
+                      setEditingPartner(partner);
+                      setLogoUrl(partner.logo || '');
+                      setShowPartnerForm(true);
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button 
+                    className="btn-small btn-danger" 
+                    onClick={() => handleDeletePartner(partner._id!)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+            {(!partners || partners.length === 0) && !showPartnerForm && (
+              <p className="empty-state">No partners yet. Click &quot;Add Partner&quot; to get started.</p>
+            )}
           </div>
         </div>
       </div>

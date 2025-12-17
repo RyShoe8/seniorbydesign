@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import NewsletterCTA from '@/components/NewsletterCTA';
+import TestimonialsCarousel from '@/components/TestimonialsCarousel';
 import { getHomepageContent, getPortfolioCategories, getPartners } from './actions';
 import Image from 'next/image';
 import styles from './page.module.css';
@@ -70,23 +71,7 @@ export default async function Home() {
         <section className="testimonials-section section-padding bg-warm-grey">
           <div className="container">
             <h2 className={`${styles.sectionHeading} text-center`}>Words From Our Clients</h2>
-            <div className={styles.testimonialsCarousel}>
-              <div className={styles.testimonialsCarouselTrack}>
-                {homepageContent.testimonials.map((testimonial, index) => (
-                  testimonial && testimonial.review ? (
-                    <div key={index} className={styles.testimonialCard}>
-                      <p className={styles.testimonialText}>&ldquo;{testimonial.review}&rdquo;</p>
-                      <div className={styles.testimonialAuthor}>
-                        <p className={styles.testimonialName}>{testimonial.name || ''}</p>
-                        <p className={styles.testimonialPosition}>
-                          {testimonial.position || ''}{testimonial.position && testimonial.company ? ', ' : ''}{testimonial.company || ''}
-                        </p>
-                      </div>
-                    </div>
-                  ) : null
-                ))}
-              </div>
-            </div>
+            <TestimonialsCarousel testimonials={homepageContent.testimonials} />
           </div>
         </section>
       )}
@@ -103,7 +88,7 @@ export default async function Home() {
                     <a href={partner.url} target="_blank" rel="noopener noreferrer">
                       <Image
                         src={partner.logo}
-                        alt={partner.name}
+                        alt={partner.altText || partner.displayName || partner.name}
                         width={150}
                         height={100}
                       />
@@ -111,7 +96,7 @@ export default async function Home() {
                   ) : (
                     <Image
                       src={partner.logo}
-                      alt={partner.name}
+                      alt={partner.altText || partner.displayName || partner.name}
                       width={150}
                       height={100}
                     />

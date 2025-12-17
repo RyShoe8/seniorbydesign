@@ -89,6 +89,8 @@ export interface Partner {
   _id?: ObjectId;
   name: string;
   logo: string;
+  displayName?: string;
+  altText?: string;
   url?: string;
   order: number;
   createdAt: Date;

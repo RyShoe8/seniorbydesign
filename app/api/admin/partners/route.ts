@@ -36,11 +36,21 @@ export async function POST(request: Request) {
     const body = await request.json();
     const collection = await getPartnersCollection();
     
+    const newOrder = body.order !== undefined ? parseInt(body.order) : 0;
+    
+    // Shift all partners with order >= newOrder back by 1
+    await collection.updateMany(
+      { order: { $gte: newOrder } },
+      { $inc: { order: 1 } }
+    );
+    
     const partner = {
-      name: body.name,
+      name: body.name || '',
       logo: body.logo,
+      displayName: body.displayName || '',
+      altText: body.altText || '',
       url: body.url || '',
-      order: body.order || 0,
+      order: newOrder,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
