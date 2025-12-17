@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import NewsletterCTA from '@/components/NewsletterCTA';
+import WarehouseGallery from '@/components/WarehouseGallery';
 import Image from 'next/image';
 import styles from './page.module.css';
 
@@ -142,19 +143,7 @@ export default function TheFirm() {
       {/* Image Gallery */}
       <section className="firm-gallery section-padding">
         <div className="container">
-          <div className={styles.galleryGrid}>
-            {[2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className={styles.galleryItem}>
-                <Image
-                  src={`/images/The Firm/The Firm Warehouse ${i}.webp`}
-                  alt={`Warehouse ${i}`}
-                  width={400}
-                  height={300}
-                  className={styles.galleryImage}
-                />
-              </div>
-            ))}
-          </div>
+          <WarehouseGallery />
         </div>
       </section>
 
