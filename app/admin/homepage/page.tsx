@@ -172,6 +172,29 @@ export default function HomepageManagement() {
         </div>
       </form>
 
+      {/* Partners Section */}
+      <div className="admin-form">
+        <div className="form-section">
+          <div className="section-header">
+            <h2>Partners - You&apos;re In Good Hands</h2>
+            <a href="/admin/partners" className="btn" style={{ textDecoration: 'none' }}>
+              Manage Partners
+            </a>
+          </div>
+          <div style={{ background: 'var(--warm-grey-1)', padding: 'var(--spacing-md)', borderRadius: '8px', marginTop: 'var(--spacing-md)' }}>
+            <p style={{ color: 'var(--sbd-brown)', marginBottom: 'var(--spacing-sm)', fontWeight: '500' }}>
+              Partner logos appear in the &quot;You&apos;re In Good Hands&quot; section on the homepage.
+            </p>
+            <p style={{ color: 'var(--warm-grey-3)', fontSize: '14px', marginBottom: 'var(--spacing-sm)' }}>
+              Click &quot;Manage Partners&quot; to add, edit, or delete partner logos. You can upload logo images and optionally add click-through URLs.
+            </p>
+            <a href="/admin/partners" className="btn" style={{ textDecoration: 'none', display: 'inline-block', marginTop: 'var(--spacing-sm)' }}>
+              Go to Partners Management →
+            </a>
+          </div>
+        </div>
+      </div>
+
       {/* Testimonials Section */}
       <div className="admin-form">
         <div className="form-section">

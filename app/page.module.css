@@ -104,20 +104,24 @@
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: var(--spacing-sm);
+  padding: var(--spacing-sm) 0 var(--spacing-md);
   scrollbar-width: thin;
   scrollbar-color: var(--sbd-gold) var(--warm-grey-1);
-  width: 100%;
-  max-width: 100%;
+  margin-left: calc(-1 * var(--container-padding));
+  margin-right: calc(-1 * var(--container-padding));
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+  width: calc(100% + var(--container-padding) * 2);
 }
 
 .testimonialsCarousel::-webkit-scrollbar {
-  height: 8px;
+  height: 10px;
 }
 
 .testimonialsCarousel::-webkit-scrollbar-track {
   background: var(--warm-grey-1);
   border-radius: 4px;
+  margin: 0 var(--container-padding);
 }
 
 .testimonialsCarousel::-webkit-scrollbar-thumb {
@@ -131,7 +135,7 @@
 
 .testimonialsCarouselTrack {
   display: flex;
-  gap: var(--spacing-md);
+  gap: 0;
   padding: var(--spacing-sm) 0;
   width: max-content;
 }
@@ -142,11 +146,14 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   flex: 0 0 auto;
-  width: calc((var(--container-max-width) - var(--spacing-md)) / 2);
-  min-width: 400px;
+  width: calc((min(100vw, var(--container-max-width)) - var(--container-padding) * 2 - var(--spacing-md)) / 2);
+  max-width: 550px;
+  min-width: 320px;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   box-sizing: border-box;
+  flex-shrink: 0;
+  margin-right: var(--spacing-md);
 }
 
 .testimonialText {
@@ -225,6 +232,13 @@
 
   .portfolioCarousel {
     grid-template-columns: 1fr;
+  }
+
+  .testimonialsCarousel {
+    width: calc(100% + var(--container-padding) * 2);
+    margin-left: calc(-1 * var(--container-padding));
+    padding-left: var(--container-padding);
+    padding-right: var(--container-padding);
   }
 
   .testimonialCard {

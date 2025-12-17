@@ -92,10 +92,10 @@ export default async function Home() {
       )}
 
       {/* You're In Good Hands Section */}
-      {partners.length > 0 && (
-        <section className="partners-section section-padding">
-          <div className="container">
-            <h2 className={`${styles.sectionHeading} text-center`}>You&apos;re In Good Hands</h2>
+      <section className="partners-section section-padding">
+        <div className="container">
+          <h2 className={`${styles.sectionHeading} text-center`}>You&apos;re In Good Hands</h2>
+          {partners.length > 0 ? (
             <div className={styles.partnersGrid}>
               {partners.map((partner) => (
                 <div key={partner._id?.toString()} className={styles.partnerLogo}>
@@ -119,9 +119,13 @@ export default async function Home() {
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-      )}
+          ) : (
+            <p className="text-center" style={{ color: 'var(--warm-grey-3)', padding: 'var(--spacing-lg)' }}>
+              No partners added yet. Add partner logos in the admin panel.
+            </p>
+          )}
+        </div>
+      </section>
 
       {/* Newsletter CTA */}
       <NewsletterCTA />
