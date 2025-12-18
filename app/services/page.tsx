@@ -37,7 +37,7 @@ export default async function Services() {
           'Equipment Coordination',
         ],
       },
-      images: 2,
+      images: 1,
     },
     {
       slug: 'procurement-and-installation',
@@ -138,13 +138,17 @@ export default async function Services() {
                     </div>
                   </div>
 
-                  {promo.images > 0 && (
-                    <div className={promo.images === 1 ? styles.images1 : styles.images2}>
-                      {Array.from({ length: promo.images }).map((_, i) => (
-                        <div key={i} className={styles.serviceImagePlaceholder}>
-                          Image {i + 1}
-                        </div>
-                      ))}
+                  {promo.images > 0 && service?.heroImage && (
+                    <div className={styles.images1}>
+                      <div className={styles.serviceImage}>
+                        <Image
+                          src={service.heroImage}
+                          alt={service.title || promo.title}
+                          width={800}
+                          height={600}
+                          className={styles.serviceImageImg}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
