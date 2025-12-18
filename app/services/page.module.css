@@ -54,6 +54,7 @@
 
 .serviceHeader {
   margin-bottom: var(--spacing-lg);
+  text-align: center;
 }
 
 .serviceHeader h2 {
@@ -129,6 +130,7 @@
     grid-template-columns: 1fr;
   }
 }
+
 
 
 

@@ -99,7 +99,7 @@ export default async function Services() {
       <section className={styles.servicesHero}>
         <div className={styles.servicesHeroImage}>
           <Image
-            src="/images/Services/Services Header.webp"
+            src="/images/Services/Senior By Design Services Hero.jpg"
             alt="Services"
             fill
             className={styles.heroImage}
