@@ -640,6 +640,38 @@ export default function HomepageManagement() {
           margin-top: var(--spacing-md);
         }
 
+        .btn {
+          padding: 0.75rem 1.5rem;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 16px;
+          font-weight: 500;
+          transition: all 0.3s ease;
+          background-color: var(--sbd-gold);
+          color: #fff;
+        }
+
+        .btn:hover:not(:disabled) {
+          background-color: var(--sbd-brown);
+        }
+
+        .btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .btn-secondary {
+          background-color: transparent;
+          border: 2px solid var(--sbd-gold);
+          color: var(--sbd-brown);
+        }
+
+        .btn-secondary:hover {
+          background-color: var(--sbd-gold);
+          color: #fff;
+        }
+
         .testimonial-form-box {
           background: var(--warm-grey-1);
           padding: var(--spacing-md);

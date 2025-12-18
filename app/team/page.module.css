@@ -1,18 +1,45 @@
 .teamHero {
-  background: linear-gradient(135deg, var(--warm-grey-1) 0%, var(--warm-grey-3) 100%);
+  position: relative;
+  height: 500px;
+  overflow: hidden;
 }
 
-.heroImagePlaceholder {
-  height: 400px;
+.teamHeroImage {
+  position: relative;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--warm-grey-1);
-  border-radius: 8px;
 }
 
-.heroImagePlaceholder h1 {
-  color: var(--sbd-brown);
+.teamHeroImage::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(89, 56, 37, 0.4);
+  z-index: 1;
+}
+
+.teamHeroImage h1 {
+  position: relative;
+  z-index: 2;
+  color: #fff;
+  font-size: 75px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.heroImage {
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  .teamHeroImage h1 {
+    font-size: 48px;
+  }
 }
 
 .introContent {
@@ -121,5 +148,6 @@
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   }
 }
+
 
 

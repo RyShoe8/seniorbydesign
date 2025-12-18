@@ -33,18 +33,18 @@ export default async function ServicePage({ params }: Props) {
 
   return (
     <>
-      <section className={`${styles.serviceHero} section-padding`}>
-        <div className="container">
-          {service.heroImage && (
-            <div className={styles.serviceHeroImage}>
-              <Image
-                src={service.heroImage}
-                alt={service.title}
-                width={1200}
-                height={400}
-                className={styles.heroImg}
-              />
-            </div>
+      <section className={styles.serviceHero}>
+        <div className={styles.serviceHeroImage}>
+          {service.heroImage ? (
+            <Image
+              src={service.heroImage}
+              alt={service.title}
+              fill
+              className={styles.heroImage}
+              priority
+            />
+          ) : (
+            <div className={styles.heroPlaceholder} />
           )}
           <h1>{service.title}</h1>
         </div>

@@ -33,21 +33,27 @@ export default async function TeamMemberPage({ params }: Props) {
 
   return (
     <div className="team-member-page">
-      <section className="member-hero section-padding">
+      <section className={styles.memberHero}>
+        <div className={styles.memberHeroImage}>
+          {member.profileImage ? (
+            <Image
+              src={member.profileImage}
+              alt={member.name}
+              fill
+              className={styles.heroImage}
+              priority
+            />
+          ) : (
+            <div className={styles.heroPlaceholder} />
+          )}
+          <h1>{member.name}</h1>
+        </div>
+      </section>
+
+      <section className="member-info section-padding">
         <div className="container">
           <div className={styles.memberHeader}>
-            {member.profileImage && (
-              <div className={styles.memberImage}>
-                <Image
-                  src={member.profileImage}
-                  alt={member.name}
-                  width={400}
-                  height={500}
-                />
-              </div>
-            )}
             <div className={styles.memberInfo}>
-              <h1>{member.name}</h1>
               <h2 className={styles.memberTitle}>{member.title}</h2>
               {(member.linkedin || member.facebook || member.instagram) && (
                 <div className={styles.memberSocial}>

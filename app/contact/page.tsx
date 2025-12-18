@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import styles from './page.module.css';
 
 export default function Contact() {
@@ -56,11 +57,20 @@ export default function Contact() {
 
   return (
     <>
-      <section className={`${styles.contactHero} section-padding`}>
-        <div className="container">
-          <div className={styles.heroImagePlaceholder}>
-            <h1>Contact Us</h1>
-          </div>
+      <section className={styles.contactHero}>
+        <div className={styles.contactHeroImage}>
+          <Image
+            src="/images/Contact/Contact Header.webp"
+            alt="Contact Us"
+            fill
+            className={styles.heroImage}
+            priority
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
+          />
+          <h1>Contact Us</h1>
         </div>
       </section>
 

@@ -14,11 +14,20 @@ export default async function Team() {
 
   return (
     <>
-      <section className={`${styles.teamHero} section-padding`}>
-        <div className="container">
-          <div className={styles.heroImagePlaceholder}>
-            <h1>The Team</h1>
-          </div>
+      <section className={styles.teamHero}>
+        <div className={styles.teamHeroImage}>
+          <Image
+            src="/images/Team/Team Header.webp"
+            alt="The Team"
+            fill
+            className={styles.heroImage}
+            priority
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
+          />
+          <h1>The Team</h1>
         </div>
       </section>
 

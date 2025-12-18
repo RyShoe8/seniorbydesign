@@ -227,6 +227,33 @@ export default function ProjectMapManagement() {
           margin-top: var(--spacing-md);
         }
 
+        .btn {
+          padding: 0.75rem 1.5rem;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 16px;
+          font-weight: 500;
+          transition: all 0.3s ease;
+          background-color: var(--sbd-gold);
+          color: #fff;
+        }
+
+        .btn:hover {
+          background-color: var(--sbd-brown);
+        }
+
+        .btn-secondary {
+          background-color: transparent;
+          border: 2px solid var(--sbd-gold);
+          color: var(--sbd-brown);
+        }
+
+        .btn-secondary:hover {
+          background-color: var(--sbd-gold);
+          color: #fff;
+        }
+
         .admin-table-container {
           background: #fff;
           border-radius: 8px;

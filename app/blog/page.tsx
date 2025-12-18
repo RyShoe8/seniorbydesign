@@ -14,8 +14,19 @@ export default async function Blog() {
 
   return (
     <>
-      <section className={`${styles.blogHero} section-padding`}>
-        <div className="container">
+      <section className={styles.blogHero}>
+        <div className={styles.blogHeroImage}>
+          <Image
+            src="/images/Blog/Blog Header.webp"
+            alt="Blog"
+            fill
+            className={styles.heroImage}
+            priority
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
+          />
           <h1>Blog</h1>
         </div>
       </section>

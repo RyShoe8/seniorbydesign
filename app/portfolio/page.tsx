@@ -31,14 +31,20 @@ export default async function Portfolio() {
 
   return (
     <>
-      <section className={`${styles.portfolioHero} section-padding`}>
-        <div className="container">
-          <div className={styles.heroImagePlaceholder}>
-            <h1>Our Portfolio</h1>
-          </div>
-          <p className={styles.heroText}>
-            Explore our extensive portfolio of beautifully designed senior living communities and spaces across the United States.
-          </p>
+      <section className={styles.portfolioHero}>
+        <div className={styles.portfolioHeroImage}>
+          <Image
+            src="/images/Portfolio/Portfolio Header.webp"
+            alt="Our Portfolio"
+            fill
+            className={styles.heroImage}
+            priority
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
+          />
+          <h1>Our Portfolio</h1>
         </div>
       </section>
 

@@ -153,3 +153,4 @@
     max-width: calc(100vw - var(--container-padding) * 2 - var(--spacing-xs) * 2 - 96px);
   }
 }
+

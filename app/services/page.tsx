@@ -96,8 +96,20 @@ export default async function Services() {
 
   return (
     <div className="services-page">
-      <section className={`${styles.servicesHero} section-padding`}>
-        <div className="container">
+      <section className={styles.servicesHero}>
+        <div className={styles.servicesHeroImage}>
+          <Image
+            src="/images/Services/Services Header.webp"
+            alt="Services"
+            fill
+            className={styles.heroImage}
+            priority
+            onError={(e) => {
+              // Fallback to placeholder if image doesn't exist
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
+          />
           <h1>Services</h1>
         </div>
       </section>

@@ -34,22 +34,28 @@ export default async function BlogPostPage({ params }: Props) {
   return (
     <>
       <article className="blog-post">
+        <section className={styles.blogPostHero}>
+          <div className={styles.blogPostHeroImage}>
+            {post.featuredImage ? (
+              <Image
+                src={post.featuredImage}
+                alt={post.title}
+                fill
+                className={styles.heroImage}
+                priority
+              />
+            ) : (
+              <div className={styles.heroPlaceholder} />
+            )}
+            <h1>{post.title}</h1>
+          </div>
+        </section>
+
         <div className="blog-post-header section-padding">
           <div className="container">
             <Link href="/blog" className={styles.backLink}>
               ← Back to Blog
             </Link>
-            {post.featuredImage && (
-              <div className={styles.blogPostImage}>
-                <Image
-                  src={post.featuredImage}
-                  alt={post.title}
-                  width={1200}
-                  height={600}
-                />
-              </div>
-            )}
-            <h1>{post.title}</h1>
             {post.publishedAt && (
               <p className={styles.blogPostDate}>
                 {new Date(post.publishedAt).toLocaleDateString('en-US', {

@@ -59,3 +59,4 @@ export default function ImageLightbox({ isOpen, imageSrc, imageAlt, onClose }: I
     </div>
   );
 }
+
