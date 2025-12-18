@@ -343,17 +343,6 @@ export default function HomepageManagement() {
                     name="logo"
                     value={logoUrl}
                   />
-                  <p style={{ fontSize: '14px', color: 'var(--warm-grey-3)', marginTop: '0.5rem' }}>
-                    Or enter a URL:
-                  </p>
-                  <input
-                    type="url"
-                    name="logoUrl"
-                    placeholder="https://example.com/logo.png"
-                    value={logoUrl || ''}
-                    onChange={(e) => setLogoUrl(e.target.value)}
-                    style={{ marginTop: '0.5rem' }}
-                  />
                 </div>
                 <div className="form-group">
                   <label htmlFor="displayName">File Name (Display Name) *</label>

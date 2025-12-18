@@ -5,17 +5,52 @@ import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
+interface PortfolioImage {
+  url: string;
+  displayName: string;
+  altText: string;
+}
+
 export default function PortfolioDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<PortfolioImage[]>([]);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [imageAlts, setImageAlts] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [categoryName, setCategoryName] = useState<string>('');
 
   useEffect(() => {
-    // In a real app, fetch images from API based on slug
-    // For now, using placeholder
-    setImages([]);
+    const fetchCategory = async () => {
+      try {
+        const response = await fetch(`/api/portfolio/${slug}`);
+        if (response.ok) {
+          const category = await response.json();
+          setCategoryName(category.name || '');
+          
+          // Handle both old format (string[]) and new format (PortfolioImage[])
+          if (category.images && category.images.length > 0) {
+            if (typeof category.images[0] === 'string') {
+              // Old format: string[]
+              setImageUrls(category.images);
+              setImageAlts(category.images.map((_: string, i: number) => `${category.name} image ${i + 1}`));
+            } else {
+              // New format: PortfolioImage[]
+              setImages(category.images);
+              setImageUrls(category.images.map((img: PortfolioImage) => img.url));
+              setImageAlts(category.images.map((img: PortfolioImage) => img.altText || img.displayName));
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching category:', error);
+      }
+    };
+    
+    if (slug) {
+      fetchCategory();
+    }
   }, [slug]);
 
   const openFullscreen = (index: number) => {
@@ -28,11 +63,11 @@ export default function PortfolioDetailPage() {
   };
 
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    setCurrentImageIndex((prev) => (prev + 1) % imageUrls.length);
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    setCurrentImageIndex((prev) => (prev - 1 + imageUrls.length) % imageUrls.length);
   };
 
   return (
@@ -45,18 +80,18 @@ export default function PortfolioDetailPage() {
             </Link>
           </div>
 
-          {images.length > 0 ? (
+          {imageUrls.length > 0 ? (
             <div className="portfolio-gallery">
               <div className="gallery-thumbnails">
-                {images.map((image, index) => (
+                {imageUrls.map((imageUrl, index) => (
                   <div
                     key={index}
                     className="thumbnail"
                     onClick={() => openFullscreen(index)}
                   >
                     <Image
-                      src={image}
-                      alt={`Portfolio image ${index + 1}`}
+                      src={imageUrl}
+                      alt={imageAlts[index] || `Portfolio image ${index + 1}`}
                       width={200}
                       height={150}
                     />
@@ -72,7 +107,7 @@ export default function PortfolioDetailPage() {
         </div>
       </section>
 
-      {isFullscreen && images.length > 0 && (
+      {isFullscreen && imageUrls.length > 0 && (
         <div className="fullscreen-overlay" onClick={closeFullscreen}>
           <button className="close-btn" onClick={closeFullscreen}>
             ×
@@ -82,8 +117,8 @@ export default function PortfolioDetailPage() {
           </button>
           <div className="fullscreen-image" onClick={(e) => e.stopPropagation()}>
             <Image
-              src={images[currentImageIndex]}
-              alt={`Portfolio image ${currentImageIndex + 1}`}
+              src={imageUrls[currentImageIndex]}
+              alt={imageAlts[currentImageIndex] || `Portfolio image ${currentImageIndex + 1}`}
               width={1200}
               height={800}
             />

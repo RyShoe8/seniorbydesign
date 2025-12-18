@@ -19,6 +19,8 @@ export default function TeamManagement() {
   const [isLoading, setIsLoading] = useState(true);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [uploadingProfileImage, setUploadingProfileImage] = useState(false);
+  const [profileImageUrl, setProfileImageUrl] = useState<string>('');
 
   useEffect(() => {
     fetchMembers();
@@ -53,7 +55,37 @@ export default function TeamManagement() {
 
   const handleEdit = (member: TeamMember) => {
     setEditingMember(member);
+    setProfileImageUrl(member.profileImage || '');
     setShowForm(true);
+  };
+
+  const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingProfileImage(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', 'team');
+
+    try {
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setProfileImageUrl(data.url);
+      } else {
+        alert('Failed to upload profile image');
+      }
+    } catch (error) {
+      console.error('Error uploading profile image:', error);
+      alert('Error uploading profile image');
+    } finally {
+      setUploadingProfileImage(false);
+    }
   };
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -85,6 +117,7 @@ export default function TeamManagement() {
         fetchMembers();
         setShowForm(false);
         setEditingMember(null);
+        setProfileImageUrl('');
         (e.target as HTMLFormElement).reset();
       }
     } catch (error) {
@@ -96,7 +129,11 @@ export default function TeamManagement() {
     <div className="admin-page">
       <div className="admin-header">
         <h1>Team Management</h1>
-        <button onClick={() => { setShowForm(true); setEditingMember(null); }} className="btn">
+        <button onClick={() => { 
+          setShowForm(true); 
+          setEditingMember(null);
+          setProfileImageUrl('');
+        }} className="btn">
           Add Team Member
         </button>
       </div>
@@ -140,13 +177,16 @@ export default function TeamManagement() {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="profileImage">Profile Image URL</label>
+                <label htmlFor="profileImageUpload">Profile Image</label>
                 <input
-                  type="url"
-                  id="profileImage"
-                  name="profileImage"
-                  defaultValue={editingMember?.profileImage || ''}
+                  type="file"
+                  id="profileImageUpload"
+                  name="profileImageUpload"
+                  accept="image/*"
                 />
+                <p style={{ fontSize: '14px', color: 'var(--warm-grey-3)', marginTop: '0.5rem' }}>
+                  Upload a profile image for this team member
+                </p>
               </div>
               <div className="form-group">
                 <label htmlFor="bio">Bio *</label>
@@ -189,7 +229,11 @@ export default function TeamManagement() {
               </div>
               <div className="form-actions">
                 <button type="submit" className="btn">Save</button>
-                <button type="button" className="btn-secondary" onClick={() => { setShowForm(false); setEditingMember(null); }}>
+                <button type="button" className="btn-secondary" onClick={() => { 
+                  setShowForm(false); 
+                  setEditingMember(null);
+                  setProfileImageUrl('');
+                }}>
                   Cancel
                 </button>
               </div>
@@ -353,6 +397,18 @@ export default function TeamManagement() {
 
         .btn-danger {
           background: #dc3545;
+        }
+
+        .upload-status {
+          color: var(--sbd-brown);
+          margin-top: 0.5rem;
+          font-size: 14px;
+        }
+
+        .image-preview {
+          display: flex;
+          align-items: center;
+          margin-top: 0.5rem;
         }
       `}</style>
     </div>

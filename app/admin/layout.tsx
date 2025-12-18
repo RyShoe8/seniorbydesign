@@ -56,17 +56,17 @@ export default function AdminLayout({
           </Link>
           {session.user?.role === 'admin' && (
             <Link href="/admin/users" className={`nav-item ${pathname === '/admin/users' ? 'active' : ''}`}>
-              User Management
+              User
             </Link>
           )}
           <Link href="/admin/portfolio" className={`nav-item ${pathname?.startsWith('/admin/portfolio') ? 'active' : ''}`}>
-            Portfolio Management
+            Portfolio
           </Link>
           <Link href="/admin/services" className={`nav-item ${pathname?.startsWith('/admin/services') ? 'active' : ''}`}>
-            Services Management
+            Services
           </Link>
           <Link href="/admin/team" className={`nav-item ${pathname?.startsWith('/admin/team') ? 'active' : ''}`}>
-            Team Management
+            Team
           </Link>
           <Link href="/admin/projects" className={`nav-item ${pathname === '/admin/projects' ? 'active' : ''}`}>
             Project Map

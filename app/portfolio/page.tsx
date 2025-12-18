@@ -62,24 +62,31 @@ export default async function Portfolio() {
                   href={`/portfolio/${type.slug}`}
                   className={styles.portfolioCategoryCard}
                 >
-                  {category?.images[0] ? (
-                    <div className={styles.categoryImageWrapper}>
-                      <Image
-                        src={category.images[0]}
-                        alt={type.name}
-                        width={400}
-                        height={400}
-                        className={styles.categoryImage}
-                      />
-                      <div className={styles.categoryOverlay}>
+                  {(() => {
+                    // Handle both old format (string[]) and new format (PortfolioImage[])
+                    const firstImage = category?.images?.[0];
+                    const imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url;
+                    const imageAlt = typeof firstImage === 'string' ? type.name : (firstImage?.altText || type.name);
+                    
+                    return imageUrl ? (
+                      <div className={styles.categoryImageWrapper}>
+                        <Image
+                          src={imageUrl}
+                          alt={imageAlt}
+                          width={400}
+                          height={400}
+                          className={styles.categoryImage}
+                        />
+                        <div className={styles.categoryOverlay}>
+                          <h3>{type.name}</h3>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className={styles.categoryPlaceholder}>
                         <h3>{type.name}</h3>
                       </div>
-                    </div>
-                  ) : (
-                    <div className={styles.categoryPlaceholder}>
-                      <h3>{type.name}</h3>
-                    </div>
-                  )}
+                    );
+                  })()}
                 </Link>
               );
             })}

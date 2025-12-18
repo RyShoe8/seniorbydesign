@@ -132,23 +132,15 @@ export default function ServicesManagement() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
-    // Get manually entered URLs (only new ones not already in additionalImages)
-    const manualImages = (formData.get('images') as string)
-      ?.split('\n')
-      .filter(img => img.trim() && !additionalImages.includes(img.trim())) || [];
-    
-    // Combine uploaded/existing images with manually entered URLs
-    const allImages = [...additionalImages, ...manualImages];
-
-    // Use uploaded hero image or fall back to manual URL input
-    const finalHeroImage = heroImageUrl || (formData.get('heroImage') as string) || '';
+    // Use uploaded hero image
+    const finalHeroImage = heroImageUrl || '';
 
     const data = {
       slug: formData.get('slug') as string,
       title: formData.get('title') as string,
       heroImage: finalHeroImage,
       body: formData.get('body') as string,
-      images: allImages,
+      images: additionalImages,
     };
 
     try {
@@ -242,16 +234,6 @@ export default function ServicesManagement() {
                     </button>
                   </div>
                 )}
-                <div className="form-group" style={{ marginTop: '1rem' }}>
-                  <label htmlFor="heroImage">Or enter Hero Image URL</label>
-                  <input
-                    type="url"
-                    id="heroImage"
-                    name="heroImage"
-                    defaultValue={editingService?.heroImage || ''}
-                    placeholder="https://example.com/image.jpg"
-                  />
-                </div>
               </div>
               <div className="form-group">
                 <label htmlFor="body">Body Content *</label>
@@ -294,18 +276,6 @@ export default function ServicesManagement() {
                     </div>
                   </div>
                 )}
-                <div className="form-group" style={{ marginTop: '1rem' }}>
-                  <label htmlFor="images">Or add Image URLs (one per line)</label>
-                  <textarea
-                    id="images"
-                    name="images"
-                    rows={6}
-                    placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
-                  />
-                  <small style={{ color: 'var(--warm-grey-3)', fontSize: '14px', display: 'block', marginTop: '0.5rem' }}>
-                    Note: Images uploaded above and URLs entered here will both be included
-                  </small>
-                </div>
               </div>
               <div className="form-actions">
                 <button type="submit" className="btn">Save</button>

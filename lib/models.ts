@@ -20,11 +20,17 @@ export interface Service {
   updatedAt: Date;
 }
 
+export interface PortfolioImage {
+  url: string;
+  displayName: string;
+  altText: string;
+}
+
 export interface PortfolioCategory {
   _id?: ObjectId;
   slug: string;
   name: string;
-  images: string[];
+  images: PortfolioImage[];
   createdAt: Date;
   updatedAt: Date;
 }

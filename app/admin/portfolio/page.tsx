@@ -3,11 +3,17 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+interface PortfolioImage {
+  url: string;
+  displayName: string;
+  altText: string;
+}
+
 interface PortfolioCategory {
   _id?: string;
   slug: string;
   name: string;
-  images: string[];
+  images: PortfolioImage[];
 }
 
 export default function PortfolioManagement() {
@@ -15,6 +21,10 @@ export default function PortfolioManagement() {
   const [isLoading, setIsLoading] = useState(true);
   const [editingCategory, setEditingCategory] = useState<PortfolioCategory | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [portfolioImages, setPortfolioImages] = useState<PortfolioImage[]>([]);
+  const [currentImageDisplayName, setCurrentImageDisplayName] = useState('');
+  const [currentImageAltText, setCurrentImageAltText] = useState('');
 
   useEffect(() => {
     fetchCategories();
@@ -24,7 +34,14 @@ export default function PortfolioManagement() {
     try {
       const response = await fetch('/api/admin/portfolio');
       const data = await response.json();
-      setCategories(data);
+      // Handle backward compatibility: convert string[] to PortfolioImage[]
+      const normalizedData = data.map((cat: any) => ({
+        ...cat,
+        images: Array.isArray(cat.images) && cat.images.length > 0 && typeof cat.images[0] === 'string'
+          ? cat.images.map((url: string) => ({ url, displayName: '', altText: '' }))
+          : cat.images || []
+      }));
+      setCategories(normalizedData);
     } catch (error) {
       console.error('Error fetching categories:', error);
     } finally {
@@ -49,16 +66,74 @@ export default function PortfolioManagement() {
 
   const handleEdit = (category: PortfolioCategory) => {
     setEditingCategory(category);
+    // Handle backward compatibility
+    const normalizedImages = Array.isArray(category.images) && category.images.length > 0 && typeof category.images[0] === 'string'
+      ? category.images.map((url: string) => ({ url, displayName: '', altText: '' }))
+      : category.images || [];
+    setPortfolioImages(normalizedImages);
     setShowForm(true);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!currentImageDisplayName.trim() || !currentImageAltText.trim()) {
+      alert('Please enter both Image Name and Alt Text before uploading');
+      return;
+    }
+
+    setUploadingImage(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', 'portfolio');
+
+    try {
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const newImage: PortfolioImage = {
+          url: data.url,
+          displayName: currentImageDisplayName.trim(),
+          altText: currentImageAltText.trim(),
+        };
+        setPortfolioImages([...portfolioImages, newImage]);
+        setCurrentImageDisplayName('');
+        setCurrentImageAltText('');
+        // Reset file input
+        e.target.value = '';
+      } else {
+        alert('Failed to upload image');
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Error uploading image');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setPortfolioImages(portfolioImages.filter((_, i) => i !== index));
   };
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    
+    if (portfolioImages.length === 0) {
+      alert('Please add at least one image');
+      return;
+    }
+
     const data = {
       slug: formData.get('slug') as string,
       name: formData.get('name') as string,
-      images: (formData.get('images') as string).split('\n').filter(img => img.trim()),
+      images: portfolioImages,
     };
 
     try {
@@ -76,6 +151,9 @@ export default function PortfolioManagement() {
         fetchCategories();
         setShowForm(false);
         setEditingCategory(null);
+        setPortfolioImages([]);
+        setCurrentImageDisplayName('');
+        setCurrentImageAltText('');
         (e.target as HTMLFormElement).reset();
       }
     } catch (error) {
@@ -87,7 +165,13 @@ export default function PortfolioManagement() {
     <div className="admin-page">
       <div className="admin-header">
         <h1>Portfolio Management</h1>
-        <button onClick={() => { setShowForm(true); setEditingCategory(null); }} className="btn">
+        <button onClick={() => { 
+          setShowForm(true); 
+          setEditingCategory(null);
+          setPortfolioImages([]);
+          setCurrentImageDisplayName('');
+          setCurrentImageAltText('');
+        }} className="btn">
           Add Category
         </button>
       </div>
@@ -119,19 +203,76 @@ export default function PortfolioManagement() {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="images">Image URLs (one per line) *</label>
-                <textarea
-                  id="images"
-                  name="images"
-                  rows={6}
-                  required
-                  defaultValue={editingCategory?.images.join('\n') || ''}
-                  placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
-                />
+                <label>Images *</label>
+                <div className="image-upload-section">
+                  <div className="image-upload-form">
+                    <div className="form-group" style={{ marginBottom: '0.5rem' }}>
+                      <label htmlFor="imageDisplayName">Image Name *</label>
+                      <input
+                        type="text"
+                        id="imageDisplayName"
+                        value={currentImageDisplayName}
+                        onChange={(e) => setCurrentImageDisplayName(e.target.value)}
+                        placeholder="Image display name"
+                        required
+                      />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: '0.5rem' }}>
+                      <label htmlFor="imageAltText">Alt Text *</label>
+                      <input
+                        type="text"
+                        id="imageAltText"
+                        value={currentImageAltText}
+                        onChange={(e) => setCurrentImageAltText(e.target.value)}
+                        placeholder="Image description for accessibility"
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <input
+                        type="file"
+                        id="imageUpload"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={uploadingImage || !currentImageDisplayName.trim() || !currentImageAltText.trim()}
+                      />
+                      {uploadingImage && <p className="upload-status">Uploading...</p>}
+                    </div>
+                  </div>
+                  {portfolioImages.length > 0 && (
+                    <div className="uploaded-images">
+                      <p style={{ marginTop: '1rem', marginBottom: '0.5rem', fontWeight: 600 }}>Uploaded Images:</p>
+                      <div className="images-list">
+                        {portfolioImages.map((img, index) => (
+                          <div key={index} className="image-item">
+                            <img src={img.url} alt={img.altText || 'Preview'} className="preview-image-small" />
+                            <div className="image-info">
+                              <div><strong>Name:</strong> {img.displayName}</div>
+                              <div><strong>Alt:</strong> {img.altText}</div>
+                            </div>
+                            <button
+                              type="button"
+                              className="btn-small btn-danger"
+                              onClick={() => removeImage(index)}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="form-actions">
                 <button type="submit" className="btn">Save</button>
-                <button type="button" className="btn-secondary" onClick={() => { setShowForm(false); setEditingCategory(null); }}>
+                <button type="button" className="btn-secondary" onClick={() => { 
+                  setShowForm(false); 
+                  setEditingCategory(null);
+                  setPortfolioImages([]);
+                  setCurrentImageDisplayName('');
+                  setCurrentImageAltText('');
+                }}>
                   Cancel
                 </button>
               </div>
@@ -158,7 +299,7 @@ export default function PortfolioManagement() {
                 <tr key={category._id}>
                   <td>{category.name}</td>
                   <td>{category.slug}</td>
-                  <td>{category.images.length}</td>
+                  <td>{category.images?.length || 0}</td>
                   <td>
                     <button onClick={() => handleEdit(category)} className="btn-small">Edit</button>
                     <button onClick={() => category._id && handleDelete(category._id)} className="btn-small btn-danger">
@@ -197,7 +338,7 @@ export default function PortfolioManagement() {
           background: #fff;
           padding: var(--spacing-xl);
           border-radius: 8px;
-          max-width: 600px;
+          max-width: 800px;
           width: 90%;
           max-height: 90vh;
           overflow-y: auto;
@@ -224,6 +365,61 @@ export default function PortfolioManagement() {
           border-radius: 4px;
         }
 
+        .image-upload-section {
+          border: 1px solid var(--warm-grey-3);
+          border-radius: 4px;
+          padding: var(--spacing-md);
+          background: var(--warm-grey-1);
+        }
+
+        .image-upload-form {
+          background: #fff;
+          padding: var(--spacing-md);
+          border-radius: 4px;
+        }
+
+        .upload-status {
+          color: var(--sbd-brown);
+          margin-top: 0.5rem;
+          font-size: 14px;
+        }
+
+        .uploaded-images {
+          margin-top: var(--spacing-md);
+        }
+
+        .images-list {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing-sm);
+        }
+
+        .image-item {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-sm);
+          padding: var(--spacing-sm);
+          background: #fff;
+          border-radius: 4px;
+          border: 1px solid var(--warm-grey-3);
+        }
+
+        .preview-image-small {
+          width: 80px;
+          height: 80px;
+          object-fit: cover;
+          border-radius: 4px;
+        }
+
+        .image-info {
+          flex: 1;
+          font-size: 14px;
+        }
+
+        .image-info div {
+          margin-bottom: 0.25rem;
+        }
+
         .form-actions {
           display: flex;
           gap: var(--spacing-sm);
@@ -242,8 +438,13 @@ export default function PortfolioManagement() {
           color: #fff;
         }
 
-        .btn:hover {
+        .btn:hover:not(:disabled) {
           background-color: var(--sbd-brown);
+        }
+
+        .btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
 
         .btn-secondary {
@@ -252,7 +453,7 @@ export default function PortfolioManagement() {
           color: var(--sbd-brown);
         }
 
-        .btn-secondary:hover {
+        .btn-secondary:hover:not(:disabled) {
           background-color: var(--sbd-gold);
           color: #fff;
         }
