@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Providers from '@/components/Providers'
 import ConditionalLayout from '@/components/ConditionalLayout'
+import Analytics from '@/components/Analytics'
 
 export const metadata: Metadata = {
   title: 'Senior By Design',
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <Analytics />
         <Providers>
           <ConditionalLayout>{children}</ConditionalLayout>
         </Providers>
