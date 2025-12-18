@@ -104,11 +104,6 @@ export default async function Services() {
             fill
             className={styles.heroImage}
             priority
-            onError={(e) => {
-              // Fallback to placeholder if image doesn't exist
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-            }}
           />
           <h1>Services</h1>
         </div>

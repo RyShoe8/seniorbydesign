@@ -22,10 +22,6 @@ export default async function Team() {
             fill
             className={styles.heroImage}
             priority
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-            }}
           />
           <h1>The Team</h1>
         </div>

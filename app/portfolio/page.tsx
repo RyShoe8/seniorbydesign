@@ -39,10 +39,6 @@ export default async function Portfolio() {
             fill
             className={styles.heroImage}
             priority
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-            }}
           />
           <h1>Our Portfolio</h1>
         </div>

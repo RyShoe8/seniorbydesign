@@ -22,10 +22,6 @@ export default async function Blog() {
             fill
             className={styles.heroImage}
             priority
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-            }}
           />
           <h1>Blog</h1>
         </div>
