@@ -56,20 +56,27 @@ export default async function Home() {
         <div className="container">
           <h2 className={styles.sectionHeading}>Our Work</h2>
           <div className={styles.portfolioCarousel}>
-            {portfolioCategories.slice(0, 6).map((category) => (
-              <div key={category._id?.toString()} className={styles.portfolioCard}>
-                {category.images[0] && (
-                  <Image
-                    src={category.images[0]}
-                    alt={category.name}
-                    width={400}
-                    height={300}
-                    className={styles.portfolioImage}
-                  />
-                )}
-                <h3>{category.name}</h3>
-              </div>
-            ))}
+            {portfolioCategories.slice(0, 6).map((category) => {
+              // Handle both old format (string[]) and new format (PortfolioImage[])
+              const firstImage = category.images?.[0];
+              const imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url;
+              const imageAlt = typeof firstImage === 'string' ? category.name : (firstImage?.altText || category.name);
+              
+              return (
+                <div key={category._id?.toString()} className={styles.portfolioCard}>
+                  {imageUrl && (
+                    <Image
+                      src={imageUrl}
+                      alt={imageAlt}
+                      width={400}
+                      height={300}
+                      className={styles.portfolioImage}
+                    />
+                  )}
+                  <h3>{category.name}</h3>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
