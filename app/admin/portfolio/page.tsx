@@ -81,7 +81,7 @@ export default function PortfolioManagement() {
     if (Array.isArray(category.images) && category.images.length > 0) {
       if (typeof category.images[0] === 'string') {
         // Old format: string[]
-        normalizedImages = (category.images as string[]).map((url: string) => ({ url, displayName: '', altText: '' }));
+        normalizedImages = (category.images as unknown as string[]).map((url: string) => ({ url, displayName: '', altText: '' }));
       } else {
         // New format: PortfolioImage[]
         normalizedImages = category.images as PortfolioImage[];
