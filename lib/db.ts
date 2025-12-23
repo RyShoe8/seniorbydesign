@@ -1,38 +1,81 @@
-import { Collection } from 'mongodb';
 import getClientPromise from './mongodb';
+import {
+  User,
+  Service,
+  PortfolioCategory,
+  PortfolioItem,
+  Project,
+  TeamMember,
+  BlogPost,
+  Resource,
+  Partner,
+  HomepageContent,
+  Media,
+} from './models';
 
-const DB_NAME = process.env.MONGODB_DB_NAME || 'seniorbydesign';
+const DB_NAME = 'seniorbydesign';
 
-async function getCollection<T>(collectionName: string): Promise<Collection<T>> {
+export async function getDb() {
   const client = await getClientPromise();
-  const db = client.db(DB_NAME);
-  return db.collection<T>(collectionName);
+  return client.db(DB_NAME);
 }
 
+// Collections
 export async function getUsersCollection() {
-  return getCollection('users');
-}
-
-export async function getTeamMembersCollection() {
-  return getCollection('teamMembers');
+  const db = await getDb();
+  return db.collection<User>('users');
 }
 
 export async function getServicesCollection() {
-  return getCollection('services');
-}
-
-export async function getProjectsCollection() {
-  return getCollection('projects');
+  const db = await getDb();
+  return db.collection<Service>('services');
 }
 
 export async function getPortfolioCategoriesCollection() {
-  return getCollection('portfolioCategories');
+  const db = await getDb();
+  return db.collection<PortfolioCategory>('portfolioCategories');
+}
+
+export async function getPortfolioItemsCollection() {
+  const db = await getDb();
+  return db.collection<PortfolioItem>('portfolioItems');
+}
+
+export async function getProjectsCollection() {
+  const db = await getDb();
+  return db.collection<Project>('projects');
+}
+
+export async function getTeamMembersCollection() {
+  const db = await getDb();
+  return db.collection<TeamMember>('teamMembers');
+}
+
+export async function getBlogPostsCollection() {
+  const db = await getDb();
+  return db.collection<BlogPost>('blogPosts');
 }
 
 export async function getResourcesCollection() {
-  return getCollection('resources');
+  const db = await getDb();
+  return db.collection<Resource>('resources');
 }
 
 export async function getPartnersCollection() {
-  return getCollection('partners');
+  const db = await getDb();
+  return db.collection<Partner>('partners');
 }
+
+export async function getHomepageContentCollection() {
+  const db = await getDb();
+  return db.collection<HomepageContent>('homepageContent');
+}
+
+export async function getMediaCollection() {
+  const db = await getDb();
+  return db.collection<Media>('media');
+}
+
+
+
+
