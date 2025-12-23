@@ -17,7 +17,7 @@ export default async function Team() {
       <section className={styles.teamHero}>
         <div className={styles.teamHeroImage}>
           <Image
-            src="/images/Team/Team Header.webp"
+            src="/images/The Team/Team Header.webp"
             alt="The Team"
             fill
             className={styles.heroImage}

@@ -96,7 +96,7 @@ export default function TeamManagement() {
       name: formData.get('name') as string,
       title: formData.get('title') as string,
       bio: formData.get('bio') as string,
-      profileImage: formData.get('profileImage') as string,
+      profileImage: profileImageUrl || editingMember?.profileImage || '',
       linkedin: formData.get('linkedin') as string,
       facebook: formData.get('facebook') as string,
       instagram: formData.get('instagram') as string,
@@ -183,10 +183,34 @@ export default function TeamManagement() {
                   id="profileImageUpload"
                   name="profileImageUpload"
                   accept="image/*"
+                  onChange={handleProfileImageUpload}
+                  disabled={uploadingProfileImage}
                 />
-                <p style={{ fontSize: '14px', color: 'var(--warm-grey-3)', marginTop: '0.5rem' }}>
-                  Upload a profile image for this team member
-                </p>
+                {uploadingProfileImage && (
+                  <p className="upload-status">Uploading...</p>
+                )}
+                {(profileImageUrl || editingMember?.profileImage) && (
+                  <div className="image-preview">
+                    <img 
+                      src={profileImageUrl || editingMember?.profileImage} 
+                      alt="Profile preview" 
+                      style={{ maxWidth: '200px', maxHeight: '200px', objectFit: 'cover', borderRadius: '4px', marginTop: '0.5rem' }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setProfileImageUrl('')}
+                      className="btn-small btn-danger"
+                      style={{ marginLeft: '0.5rem', marginTop: '0.5rem' }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+                {!profileImageUrl && !editingMember?.profileImage && (
+                  <p style={{ fontSize: '14px', color: 'var(--warm-grey-3)', marginTop: '0.5rem' }}>
+                    Upload a profile image for this team member
+                  </p>
+                )}
               </div>
               <div className="form-group">
                 <label htmlFor="bio">Bio *</label>
