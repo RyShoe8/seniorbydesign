@@ -29,7 +29,7 @@ export default async function Team() {
 
       <section className="team-intro section-padding">
         <div className="container">
-          <h2>We Love What We Do</h2>
+          <h2 className={styles.centeredHeading}>We Love What We Do</h2>
           <div className={styles.introContent}>
             <p>
               SBD founder Reid Bonner, and his team of talented designers have collectively been designing, creating and manufacturing interior products for over 25 years. Every detail of our work is given serious consideration, from the overall look of a property, to personally comfort testing and often customizing each seating option we offer. We take great pride in creating beautiful, functional and well-designed senior living communities within our industry. Our unique approach results in luxurious, soul warming interiors that are often found in America&apos;s most beautiful homes.
@@ -55,13 +55,22 @@ export default async function Team() {
 
       <section className="team-picture section-padding">
         <div className="container">
-          <div className={styles.teamPhotoPlaceholder}>Team Picture</div>
+          <div className={styles.teamPhotoWrapper}>
+            <Image
+              src="/images/The Team/SBD-Group-Photo.webp"
+              alt="Senior By Design Team"
+              width={1200}
+              height={800}
+              className={styles.teamPhoto}
+              priority
+            />
+          </div>
         </div>
       </section>
 
       <section className="team-members section-padding">
         <div className="container">
-          <h2>Meet the experts</h2>
+          <h2 className={styles.centeredHeading}>Meet the experts</h2>
           <div className={styles.teamGrid}>
             {teamMembers.map((member) => (
               <Link
@@ -69,14 +78,14 @@ export default async function Team() {
                 href={`/team/${member.slug}`}
                 className={styles.teamMemberCard}
               >
-                {member.profileImage ? (
+                {member.profileImage && member.profileImage.trim() !== '' ? (
                   <div className={styles.memberImageWrapper}>
                     <Image
                       src={member.profileImage}
                       alt={member.name}
-                      width={400}
-                      height={500}
+                      fill
                       className={styles.memberImage}
+                      sizes="(max-width: 768px) 250px, 300px"
                     />
                     <div className={styles.memberInfoOverlay}>
                       <h3>{member.name}</h3>
