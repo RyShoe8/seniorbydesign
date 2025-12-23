@@ -35,12 +35,22 @@ export default function PortfolioManagement() {
       const response = await fetch('/api/admin/portfolio');
       const data = await response.json();
       // Handle backward compatibility: convert string[] to PortfolioImage[]
-      const normalizedData = data.map((cat: any) => ({
-        ...cat,
-        images: Array.isArray(cat.images) && cat.images.length > 0 && typeof cat.images[0] === 'string'
-          ? cat.images.map((url: string) => ({ url, displayName: '', altText: '' }))
-          : cat.images || []
-      }));
+      const normalizedData = data.map((cat: any) => {
+        let normalizedImages: PortfolioImage[] = [];
+        if (Array.isArray(cat.images) && cat.images.length > 0) {
+          if (typeof cat.images[0] === 'string') {
+            // Old format: string[]
+            normalizedImages = (cat.images as string[]).map((url: string) => ({ url, displayName: '', altText: '' }));
+          } else {
+            // New format: PortfolioImage[]
+            normalizedImages = cat.images as PortfolioImage[];
+          }
+        }
+        return {
+          ...cat,
+          images: normalizedImages
+        };
+      });
       setCategories(normalizedData);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -67,9 +77,16 @@ export default function PortfolioManagement() {
   const handleEdit = (category: PortfolioCategory) => {
     setEditingCategory(category);
     // Handle backward compatibility
-    const normalizedImages = Array.isArray(category.images) && category.images.length > 0 && typeof category.images[0] === 'string'
-      ? category.images.map((url: string) => ({ url, displayName: '', altText: '' }))
-      : category.images || [];
+    let normalizedImages: PortfolioImage[] = [];
+    if (Array.isArray(category.images) && category.images.length > 0) {
+      if (typeof category.images[0] === 'string') {
+        // Old format: string[]
+        normalizedImages = (category.images as unknown as string[]).map((url: string) => ({ url, displayName: '', altText: '' }));
+      } else {
+        // New format: PortfolioImage[]
+        normalizedImages = category.images as PortfolioImage[];
+      }
+    }
     setPortfolioImages(normalizedImages);
     setShowForm(true);
   };
