@@ -1,94 +1,102 @@
-import Image from 'next/image';
+import { Metadata } from 'next';
 import Link from 'next/link';
-import { getTeamMembersCollection } from '@/lib/db';
+import { getTeamMembers } from '../actions';
+import Image from 'next/image';
 import styles from './page.module.css';
 
-async function getTeamMembers() {
-  try {
-    const collection = await getTeamMembersCollection();
-    const members = await collection.find({}).toArray();
-    return members;
-  } catch (error) {
-    console.error('Error fetching team members:', error);
-    return [];
-  }
-}
+export const metadata: Metadata = {
+  title: 'Team - Senior By Design',
+  description: 'SBD founder Reid Bonner, and his team of talented designers have collectively been designing, creating and manufacturing interior products for over 25 years.',
+};
 
-export default async function TeamPage() {
+export default async function Team() {
   const teamMembers = await getTeamMembers();
 
   return (
-    <div className={styles.teamPage}>
-      {/* Hero Section */}
-      <section className={styles.hero}>
-        <div className="container">
-          <h1 className={styles.heroTitle}>Meet the Experts</h1>
+    <>
+      <section className={styles.teamHero}>
+        <div className={styles.teamHeroImage}>
+          <Image
+            src="/images/Team/Team Header.webp"
+            alt="The Team"
+            fill
+            className={styles.heroImage}
+            priority
+          />
+          <h1>The Team</h1>
         </div>
       </section>
 
-      {/* Group Photo Section */}
-      <section className={styles.groupPhotoSection}>
+      <section className="team-intro section-padding">
         <div className="container">
-          <div className={styles.groupPhotoWrapper}>
-            <Image
-              src="/images/The Team/SBD-Group-Photo.webp"
-              alt="Senior By Design Team"
-              width={1200}
-              height={800}
-              className={styles.groupPhoto}
-              priority
-            />
+          <h2>We Love What We Do</h2>
+          <div className={styles.introContent}>
+            <p>
+              SBD founder Reid Bonner, and his team of talented designers have collectively been designing, creating and manufacturing interior products for over 25 years. Every detail of our work is given serious consideration, from the overall look of a property, to personally comfort testing and often customizing each seating option we offer. We take great pride in creating beautiful, functional and well-designed senior living communities within our industry. Our unique approach results in luxurious, soul warming interiors that are often found in America&apos;s most beautiful homes.
+            </p>
+            <p>
+              At the very core of what sets SBD apart from other design firms is Reid&apos;s intimate connection to his beloved father and grandmother. It is the first-hand experience, caring for his loved ones and his reflections on the latter years of their shared experiences living within senior living communities that drives and inspires his senior living design aesthetic.
+            </p>
+            <p>
+              After 15 years in the art world, Reid has secured the finest client relationships, thereby allowing SBD the ability to provide original works at unparalleled value. SBD represents the epitome of Reid&apos;s and his team of highly skilled designers, design aesthetic, which is driven by his passion to create communities that reflect the warmth and inspiration of our amazing seniors.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* We Love What We Do Section */}
-      <section className={styles.loveSection}>
+      <section className="team-quote section-padding bg-warm-grey">
         <div className="container">
-          <h2 className={styles.loveTitle}>We Love What We Do</h2>
-          <p className={styles.loveText}>
-            Our team is passionate about creating exceptional senior living spaces 
-            that combine functionality, comfort, and style. With years of experience 
-            and a deep understanding of the unique needs of senior communities, we 
-            bring expertise and dedication to every project.
-          </p>
+          <blockquote className={styles.quote}>
+            &ldquo;We want our choices to create environments that hug and embrace those who live within them; spaces they are proud to call home.&rdquo;
+          </blockquote>
+          <p className={styles.quoteAuthor}>Reid Bonner, President</p>
         </div>
       </section>
 
-      {/* Team Members Grid */}
-      {teamMembers.length > 0 && (
-        <section className={styles.membersSection}>
-          <div className="container">
-            <div className={styles.membersGrid}>
-              {teamMembers.map((member: any) => (
-                <Link
-                  key={member._id}
-                  href={`/team/${member.slug}`}
-                  className={styles.memberCard}
-                >
-                  {member.profileImage && (
-                    <div className={styles.memberImageWrapper}>
-                      <Image
-                        src={member.profileImage}
-                        alt={member.name}
-                        width={400}
-                        height={400}
-                        className={styles.memberImage}
-                      />
+      <section className="team-picture section-padding">
+        <div className="container">
+          <div className={styles.teamPhotoPlaceholder}>Team Picture</div>
+        </div>
+      </section>
+
+      <section className="team-members section-padding">
+        <div className="container">
+          <h2>Meet the experts</h2>
+          <div className={styles.teamGrid}>
+            {teamMembers.map((member) => (
+              <Link
+                key={member._id?.toString()}
+                href={`/team/${member.slug}`}
+                className={styles.teamMemberCard}
+              >
+                {member.profileImage ? (
+                  <div className={styles.memberImageWrapper}>
+                    <Image
+                      src={member.profileImage}
+                      alt={member.name}
+                      width={400}
+                      height={500}
+                      className={styles.memberImage}
+                    />
+                    <div className={styles.memberInfoOverlay}>
+                      <h3>{member.name}</h3>
+                      <p>{member.title}</p>
                     </div>
-                  )}
-                  <div className={styles.memberInfo}>
-                    <h3 className={styles.memberName}>{member.name}</h3>
-                    {member.title && (
-                      <p className={styles.memberTitle}>{member.title}</p>
-                    )}
                   </div>
-                </Link>
-              ))}
-            </div>
+                ) : (
+                  <div className={styles.memberPlaceholder}>
+                    <div className={styles.memberInfoOverlay}>
+                      <h3>{member.name}</h3>
+                      <p>{member.title}</p>
+                    </div>
+                  </div>
+                )}
+              </Link>
+            ))}
           </div>
-        </section>
-      )}
-    </div>
+        </div>
+      </section>
+    </>
   );
 }
+

@@ -1,92 +1,110 @@
-.teamPage {
-  min-height: 100vh;
-}
-
-/* Hero Section */
-.hero {
-  padding: var(--spacing-2xl) 0 var(--spacing-xl);
-  background: var(--warm-grey-1);
-}
-
-.heroTitle {
-  text-align: center;
-  margin-bottom: 0;
-}
-
-/* Group Photo Section */
-.groupPhotoSection {
-  padding: var(--spacing-xl) 0;
-}
-
-.groupPhotoWrapper {
-  max-width: 1200px;
-  margin: 0 auto;
-  border-radius: 8px;
+.teamHero {
+  position: relative;
+  height: 500px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.groupPhoto {
+.teamHeroImage {
+  position: relative;
   width: 100%;
-  height: auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.teamHeroImage::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(89, 56, 37, 0.4);
+  z-index: 1;
+}
+
+.teamHeroImage h1 {
+  position: relative;
+  z-index: 2;
+  color: #fff;
+  font-size: 75px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.heroImage {
   object-fit: cover;
 }
 
-/* We Love What We Do Section */
-.loveSection {
-  padding: var(--spacing-xl) 0;
-  background: #fff;
+@media (max-width: 768px) {
+  .teamHeroImage h1 {
+    font-size: 48px;
+  }
 }
 
-.loveTitle {
+.introContent {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.introContent p {
+  margin-bottom: var(--spacing-md);
+  font-size: 19px;
+  line-height: 1.8;
+}
+
+.quote {
+  font-size: 36px;
+  font-style: italic;
+  font-weight: 300;
+  color: var(--sbd-brown);
   text-align: center;
   margin-bottom: var(--spacing-md);
+  line-height: 1.4;
 }
 
-.loveText {
+.quoteAuthor {
   text-align: center;
-  max-width: 800px;
-  margin: 0 auto;
-  font-size: 19px;
-  line-height: 1.6;
-  color: #333;
+  font-size: 20px;
+  color: var(--sbd-gold);
+  font-weight: 600;
 }
 
-/* Team Members Section */
-.membersSection {
-  padding: var(--spacing-xl) 0 var(--spacing-2xl);
+.teamPhotoPlaceholder {
+  width: 100%;
+  height: 500px;
   background: var(--warm-grey-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--warm-grey-3);
+  border-radius: 8px;
 }
 
-.membersGrid {
+.teamGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: var(--spacing-lg);
-  margin-top: var(--spacing-lg);
+  gap: var(--spacing-md);
 }
 
-.memberCard {
-  background: #fff;
+.teamMemberCard {
+  position: relative;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  text-decoration: none;
-  color: inherit;
-  display: flex;
-  flex-direction: column;
+  aspect-ratio: 3/4;
+  cursor: pointer;
+  transition: transform 0.3s ease;
 }
 
-.memberCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.teamMemberCard:hover {
+  transform: translateY(-5px);
 }
 
-.memberImageWrapper {
+.memberImageWrapper,
+.memberPlaceholder {
   width: 100%;
-  aspect-ratio: 1;
-  overflow: hidden;
-  background: var(--warm-grey-1);
+  height: 100%;
+  position: relative;
 }
 
 .memberImage {
@@ -95,47 +113,42 @@
   object-fit: cover;
 }
 
-.memberInfo {
+.memberPlaceholder {
+  background: var(--warm-grey-1);
+}
+
+.memberInfoOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(89, 56, 37, 0.9), transparent);
   padding: var(--spacing-md);
-  text-align: center;
+  color: #fff;
 }
 
-.memberName {
-  font-size: 30px;
-  margin-bottom: var(--spacing-xs);
-  color: var(--sbd-brown);
+.memberInfoOverlay h3 {
+  color: #fff;
+  margin-bottom: 0.25rem;
+  font-size: 24px;
 }
 
-.memberTitle {
-  font-size: 19px;
-  color: var(--warm-grey-3);
+.memberInfoOverlay p {
+  color: var(--sbd-gold);
+  font-size: 16px;
   margin: 0;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
-  .hero {
-    padding: var(--spacing-xl) 0 var(--spacing-md);
+  .quote {
+    font-size: 28px;
   }
 
-  .groupPhotoSection {
-    padding: var(--spacing-md) 0;
-  }
-
-  .loveSection {
-    padding: var(--spacing-lg) 0;
-  }
-
-  .membersSection {
-    padding: var(--spacing-lg) 0 var(--spacing-xl);
-  }
-
-  .membersGrid {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-md);
-  }
-
-  .loveText {
-    font-size: 17px;
+  .teamGrid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   }
 }
+
+
+
+
