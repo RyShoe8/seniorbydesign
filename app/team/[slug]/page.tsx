@@ -35,56 +35,62 @@ export default async function TeamMemberPage({ params }: Props) {
     <div className="team-member-page">
       <section className={styles.memberHero}>
         <div className={styles.memberHeroImage}>
-          {member.profileImage ? (
-            <Image
-              src={member.profileImage}
-              alt={member.name}
-              fill
-              className={styles.heroImage}
-              priority
-            />
-          ) : (
-            <div className={styles.heroPlaceholder} />
-          )}
-          <h1>{member.name}</h1>
+          <Image
+            src="/images/The Team/The Team Hero.webp"
+            alt="The Team"
+            fill
+            className={styles.heroImage}
+            priority
+          />
+          <h1>The Team</h1>
         </div>
       </section>
 
-      <section className="member-info section-padding">
+      <section className="member-content section-padding">
         <div className="container">
-          <div className={styles.memberHeader}>
-            <div className={styles.memberInfo}>
-              <h2 className={styles.memberTitle}>{member.title}</h2>
+          <div className={styles.memberContentWrapper}>
+            {member.profileImage && member.profileImage.trim() !== '' && (
+              <div className={styles.memberImageContainer}>
+                <Image
+                  src={member.profileImage}
+                  alt={member.name}
+                  width={400}
+                  height={500}
+                  className={styles.memberProfileImage}
+                  unoptimized={member.profileImage.startsWith('https://')}
+                />
+              </div>
+            )}
+            <div className={styles.memberDetails}>
+              <h2 className={styles.memberName}>{member.name}</h2>
+              <h3 className={styles.memberTitle}>{member.title}</h3>
+              
+              <div className={styles.bioContent}>
+                {member.bio.split('\n\n').map((paragraph, i) => (
+                  <p key={i}>{paragraph}</p>
+                ))}
+              </div>
+
               {(member.linkedin || member.facebook || member.instagram) && (
                 <div className={styles.memberSocial}>
                   {member.linkedin && (
-                    <a href={member.linkedin} target="_blank" rel="noopener noreferrer">
+                    <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
                       LinkedIn
                     </a>
                   )}
                   {member.facebook && (
-                    <a href={member.facebook} target="_blank" rel="noopener noreferrer">
+                    <a href={member.facebook} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
                       Facebook
                     </a>
                   )}
                   {member.instagram && (
-                    <a href={member.instagram} target="_blank" rel="noopener noreferrer">
+                    <a href={member.instagram} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
                       Instagram
                     </a>
                   )}
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="member-bio section-padding">
-        <div className="container">
-          <div className={styles.bioContent}>
-            {member.bio.split('\n\n').map((paragraph, i) => (
-              <p key={i}>{paragraph}</p>
-            ))}
           </div>
         </div>
       </section>

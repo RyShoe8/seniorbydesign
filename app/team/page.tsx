@@ -17,7 +17,7 @@ export default async function Team() {
       <section className={styles.teamHero}>
         <div className={styles.teamHeroImage}>
           <Image
-            src="/images/The Team/Team Header.webp"
+            src="/images/The Team/The Team Hero.webp"
             alt="The Team"
             fill
             className={styles.heroImage}
@@ -86,6 +86,7 @@ export default async function Team() {
                       fill
                       className={styles.memberImage}
                       sizes="(max-width: 768px) 250px, 300px"
+                      unoptimized={member.profileImage.startsWith('https://')}
                     />
                     <div className={styles.memberInfoOverlay}>
                       <h3>{member.name}</h3>
