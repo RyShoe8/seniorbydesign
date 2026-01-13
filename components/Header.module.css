@@ -178,6 +178,14 @@
   display: flex;
 }
 
+.mobileNavHeader {
+  display: none;
+}
+
+.mobileNavLinks {
+  display: none;
+}
+
 .mobileNavLink {
   padding: 1.25rem 1rem;
   font-family: var(--font-body);
@@ -275,7 +283,7 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 0;
     z-index: 999;
-    overflow-y: auto;
+    overflow: hidden;
     -webkit-overflow-scrolling: touch;
     background: #fff;
     display: none;
@@ -287,21 +295,23 @@
   }
 
   .mobileNavHeader {
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: space-between;
     padding: 1rem;
     border-bottom: 1px solid var(--warm-grey-1);
     background: #fff;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
+    position: relative;
+    flex-shrink: 0;
+    min-height: 100px;
+    width: 100%;
   }
 
   .mobileNavLogo {
     display: flex;
     align-items: center;
     text-decoration: none;
+    flex-shrink: 0;
   }
 
   .mobileLogoImage {
@@ -321,6 +331,9 @@
     align-items: center;
     justify-content: center;
     transition: color 0.3s ease;
+    flex-shrink: 0;
+    min-width: 48px;
+    min-height: 48px;
   }
 
   .mobileCloseButton:hover {
@@ -328,9 +341,13 @@
   }
 
   .mobileNavLinks {
+    display: flex !important;
+    flex-direction: column;
     padding: 1rem;
     flex: 1;
     overflow-y: auto;
+    width: 100%;
+    gap: 0;
   }
 }
 
