@@ -120,7 +120,8 @@
 }
 
 .partners-section .container {
-  max-width: 1600px;
+  max-width: 1600px !important;
+  width: 100%;
   padding-left: var(--container-padding);
   padding-right: var(--container-padding);
 }
