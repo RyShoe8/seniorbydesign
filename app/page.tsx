@@ -46,7 +46,7 @@ export default async function Home() {
               <p className={styles.heroSubheadline}>
                 From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.
               </p>
-              <a href="#our-portfolio" className="btn">Explore Our Portfolio</a>
+              <Link href="/portfolio" className="btn">Explore Our Portfolio</Link>
             </div>
           </div>
         </div>

@@ -141,12 +141,12 @@
   }
 
   .navButtonLeft {
-    left: 0.5rem;
+    left: 0;
     margin-right: 0;
   }
 
   .navButtonRight {
-    right: 0.5rem;
+    right: 0;
     margin-left: 0;
   }
 
