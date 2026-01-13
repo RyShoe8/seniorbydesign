@@ -81,36 +81,37 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-sm);
+  padding: 0;
   width: 100%;
-  text-align: center;
 }
 
 .partnerLogo:hover {
   opacity: 1;
 }
 
-.partnerLogo > * {
-  margin: 0 auto !important;
-}
-
 .partnerLogo img,
-.partnerLogo span {
+.partnerLogo span[style*="display:inline-block"],
+.partnerLogo > span {
   max-width: 320px !important;
   max-height: 180px !important;
   width: auto !important;
   height: auto !important;
   object-fit: contain;
-  margin: 0 auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
   display: block !important;
 }
 
 .partnerLogo a {
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
+  display: block !important;
   width: 100%;
-  margin: 0 auto !important;
+  text-align: center;
+}
+
+.partnerLogo a > span {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  display: block !important;
 }
 
 @media (max-width: 768px) {

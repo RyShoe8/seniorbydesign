@@ -85,19 +85,42 @@ export default function Header() {
 
       {/* Mobile Navigation */}
       <nav className={`${styles.mobileNav} ${isMobileMenuOpen ? styles.mobileNavOpen : ''}`}>
-        {navItems.map((item) => {
-          const isActive = mounted && (currentPathname === item.href || (item.href !== '/' && currentPathname?.startsWith(item.href)));
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`${styles.mobileNavLink} ${isActive ? styles.active : ''}`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
+        <div className={styles.mobileNavHeader}>
+          <Link href="/" className={styles.mobileNavLogo} onClick={() => setIsMobileMenuOpen(false)}>
+            <Image
+              src="/images/SBD Logo.webp"
+              alt="Senior By Design"
+              width={120}
+              height={120}
+              className={styles.mobileLogoImage}
+              priority
+            />
+          </Link>
+          <button
+            className={styles.mobileCloseButton}
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-label="Close menu"
+          >
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div className={styles.mobileNavLinks}>
+          {navItems.map((item) => {
+            const isActive = mounted && (currentPathname === item.href || (item.href !== '/' && currentPathname?.startsWith(item.href)));
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`${styles.mobileNavLink} ${isActive ? styles.active : ''}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
       </nav>
     </header>
   );

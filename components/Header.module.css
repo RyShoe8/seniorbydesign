@@ -268,16 +268,65 @@
 
   .mobileNav {
     position: fixed;
-    top: 90px;
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 1rem 1rem;
+    padding: 0;
     z-index: 999;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     background: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobileNavHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid var(--warm-grey-1);
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+
+  .mobileNavLogo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+  }
+
+  .mobileLogoImage {
+    height: 80px;
+    width: 80px;
+    display: block;
+    object-fit: contain;
+  }
+
+  .mobileCloseButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: var(--sbd-brown);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s ease;
+  }
+
+  .mobileCloseButton:hover {
+    color: var(--sbd-gold);
+  }
+
+  .mobileNavLinks {
+    padding: 1rem;
+    flex: 1;
+    overflow-y: auto;
   }
 }
 
