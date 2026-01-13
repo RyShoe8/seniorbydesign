@@ -70,7 +70,7 @@
 .partnersGrid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: var(--spacing-md);
+  gap: var(--spacing-lg);
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
@@ -78,7 +78,6 @@
   justify-items: center;
   align-items: center;
   box-sizing: border-box;
-  overflow: hidden;
 }
 
 .partnerLogo {
@@ -121,7 +120,9 @@
 }
 
 .partners-section .container {
-  overflow: hidden;
+  max-width: 1600px;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
 }
 
 @media (max-width: 768px) {
