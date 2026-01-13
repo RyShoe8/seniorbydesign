@@ -46,16 +46,16 @@ export default async function Home() {
               <p className={styles.heroSubheadline}>
                 From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.
               </p>
-              <a href="#our-work" className="btn">Explore Our Work</a>
+              <a href="#our-portfolio" className="btn">Explore Our Portfolio</a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Our Work Section */}
-      <section id="our-work" className={`${styles.ourWorkSection} section-padding`}>
+      {/* Our Portfolio Section */}
+      <section id="our-portfolio" className={`${styles.ourWorkSection} section-padding`}>
         <div className="container">
-          <h2 className={styles.sectionHeading}>Our Work</h2>
+          <h2 className={styles.sectionHeading}>Our Portfolio</h2>
         </div>
         <PortfolioCarousel categories={portfolioCategories.slice(0, 6)} />
       </section>
