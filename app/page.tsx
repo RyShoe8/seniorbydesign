@@ -91,8 +91,8 @@ export default async function Home() {
                         <Image
                           src={logoUrl}
                           alt={altText}
-                          width={150}
-                          height={100}
+                          width={200}
+                          height={120}
                           unoptimized={logoUrl.startsWith('http')}
                         />
                       </a>

@@ -235,11 +235,11 @@
 
 @media (max-width: 768px) {
   .header {
-    min-height: 90px;
+    min-height: 120px;
   }
 
   .headerContainer {
-    min-height: 70px;
+    min-height: 100px;
     height: auto;
     padding: 0 1rem;
     width: 100%;
@@ -247,15 +247,15 @@
   }
 
   .headerLogo {
-    min-width: 90px;
-    width: 90px;
-    height: 90px;
+    min-width: 120px;
+    width: 120px;
+    height: 120px;
     margin-left: 0;
   }
 
   .logoImage {
-    height: 90px;
-    width: 90px;
+    height: 120px;
+    width: 120px;
   }
 
   .desktopNav {

@@ -50,7 +50,6 @@ export default function Header() {
             height={150}
             className={styles.logoImage}
             priority
-            style={{ width: '150px', height: '150px', objectFit: 'contain' }}
           />
         </Link>
 
