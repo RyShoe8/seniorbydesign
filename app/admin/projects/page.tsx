@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import PortfolioMap from '@/components/PortfolioMap';
 
 interface Project {
   _id?: string;
@@ -138,31 +139,49 @@ export default function ProjectMapManagement() {
       {isLoading ? (
         <p>Loading...</p>
       ) : (
-        <div className="admin-table-container">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Project Name</th>
-                <th>ZIP Code</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projects.map((project) => (
-                <tr key={project._id}>
-                  <td>{project.name}</td>
-                  <td>{project.zipCode}</td>
-                  <td>
-                    <button onClick={() => handleEdit(project)} className="btn-small">Edit</button>
-                    <button onClick={() => project._id && handleDelete(project._id)} className="btn-small btn-danger">
-                      Delete
-                    </button>
-                  </td>
+        <>
+          {projects.length > 0 && (
+            <div style={{ marginBottom: 'var(--spacing-lg)' }}>
+              <h2 style={{ marginBottom: 'var(--spacing-md)' }}>Project Map Preview</h2>
+              <PortfolioMap projects={projects.map(p => ({ ...p, _id: p._id?.toString() }))} />
+            </div>
+          )}
+          <div className="admin-table-container">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Project Name</th>
+                  <th>ZIP Code</th>
+                  <th>Coordinates</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {projects.map((project) => (
+                  <tr key={project._id}>
+                    <td>{project.name}</td>
+                    <td>{project.zipCode}</td>
+                    <td>
+                      {project.latitude && project.longitude ? (
+                        <span style={{ fontSize: '12px', color: 'var(--warm-grey-3)' }}>
+                          {project.latitude.toFixed(4)}, {project.longitude.toFixed(4)}
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '12px', color: '#dc3545' }}>Not geocoded</span>
+                      )}
+                    </td>
+                    <td>
+                      <button onClick={() => handleEdit(project)} className="btn-small">Edit</button>
+                      <button onClick={() => project._id && handleDelete(project._id)} className="btn-small btn-danger">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       <style jsx>{`

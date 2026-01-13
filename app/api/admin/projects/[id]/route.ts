@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getProjectsCollection } from '@/lib/db';
 import { ObjectId } from 'mongodb';
+import { geocodeZipCode } from '@/lib/geocoding';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,9 +21,23 @@ export async function PUT(
     const body = await request.json();
     const collection = await getProjectsCollection();
     
+    // Geocode the ZIP code to get coordinates
+    let latitude: number | undefined;
+    let longitude: number | undefined;
+    
+    if (body.zipCode) {
+      const geocodeResult = await geocodeZipCode(body.zipCode);
+      if (geocodeResult) {
+        latitude = geocodeResult.latitude;
+        longitude = geocodeResult.longitude;
+      }
+    }
+    
     const update = {
       name: body.name,
       zipCode: body.zipCode,
+      latitude,
+      longitude,
       updatedAt: new Date(),
     };
 

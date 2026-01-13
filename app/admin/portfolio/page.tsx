@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface PortfolioImage {
   url: string;
@@ -17,6 +18,7 @@ interface PortfolioCategory {
 }
 
 export default function PortfolioManagement() {
+  const router = useRouter();
   const [categories, setCategories] = useState<PortfolioCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingCategory, setEditingCategory] = useState<PortfolioCategory | null>(null);
@@ -306,9 +308,12 @@ export default function PortfolioManagement() {
                   <td>{category.slug}</td>
                   <td>{category.images?.length || 0}</td>
                   <td>
-                    <Link href={`/admin/portfolio/${category._id}/images`} className="btn-small" style={{ marginRight: '0.5rem', display: 'inline-block', textDecoration: 'none' }}>
+                    <button 
+                      onClick={() => category._id && router.push(`/admin/portfolio/${category._id}/images`)} 
+                      className="btn-small"
+                    >
                       Manage Images
-                    </Link>
+                    </button>
                     <button onClick={() => handleEdit(category)} className="btn-small">Edit</button>
                     <button onClick={() => category._id && handleDelete(category._id)} className="btn-small btn-danger">
                       Delete
