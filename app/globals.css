@@ -136,6 +136,12 @@ p {
     width: 100%;
     max-width: 100%;
   }
+
+  .partners-section .container {
+    max-width: 100% !important;
+    padding-left: var(--container-padding-mobile);
+    padding-right: var(--container-padding-mobile);
+  }
 }
 
 /* Buttons */
