@@ -130,6 +130,11 @@
 }
 
 @media (max-width: 768px) {
+  .partners-section .container {
+    padding-left: var(--container-padding-mobile);
+    padding-right: var(--container-padding-mobile);
+  }
+
   .partnersGrid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
