@@ -124,39 +124,33 @@
 
 @media (max-width: 768px) {
   .carouselWrapper {
-    gap: 0.5rem;
-    padding-left: var(--container-padding-mobile, 1rem);
-    padding-right: var(--container-padding-mobile, 1rem);
+    gap: 0;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .navButton {
-    width: 36px;
-    height: 36px;
-    flex-shrink: 0;
-  }
-
-  .navButton svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .navButtonLeft {
-    margin-right: 0.5rem;
-  }
-
-  .navButtonRight {
-    margin-left: 0.5rem;
+    display: none;
   }
 
   .testimonialCard {
-    width: calc(100vw - 2rem - 72px - 1rem) !important;
-    min-width: calc(100vw - 2rem - 72px - 1rem) !important;
-    max-width: calc(100vw - 2rem - 72px - 1rem) !important;
+    width: calc(100vw - 3rem) !important;
+    min-width: calc(100vw - 3rem) !important;
+    max-width: calc(100vw - 3rem) !important;
     padding: 1rem;
     min-height: auto;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    margin-left: var(--container-padding-mobile, 1rem);
+  }
+
+  .testimonialCard:first-child {
+    margin-left: var(--container-padding-mobile, 1rem);
+  }
+
+  .testimonialCard:last-child {
+    margin-right: var(--container-padding-mobile, 1rem);
   }
 
   .testimonialText {
