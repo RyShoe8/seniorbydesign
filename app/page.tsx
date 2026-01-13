@@ -94,7 +94,7 @@ export default async function Home() {
                           alt={altText}
                           width={320}
                           height={180}
-                          style={{ maxWidth: '320px', maxHeight: '180px', width: 'auto', height: 'auto', display: 'block', margin: '0 auto' }}
+                          style={{ maxWidth: '320px', maxHeight: '180px', width: 'auto', height: 'auto', display: 'block', margin: '0 auto', objectFit: 'contain' }}
                           unoptimized={logoUrl.startsWith('http')}
                         />
                       </a>

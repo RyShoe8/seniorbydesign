@@ -82,16 +82,11 @@
   align-items: center;
   justify-content: center;
   padding: var(--spacing-sm);
+  width: 100%;
 }
 
 .partnerLogo:hover {
   opacity: 1;
-}
-
-.partnerLogo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .partnerLogo img,
@@ -101,11 +96,12 @@
   width: auto !important;
   height: auto !important;
   object-fit: contain;
-  margin: 0 auto;
+  margin: 0 auto !important;
+  display: block !important;
 }
 
 .partnerLogo a {
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   width: 100%;
@@ -131,12 +127,13 @@
 
   .partnerLogo img,
   .partnerLogo span {
-    max-width: 140px !important;
-    max-height: 90px !important;
+    max-width: 160px !important;
+    max-height: 100px !important;
     width: auto !important;
     height: auto !important;
     object-fit: contain;
-    margin: 0 auto;
+    margin: 0 auto !important;
+    display: block !important;
   }
 }
 
