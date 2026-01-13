@@ -70,13 +70,15 @@
 .partnersGrid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
   width: 100%;
-  margin: 0;
+  max-width: 100%;
+  margin: 0 auto;
   padding: 0;
   justify-items: center;
   align-items: center;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .partnerLogo {
@@ -119,14 +121,7 @@
 }
 
 .partners-section .container {
-  padding-left: 0;
-  padding-right: 0;
-  max-width: 100%;
-}
-
-.partners-section .container h2 {
-  padding-left: var(--container-padding);
-  padding-right: var(--container-padding);
+  overflow: hidden;
 }
 
 @media (max-width: 768px) {
