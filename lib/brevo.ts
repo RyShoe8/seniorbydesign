@@ -1,8 +1,4 @@
-import * as brevo from '@getbrevo/brevo';
-
-// Initialize Brevo API client
-let apiInstance: brevo.ContactsApi | null = null;
-let transactionalApiInstance: brevo.TransactionalEmailsApi | null = null;
+// Brevo API integration using REST API directly (no SDK to avoid Next.js build issues)
 
 function getBrevoApiKey(): string {
   const apiKey = process.env.BREVO_API_KEY;
@@ -10,24 +6,6 @@ function getBrevoApiKey(): string {
     throw new Error('BREVO_API_KEY environment variable is not set');
   }
   return apiKey;
-}
-
-function getContactsApi(): brevo.ContactsApi {
-  if (!apiInstance) {
-    const apiKey = getBrevoApiKey();
-    apiInstance = new brevo.ContactsApi();
-    apiInstance.setApiKey(brevo.ContactsApiApiKeys.apiKey, apiKey);
-  }
-  return apiInstance;
-}
-
-function getTransactionalApi(): brevo.TransactionalEmailsApi {
-  if (!transactionalApiInstance) {
-    const apiKey = getBrevoApiKey();
-    transactionalApiInstance = new brevo.TransactionalEmailsApi();
-    transactionalApiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, apiKey);
-  }
-  return transactionalApiInstance;
 }
 
 export interface NewsletterSignupData {
@@ -50,11 +28,11 @@ export interface ContactFormData {
 }
 
 /**
- * Add or update a contact in Brevo
+ * Add or update a contact in Brevo using REST API
  */
 export async function addContactToBrevo(data: NewsletterSignupData): Promise<void> {
   try {
-    const apiInstance = getContactsApi();
+    const apiKey = getBrevoApiKey();
     
     // Prepare contact attributes
     const attributes: { [key: string]: any } = {};
@@ -67,33 +45,45 @@ export async function addContactToBrevo(data: NewsletterSignupData): Promise<voi
     if (data.zip) attributes.ZIP = data.zip;
     if (data.brochureType) attributes.BROCHURE_TYPE = data.brochureType;
     
-    // Create contact request
-    const createContact = new brevo.CreateContact();
-    createContact.email = data.email;
-    createContact.attributes = attributes;
+    // Prepare request body
+    const requestBody: any = {
+      email: data.email,
+      attributes: attributes,
+      updateEnabled: true,
+    };
     
     // Subscribe to newsletter if requested
-    // List ID: You'll need to set this in your Brevo account and update the environment variable
     const listIds = process.env.BREVO_LIST_ID ? [parseInt(process.env.BREVO_LIST_ID)] : [];
     if (data.newsletter !== false && listIds.length > 0) {
-      createContact.listIds = listIds;
+      requestBody.listIds = listIds;
     }
     
-    // Update existing contact or create new one
-    createContact.updateEnabled = true;
+    const response = await fetch('https://api.brevo.com/v3/contacts', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': apiKey,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
     
-    await apiInstance.createContact(createContact);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      // If contact already exists, that's okay (updateEnabled handles it)
+      if (errorData.code !== 'duplicate_parameter') {
+        console.error('Error adding contact to Brevo:', errorData);
+        throw new Error(errorData.message || 'Failed to add contact to Brevo');
+      }
+    }
   } catch (error: any) {
-    // If contact already exists, that's okay (updateEnabled handles it)
-    if (error?.response?.body?.code !== 'duplicate_parameter') {
-      console.error('Error adding contact to Brevo:', error);
-      throw error;
-    }
+    console.error('Error adding contact to Brevo:', error);
+    throw error;
   }
 }
 
 /**
- * Send transactional email via Brevo
+ * Send transactional email via Brevo REST API
  */
 export async function sendTransactionalEmail(
   to: { email: string; name?: string }[],
@@ -102,22 +92,41 @@ export async function sendTransactionalEmail(
   textContent?: string
 ): Promise<void> {
   try {
-    const apiInstance = getTransactionalApi();
+    const apiKey = getBrevoApiKey();
     
-    const sendSmtpEmail = new brevo.SendSmtpEmail();
-    sendSmtpEmail.to = to;
-    sendSmtpEmail.subject = subject;
-    sendSmtpEmail.htmlContent = htmlContent;
-    if (textContent) {
-      sendSmtpEmail.textContent = textContent;
-    }
-    
-    // Set sender email (you may want to make this configurable)
+    // Set sender email
     const senderEmail = process.env.BREVO_SENDER_EMAIL || 'noreply@seniorbydesign.com';
     const senderName = process.env.BREVO_SENDER_NAME || 'Senior By Design';
-    sendSmtpEmail.sender = { email: senderEmail, name: senderName };
     
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
+    const requestBody: any = {
+      sender: {
+        email: senderEmail,
+        name: senderName,
+      },
+      to: to,
+      subject: subject,
+      htmlContent: htmlContent,
+    };
+    
+    if (textContent) {
+      requestBody.textContent = textContent;
+    }
+    
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': apiKey,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('Error sending transactional email:', errorData);
+      throw new Error(errorData.message || 'Failed to send email');
+    }
   } catch (error) {
     console.error('Error sending transactional email:', error);
     throw error;
@@ -129,7 +138,7 @@ export async function sendTransactionalEmail(
  */
 export async function addContactFormToBrevo(data: ContactFormData): Promise<void> {
   try {
-    const apiInstance = getContactsApi();
+    const apiKey = getBrevoApiKey();
     
     // Split name into first and last name if possible
     const nameParts = data.name.trim().split(/\s+/);
@@ -147,27 +156,40 @@ export async function addContactFormToBrevo(data: ContactFormData): Promise<void
     attributes.CONTACT_FORM_SUBMISSION = 'true';
     attributes.SUBMISSION_DATE = new Date().toISOString();
     
-    // Create contact request
-    const createContact = new brevo.CreateContact();
-    createContact.email = data.email;
-    createContact.attributes = attributes;
+    // Prepare request body
+    const requestBody: any = {
+      email: data.email,
+      attributes: attributes,
+      updateEnabled: true,
+    };
     
     // Optionally add to a contact form list if specified
     const contactFormListId = process.env.BREVO_CONTACT_FORM_LIST_ID;
     if (contactFormListId) {
-      createContact.listIds = [parseInt(contactFormListId)];
+      requestBody.listIds = [parseInt(contactFormListId)];
     }
     
-    // Update existing contact or create new one
-    createContact.updateEnabled = true;
+    const response = await fetch('https://api.brevo.com/v3/contacts', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': apiKey,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
     
-    await apiInstance.createContact(createContact);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      // If contact already exists, that's okay (updateEnabled handles it)
+      if (errorData.code !== 'duplicate_parameter') {
+        console.error('Error adding contact form to Brevo:', errorData);
+        throw new Error(errorData.message || 'Failed to add contact form to Brevo');
+      }
+    }
   } catch (error: any) {
-    // If contact already exists, that's okay (updateEnabled handles it)
-    if (error?.response?.body?.code !== 'duplicate_parameter') {
-      console.error('Error adding contact form to Brevo:', error);
-      throw error;
-    }
+    console.error('Error adding contact form to Brevo:', error);
+    throw error;
   }
 }
 
