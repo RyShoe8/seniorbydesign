@@ -315,8 +315,8 @@
   }
 
   .mobileLogoImage {
-    height: 80px;
-    width: 80px;
+    height: 120px;
+    width: 120px;
     display: block;
     object-fit: contain;
   }

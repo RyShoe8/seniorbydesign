@@ -73,6 +73,8 @@
   gap: var(--spacing-lg);
   align-items: center;
   justify-items: center;
+  width: 100%;
+  max-width: 100%;
 }
 
 .partnerLogo {
