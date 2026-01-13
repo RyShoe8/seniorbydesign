@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface PortfolioImage {
   url: string;
@@ -252,7 +253,15 @@ export default function PortfolioManagement() {
                       <div className="images-list">
                         {portfolioImages.map((img, index) => (
                           <div key={index} className="image-item">
-                            <img src={img.url} alt={img.altText || 'Preview'} className="preview-image-small" />
+                            <div style={{ position: 'relative', width: '80px', height: '80px' }}>
+                              <Image 
+                                src={img.url} 
+                                alt={img.altText || 'Preview'} 
+                                fill
+                                style={{ objectFit: 'cover', borderRadius: '4px' }}
+                                unoptimized={img.url.startsWith('https://')}
+                              />
+                            </div>
                             <div className="image-info">
                               <div><strong>Name:</strong> {img.displayName}</div>
                               <div><strong>Alt:</strong> {img.altText}</div>

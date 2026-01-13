@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 interface Service {
   _id?: string;
@@ -224,7 +225,15 @@ export default function ServicesManagement() {
                 {uploadingHero && <p className="upload-status">Uploading...</p>}
                 {heroImageUrl && (
                   <div className="image-preview">
-                    <img src={heroImageUrl} alt="Hero preview" className="preview-image" />
+                    <div style={{ position: 'relative', width: '300px', height: '200px' }}>
+                      <Image 
+                        src={heroImageUrl} 
+                        alt="Hero preview" 
+                        fill
+                        style={{ objectFit: 'cover', borderRadius: '4px' }}
+                        unoptimized={heroImageUrl.startsWith('https://')}
+                      />
+                    </div>
                     <button
                       type="button"
                       className="btn-small btn-danger"
@@ -263,7 +272,15 @@ export default function ServicesManagement() {
                     <div className="images-grid">
                       {additionalImages.map((url, index) => (
                         <div key={index} className="image-item">
-                          <img src={url} alt={`Upload ${index + 1}`} className="preview-image-small" />
+                          <div style={{ position: 'relative', width: '80px', height: '80px' }}>
+                            <Image 
+                              src={url} 
+                              alt={`Upload ${index + 1}`} 
+                              fill
+                              style={{ objectFit: 'cover', borderRadius: '4px' }}
+                              unoptimized={url.startsWith('https://')}
+                            />
+                          </div>
                           <button
                             type="button"
                             className="btn-small btn-danger"

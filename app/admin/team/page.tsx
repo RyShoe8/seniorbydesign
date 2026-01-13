@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 interface TeamMember {
   _id?: string;
@@ -191,11 +192,15 @@ export default function TeamManagement() {
                 )}
                 {(profileImageUrl || editingMember?.profileImage) && (
                   <div className="image-preview">
-                    <img 
-                      src={profileImageUrl || editingMember?.profileImage} 
-                      alt="Profile preview" 
-                      style={{ maxWidth: '200px', maxHeight: '200px', objectFit: 'cover', borderRadius: '4px', marginTop: '0.5rem' }}
-                    />
+                    <div style={{ position: 'relative', width: '200px', height: '200px', marginTop: '0.5rem' }}>
+                      <Image 
+                        src={profileImageUrl || editingMember?.profileImage || ''} 
+                        alt="Profile preview" 
+                        fill
+                        style={{ objectFit: 'cover', borderRadius: '4px' }}
+                        unoptimized={(profileImageUrl || editingMember?.profileImage || '').startsWith('https://')}
+                      />
+                    </div>
                     <button
                       type="button"
                       onClick={() => setProfileImageUrl('')}

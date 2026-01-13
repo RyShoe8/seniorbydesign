@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 interface Testimonial {
   review: string;
@@ -326,8 +327,14 @@ export default function HomepageManagement() {
                   />
                   {uploadingLogo && <p style={{ color: 'var(--sbd-brown)', marginTop: '0.5rem' }}>Uploading...</p>}
                   {logoUrl && (
-                    <div style={{ marginTop: 'var(--spacing-sm)' }}>
-                      <img src={logoUrl} alt="Logo preview" style={{ maxWidth: '200px', maxHeight: '100px', objectFit: 'contain' }} />
+                    <div style={{ marginTop: 'var(--spacing-sm)', position: 'relative', width: '200px', height: '100px' }}>
+                      <Image 
+                        src={logoUrl} 
+                        alt="Logo preview" 
+                        fill
+                        style={{ objectFit: 'contain' }}
+                        unoptimized={logoUrl.startsWith('https://')}
+                      />
                       <button 
                         type="button" 
                         className="btn-small btn-danger" 
@@ -419,8 +426,14 @@ export default function HomepageManagement() {
               <div key={partner._id} className="partner-box">
                 <div className="testimonial-content">
                   {partner.logo && (
-                    <div style={{ marginBottom: '0.25rem' }}>
-                      <img src={partner.logo} alt={partner.altText || partner.displayName || partner.name} style={{ maxWidth: '100px', maxHeight: '50px', objectFit: 'contain' }} />
+                    <div style={{ marginBottom: '0.25rem', position: 'relative', width: '100px', height: '50px' }}>
+                      <Image 
+                        src={partner.logo} 
+                        alt={partner.altText || partner.displayName || partner.name} 
+                        fill
+                        style={{ objectFit: 'contain' }}
+                        unoptimized={partner.logo.startsWith('https://')}
+                      />
                     </div>
                   )}
                   <p className="testimonial-name" style={{ fontSize: '12px', marginBottom: '0.15rem', fontWeight: '600' }}>{partner.displayName || partner.name}</p>
