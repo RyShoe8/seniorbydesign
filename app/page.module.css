@@ -88,11 +88,19 @@
   opacity: 1;
 }
 
-.partnerLogo img {
-  max-width: 100%;
-  height: auto;
+.partnerLogo img,
+.partnerLogo span {
+  max-width: 280px !important;
+  max-height: 160px !important;
+  width: auto !important;
+  height: auto !important;
   object-fit: contain;
-  max-height: 180px;
+}
+
+.partnerLogo a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @media (max-width: 768px) {
@@ -113,10 +121,12 @@
     padding: var(--spacing-xs);
   }
 
-  .partnerLogo img {
-    width: 100%;
-    height: auto;
-    max-height: 140px;
+  .partnerLogo img,
+  .partnerLogo span {
+    max-width: 180px !important;
+    max-height: 120px !important;
+    width: auto !important;
+    height: auto !important;
     object-fit: contain;
   }
 }

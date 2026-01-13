@@ -92,8 +92,9 @@ export default async function Home() {
                         <Image
                           src={logoUrl}
                           alt={altText}
-                          width={240}
-                          height={140}
+                          width={280}
+                          height={160}
+                          style={{ maxWidth: '280px', maxHeight: '160px', width: 'auto', height: 'auto' }}
                           unoptimized={logoUrl.startsWith('http')}
                         />
                       </a>
@@ -101,8 +102,9 @@ export default async function Home() {
                       <Image
                         src={logoUrl}
                         alt={altText}
-                        width={240}
-                          height={140}
+                        width={280}
+                        height={160}
+                        style={{ maxWidth: '280px', maxHeight: '160px', width: 'auto', height: 'auto' }}
                         unoptimized={logoUrl.startsWith('http')}
                       />
                     )}
