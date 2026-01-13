@@ -124,33 +124,60 @@
 
 @media (max-width: 768px) {
   .carouselWrapper {
-    gap: var(--spacing-xs);
-    padding-left: var(--container-padding);
-    padding-right: var(--container-padding);
+    gap: 0.5rem;
+    padding-left: var(--container-padding-mobile, 1rem);
+    padding-right: var(--container-padding-mobile, 1rem);
   }
 
   .navButton {
-    width: 48px;
-    height: 48px;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
   }
 
   .navButton svg {
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 18px;
   }
 
   .navButtonLeft {
-    margin-right: var(--spacing-xs);
+    margin-right: 0.5rem;
   }
 
   .navButtonRight {
-    margin-left: var(--spacing-xs);
+    margin-left: 0.5rem;
   }
 
   .testimonialCard {
-    width: calc(100vw - var(--container-padding) * 2 - var(--spacing-xs) * 2 - 96px);
-    min-width: calc(100vw - var(--container-padding) * 2 - var(--spacing-xs) * 2 - 96px);
-    max-width: calc(100vw - var(--container-padding) * 2 - var(--spacing-xs) * 2 - 96px);
+    width: calc(100vw - 2rem - 72px - 1rem) !important;
+    min-width: calc(100vw - 2rem - 72px - 1rem) !important;
+    max-width: calc(100vw - 2rem - 72px - 1rem) !important;
+    padding: 1rem;
+    min-height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .testimonialText {
+    font-size: 15px;
+    line-height: 1.4;
+    margin-bottom: 0.75rem;
+  }
+
+  .testimonialAuthor {
+    padding-top: 0.75rem;
+    margin-top: 0.75rem;
+    border-top: 1px solid var(--warm-grey-3);
+  }
+
+  .testimonialName {
+    font-size: 14px;
+    margin-bottom: 0.25rem;
+  }
+
+  .testimonialPosition {
+    font-size: 13px;
   }
 }
 
