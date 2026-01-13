@@ -83,6 +83,14 @@ export default function Footer() {
           padding: 0 var(--container-padding);
         }
 
+        @media (max-width: 768px) {
+          .footer-container {
+            width: 100%;
+            max-width: 100%;
+            padding: 0 var(--container-padding-mobile, 1rem);
+          }
+        }
+
         .footer-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);

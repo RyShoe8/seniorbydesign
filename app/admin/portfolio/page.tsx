@@ -95,11 +95,6 @@ export default function PortfolioManagement() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!currentImageDisplayName.trim() || !currentImageAltText.trim()) {
-      alert('Please enter both Image Name and Alt Text before uploading');
-      return;
-    }
-
     setUploadingImage(true);
     const formData = new FormData();
     formData.append('file', file);
@@ -141,11 +136,6 @@ export default function PortfolioManagement() {
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    
-    if (portfolioImages.length === 0) {
-      alert('Please add at least one image');
-      return;
-    }
 
     const data = {
       slug: formData.get('slug') as string,
@@ -220,29 +210,27 @@ export default function PortfolioManagement() {
                 />
               </div>
               <div className="form-group">
-                <label>Images *</label>
+                <label>Images</label>
                 <div className="image-upload-section">
                   <div className="image-upload-form">
                     <div className="form-group" style={{ marginBottom: '0.5rem' }}>
-                      <label htmlFor="imageDisplayName">Image Name *</label>
+                      <label htmlFor="imageDisplayName">Image Name</label>
                       <input
                         type="text"
                         id="imageDisplayName"
                         value={currentImageDisplayName}
                         onChange={(e) => setCurrentImageDisplayName(e.target.value)}
                         placeholder="Image display name"
-                        required
                       />
                     </div>
                     <div className="form-group" style={{ marginBottom: '0.5rem' }}>
-                      <label htmlFor="imageAltText">Alt Text *</label>
+                      <label htmlFor="imageAltText">Alt Text</label>
                       <input
                         type="text"
                         id="imageAltText"
                         value={currentImageAltText}
                         onChange={(e) => setCurrentImageAltText(e.target.value)}
                         placeholder="Image description for accessibility"
-                        required
                       />
                     </div>
                     <div className="form-group">
@@ -251,7 +239,7 @@ export default function PortfolioManagement() {
                         id="imageUpload"
                         accept="image/*"
                         onChange={handleImageUpload}
-                        disabled={uploadingImage || !currentImageDisplayName.trim() || !currentImageAltText.trim()}
+                        disabled={uploadingImage}
                       />
                       {uploadingImage && <p className="upload-status">Uploading...</p>}
                     </div>

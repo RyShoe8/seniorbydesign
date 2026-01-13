@@ -56,6 +56,7 @@ a:hover {
   /* Container */
   --container-max-width: 1200px;
   --container-padding: 1.5rem;
+  --container-padding-mobile: 1rem;
 }
 
 /* Typography */
@@ -123,6 +124,14 @@ p {
   max-width: var(--container-max-width);
   margin: 0 auto;
   padding: 0 var(--container-padding);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 var(--container-padding-mobile);
+    width: 100%;
+    max-width: 100%;
+  }
 }
 
 /* Buttons */

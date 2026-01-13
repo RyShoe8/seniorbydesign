@@ -241,13 +241,16 @@
   .headerContainer {
     min-height: 70px;
     height: auto;
+    padding: 0 1rem;
+    width: 100%;
+    max-width: 100%;
   }
 
   .headerLogo {
     min-width: 90px;
     width: 90px;
     height: 90px;
-    margin-left: -50px;
+    margin-left: 0;
   }
 
   .logoImage {
@@ -269,6 +272,7 @@
     left: 0;
     right: 0;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 1rem 1rem;
   }
 }
 

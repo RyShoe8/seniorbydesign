@@ -149,6 +149,10 @@
 }
 
 @media (max-width: 768px) {
+  .heroContent {
+    padding: 0 var(--container-padding-mobile, 1rem);
+  }
+
   .heroHeadline {
     font-size: 48px;
   }

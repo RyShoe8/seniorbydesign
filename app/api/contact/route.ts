@@ -1,26 +1,35 @@
 import { NextResponse } from 'next/server';
+import { addContactFormToBrevo, ContactFormData } from '@/lib/brevo';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body: ContactFormData = await request.json();
     
-    // Here you would integrate with Brevo or your email service
-    // For now, just log the data
-    console.log('Contact form submission:', body);
+    // Validate required fields
+    if (!body.name || !body.email || !body.message) {
+      return NextResponse.json(
+        { error: 'Name, email, and message are required' },
+        { status: 400 }
+      );
+    }
     
-    // TODO: Send email via Brevo API
+    // Add contact form submission to Brevo inbox
+    await addContactFormToBrevo(body);
     
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Contact form error:', error);
+    
+    const errorMessage = error?.message || 'Failed to submit contact form';
     return NextResponse.json(
-      { error: 'Failed to send message' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
 }
+
 
 
 
