@@ -31,10 +31,6 @@ export default function PortfolioImageManagement() {
   const [editingImage, setEditingImage] = useState<PortfolioImage | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    fetchCategory();
-  }, [categoryId]);
-
   const fetchCategory = async () => {
     try {
       const response = await fetch(`/api/admin/portfolio/${categoryId}`);

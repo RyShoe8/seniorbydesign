@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Image from 'next/image';
 import NewsletterCTA from '@/components/NewsletterCTA';
 import TestimonialsCarousel from '@/components/TestimonialsCarousel';
 import PortfolioCarousel from '@/components/PortfolioCarousel';
