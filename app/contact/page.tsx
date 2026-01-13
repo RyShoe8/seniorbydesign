@@ -16,16 +16,36 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
+  const formatPhoneNumber = (phone: string): string => {
+    if (!phone) return phone;
+    
+    // Remove all non-digit characters
+    const digitsOnly = phone.replace(/\D/g, '');
+    
+    // If phone number doesn't start with 1, add it
+    if (digitsOnly.length > 0 && !digitsOnly.startsWith('1')) {
+      return `1${digitsOnly}`;
+    }
+    
+    return digitsOnly.startsWith('1') ? digitsOnly : phone;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
 
     try {
+      // Format phone number before submitting
+      const formattedData = {
+        ...formData,
+        phone: formData.phone ? formatPhoneNumber(formData.phone) : formData.phone,
+      };
+
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formattedData),
       });
 
       if (response.ok) {
