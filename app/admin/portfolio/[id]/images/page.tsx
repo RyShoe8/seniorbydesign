@@ -54,6 +54,11 @@ export default function PortfolioImageManagement() {
     }
   };
 
+  useEffect(() => {
+    fetchCategory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryId]);
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !category) return;
