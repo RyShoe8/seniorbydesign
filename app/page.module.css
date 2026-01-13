@@ -72,9 +72,11 @@
   grid-template-columns: repeat(6, 1fr);
   gap: var(--spacing-lg);
   width: 100%;
-  margin: 0 auto;
+  margin: 0;
+  padding: 0;
   justify-items: center;
   align-items: center;
+  box-sizing: border-box;
 }
 
 .partnerLogo {
@@ -85,6 +87,8 @@
   justify-content: center;
   width: 100%;
   padding: 0;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 .partnerLogo:hover {
@@ -112,6 +116,17 @@
 .partnerLogo a span {
   display: block !important;
   margin: 0 auto !important;
+}
+
+.partners-section .container {
+  padding-left: 0;
+  padding-right: 0;
+  max-width: 100%;
+}
+
+.partners-section .container h2 {
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
 }
 
 @media (max-width: 768px) {

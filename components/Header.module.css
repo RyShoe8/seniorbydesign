@@ -242,13 +242,15 @@
 
 @media (max-width: 768px) {
   .header {
-    min-height: 120px;
-    height: 120px;
+    height: 120px !important;
+    min-height: 120px !important;
+    max-height: 120px !important;
   }
 
   .headerContainer {
-    min-height: 100px;
-    height: 100px;
+    height: 100px !important;
+    min-height: 100px !important;
+    max-height: 100px !important;
     padding: 0 1rem;
     width: 100%;
     max-width: 100%;
@@ -303,7 +305,9 @@
     background: #fff;
     position: relative;
     flex-shrink: 0;
-    min-height: 100px;
+    height: 100px !important;
+    min-height: 100px !important;
+    max-height: 100px !important;
     width: 100%;
   }
 
