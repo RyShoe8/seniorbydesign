@@ -4,6 +4,12 @@
   overflow: hidden;
 }
 
+@media (max-width: 768px) {
+  .serviceHero {
+    height: 350px;
+  }
+}
+
 .serviceHeroImage {
   position: relative;
   width: 100%;

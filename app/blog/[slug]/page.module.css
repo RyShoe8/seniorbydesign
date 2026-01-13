@@ -4,6 +4,12 @@
   overflow: hidden;
 }
 
+@media (max-width: 768px) {
+  .blogPostHero {
+    height: 350px;
+  }
+}
+
 .blogPostHeroImage {
   position: relative;
   width: 100%;

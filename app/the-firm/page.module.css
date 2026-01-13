@@ -4,6 +4,12 @@
   overflow: hidden;
 }
 
+@media (max-width: 768px) {
+  .firmHero {
+    height: 350px;
+  }
+}
+
 .firmHeroImage {
   position: relative;
   width: 100%;

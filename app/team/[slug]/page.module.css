@@ -4,6 +4,12 @@
   overflow: hidden;
 }
 
+@media (max-width: 768px) {
+  .memberHero {
+    height: 350px;
+  }
+}
+
 .memberHeroImage {
   position: relative;
   width: 100%;

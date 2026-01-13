@@ -4,6 +4,12 @@
   overflow: hidden;
 }
 
+@media (max-width: 768px) {
+  .teamHero {
+    height: 350px;
+  }
+}
+
 .teamHeroImage {
   position: relative;
   width: 100%;

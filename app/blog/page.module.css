@@ -4,6 +4,12 @@
   overflow: hidden;
 }
 
+@media (max-width: 768px) {
+  .blogHero {
+    height: 350px;
+  }
+}
+
 .blogHeroImage {
   position: relative;
   width: 100%;

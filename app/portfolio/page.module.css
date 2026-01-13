@@ -4,6 +4,12 @@
   overflow: hidden;
 }
 
+@media (max-width: 768px) {
+  .portfolioHero {
+    height: 350px;
+  }
+}
+
 .portfolioHeroImage {
   position: relative;
   width: 100%;
