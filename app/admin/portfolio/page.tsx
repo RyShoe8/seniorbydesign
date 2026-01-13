@@ -306,6 +306,9 @@ export default function PortfolioManagement() {
                   <td>{category.slug}</td>
                   <td>{category.images?.length || 0}</td>
                   <td>
+                    <Link href={`/admin/portfolio/${category._id}/images`} className="btn-small" style={{ marginRight: '0.5rem', display: 'inline-block', textDecoration: 'none' }}>
+                      Manage Images
+                    </Link>
                     <button onClick={() => handleEdit(category)} className="btn-small">Edit</button>
                     <button onClick={() => category._id && handleDelete(category._id)} className="btn-small btn-danger">
                       Delete

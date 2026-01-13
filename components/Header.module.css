@@ -267,12 +267,17 @@
   }
 
   .mobileNav {
-    position: absolute;
-    top: 100%;
+    position: fixed;
+    top: 90px;
     left: 0;
     right: 0;
+    bottom: 0;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 1rem 1rem;
+    z-index: 999;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background: #fff;
   }
 }
 

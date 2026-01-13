@@ -1,0 +1,166 @@
+.carouselWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  width: 100vw !important;
+  max-width: 100vw !important;
+  margin-left: calc(-50vw + 50%) !important;
+  padding-left: var(--container-padding) !important;
+  padding-right: var(--container-padding) !important;
+  box-sizing: border-box;
+  overflow: visible !important;
+}
+
+.carousel {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  min-width: 0;
+}
+
+.carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.carouselTrack {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0 var(--spacing-md);
+  width: max-content;
+}
+
+.portfolioCard {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  flex: 0 0 auto;
+  width: calc((100vw - 56px - 56px - 2rem - 2rem - 2rem - 1.5rem - 1.5rem) / 2) !important;
+  max-width: 500px !important;
+  min-width: 350px !important;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.portfolioCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.portfolioImage {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+
+.portfolioCard h3 {
+  padding: var(--spacing-sm);
+  font-size: 24px;
+  text-align: center;
+  color: var(--sbd-brown);
+  margin: 0;
+}
+
+.navButton {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 3px solid var(--sbd-gold);
+  background: #fff;
+  color: var(--sbd-gold);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(89, 56, 37, 0.15);
+  z-index: 10;
+  position: relative;
+}
+
+.navButton:hover:not(.navButtonDisabled) {
+  background: var(--sbd-gold);
+  color: #fff;
+  transform: scale(1.15);
+  box-shadow: 0 6px 20px rgba(89, 56, 37, 0.3);
+  border-color: var(--sbd-brown);
+}
+
+.navButton:active:not(.navButtonDisabled) {
+  transform: scale(1.05);
+}
+
+.navButtonDisabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  border-color: var(--warm-grey-3);
+  color: var(--warm-grey-3);
+}
+
+.navButton svg {
+  width: 28px;
+  height: 28px;
+}
+
+.navButtonLeft {
+  margin-right: var(--spacing-sm);
+}
+
+.navButtonRight {
+  margin-left: var(--spacing-sm);
+}
+
+@media (max-width: 768px) {
+  .carouselWrapper {
+    gap: 0.5rem;
+    padding-left: var(--container-padding-mobile, 1rem);
+    padding-right: var(--container-padding-mobile, 1rem);
+  }
+
+  .navButton {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+
+  .navButton svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .navButtonLeft {
+    margin-right: 0.5rem;
+  }
+
+  .navButtonRight {
+    margin-left: 0.5rem;
+  }
+
+  .portfolioCard {
+    width: calc(100vw - 2rem - 72px - 1rem) !important;
+    min-width: calc(100vw - 2rem - 72px - 1rem) !important;
+    max-width: calc(100vw - 2rem - 72px - 1rem) !important;
+  }
+
+  .portfolioCard h3 {
+    font-size: 20px;
+    padding: var(--spacing-xs);
+  }
+
+  .portfolioImage {
+    height: 200px;
+  }
+}

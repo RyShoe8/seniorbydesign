@@ -155,8 +155,25 @@ export default function Footer() {
 
         @media (max-width: 768px) {
           .footer-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(2, 1fr);
             gap: var(--spacing-md);
+          }
+
+          .footer-heading {
+            font-size: 20px;
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .footer-links li {
+            margin-bottom: 0.4rem;
+          }
+
+          .footer-contact {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .footer-contact a {
+            font-size: 17px;
           }
         }
       `}</style>
