@@ -130,7 +130,7 @@ export default function PrivacyPolicy() {
           <p>If you are a California resident, you have the right to opt-out of the sale of personal information (we do not sell personal information).</p>
 
           <p>
-            To exercise any of these rights, please contact us at <a href="mailto:privacy@seniorbydesign.com">privacy@seniorbydesign.com</a> or use the contact form on our website.
+            To exercise any of these rights, please contact us at <a href="mailto:info@seniorbydesign.com">info@seniorbydesign.com</a> or use the contact form on our website.
           </p>
         </section>
 
@@ -174,7 +174,7 @@ export default function PrivacyPolicy() {
           <h2>14. Contact Us</h2>
           <p>If you have any questions about this Privacy Policy or wish to exercise your rights, please contact us:</p>
           <ul>
-            <li><strong>Email:</strong> <a href="mailto:privacy@seniorbydesign.com">privacy@seniorbydesign.com</a></li>
+            <li><strong>Email:</strong> <a href="mailto:info@seniorbydesign.com">info@seniorbydesign.com</a></li>
             <li><strong>Phone:</strong> <a href="tel:8337733744">(833) 773-3744</a></li>
             <li><strong>Website:</strong> <a href="/contact">Contact Form</a></li>
           </ul>
