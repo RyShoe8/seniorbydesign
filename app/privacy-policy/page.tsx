@@ -16,7 +16,7 @@ export default function PrivacyPolicy() {
         <section>
           <h2>1. Introduction</h2>
           <p>
-            Senior By Design ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website seniorbydesign.com (the "Site") and use our services.
+            Senior By Design (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website seniorbydesign.com (the &quot;Site&quot;) and use our services.
           </p>
           <p>
             By using our Site, you consent to the data practices described in this Privacy Policy. If you do not agree with the practices described in this policy, please do not use our Site.
@@ -111,7 +111,7 @@ export default function PrivacyPolicy() {
           <h3>7.2 Rectification</h3>
           <p>You have the right to request correction of inaccurate or incomplete personal information.</p>
 
-          <h3>7.3 Erasure ("Right to be Forgotten")</h3>
+          <h3>7.3 Erasure (&quot;Right to be Forgotten&quot;)</h3>
           <p>You have the right to request deletion of your personal information, subject to certain exceptions.</p>
 
           <h3>7.4 Restriction of Processing</h3>
@@ -151,7 +151,7 @@ export default function PrivacyPolicy() {
         </section>
 
         <section>
-          <h2>10. Children's Privacy</h2>
+          <h2>10. Children&apos;s Privacy</h2>
           <p>Our Site is not intended for children under the age of 16. We do not knowingly collect personal information from children under 16. If you believe we have collected information from a child under 16, please contact us immediately.</p>
         </section>
 
@@ -167,7 +167,7 @@ export default function PrivacyPolicy() {
 
         <section>
           <h2>13. Changes to This Privacy Policy</h2>
-          <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date. You are advised to review this Privacy Policy periodically for any changes.</p>
+          <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the &quot;Last Updated&quot; date. You are advised to review this Privacy Policy periodically for any changes.</p>
         </section>
 
         <section>
