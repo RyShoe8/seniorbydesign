@@ -127,10 +127,32 @@
     gap: 0;
     padding-left: 0;
     padding-right: 0;
+    position: relative;
   }
 
   .navButton {
-    display: none;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    position: absolute;
+    z-index: 20;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .navButtonLeft {
+    left: 0.5rem;
+    margin-right: 0;
+  }
+
+  .navButtonRight {
+    right: 0.5rem;
+    margin-left: 0;
+  }
+
+  .navButton svg {
+    width: 18px;
+    height: 18px;
   }
 
   .testimonialCard {
