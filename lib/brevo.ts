@@ -150,7 +150,10 @@ export async function addContactFormToBrevo(data: ContactFormData): Promise<void
     
     if (firstName) attributes.FIRSTNAME = firstName;
     if (lastName) attributes.LASTNAME = lastName;
-    if (data.phone) attributes.PHONE = data.phone;
+    if (data.phone) {
+      attributes.SMS = data.phone; // Standard Brevo phone field
+      attributes.LANDLINE_NUMBER = data.phone; // Landline number field
+    }
     // Store the message in a custom attribute
     attributes.MESSAGE = data.message;
     attributes.CONTACT_FORM_SUBMISSION = 'true';
