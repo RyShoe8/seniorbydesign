@@ -88,20 +88,7 @@ export default async function Home() {
                 return (
                   <div key={partner._id?.toString()} className={styles.partnerLogo}>
                     {partner.url ? (
-                      <a href={partner.url} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                          <Image
-                            src={logoUrl}
-                            alt={altText}
-                            width={320}
-                            height={180}
-                            style={{ maxWidth: '320px', maxHeight: '180px', width: 'auto', height: 'auto', objectFit: 'contain' }}
-                            unoptimized={logoUrl.startsWith('http')}
-                          />
-                        </div>
-                      </a>
-                    ) : (
-                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                      <a href={partner.url} target="_blank" rel="noopener noreferrer">
                         <Image
                           src={logoUrl}
                           alt={altText}
@@ -110,7 +97,16 @@ export default async function Home() {
                           style={{ maxWidth: '320px', maxHeight: '180px', width: 'auto', height: 'auto', objectFit: 'contain' }}
                           unoptimized={logoUrl.startsWith('http')}
                         />
-                      </div>
+                      </a>
+                    ) : (
+                      <Image
+                        src={logoUrl}
+                        alt={altText}
+                        width={320}
+                        height={180}
+                        style={{ maxWidth: '320px', maxHeight: '180px', width: 'auto', height: 'auto', objectFit: 'contain' }}
+                        unoptimized={logoUrl.startsWith('http')}
+                      />
                     )}
                   </div>
                 );

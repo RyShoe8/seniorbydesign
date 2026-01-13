@@ -278,8 +278,12 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     background: #fff;
-    display: flex;
+    display: none;
     flex-direction: column;
+  }
+
+  .mobileNav.mobileNavOpen {
+    display: flex;
   }
 
   .mobileNavHeader {
