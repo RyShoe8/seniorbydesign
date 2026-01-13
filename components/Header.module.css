@@ -244,11 +244,12 @@
 @media (max-width: 768px) {
   .header {
     min-height: 120px;
+    height: 120px;
   }
 
   .headerContainer {
     min-height: 100px;
-    height: auto;
+    height: 100px;
     padding: 0 1rem;
     width: 100%;
     max-width: 100%;
