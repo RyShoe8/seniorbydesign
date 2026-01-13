@@ -126,6 +126,10 @@ p {
   padding: 0 var(--container-padding);
 }
 
+.partners-section .container {
+  max-width: 1600px !important;
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 0 var(--container-padding-mobile);
