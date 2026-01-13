@@ -4,7 +4,7 @@
   z-index: 1000;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  min-height: 150px;
+  height: 150px;
   overflow: visible;
 }
 
@@ -15,8 +15,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 100px;
-  height: auto;
+  height: 100px;
   overflow: visible;
 }
 
