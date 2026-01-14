@@ -62,6 +62,20 @@ export default function Footer() {
             <Link href="/newsletter-and-brochure" className="footer-newsletter-link">
               Newsletter & Brochure
             </Link>
+            <div className="footer-social">
+              <h5 className="footer-social-heading">Follow Us</h5>
+              <div className="social-links">
+                <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="social-link">
+                  Facebook
+                </a>
+                <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className="social-link">
+                  LinkedIn
+                </a>
+                <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" className="social-link">
+                  YouTube
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -134,6 +148,35 @@ export default function Footer() {
           display: inline-block;
           color: var(--sbd-gold);
           text-decoration: underline;
+          margin-bottom: var(--spacing-md);
+        }
+
+        .footer-social {
+          margin-top: var(--spacing-md);
+        }
+
+        .footer-social-heading {
+          color: var(--sbd-gold);
+          font-size: 18px;
+          margin-bottom: var(--spacing-xs);
+          font-weight: 600;
+        }
+
+        .social-links {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .social-link {
+          color: var(--warm-grey-1);
+          text-decoration: none;
+          transition: color 0.3s ease;
+          font-size: 16px;
+        }
+
+        .social-link:hover {
+          color: var(--sbd-gold);
         }
 
         .footer-bottom {
