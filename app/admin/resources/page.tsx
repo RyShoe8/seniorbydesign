@@ -72,28 +72,40 @@ export default function ResourcesManagement() {
       });
 
       if (response.ok) {
-        fetchResources();
         setShowForm(false);
         setEditingResource(null);
         (e.target as HTMLFormElement).reset();
+        await fetchResources();
       }
     } catch (error) {
       console.error('Error saving resource:', error);
     }
   };
 
+  const handleCloseForm = () => {
+    setShowForm(false);
+    setEditingResource(null);
+  };
+
   return (
     <div className="admin-page">
       <div className="admin-header">
         <h1>Resources & Links Management</h1>
-        <button onClick={() => { setShowForm(true); setEditingResource(null); }} className="btn">
+        <button 
+          onClick={() => { 
+            setShowForm(true); 
+            setEditingResource(null); 
+          }} 
+          className="btn"
+          style={{ position: 'relative', zIndex: 1 }}
+        >
           Add Resource
         </button>
       </div>
 
       {showForm && (
-        <div className="admin-form-modal">
-          <div className="admin-form-content">
+        <div className="admin-form-modal" onClick={handleCloseForm}>
+          <div className="admin-form-content" onClick={(e) => e.stopPropagation()}>
             <h2>{editingResource ? 'Edit' : 'Add'} Resource</h2>
             <form onSubmit={handleFormSubmit}>
               <div className="form-group">
@@ -127,7 +139,7 @@ export default function ResourcesManagement() {
               </div>
               <div className="form-actions">
                 <button type="submit" className="btn">Save</button>
-                <button type="button" className="btn-secondary" onClick={() => { setShowForm(false); setEditingResource(null); }}>
+                <button type="button" className="btn-secondary" onClick={handleCloseForm}>
                   Cancel
                 </button>
               </div>
@@ -158,7 +170,13 @@ export default function ResourcesManagement() {
                       {resource.link}
                     </a>
                   </td>
-                  <td>{resource.note || '-'}</td>
+                  <td className="note-cell">
+                    {resource.note ? (
+                      <div className="resource-note">{resource.note}</div>
+                    ) : (
+                      <span className="no-note">-</span>
+                    )}
+                  </td>
                   <td>
                     <button onClick={() => handleEdit(resource)} className="btn-small">Edit</button>
                     <button onClick={() => resource._id && handleDelete(resource._id)} className="btn-small btn-danger">
@@ -173,11 +191,17 @@ export default function ResourcesManagement() {
       )}
 
       <style jsx>{`
+        .admin-page {
+          position: relative;
+        }
+
         .admin-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: var(--spacing-lg);
+          position: relative;
+          z-index: 10;
         }
 
         .admin-form-modal {
@@ -282,6 +306,26 @@ export default function ResourcesManagement() {
         .admin-table a {
           color: var(--sbd-gold);
           text-decoration: underline;
+        }
+
+        .note-cell {
+          max-width: 400px;
+        }
+
+        .resource-note {
+          background: var(--warm-grey-1);
+          padding: 0.5rem 0.75rem;
+          border-radius: 4px;
+          font-size: 14px;
+          line-height: 1.5;
+          color: var(--sbd-brown);
+          white-space: pre-wrap;
+          word-wrap: break-word;
+        }
+
+        .no-note {
+          color: var(--warm-grey-3);
+          font-style: italic;
         }
 
         .btn-small {

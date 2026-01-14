@@ -46,6 +46,9 @@ export default function PortfolioImageManagement() {
           }
         }
         setCategory({ ...data, images: normalizedImages });
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to fetch category' }));
+        console.error('Error fetching category:', errorData.error || response.statusText);
       }
     } catch (error) {
       console.error('Error fetching category:', error);
