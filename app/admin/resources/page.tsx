@@ -96,8 +96,7 @@ export default function ResourcesManagement() {
             setShowForm(true); 
             setEditingResource(null); 
           }} 
-          className="btn"
-          style={{ position: 'relative', zIndex: 1 }}
+          className="btn add-resource-btn"
         >
           Add Resource
         </button>
@@ -193,6 +192,8 @@ export default function ResourcesManagement() {
       <style jsx>{`
         .admin-page {
           position: relative;
+          width: 100%;
+          overflow-x: hidden;
         }
 
         .admin-header {
@@ -202,6 +203,14 @@ export default function ResourcesManagement() {
           margin-bottom: var(--spacing-lg);
           position: relative;
           z-index: 10;
+          flex-wrap: wrap;
+          gap: var(--spacing-md);
+          min-width: 0;
+        }
+
+        .admin-header h1 {
+          flex: 1;
+          min-width: 0;
         }
 
         .admin-form-modal {
@@ -284,11 +293,15 @@ export default function ResourcesManagement() {
           border-radius: 8px;
           padding: var(--spacing-md);
           overflow-x: auto;
+          width: 100%;
+          max-width: 100%;
         }
 
         .admin-table {
           width: 100%;
           border-collapse: collapse;
+          table-layout: fixed;
+          min-width: 800px;
         }
 
         .admin-table th,
@@ -296,6 +309,9 @@ export default function ResourcesManagement() {
           padding: var(--spacing-sm);
           text-align: left;
           border-bottom: 1px solid var(--warm-grey-1);
+          overflow: hidden;
+          word-wrap: break-word;
+          word-break: break-all;
         }
 
         .admin-table th {
@@ -303,13 +319,33 @@ export default function ResourcesManagement() {
           color: var(--sbd-brown);
         }
 
+        .admin-table th:nth-child(1) {
+          width: 20%;
+        }
+
+        .admin-table th:nth-child(2) {
+          width: 30%;
+        }
+
+        .admin-table th:nth-child(3) {
+          width: 35%;
+        }
+
+        .admin-table th:nth-child(4) {
+          width: 15%;
+        }
+
         .admin-table a {
           color: var(--sbd-gold);
           text-decoration: underline;
+          word-break: break-all;
+          display: inline-block;
+          max-width: 100%;
         }
 
         .note-cell {
-          max-width: 400px;
+          max-width: 100%;
+          overflow: hidden;
         }
 
         .resource-note {
@@ -321,6 +357,9 @@ export default function ResourcesManagement() {
           color: var(--sbd-brown);
           white-space: pre-wrap;
           word-wrap: break-word;
+          overflow-wrap: break-word;
+          max-width: 100%;
+          display: block;
         }
 
         .no-note {
@@ -332,6 +371,11 @@ export default function ResourcesManagement() {
           padding: 0.25rem 0.75rem;
           font-size: 14px;
           margin-right: 0.5rem;
+        }
+
+        .add-resource-btn {
+          flex-shrink: 0;
+          white-space: nowrap;
         }
 
         .btn-danger {
