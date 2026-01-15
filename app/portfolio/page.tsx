@@ -22,6 +22,9 @@ export default async function Portfolio() {
     _id: p._id?.toString(),
   }));
 
+  // Debug: Log all categories to see what's in the database
+  console.log('All portfolio categories:', categories.map(c => ({ slug: c.slug, name: c.name, hasImages: !!c.images?.length })));
+
   const portfolioTypes = [
     { slug: 'active-adult-55', name: 'Active Adult 55+' },
     { slug: 'senior-living', name: 'Senior Living' },
@@ -45,6 +48,13 @@ export default async function Portfolio() {
     // If still no match, try matching by name (case-insensitive)
     if (!category) {
       category = categories.find((c) => c.name?.toLowerCase() === type.name.toLowerCase());
+    }
+    
+    // Debug: Log if category not found
+    if (!category) {
+      console.log(`Category not found for: ${type.slug} (${type.name})`);
+    } else {
+      console.log(`Found category: ${category.slug} (${category.name}), has images: ${!!category.images?.length}`);
     }
     
     return {
