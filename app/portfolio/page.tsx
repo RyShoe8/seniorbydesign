@@ -33,8 +33,20 @@ export default async function Portfolio() {
   ];
 
   // Map portfolio types to categories, ensuring we use category data when available
+  // First, try exact slug match, then try case-insensitive match, then try name match
   const displayCategories = portfolioTypes.map((type) => {
-    const category = categories.find((c) => c.slug === type.slug);
+    let category = categories.find((c) => c.slug === type.slug);
+    
+    // If no exact match, try case-insensitive slug match
+    if (!category) {
+      category = categories.find((c) => c.slug?.toLowerCase() === type.slug.toLowerCase());
+    }
+    
+    // If still no match, try matching by name (case-insensitive)
+    if (!category) {
+      category = categories.find((c) => c.name?.toLowerCase() === type.name.toLowerCase());
+    }
+    
     return {
       ...type,
       category, // Include the full category object
@@ -72,17 +84,22 @@ export default async function Portfolio() {
           <div className={styles.portfolioGrid}>
             {displayCategories.map((item) => {
               const category = item.category;
+              // Use the category's slug if available, otherwise fall back to the hardcoded slug
+              const linkSlug = category?.slug || item.slug;
+              // Use the category's name if available, otherwise fall back to the hardcoded name
+              const displayName = category?.name || item.name;
+              
               // Handle both old format (string[]) and new format (PortfolioImage[])
               const firstImage = category?.images?.[0];
               const imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url;
               const imageAlt = typeof firstImage === 'string' 
-                ? item.name 
-                : (firstImage?.altText || firstImage?.displayName || item.name);
+                ? displayName 
+                : (firstImage?.altText || firstImage?.displayName || displayName);
               
               return (
                 <Link
                   key={item.slug}
-                  href={`/portfolio/${item.slug}`}
+                  href={`/portfolio/${linkSlug}`}
                   className={styles.portfolioCategoryCard}
                 >
                   {imageUrl ? (
@@ -96,12 +113,12 @@ export default async function Portfolio() {
                         unoptimized={imageUrl.startsWith('http')}
                       />
                       <div className={styles.categoryOverlay}>
-                        <h3>{item.name}</h3>
+                        <h3>{displayName}</h3>
                       </div>
                     </div>
                   ) : (
                     <div className={styles.categoryPlaceholder}>
-                      <h3>{item.name}</h3>
+                      <h3>{displayName}</h3>
                     </div>
                   )}
                 </Link>
