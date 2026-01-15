@@ -2,18 +2,25 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { getBlogPosts } from '../actions';
 import Image from 'next/image';
+import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
 import styles from './page.module.css';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = generateSEOMetadata({
   title: 'Blog - Senior By Design',
-  description: 'Latest news and insights from Senior By Design',
-};
+  description: 'Latest news and insights from Senior By Design about interior design, senior living communities, and design trends.',
+  url: '/blog',
+  type: 'website',
+});
 
 export default async function Blog() {
   const posts = await getBlogPosts();
 
   return (
     <>
+      <JSONLDSchema schema={BreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'Blog', url: '/blog' },
+      ])} />
       <section className={styles.blogHero}>
         <div className={styles.blogHeroImage}>
           <Image

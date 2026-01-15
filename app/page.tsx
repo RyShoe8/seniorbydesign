@@ -5,12 +5,15 @@ import NewsletterCTA from '@/components/NewsletterCTA';
 import TestimonialsCarousel from '@/components/TestimonialsCarousel';
 import PortfolioCarousel from '@/components/PortfolioCarousel';
 import { getHomepageContent, getPortfolioCategories, getPartners } from './actions';
+import { generateSEOMetadata } from '@/components/SEO';
 import styles from './page.module.css';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = generateSEOMetadata({
   title: 'Senior By Design - Soul Warming Interiors',
   description: 'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.',
-};
+  url: '/',
+  type: 'website',
+});
 
 export const revalidate = 0; // Always fetch fresh data
 

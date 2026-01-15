@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getBlogPost } from '../../actions';
 import Image from 'next/image';
+import { generateSEOMetadata, JSONLDSchema, ArticleSchema, BreadcrumbSchema } from '@/components/SEO';
 import styles from './page.module.css';
 
 type Props = {
@@ -18,10 +19,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  return {
+  return generateSEOMetadata({
     title: `${post.title} - Senior By Design Blog`,
-    description: post.excerpt,
-  };
+    description: post.excerpt || post.body.substring(0, 160),
+    url: `/blog/${post.slug}`,
+    image: post.featuredImage,
+    type: 'article',
+    publishedTime: post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
+    modifiedTime: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
+  });
 }
 
 export default async function BlogPostPage({ params }: Props) {
@@ -33,6 +39,19 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <>
+      <JSONLDSchema schema={ArticleSchema({
+        title: post.title,
+        description: post.excerpt || post.body.substring(0, 200),
+        url: `/blog/${post.slug}`,
+        image: post.featuredImage,
+        publishedTime: post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
+        modifiedTime: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
+      })} />
+      <JSONLDSchema schema={BreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'Blog', url: '/blog' },
+        { name: post.title, url: `/blog/${post.slug}` },
+      ])} />
       <article className="blog-post">
         <section className={styles.blogPostHero}>
           <div className={styles.blogPostHeroImage}>

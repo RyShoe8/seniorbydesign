@@ -2,16 +2,23 @@ import { Metadata } from 'next';
 import NewsletterCTA from '@/components/NewsletterCTA';
 import WarehouseGallery from '@/components/WarehouseGallery';
 import Image from 'next/image';
+import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
 import styles from './page.module.css';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = generateSEOMetadata({
   title: 'The Firm - Senior By Design',
   description: 'We are not a catalog-inspired design firm. Our team scours markets around the world to hand-select collectible found items, antiques, customized art, and furniture.',
-};
+  url: '/the-firm',
+  type: 'website',
+});
 
 export default function TheFirm() {
   return (
     <>
+      <JSONLDSchema schema={BreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'The Firm', url: '/the-firm' },
+      ])} />
       {/* Header Image */}
       <section className={styles.firmHero}>
         <div className={styles.firmHeroImage}>

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import NewsletterCTA from '@/components/NewsletterCTA';
 import { getService } from '../../actions';
 import Image from 'next/image';
+import { generateSEOMetadata, JSONLDSchema, ServiceSchema, BreadcrumbSchema } from '@/components/SEO';
 import styles from './page.module.css';
 
 type Props = {
@@ -18,10 +19,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  return {
+  return generateSEOMetadata({
     title: `${service.title} - Senior By Design`,
     description: service.body.substring(0, 160),
-  };
+    url: `/services/${service.slug}`,
+    image: service.heroImage,
+    type: 'website',
+  });
 }
 
 export default async function ServicePage({ params }: Props) {
@@ -33,6 +37,17 @@ export default async function ServicePage({ params }: Props) {
 
   return (
     <>
+      <JSONLDSchema schema={ServiceSchema({
+        name: service.title,
+        description: service.body.substring(0, 200),
+        url: `/services/${service.slug}`,
+        image: service.heroImage,
+      })} />
+      <JSONLDSchema schema={BreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'Services', url: '/services' },
+        { name: service.title, url: `/services/${service.slug}` },
+      ])} />
       <section className={styles.serviceHero}>
         <div className={styles.serviceHeroImage}>
           {service.heroImage ? (

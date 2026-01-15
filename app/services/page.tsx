@@ -2,15 +2,26 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { getServices } from '../actions';
 import Image from 'next/image';
+import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
 import styles from './page.module.css';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = generateSEOMetadata({
   title: 'Services - Senior By Design',
   description: 'Commercial interior design experience including working with all aspects of senior living communities, medical facilities, public spaces, offices, restaurants, hotels and churches.',
-};
+  url: '/services',
+  type: 'website',
+});
 
 export default async function Services() {
   const services = await getServices();
+
+  return (
+    <>
+      <JSONLDSchema schema={BreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'Services', url: '/services' },
+      ])} />
+      <div>
 
   const servicePromotions = [
     {
@@ -163,7 +174,8 @@ export default async function Services() {
           })}
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }
 

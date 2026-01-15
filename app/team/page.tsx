@@ -2,18 +2,25 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { getTeamMembers } from '../actions';
 import Image from 'next/image';
+import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
 import styles from './page.module.css';
 
-export const metadata: Metadata = {
-  title: 'Team - Senior By Design',
+export const metadata: Metadata = generateSEOMetadata({
+  title: 'The Team - Senior By Design',
   description: 'SBD founder Reid Bonner, and his team of talented designers have collectively been designing, creating and manufacturing interior products for over 25 years.',
-};
+  url: '/team',
+  type: 'website',
+});
 
 export default async function Team() {
   const teamMembers = await getTeamMembers();
 
   return (
     <>
+      <JSONLDSchema schema={BreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'The Team', url: '/team' },
+      ])} />
       <section className={styles.teamHero}>
         <div className={styles.teamHeroImage}>
           <Image

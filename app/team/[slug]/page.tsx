@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getTeamMember } from '../../actions';
 import Image from 'next/image';
 import Link from 'next/link';
+import { generateSEOMetadata, JSONLDSchema, PersonSchema, BreadcrumbSchema } from '@/components/SEO';
 import styles from './page.module.css';
 
 type Props = {
@@ -18,10 +19,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  return {
+  return generateSEOMetadata({
     title: `${member.name} - ${member.title} - Senior By Design`,
     description: member.bio.substring(0, 160),
-  };
+    url: `/team/${member.slug}`,
+    image: member.profileImage,
+    type: 'profile',
+  });
 }
 
 export default async function TeamMemberPage({ params }: Props) {
@@ -33,6 +37,18 @@ export default async function TeamMemberPage({ params }: Props) {
 
   return (
     <div className="team-member-page">
+      <JSONLDSchema schema={PersonSchema({
+        name: member.name,
+        jobTitle: member.title,
+        description: member.bio.substring(0, 200),
+        url: `/team/${member.slug}`,
+        image: member.profileImage,
+      })} />
+      <JSONLDSchema schema={BreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'The Team', url: '/team' },
+        { name: member.name, url: `/team/${member.slug}` },
+      ])} />
       <section className={styles.memberHero}>
         <div className={styles.memberHeroImage}>
           <Image

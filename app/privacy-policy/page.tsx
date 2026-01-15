@@ -1,14 +1,22 @@
 import { Metadata } from 'next';
+import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
 import styles from './page.module.css';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = generateSEOMetadata({
   title: 'Privacy Policy - Senior By Design',
-  description: 'Privacy Policy for Senior By Design',
-};
+  description: 'Privacy Policy for Senior By Design. Learn how we collect, use, and protect your personal information.',
+  url: '/privacy-policy',
+  type: 'website',
+});
 
 export default function PrivacyPolicy() {
   return (
-    <div className={styles.privacyPolicy}>
+    <>
+      <JSONLDSchema schema={BreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'Privacy Policy', url: '/privacy-policy' },
+      ])} />
+      <div className={styles.privacyPolicy}>
       <div className="container">
         <h1>Privacy Policy</h1>
         <p className={styles.lastUpdated}>Last Updated: January 13, 2025</p>
@@ -192,5 +200,6 @@ export default function PrivacyPolicy() {
         </section>
       </div>
     </div>
+    </>
   );
 }

@@ -3,12 +3,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getPortfolioCategories, getProjects } from '../actions';
 import PortfolioMap from '@/components/PortfolioMap';
+import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
 import styles from './page.module.css';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = generateSEOMetadata({
   title: 'Portfolio - Senior By Design',
   description: 'Explore our portfolio of senior living communities and design projects across the United States.',
-};
+  url: '/portfolio',
+  type: 'website',
+});
 
 export default async function Portfolio() {
   const categories = await getPortfolioCategories();
@@ -18,6 +21,13 @@ export default async function Portfolio() {
     ...p,
     _id: p._id?.toString(),
   }));
+
+  return (
+    <>
+      <JSONLDSchema schema={BreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'Portfolio', url: '/portfolio' },
+      ])} />
 
   const portfolioTypes = [
     { slug: 'active-adult-55', name: 'Active Adult 55+' },
@@ -31,6 +41,10 @@ export default async function Portfolio() {
 
   return (
     <>
+      <JSONLDSchema schema={BreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'Portfolio', url: '/portfolio' },
+      ])} />
       <section className={styles.portfolioHero}>
         <div className={styles.portfolioHeroImage}>
           <Image
