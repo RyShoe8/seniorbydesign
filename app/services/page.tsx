@@ -15,14 +15,6 @@ export const metadata: Metadata = generateSEOMetadata({
 export default async function Services() {
   const services = await getServices();
 
-  return (
-    <>
-      <JSONLDSchema schema={BreadcrumbSchema([
-        { name: 'Home', url: '/' },
-        { name: 'Services', url: '/services' },
-      ])} />
-      <div>
-
   const servicePromotions = [
     {
       slug: 'interior-environments-and-design',
@@ -106,7 +98,12 @@ export default async function Services() {
   ];
 
   return (
-    <div className="services-page">
+    <>
+      <JSONLDSchema schema={BreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'Services', url: '/services' },
+      ])} />
+      <div className="services-page">
       <section className={styles.servicesHero}>
         <div className={styles.servicesHeroImage}>
           <Image
