@@ -22,45 +22,35 @@ export default async function Portfolio() {
     _id: p._id?.toString(),
   }));
 
-  // Debug: Log all categories to see what's in the database
-  console.log('All portfolio categories:', categories.map(c => ({ slug: c.slug, name: c.name, hasImages: !!c.images?.length })));
-
-  const portfolioTypes = [
-    { slug: 'active-adult-55', name: 'Active Adult 55+' },
-    { slug: 'senior-living', name: 'Senior Living' },
-    { slug: 'remodels', name: 'Remodels' },
-    { slug: 'office-remodels', name: 'Office Remodels' },
-    { slug: 'memory-support', name: 'Memory Support' },
-    { slug: 'model-units', name: 'Model units' },
-    { slug: 'multifamily', name: 'Multifamily' },
+  // Define desired order by name (case-insensitive matching)
+  const desiredOrder = [
+    'Active Adult 55+',
+    'Senior Living',
+    'Remodels',
+    'Office Remodels',
+    'Memory Support',
+    'Model units',
+    'Multifamily',
   ];
 
-  // Map portfolio types to categories, ensuring we use category data when available
-  // First, try exact slug match, then try case-insensitive match, then try name match
-  const displayCategories = portfolioTypes.map((type) => {
-    let category = categories.find((c) => c.slug === type.slug);
+  // Sort categories according to desired order, then by name for any not in the list
+  const displayCategories = [...categories].sort((a, b) => {
+    const aIndex = desiredOrder.findIndex(name => 
+      a.name?.toLowerCase() === name.toLowerCase()
+    );
+    const bIndex = desiredOrder.findIndex(name => 
+      b.name?.toLowerCase() === name.toLowerCase()
+    );
     
-    // If no exact match, try case-insensitive slug match
-    if (!category) {
-      category = categories.find((c) => c.slug?.toLowerCase() === type.slug.toLowerCase());
+    // If both are in desired order, sort by their position
+    if (aIndex !== -1 && bIndex !== -1) {
+      return aIndex - bIndex;
     }
-    
-    // If still no match, try matching by name (case-insensitive)
-    if (!category) {
-      category = categories.find((c) => c.name?.toLowerCase() === type.name.toLowerCase());
-    }
-    
-    // Debug: Log if category not found
-    if (!category) {
-      console.log(`Category not found for: ${type.slug} (${type.name})`);
-    } else {
-      console.log(`Found category: ${category.slug} (${category.name}), has images: ${!!category.images?.length}`);
-    }
-    
-    return {
-      ...type,
-      category, // Include the full category object
-    };
+    // If only one is in desired order, it comes first
+    if (aIndex !== -1) return -1;
+    if (bIndex !== -1) return 1;
+    // If neither is in desired order, sort alphabetically
+    return (a.name || '').localeCompare(b.name || '');
   });
 
   return (
@@ -92,15 +82,12 @@ export default async function Portfolio() {
       <section className="portfolio-categories section-padding">
         <div className="container">
           <div className={styles.portfolioGrid}>
-            {displayCategories.map((item) => {
-              const category = item.category;
-              // Use the category's slug if available, otherwise fall back to the hardcoded slug
-              const linkSlug = category?.slug || item.slug;
-              // Use the category's name if available, otherwise fall back to the hardcoded name
-              const displayName = category?.name || item.name;
+            {displayCategories.map((category) => {
+              const displayName = category.name || '';
+              const linkSlug = category.slug || '';
               
               // Handle both old format (string[]) and new format (PortfolioImage[])
-              const firstImage = category?.images?.[0];
+              const firstImage = category.images?.[0];
               const imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url;
               const imageAlt = typeof firstImage === 'string' 
                 ? displayName 
@@ -108,7 +95,7 @@ export default async function Portfolio() {
               
               return (
                 <Link
-                  key={item.slug}
+                  key={category._id?.toString() || category.slug || displayName}
                   href={`/portfolio/${linkSlug}`}
                   className={styles.portfolioCategoryCard}
                 >
