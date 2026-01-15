@@ -50,7 +50,7 @@ export default async function Portfolio() {
       <section className={styles.portfolioHero}>
         <div className={styles.portfolioHeroImage}>
           <Image
-            src="/images/Portfolio/Portfolio Header.webp"
+            src="/images/Portfolio/portfolio hero.jpg"
             alt="Our Portfolio"
             fill
             className={styles.heroImage}
