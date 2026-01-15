@@ -22,13 +22,6 @@ export default async function Portfolio() {
     _id: p._id?.toString(),
   }));
 
-  return (
-    <>
-      <JSONLDSchema schema={BreadcrumbSchema([
-        { name: 'Home', url: '/' },
-        { name: 'Portfolio', url: '/portfolio' },
-      ])} />
-
   const portfolioTypes = [
     { slug: 'active-adult-55', name: 'Active Adult 55+' },
     { slug: 'senior-living', name: 'Senior Living' },
@@ -38,6 +31,15 @@ export default async function Portfolio() {
     { slug: 'model-units', name: 'Model units' },
     { slug: 'multifamily', name: 'Multifamily' },
   ];
+
+  // Map portfolio types to categories, ensuring we use category data when available
+  const displayCategories = portfolioTypes.map((type) => {
+    const category = categories.find((c) => c.slug === type.slug);
+    return {
+      ...type,
+      category, // Include the full category object
+    };
+  });
 
   return (
     <>
@@ -68,39 +70,40 @@ export default async function Portfolio() {
       <section className="portfolio-categories section-padding">
         <div className="container">
           <div className={styles.portfolioGrid}>
-            {portfolioTypes.map((type) => {
-              const category = categories.find((c) => c.slug === type.slug);
+            {displayCategories.map((item) => {
+              const category = item.category;
+              // Handle both old format (string[]) and new format (PortfolioImage[])
+              const firstImage = category?.images?.[0];
+              const imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url;
+              const imageAlt = typeof firstImage === 'string' 
+                ? item.name 
+                : (firstImage?.altText || firstImage?.displayName || item.name);
+              
               return (
                 <Link
-                  key={type.slug}
-                  href={`/portfolio/${type.slug}`}
+                  key={item.slug}
+                  href={`/portfolio/${item.slug}`}
                   className={styles.portfolioCategoryCard}
                 >
-                  {(() => {
-                    // Handle both old format (string[]) and new format (PortfolioImage[])
-                    const firstImage = category?.images?.[0];
-                    const imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url;
-                    const imageAlt = typeof firstImage === 'string' ? type.name : (firstImage?.altText || type.name);
-                    
-                    return imageUrl ? (
-                      <div className={styles.categoryImageWrapper}>
-                        <Image
-                          src={imageUrl}
-                          alt={imageAlt}
-                          width={400}
-                          height={400}
-                          className={styles.categoryImage}
-                        />
-                        <div className={styles.categoryOverlay}>
-                          <h3>{type.name}</h3>
-                        </div>
+                  {imageUrl ? (
+                    <div className={styles.categoryImageWrapper}>
+                      <Image
+                        src={imageUrl}
+                        alt={imageAlt}
+                        fill
+                        className={styles.categoryImage}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
+                        unoptimized={imageUrl.startsWith('http')}
+                      />
+                      <div className={styles.categoryOverlay}>
+                        <h3>{item.name}</h3>
                       </div>
-                    ) : (
-                      <div className={styles.categoryPlaceholder}>
-                        <h3>{type.name}</h3>
-                      </div>
-                    );
-                  })()}
+                    </div>
+                  ) : (
+                    <div className={styles.categoryPlaceholder}>
+                      <h3>{item.name}</h3>
+                    </div>
+                  )}
                 </Link>
               );
             })}

@@ -90,6 +90,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--spacing-md);
+  contain: layout style paint;
 }
 
 .teamMemberCard {
@@ -99,10 +100,12 @@
   aspect-ratio: 3/4;
   cursor: pointer;
   transition: transform 0.3s ease;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .teamMemberCard:hover {
-  transform: translateY(-5px);
+  transform: translateY(-5px) translateZ(0);
 }
 
 .memberImageWrapper,
@@ -111,6 +114,7 @@
   height: 100%;
   position: relative;
   overflow: hidden;
+  transform: translateZ(0);
 }
 
 .memberImage {
@@ -120,6 +124,8 @@
   position: absolute;
   top: 0;
   left: 0;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .memberPlaceholder {

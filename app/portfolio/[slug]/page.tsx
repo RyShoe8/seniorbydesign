@@ -92,8 +92,10 @@ export default function PortfolioDetailPage() {
                     <Image
                       src={imageUrl}
                       alt={imageAlts[index] || `Portfolio image ${index + 1}`}
-                      width={200}
-                      height={150}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
+                      unoptimized={imageUrl.startsWith('http')}
                     />
                   </div>
                 ))}
@@ -145,8 +147,8 @@ export default function PortfolioDetailPage() {
 
         .gallery-thumbnails {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-          gap: var(--spacing-md);
+          grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+          gap: var(--spacing-lg);
         }
 
         .thumbnail {
@@ -154,6 +156,8 @@ export default function PortfolioDetailPage() {
           border-radius: 8px;
           overflow: hidden;
           transition: transform 0.3s ease;
+          aspect-ratio: 1;
+          position: relative;
         }
 
         .thumbnail:hover {
@@ -162,7 +166,8 @@ export default function PortfolioDetailPage() {
 
         .thumbnail img {
           width: 100%;
-          height: auto;
+          height: 100%;
+          object-fit: cover;
         }
 
         .no-images {
@@ -247,7 +252,8 @@ export default function PortfolioDetailPage() {
 
         @media (max-width: 768px) {
           .gallery-thumbnails {
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--spacing-md);
           }
 
           .nav-btn {

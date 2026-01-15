@@ -79,7 +79,7 @@ export default async function Team() {
         <div className="container">
           <h2 className={styles.centeredHeading}>Meet the experts</h2>
           <div className={styles.teamGrid}>
-            {teamMembers.map((member) => (
+            {teamMembers.map((member, index) => (
               <Link
                 key={member._id?.toString()}
                 href={`/team/${member.slug}`}
@@ -93,6 +93,7 @@ export default async function Team() {
                       fill
                       className={styles.memberImage}
                       sizes="(max-width: 768px) 250px, 300px"
+                      loading={index < 6 ? 'eager' : 'lazy'}
                       unoptimized={member.profileImage.startsWith('https://')}
                     />
                     <div className={styles.memberInfoOverlay}>
