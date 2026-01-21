@@ -1,0 +1,67 @@
+import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { getBlogPostsCollection } from '@/lib/db';
+import { ObjectId } from 'mongodb';
+
+export const dynamic = 'force-dynamic';
+
+export async function GET() {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const collection = await getBlogPostsCollection();
+    const posts = await collection.find({}).sort({ publishedAt: -1, createdAt: -1 }).toArray();
+    return NextResponse.json(posts);
+  } catch (error) {
+    console.error('Error fetching blog posts:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch blog posts' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const collection = await getBlogPostsCollection();
+    
+    // Generate slug from title if not provided
+    const slug = body.slug || body.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+    
+    const post = {
+      slug,
+      title: body.title,
+      excerpt: body.excerpt || '',
+      body: body.body,
+      featuredImage: body.featuredImage || '',
+      author: body.author || session.user?.name || 'Admin',
+      publishedAt: body.published ? new Date() : undefined,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const result = await collection.insertOne(post);
+    return NextResponse.json({ _id: result.insertedId, ...post });
+  } catch (error) {
+    console.error('Error creating blog post:', error);
+    return NextResponse.json(
+      { error: 'Failed to create blog post' },
+      { status: 500 }
+    );
+  }
+}
