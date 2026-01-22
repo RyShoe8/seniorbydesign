@@ -26,7 +26,7 @@ export async function geocodeZipCode(zipCode: string): Promise<GeocodeResult | n
     );
 
     if (!response.ok) {
-      console.error('Geocoding API request failed:', response.statusText);
+      console.error(`Geocoding API request failed for ZIP ${zipCode}:`, response.statusText);
       return null;
     }
 
@@ -40,11 +40,23 @@ export async function geocodeZipCode(zipCode: string): Promise<GeocodeResult | n
         formattedAddress: data.results[0].formatted_address,
       };
     } else {
-      console.error('Geocoding failed:', data.status, data.error_message);
+      // Enhanced error logging
+      const errorMsg = data.error_message || 'Unknown error';
+      if (data.status === 'REQUEST_DENIED') {
+        if (errorMsg.includes('referer restrictions')) {
+          console.error(`Geocoding failed for ZIP ${zipCode}: REQUEST_DENIED - API key has HTTP referrer restrictions. Server-side API keys cannot use referrer restrictions. Set Application restrictions to "None" in Google Cloud Console.`);
+        } else if (errorMsg.includes('IP')) {
+          console.error(`Geocoding failed for ZIP ${zipCode}: REQUEST_DENIED - IP address not authorized. Add Vercel server IPs to API key restrictions or set Application restrictions to "None".`);
+        } else {
+          console.error(`Geocoding failed for ZIP ${zipCode}: REQUEST_DENIED - ${errorMsg}`);
+        }
+      } else {
+        console.error(`Geocoding failed for ZIP ${zipCode}: ${data.status} - ${errorMsg}`);
+      }
       return null;
     }
   } catch (error) {
-    console.error('Error geocoding ZIP code:', error);
+    console.error(`Error geocoding ZIP code ${zipCode}:`, error);
     return null;
   }
 }

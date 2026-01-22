@@ -9,6 +9,9 @@ import {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
 
+  // Note: Admin pages (/admin/*) and API routes (/api/*) are explicitly excluded from the sitemap
+  // They are protected by authentication middleware and should not be indexed by search engines
+
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [
     {
