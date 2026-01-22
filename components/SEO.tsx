@@ -105,9 +105,9 @@ export function OrganizationSchema() {
       contactType: 'Customer Service',
     },
     sameAs: [
-      'https://www.facebook.com',
-      'https://www.linkedin.com',
-      'https://www.youtube.com',
+      'https://www.facebook.com/Seniorbydesign',
+      'https://www.linkedin.com/company/senior-by-design/',
+      'https://www.youtube.com/@SeniorByDesign',
     ],
   };
 }

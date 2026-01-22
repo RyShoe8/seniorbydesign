@@ -65,13 +65,13 @@ export default function Footer() {
             <div className="footer-social">
               <h5 className="footer-social-heading">Follow Us</h5>
               <div className="social-links">
-                <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="social-link">
+                <a href="https://www.facebook.com/Seniorbydesign" target="_blank" rel="noopener noreferrer" className="social-link">
                   Facebook
                 </a>
-                <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className="social-link">
+                <a href="https://www.linkedin.com/company/senior-by-design/" target="_blank" rel="noopener noreferrer" className="social-link">
                   LinkedIn
                 </a>
-                <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" className="social-link">
+                <a href="https://www.youtube.com/@SeniorByDesign" target="_blank" rel="noopener noreferrer" className="social-link">
                   YouTube
                 </a>
               </div>
