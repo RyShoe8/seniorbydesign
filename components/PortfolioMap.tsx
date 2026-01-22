@@ -223,7 +223,11 @@ export default function PortfolioMap({ projects }: Props) {
           return;
         }
 
+        // Get Map ID from environment variable (required for Advanced Markers)
+        const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
+        
         const map = new Map(mapRef.current, {
+          mapId: mapId || 'default', // Map ID required for Advanced Markers
           center: { lat: 39.8283, lng: -98.5795 }, // Center of US
           zoom: 4,
           mapTypeControl: true,
