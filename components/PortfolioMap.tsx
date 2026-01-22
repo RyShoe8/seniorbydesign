@@ -190,6 +190,7 @@ export default function PortfolioMap({ projects }: Props) {
       // Reset map instance reference
       mapInstanceRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapLoaded, mapError]);
 
   return (

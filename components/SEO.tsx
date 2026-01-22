@@ -10,6 +10,7 @@ interface SEOProps {
   modifiedTime?: string;
   author?: string;
   schema?: Record<string, any>;
+  icons?: Metadata['icons'];
 }
 
 export function generateSEOMetadata({
@@ -21,6 +22,7 @@ export function generateSEOMetadata({
   publishedTime,
   modifiedTime,
   author,
+  icons,
 }: SEOProps): Metadata {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
   const fullUrl = url ? `${siteUrl}${url}` : siteUrl;
@@ -68,6 +70,7 @@ export function generateSEOMetadata({
         'max-snippet': -1,
       },
     },
+    ...(icons && { icons }),
   };
 }
 
