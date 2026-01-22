@@ -72,18 +72,20 @@ export default async function BlogPostPage({ params }: Props) {
 
         <div className="blog-post-header section-padding">
           <div className="container">
-            <Link href="/blog" className={styles.backLink}>
-              ← Back to Blog
-            </Link>
-            {post.publishedAt && (
-              <p className={styles.blogPostDate}>
-                {new Date(post.publishedAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </p>
-            )}
+            <div className={styles.blogPostHeaderContent}>
+              <Link href="/blog" className={styles.backLink}>
+                ← Back to Blog
+              </Link>
+              {post.publishedAt && (
+                <span className={styles.blogPostDate}>
+                  {new Date(post.publishedAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
