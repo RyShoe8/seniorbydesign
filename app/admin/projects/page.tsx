@@ -121,11 +121,28 @@ export default function ProjectMapManagement() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const zipCode = formData.get('zipCode') as string;
+    const latitudeStr = formData.get('latitude') as string;
+    const longitudeStr = formData.get('longitude') as string;
     
-    const data = {
+    const data: {
+      name: string;
+      zipCode: string;
+      latitude?: number;
+      longitude?: number;
+    } = {
       name: formData.get('name') as string,
       zipCode: zipCode,
     };
+
+    // If manual coordinates are provided, use them instead of geocoding
+    if (latitudeStr && longitudeStr) {
+      const lat = parseFloat(latitudeStr);
+      const lng = parseFloat(longitudeStr);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        data.latitude = lat;
+        data.longitude = lng;
+      }
+    }
 
     // Try to geocode zip code (simplified - in production, use a geocoding service)
     // For now, we'll just store the zip code and geocode can happen later
@@ -193,6 +210,30 @@ export default function ProjectMapManagement() {
                   placeholder="12345"
                 />
                 <small>5-digit US ZIP code</small>
+              </div>
+              <div className="form-group">
+                <label htmlFor="latitude">Latitude (optional - manual override)</label>
+                <input
+                  type="number"
+                  id="latitude"
+                  name="latitude"
+                  step="any"
+                  defaultValue={editingProject?.latitude?.toString() || ''}
+                  placeholder="29.7604"
+                />
+                <small>Leave empty to auto-geocode from ZIP code. Use if geocoding returns incorrect location.</small>
+              </div>
+              <div className="form-group">
+                <label htmlFor="longitude">Longitude (optional - manual override)</label>
+                <input
+                  type="number"
+                  id="longitude"
+                  name="longitude"
+                  step="any"
+                  defaultValue={editingProject?.longitude?.toString() || ''}
+                  placeholder="-95.3698"
+                />
+                <small>Leave empty to auto-geocode from ZIP code. Use if geocoding returns incorrect location.</small>
               </div>
               <div className="form-actions">
                 <button type="submit" className="btn">Save</button>

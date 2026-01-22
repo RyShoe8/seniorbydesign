@@ -21,8 +21,10 @@ export async function geocodeZipCode(zipCode: string): Promise<GeocodeResult | n
 
   try {
     // Use Google Geocoding API to convert ZIP code to coordinates
+    // Add ", USA" to ensure we get US results, not international matches
+    const addressQuery = `${zipCode}, USA`;
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(zipCode)}&key=${apiKey}&region=us`
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(addressQuery)}&key=${apiKey}&region=us&components=country:US`
     );
 
     if (!response.ok) {
@@ -34,10 +36,15 @@ export async function geocodeZipCode(zipCode: string): Promise<GeocodeResult | n
 
     if (data.status === 'OK' && data.results && data.results.length > 0) {
       const location = data.results[0].geometry.location;
+      const formattedAddress = data.results[0].formatted_address;
+      
+      // Log the result for debugging
+      console.log(`Geocoded ZIP ${zipCode} to: ${formattedAddress} (${location.lat}, ${location.lng})`);
+      
       return {
         latitude: location.lat,
         longitude: location.lng,
-        formattedAddress: data.results[0].formatted_address,
+        formattedAddress,
       };
     } else {
       // Enhanced error logging

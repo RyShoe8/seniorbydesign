@@ -37,11 +37,16 @@ export async function POST(request: Request) {
     const body = await request.json();
     const collection = await getProjectsCollection();
     
-    // Geocode the ZIP code to get coordinates
+    // Use manual coordinates if provided, otherwise geocode the ZIP code
     let latitude: number | undefined;
     let longitude: number | undefined;
     
-    if (body.zipCode) {
+    if (body.latitude != null && body.longitude != null) {
+      // Manual coordinates provided - use them
+      latitude = typeof body.latitude === 'number' ? body.latitude : parseFloat(body.latitude);
+      longitude = typeof body.longitude === 'number' ? body.longitude : parseFloat(body.longitude);
+    } else if (body.zipCode) {
+      // Auto-geocode from ZIP code
       const geocodeResult = await geocodeZipCode(body.zipCode);
       if (geocodeResult) {
         latitude = geocodeResult.latitude;
