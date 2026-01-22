@@ -128,11 +128,12 @@ export default function PortfolioMap({ projects }: Props) {
     cleanupMarkers();
 
     // Add new markers
-    const projectsWithCoords = filteredProjects.filter(
+    const projectsToShow = projectsWithCoords.length > 0 ? projectsWithCoords : filteredProjects;
+    const projectsWithCoordsForMarkers = projectsToShow.filter(
       p => p.latitude != null && p.longitude != null
     );
 
-    if (projectsWithCoordsList.length > 0) {
+    if (projectsWithCoordsForMarkers.length > 0) {
       import('@googlemaps/js-api-loader').then(({ Loader }) => {
         const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
         if (!apiKey) return Promise.reject('API key not found');
