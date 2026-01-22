@@ -77,7 +77,17 @@ export default function TheFirm() {
       <section className="firm-video-section section-padding">
         <div className="container">
           <div className={styles.videoWrapper}>
-            <div className={styles.videoPlaceholder}>Video Placeholder</div>
+            <iframe
+              width="560"
+              height="315"
+              src="https://www.youtube.com/embed/eRI9GKC_VmA?si=2JRGGP4UxMDYF2ci"
+              title="YouTube video player"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+              className={styles.videoIframe}
+            />
           </div>
         </div>
       </section>
