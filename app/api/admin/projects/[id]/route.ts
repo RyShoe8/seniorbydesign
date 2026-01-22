@@ -79,6 +79,84 @@ export async function DELETE(
   }
 }
 
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const collection = await getProjectsCollection();
+    
+    if (body.action === 'clearGeocode') {
+      // Clear geocoding coordinates
+      await collection.updateOne(
+        { _id: new ObjectId(params.id) },
+        { 
+          $set: { 
+            latitude: null, 
+            longitude: null,
+            updatedAt: new Date(),
+          } 
+        }
+      );
+      return NextResponse.json({ success: true, message: 'Geocoding cleared' });
+    } else if (body.action === 'regeocode') {
+      // Re-geocode the project
+      const project = await collection.findOne({ _id: new ObjectId(params.id) });
+      if (!project || !project.zipCode) {
+        return NextResponse.json(
+          { error: 'Project not found or missing ZIP code' },
+          { status: 404 }
+        );
+      }
+      
+      const geocodeResult = await geocodeZipCode(project.zipCode);
+      if (geocodeResult) {
+        await collection.updateOne(
+          { _id: new ObjectId(params.id) },
+          {
+            $set: {
+              latitude: geocodeResult.latitude,
+              longitude: geocodeResult.longitude,
+              updatedAt: new Date(),
+            },
+          }
+        );
+        return NextResponse.json({ 
+          success: true, 
+          message: 'Project re-geocoded successfully',
+          coordinates: {
+            latitude: geocodeResult.latitude,
+            longitude: geocodeResult.longitude,
+          }
+        });
+      } else {
+        return NextResponse.json(
+          { error: 'Failed to geocode ZIP code' },
+          { status: 400 }
+        );
+      }
+    } else {
+      return NextResponse.json(
+        { error: 'Invalid action' },
+        { status: 400 }
+      );
+    }
+  } catch (error) {
+    console.error('Error processing PATCH request:', error);
+    return NextResponse.json(
+      { error: 'Failed to process request' },
+      { status: 500 }
+    );
+  }
+}
+
 
 
 

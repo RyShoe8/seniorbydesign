@@ -68,6 +68,50 @@ export default function ProjectMapManagement() {
     }
   };
 
+  const handleClearGeocode = async (id: string) => {
+    if (!confirm('Clear geocoding coordinates for this project? You can re-geocode it later.')) return;
+    
+    try {
+      const response = await fetch(`/api/admin/projects/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'clearGeocode' }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert('Geocoding cleared successfully');
+        fetchProjects();
+      } else {
+        alert(data.error || 'Error clearing geocoding');
+      }
+    } catch (error) {
+      console.error('Error clearing geocoding:', error);
+      alert('Error clearing geocoding');
+    }
+  };
+
+  const handleRegeocode = async (id: string) => {
+    if (!confirm('Re-geocode this project? This will clear existing coordinates and fetch new ones.')) return;
+    
+    try {
+      const response = await fetch(`/api/admin/projects/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'regeocode' }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert('Project re-geocoded successfully');
+        fetchProjects();
+      } else {
+        alert(data.error || 'Error re-geocoding project');
+      }
+    } catch (error) {
+      console.error('Error re-geocoding:', error);
+      alert('Error re-geocoding project');
+    }
+  };
+
   const handleEdit = (project: Project) => {
     setEditingProject(project);
     setShowForm(true);
@@ -196,10 +240,38 @@ export default function ProjectMapManagement() {
                       )}
                     </td>
                     <td>
-                      <button onClick={() => handleEdit(project)} className="btn-small">Edit</button>
-                      <button onClick={() => project._id && handleDelete(project._id)} className="btn-small btn-danger">
-                        Delete
-                      </button>
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <button onClick={() => handleEdit(project)} className="btn-small">Edit</button>
+                        {project.latitude && project.longitude ? (
+                          <>
+                            <button 
+                              onClick={() => project._id && handleClearGeocode(project._id)} 
+                              className="btn-small"
+                              style={{ backgroundColor: '#ffc107', color: '#000' }}
+                            >
+                              Clear Geocode
+                            </button>
+                            <button 
+                              onClick={() => project._id && handleRegeocode(project._id)} 
+                              className="btn-small"
+                              style={{ backgroundColor: '#17a2b8', color: '#fff' }}
+                            >
+                              Re-geocode
+                            </button>
+                          </>
+                        ) : (
+                          <button 
+                            onClick={() => project._id && handleRegeocode(project._id)} 
+                            className="btn-small"
+                            style={{ backgroundColor: '#28a745', color: '#fff' }}
+                          >
+                            Geocode
+                          </button>
+                        )}
+                        <button onClick={() => project._id && handleDelete(project._id)} className="btn-small btn-danger">
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
