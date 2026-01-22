@@ -25,6 +25,7 @@ export default function PortfolioMap({ projects }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredProjects, setFilteredProjects] = useState<Project[]>(projects);
   const [isSearching, setIsSearching] = useState(false);
+  const mapReadyPromiseRef = useRef<Promise<any> | null>(null);
 
   // Initialize filtered projects when projects prop changes
   useEffect(() => {
@@ -310,6 +311,23 @@ export default function PortfolioMap({ projects }: Props) {
         if (mapRef.current) {
           (mapRef.current as any).__mapInstance = map;
         }
+        // Store in window for easy access (for debugging and fallback)
+        if (typeof window !== 'undefined') {
+          (window as any).__sbdMapInstance = map;
+        }
+        
+        // Wait for map to be fully ready before resolving promise
+        const mapReadyPromise = new Promise<any>((resolve) => {
+          // Listen for map idle event to know when it's ready
+          map.addListener('idle', () => {
+            console.log('Map is idle/ready');
+            resolve(map);
+          });
+          // Also resolve immediately if map is already ready
+          setTimeout(() => resolve(map), 100);
+        });
+        mapReadyPromiseRef.current = mapReadyPromise;
+        
         console.log('Map instance set:', !!mapInstanceRef.current, 'Map object:', map);
 
         // Listen for map type changes to disable labels in satellite view
@@ -578,24 +596,48 @@ export default function PortfolioMap({ projects }: Props) {
       setFilteredProjects(filtered);
 
       // Center map on searched location and zoom appropriately
-      // Get map instance right before using it (in case it loads during geocoding)
-      let mapToUse = mapInstanceRef.current;
+      // Wait for map to be ready using the promise
+      let mapToUse: any = null;
       
-      // Try to get map from the DOM element if ref isn't set
+      if (mapReadyPromiseRef.current) {
+        try {
+          mapToUse = await mapReadyPromiseRef.current;
+          console.log('Got map from promise');
+        } catch (e) {
+          console.warn('Promise failed, trying other methods:', e);
+        }
+      }
+      
+      // Fallback: Try multiple sources to get the map instance
+      if (!mapToUse) {
+        mapToUse = mapInstanceRef.current;
+      }
+      
       if (!mapToUse && mapRef.current) {
         const mapElement = mapRef.current as any;
-        if (mapElement.__mapInstance) {
-          mapToUse = mapElement.__mapInstance;
+        mapToUse = mapElement.__mapInstance || mapElement.map;
+        if (mapToUse) {
           console.log('Found map instance on DOM element');
         }
       }
       
-      // Wait a bit if map still isn't ready (it should be if markers are visible)
+      // Try window backup
+      if (!mapToUse && typeof window !== 'undefined') {
+        mapToUse = (window as any).__sbdMapInstance;
+        if (mapToUse) {
+          console.log('Found map instance on window');
+        }
+      }
+      
+      // Final fallback: wait a bit if map still isn't ready
       if (!mapToUse) {
         console.log('Map instance not found, waiting...');
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 30; i++) {
           await new Promise(resolve => setTimeout(resolve, 100));
-          mapToUse = mapInstanceRef.current || (mapRef.current as any)?.__mapInstance;
+          mapToUse = mapInstanceRef.current 
+            || (mapRef.current as any)?.__mapInstance 
+            || (mapRef.current as any)?.map
+            || (typeof window !== 'undefined' ? (window as any).__sbdMapInstance : null);
           if (mapToUse) {
             console.log('Map instance found after', i + 1, 'attempts');
             break;
@@ -605,15 +647,23 @@ export default function PortfolioMap({ projects }: Props) {
       
       if (mapToUse && data.latitude && data.longitude) {
         try {
+          console.log('Centering map on:', data.latitude, data.longitude);
           mapToUse.setCenter({ lat: data.latitude, lng: data.longitude });
           
-          // Zoom level: closer for ZIP codes, wider for states
-          if (data.zipCode) {
-            mapToUse.setZoom(10); // Closer zoom for ZIP codes
-          } else {
-            mapToUse.setZoom(6); // Wider zoom for states
-          }
-          console.log('Map centered on:', data.latitude, data.longitude, 'Zoom:', data.zipCode ? 10 : 6);
+          // Use setTimeout to ensure the center call completes before zooming
+          setTimeout(() => {
+            try {
+              // Zoom level: closer for ZIP codes, wider for states
+              if (data.zipCode) {
+                mapToUse.setZoom(10); // Closer zoom for ZIP codes
+              } else {
+                mapToUse.setZoom(6); // Wider zoom for states
+              }
+              console.log('Map zoomed to:', data.zipCode ? 10 : 6);
+            } catch (zoomError) {
+              console.error('Error zooming map:', zoomError);
+            }
+          }, 100);
         } catch (error) {
           console.error('Error centering map:', error);
         }
@@ -622,6 +672,8 @@ export default function PortfolioMap({ projects }: Props) {
           hasMap: !!mapToUse,
           mapInstanceRef: !!mapInstanceRef.current,
           mapRef: !!mapRef.current,
+          domMap: !!(mapRef.current as any)?.__mapInstance,
+          windowMap: typeof window !== 'undefined' ? !!(window as any).__sbdMapInstance : false,
           latitude: data.latitude,
           longitude: data.longitude,
         });
