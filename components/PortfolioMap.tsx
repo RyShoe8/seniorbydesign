@@ -306,6 +306,11 @@ export default function PortfolioMap({ projects }: Props) {
         const map = new Map(mapRef.current, mapOptions);
 
         mapInstanceRef.current = map;
+        // Also store on DOM element as backup
+        if (mapRef.current) {
+          (mapRef.current as any).__mapInstance = map;
+        }
+        console.log('Map instance set:', !!mapInstanceRef.current, 'Map object:', map);
 
         // Listen for map type changes to disable labels in satellite view
         map.addListener('maptypeid_changed', () => {
@@ -500,12 +505,12 @@ export default function PortfolioMap({ projects }: Props) {
 
     return () => {
       disconnectObserver();
-      cleanupMarkers();
-      // Reset map instance reference
-      mapInstanceRef.current = null;
+      // Don't cleanup markers or reset map instance here - let it persist
+      // cleanupMarkers();
+      // mapInstanceRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapLoaded, mapError, filteredProjects]);
+  }, [mapLoaded, mapError]); // Removed filteredProjects - map loading shouldn't depend on filtered projects
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -519,6 +524,18 @@ export default function PortfolioMap({ projects }: Props) {
       const searchTerm = searchQuery.trim();
       console.log('Searching for:', searchTerm);
       console.log('Map loaded:', mapLoaded, 'Map instance:', !!mapInstanceRef.current);
+      console.log('mapRef.current:', !!mapRef.current);
+      
+      // Try to get map from the DOM element if ref isn't set
+      let mapInstance = mapInstanceRef.current;
+      if (!mapInstance && mapRef.current) {
+        // Google Maps stores the map instance on the DOM element
+        const mapElement = mapRef.current as any;
+        if (mapElement.__mapInstance) {
+          mapInstance = mapElement.__mapInstance;
+          console.log('Found map instance on DOM element');
+        }
+      }
       
       const response = await fetch(`/api/geocode?q=${encodeURIComponent(searchTerm)}`);
       const data = await response.json();
@@ -574,34 +591,28 @@ export default function PortfolioMap({ projects }: Props) {
       setFilteredProjects(filtered);
 
       // Center map on searched location and zoom appropriately
-      // Retry a few times if map isn't ready yet
-      let mapReady = !!mapInstanceRef.current;
-      if (!mapReady) {
-        for (let i = 0; i < 10; i++) {
-          await new Promise(resolve => setTimeout(resolve, 100));
-          if (mapInstanceRef.current) {
-            mapReady = true;
-            break;
-          }
-        }
-      }
+      // Use the map instance we found (either from ref or DOM)
+      const mapToUse = mapInstance || mapInstanceRef.current;
       
-      if (mapReady && mapInstanceRef.current && data.latitude && data.longitude) {
+      if (mapToUse && data.latitude && data.longitude) {
         try {
-          mapInstanceRef.current.setCenter({ lat: data.latitude, lng: data.longitude });
+          mapToUse.setCenter({ lat: data.latitude, lng: data.longitude });
           
           // Zoom level: closer for ZIP codes, wider for states
           if (data.zipCode) {
-            mapInstanceRef.current.setZoom(10); // Closer zoom for ZIP codes
+            mapToUse.setZoom(10); // Closer zoom for ZIP codes
           } else {
-            mapInstanceRef.current.setZoom(6); // Wider zoom for states
+            mapToUse.setZoom(6); // Wider zoom for states
           }
+          console.log('Map centered on:', data.latitude, data.longitude);
         } catch (error) {
           console.error('Error centering map:', error);
         }
       } else {
         console.warn('Map instance or coordinates not available:', {
-          hasMap: !!mapInstanceRef.current,
+          hasMap: !!mapToUse,
+          mapInstanceRef: !!mapInstanceRef.current,
+          mapInstance: !!mapInstance,
           latitude: data.latitude,
           longitude: data.longitude,
         });
