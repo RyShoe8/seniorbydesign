@@ -58,20 +58,51 @@ export default function PortfolioMap({ projects }: Props) {
         });
         return loader.importLibrary('marker');
       }).then(({ Marker }: { Marker: any }) => {
+        const positions: Array<{ lat: number; lng: number }> = [];
+        
         projectsWithCoords.forEach((project) => {
           if (project.latitude != null && project.longitude != null && mapInstanceRef.current) {
             try {
+              const position = { lat: project.latitude, lng: project.longitude };
               const marker = new Marker({
-                position: { lat: project.latitude, lng: project.longitude },
+                position,
                 map: mapInstanceRef.current,
                 title: project.name,
               });
               markersRef.current.push(marker);
+              positions.push(position);
             } catch (e) {
               console.error('Error creating marker:', e);
             }
           }
         });
+
+        // Fit map bounds to show all markers
+        if (positions.length > 0 && mapInstanceRef.current) {
+          // Calculate bounds manually
+          const lats = positions.map(p => p.lat);
+          const lngs = positions.map(p => p.lng);
+          const minLat = Math.min(...lats);
+          const maxLat = Math.max(...lats);
+          const minLng = Math.min(...lngs);
+          const maxLng = Math.max(...lngs);
+          
+          try {
+            const bounds = {
+              north: maxLat,
+              south: minLat,
+              east: maxLng,
+              west: minLng,
+            };
+            mapInstanceRef.current.fitBounds(bounds as any);
+          } catch (e) {
+            // Fallback: center on average position
+            const centerLat = (minLat + maxLat) / 2;
+            const centerLng = (minLng + maxLng) / 2;
+            mapInstanceRef.current.setCenter({ lat: centerLat, lng: centerLng });
+            mapInstanceRef.current.setZoom(6);
+          }
+        }
       }).catch((error) => {
         console.error('Error updating markers:', error);
       });
@@ -130,9 +161,29 @@ export default function PortfolioMap({ projects }: Props) {
           zoom: 4,
           styles: [
             {
-              featureType: 'all',
+              featureType: 'water',
+              elementType: 'geometry',
+              stylers: [{ color: '#e9e9e9' }],
+            },
+            {
+              featureType: 'landscape',
               elementType: 'geometry',
               stylers: [{ color: '#f5f5f5' }],
+            },
+            {
+              featureType: 'administrative',
+              elementType: 'geometry.stroke',
+              stylers: [{ color: '#c9c9c9' }, { weight: 1 }],
+            },
+            {
+              featureType: 'administrative.country',
+              elementType: 'geometry.stroke',
+              stylers: [{ color: '#999999' }, { weight: 1.5 }],
+            },
+            {
+              featureType: 'administrative.province',
+              elementType: 'geometry.stroke',
+              stylers: [{ color: '#b3b3b3' }, { weight: 1 }],
             },
           ],
         });
@@ -144,21 +195,58 @@ export default function PortfolioMap({ projects }: Props) {
           p => p.latitude != null && p.longitude != null
         );
 
+        console.log('Projects with coordinates:', projectsWithCoords.length, projectsWithCoords);
+
         if (projectsWithCoords.length > 0) {
+          const positions: Array<{ lat: number; lng: number }> = [];
+          
           projectsWithCoords.forEach((project) => {
             if (project.latitude != null && project.longitude != null) {
               try {
+                const position = { lat: project.latitude, lng: project.longitude };
                 const marker = new Marker({
-                  position: { lat: project.latitude, lng: project.longitude },
+                  position,
                   map,
                   title: project.name,
                 });
                 markersRef.current.push(marker);
+                positions.push(position);
               } catch (e) {
                 console.error('Error creating marker:', e);
               }
             }
           });
+
+          // Fit map bounds to show all markers
+          if (positions.length > 0) {
+            // Calculate bounds manually
+            const lats = positions.map(p => p.lat);
+            const lngs = positions.map(p => p.lng);
+            const minLat = Math.min(...lats);
+            const maxLat = Math.max(...lats);
+            const minLng = Math.min(...lngs);
+            const maxLng = Math.max(...lngs);
+            
+            // Use fitBounds if available, otherwise set center and zoom
+            try {
+              const bounds = {
+                north: maxLat,
+                south: minLat,
+                east: maxLng,
+                west: minLng,
+              };
+              map.fitBounds(bounds as any);
+            } catch (e) {
+              // Fallback: center on average position
+              const centerLat = (minLat + maxLat) / 2;
+              const centerLng = (minLng + maxLng) / 2;
+              map.setCenter({ lat: centerLat, lng: centerLng });
+              map.setZoom(6);
+            }
+          }
+        } else {
+          console.log('No projects with coordinates found. Total projects:', projects.length);
+          console.log('Projects data:', projects);
         }
 
         setMapLoaded(true);
