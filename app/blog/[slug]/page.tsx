@@ -70,7 +70,7 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
         </section>
 
-        <div className="blog-post-header section-padding">
+        <div className={styles.blogPostHeader}>
           <div className="container">
             <div className={styles.blogPostHeaderContent}>
               <Link href="/blog" className={styles.backLink}>
@@ -89,7 +89,7 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
         </div>
 
-        <div className="blog-post-content section-padding">
+        <div className={styles.blogPostContent}>
           <div className="container">
             <div className={styles.blogPostBody}>
               {post.body.split('\n\n').map((paragraph, i) => (
