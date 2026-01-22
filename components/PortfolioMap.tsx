@@ -96,9 +96,9 @@ export default function PortfolioMap({ projects }: Props) {
       }).then(([markerLibrary, mapsLibrary]: [any, any]) => {
         const { AdvancedMarkerElement, PinElement, Marker } = markerLibrary;
         const { InfoWindow } = mapsLibrary;
-        const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID';
-        // Advanced Markers work with any valid Map ID (including DEMO_MAP_ID)
-        const hasMapId = !!mapId;
+        const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
+        // Only use AdvancedMarkerElement if a real Map ID is provided (not DEMO_MAP_ID)
+        const hasMapId = !!mapId && mapId !== 'DEMO_MAP_ID';
         const positions: Array<{ lat: number; lng: number }> = [];
         
         console.log('Updating markers - Map ID:', mapId, 'hasMapId:', hasMapId, 'AdvancedMarkerElement available:', !!AdvancedMarkerElement);
@@ -111,7 +111,8 @@ export default function PortfolioMap({ projects }: Props) {
               console.log(`Creating marker ${index + 1}/${projectsWithCoordsForMarkers.length}: ${project.name} at (${position.lat}, ${position.lng})`);
               let marker: any;
               
-              // Try AdvancedMarkerElement first if Map ID is available, otherwise use regular Marker
+              // Use regular Marker by default (more reliable)
+              // Only use AdvancedMarkerElement if a real Map ID is provided
               if (hasMapId && AdvancedMarkerElement && PinElement) {
                 try {
                   const pinElement = new PinElement({
@@ -136,11 +137,10 @@ export default function PortfolioMap({ projects }: Props) {
                     position,
                     title: project.name,
                   });
-                  console.log(`✓ Created regular Marker for ${project.name}`);
+                  console.log(`✓ Created regular Marker for ${project.name} (fallback)`);
                 }
               } else {
-                // Use regular Marker when Map ID is not available or AdvancedMarkerElement not available
-                console.log(`Using regular Marker for ${project.name} (hasMapId: ${hasMapId}, AdvancedMarkerElement: ${!!AdvancedMarkerElement})`);
+                // Use regular Marker - more reliable and doesn't require Map ID
                 marker = new Marker({
                   map: mapInstanceRef.current,
                   position,
@@ -257,13 +257,11 @@ export default function PortfolioMap({ projects }: Props) {
         }
 
         // Get Map ID from environment variable (required for Advanced Markers)
-        // Use DEMO_MAP_ID as default - Google's demo Map ID that works without setup
-        const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID';
-        // Advanced Markers work with any valid Map ID (including DEMO_MAP_ID)
-        const hasMapId = !!mapId;
+        // Only use Map ID if explicitly provided - otherwise use regular markers
+        const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
+        const hasMapId = !!mapId && mapId !== 'DEMO_MAP_ID'; // Don't use DEMO_MAP_ID, it's unreliable
         
-        const map = new Map(mapRef.current, {
-          mapId: mapId, // Map ID required for Advanced Markers
+        const mapOptions: any = {
           center: { lat: 39.8283, lng: -98.5795 }, // Center of US
           zoom: 4,
           mapTypeControl: true,
@@ -375,7 +373,8 @@ export default function PortfolioMap({ projects }: Props) {
                 console.log(`Creating marker ${index + 1}/${projectsWithCoordsList.length}: ${project.name} at (${position.lat}, ${position.lng})`);
                 let marker: any;
                 
-                // Try AdvancedMarkerElement first if Map ID is available, otherwise use regular Marker
+                // Use regular Marker by default (more reliable)
+                // Only use AdvancedMarkerElement if a real Map ID is provided
                 if (hasMapId && AdvancedMarkerElement && PinElement) {
                   try {
                     const pinElement = new PinElement({
@@ -400,11 +399,10 @@ export default function PortfolioMap({ projects }: Props) {
                       position,
                       title: project.name,
                     });
-                    console.log(`✓ Created regular Marker for ${project.name}`);
+                    console.log(`✓ Created regular Marker for ${project.name} (fallback)`);
                   }
                 } else {
-                  // Use regular Marker when Map ID is not available or AdvancedMarkerElement not available
-                  console.log(`Using regular Marker for ${project.name} (hasMapId: ${hasMapId}, AdvancedMarkerElement: ${!!AdvancedMarkerElement})`);
+                  // Use regular Marker - more reliable and doesn't require Map ID
                   marker = new Marker({
                     map,
                     position,
