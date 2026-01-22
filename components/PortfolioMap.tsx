@@ -176,7 +176,8 @@ export default function PortfolioMap({ projects }: Props) {
         console.log(`Successfully created ${markersRef.current.length} markers out of ${projectsWithCoordsForMarkers.length} projects`);
 
         // Fit map bounds to show all markers
-        if (positions.length > 0 && mapInstanceRef.current) {
+        // Skip this if we're currently searching (search handler will handle centering)
+        if (positions.length > 0 && mapInstanceRef.current && !isSearching) {
           // Calculate bounds manually
           const lats = positions.map(p => p.lat);
           const lngs = positions.map(p => p.lng);
@@ -205,7 +206,7 @@ export default function PortfolioMap({ projects }: Props) {
         console.error('Error updating markers:', error);
       });
     }
-  }, [filteredProjects, mapLoaded]);
+  }, [filteredProjects, mapLoaded, isSearching]);
 
   // Load map effect
   useEffect(() => {
@@ -466,7 +467,7 @@ export default function PortfolioMap({ projects }: Props) {
           
           console.log(`Successfully created ${markersRef.current.length} markers out of ${projectsWithCoordsList.length} projects`);
 
-          // Fit map bounds to show all markers
+          // Fit map bounds to show all markers (only on initial load, not during search)
           if (positions.length > 0) {
             // Calculate bounds manually
             const lats = positions.map(p => p.lat);
@@ -593,6 +594,8 @@ export default function PortfolioMap({ projects }: Props) {
         filtered = projects;
       }
 
+      // Set isSearching BEFORE updating filteredProjects so the marker effect skips fitBounds
+      setIsSearching(true);
       setFilteredProjects(filtered);
 
       // Center map on searched location and zoom appropriately
@@ -660,12 +663,16 @@ export default function PortfolioMap({ projects }: Props) {
                 mapToUse.setZoom(6); // Wider zoom for states
               }
               console.log('Map zoomed to:', data.zipCode ? 10 : 6);
+              // Clear searching flag after map is centered
+              setIsSearching(false);
             } catch (zoomError) {
               console.error('Error zooming map:', zoomError);
+              setIsSearching(false);
             }
           }, 100);
         } catch (error) {
           console.error('Error centering map:', error);
+          setIsSearching(false);
         }
       } else {
         console.warn('Map instance or coordinates not available:', {
@@ -677,6 +684,7 @@ export default function PortfolioMap({ projects }: Props) {
           latitude: data.latitude,
           longitude: data.longitude,
         });
+        setIsSearching(false);
       }
     } catch (error) {
       console.error('Error searching:', error);
