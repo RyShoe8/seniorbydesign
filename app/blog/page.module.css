@@ -67,6 +67,13 @@
   height: 250px;
   overflow: hidden;
   flex-shrink: 0;
+  background: var(--warm-grey-1);
+}
+
+.blogImage img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
 }
 
 .blogContentWrapper {
