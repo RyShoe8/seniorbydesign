@@ -104,6 +104,16 @@
   color: var(--warm-grey-3);
 }
 
+.videoIframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 8px;
+}
+
 .twoColumnList {
   display: grid;
   grid-template-columns: 1fr 1fr;
