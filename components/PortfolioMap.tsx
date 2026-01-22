@@ -24,13 +24,65 @@ export default function PortfolioMap({ projects }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredProjects, setFilteredProjects] = useState<Project[]>(projects);
   const [isSearching, setIsSearching] = useState(false);
+  const [projectsWithCoords, setProjectsWithCoords] = useState<Project[]>([]);
+  const [isGeocoding, setIsGeocoding] = useState(false);
+
+  // Geocode projects that have zip codes but no coordinates
+  useEffect(() => {
+    const geocodeProjects = async () => {
+      const projectsNeedingGeocoding = projects.filter(
+        p => p.zipCode && (!p.latitude || !p.longitude)
+      );
+
+      if (projectsNeedingGeocoding.length === 0) {
+        setProjectsWithCoords(projects);
+        return;
+      }
+
+      setIsGeocoding(true);
+      const geocodedProjects = [...projects];
+
+      // Geocode projects in batches to avoid rate limits
+      for (let i = 0; i < projectsNeedingGeocoding.length; i++) {
+        const project = projectsNeedingGeocoding[i];
+        try {
+          const response = await fetch(`/api/geocode?q=${encodeURIComponent(project.zipCode)}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.latitude && data.longitude) {
+              // Update the project in the array
+              const index = geocodedProjects.findIndex(p => p._id === project._id);
+              if (index !== -1) {
+                geocodedProjects[index] = {
+                  ...geocodedProjects[index],
+                  latitude: data.latitude,
+                  longitude: data.longitude,
+                };
+              }
+            }
+          }
+          // Small delay to avoid rate limiting
+          if (i < projectsNeedingGeocoding.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+        } catch (error) {
+          console.error(`Error geocoding project ${project.name}:`, error);
+        }
+      }
+
+      setProjectsWithCoords(geocodedProjects);
+      setIsGeocoding(false);
+    };
+
+    geocodeProjects();
+  }, [projects]);
 
   // Initialize filtered projects when projects prop changes
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setFilteredProjects(projects);
+      setFilteredProjects(projectsWithCoords.length > 0 ? projectsWithCoords : projects);
     }
-  }, [projects]);
+  }, [projects, projectsWithCoords, searchQuery]);
 
   // Cleanup function
   const cleanupMarkers = () => {
@@ -46,13 +98,15 @@ export default function PortfolioMap({ projects }: Props) {
 
   // Update filtered projects when search changes
   useEffect(() => {
+    const projectsToFilter = projectsWithCoords.length > 0 ? projectsWithCoords : projects;
+    
     if (!searchQuery.trim()) {
-      setFilteredProjects(projects);
+      setFilteredProjects(projectsToFilter);
       return;
     }
 
     const query = searchQuery.trim().toLowerCase();
-    const filtered = projects.filter(project => {
+    const filtered = projectsToFilter.filter(project => {
       // Match zip code
       if (project.zipCode && project.zipCode.toLowerCase().includes(query)) {
         return true;
@@ -62,7 +116,7 @@ export default function PortfolioMap({ projects }: Props) {
     });
 
     setFilteredProjects(filtered);
-  }, [searchQuery, projects]);
+  }, [searchQuery, projects, projectsWithCoords]);
 
   // Update markers when filtered projects change (if map is already loaded)
   useEffect(() => {
@@ -78,7 +132,7 @@ export default function PortfolioMap({ projects }: Props) {
       p => p.latitude != null && p.longitude != null
     );
 
-    if (projectsWithCoords.length > 0) {
+    if (projectsWithCoordsList.length > 0) {
       import('@googlemaps/js-api-loader').then(({ Loader }) => {
         const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
         if (!apiKey) return Promise.reject('API key not found');
@@ -90,7 +144,7 @@ export default function PortfolioMap({ projects }: Props) {
       }).then(({ Marker }: { Marker: any }) => {
         const positions: Array<{ lat: number; lng: number }> = [];
         
-        projectsWithCoords.forEach((project) => {
+        projectsWithCoordsList.forEach((project) => {
           if (project.latitude != null && project.longitude != null && mapInstanceRef.current) {
             try {
               const position = { lat: project.latitude, lng: project.longitude };
@@ -193,6 +247,7 @@ export default function PortfolioMap({ projects }: Props) {
           mapTypeControlOptions: {
             mapTypeIds: ['roadmap', 'satellite'],
           },
+          mapTypeId: 'roadmap',
           styles: [
             {
               featureType: 'water',
@@ -224,17 +279,68 @@ export default function PortfolioMap({ projects }: Props) {
 
         mapInstanceRef.current = map;
 
+        // Listen for map type changes to disable labels in satellite view
+        map.addListener('maptypeid_changed', () => {
+          const currentMapType = map.getMapTypeId();
+          if (currentMapType === 'satellite' || currentMapType === 'hybrid') {
+            // Disable labels by setting map options
+            map.setOptions({
+              styles: [
+                {
+                  featureType: 'all',
+                  elementType: 'labels',
+                  stylers: [{ visibility: 'off' }],
+                },
+              ],
+            });
+          } else {
+            // Re-enable original styles for roadmap
+            map.setOptions({
+              styles: [
+                {
+                  featureType: 'water',
+                  elementType: 'geometry',
+                  stylers: [{ color: '#e9e9e9' }],
+                },
+                {
+                  featureType: 'landscape',
+                  elementType: 'geometry',
+                  stylers: [{ color: '#f5f5f5' }],
+                },
+                {
+                  featureType: 'administrative',
+                  elementType: 'geometry.stroke',
+                  stylers: [{ color: '#c9c9c9' }, { weight: 1 }],
+                },
+                {
+                  featureType: 'administrative.country',
+                  elementType: 'geometry.stroke',
+                  stylers: [{ color: '#999999' }, { weight: 1.5 }],
+                },
+                {
+                  featureType: 'administrative.province',
+                  elementType: 'geometry.stroke',
+                  stylers: [{ color: '#b3b3b3' }, { weight: 1 }],
+                },
+              ],
+            });
+          }
+        });
+
         // Add markers for each project with coordinates
-        const projectsWithCoords = filteredProjects.filter(
+        const projectsToShow = projectsWithCoords.length > 0 ? projectsWithCoords : filteredProjects;
+        const projectsWithCoordsList = projectsToShow.filter(
           p => p.latitude != null && p.longitude != null
         );
 
-        console.log('Projects with coordinates:', projectsWithCoords.length, projectsWithCoords);
+        console.log('Projects with coordinates:', projectsWithCoordsList.length, projectsWithCoordsList);
+        console.log('Total projects:', projects.length);
+        console.log('Projects needing geocoding:', projects.filter(p => p.zipCode && (!p.latitude || !p.longitude)).length);
 
-        if (projectsWithCoords.length > 0) {
+        if (projectsWithCoordsList.length > 0) {
           const positions: Array<{ lat: number; lng: number }> = [];
           
-          projectsWithCoords.forEach((project) => {
+          projectsWithCoordsList.forEach((project) => {
             if (project.latitude != null && project.longitude != null) {
               try {
                 const position = { lat: project.latitude, lng: project.longitude };
@@ -313,7 +419,7 @@ export default function PortfolioMap({ projects }: Props) {
       mapInstanceRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapLoaded, mapError, filteredProjects]);
+  }, [mapLoaded, mapError, filteredProjects, projectsWithCoords]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -442,6 +548,11 @@ export default function PortfolioMap({ projects }: Props) {
       {!mapLoaded && !mapError && (
         <div className="map-loading">
           <p>Loading map...</p>
+        </div>
+      )}
+      {isGeocoding && (
+        <div className="map-geocoding">
+          <p>Geocoding projects... This may take a moment.</p>
         </div>
       )}
       <style jsx>{`

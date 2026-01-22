@@ -48,6 +48,26 @@ export default function ProjectMapManagement() {
     }
   };
 
+  const handleGeocodeAll = async () => {
+    if (!confirm('This will geocode all projects with ZIP codes but no coordinates. This may take a few minutes. Continue?')) return;
+    
+    try {
+      const response = await fetch('/api/admin/projects/geocode', {
+        method: 'POST',
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert(`Geocoding complete! ${data.geocoded} projects geocoded, ${data.failed} failed.`);
+        fetchProjects();
+      } else {
+        alert('Error geocoding projects');
+      }
+    } catch (error) {
+      console.error('Error geocoding projects:', error);
+      alert('Error geocoding projects');
+    }
+  };
+
   const handleEdit = (project: Project) => {
     setEditingProject(project);
     setShowForm(true);
@@ -92,9 +112,14 @@ export default function ProjectMapManagement() {
     <div className="admin-page">
       <div className="admin-header">
         <h1>Project Map Management</h1>
-        <button onClick={() => { setShowForm(true); setEditingProject(null); }} className="btn">
-          Add Project
-        </button>
+        <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
+          <button onClick={handleGeocodeAll} className="btn-secondary">
+            Geocode All Projects
+          </button>
+          <button onClick={() => { setShowForm(true); setEditingProject(null); }} className="btn">
+            Add Project
+          </button>
+        </div>
       </div>
 
       {showForm && (
