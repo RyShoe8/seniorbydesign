@@ -296,7 +296,14 @@ export default function PortfolioMap({ projects }: Props) {
               stylers: [{ color: '#b3b3b3' }, { weight: 1 }],
             },
           ],
-        });
+        };
+        
+        // Only add mapId if we have a real one (not DEMO_MAP_ID)
+        if (hasMapId) {
+          mapOptions.mapId = mapId;
+        }
+        
+        const map = new Map(mapRef.current, mapOptions);
 
         mapInstanceRef.current = map;
 
