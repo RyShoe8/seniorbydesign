@@ -117,12 +117,12 @@ export default async function BlogPostPage({ params }: Props) {
             ) : (
               <div className={styles.heroPlaceholder} />
             )}
-            <h1>{post.title}</h1>
           </div>
         </section>
 
         <div className={styles.blogPostHeader}>
           <div className="container">
+            <h1 className={styles.blogPostTitle}>{post.title}</h1>
             <div className={styles.blogPostHeaderContent}>
               <Link href="/blog" className={styles.backLink}>
                 ← Back to Blog

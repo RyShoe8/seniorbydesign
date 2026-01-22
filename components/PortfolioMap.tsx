@@ -570,17 +570,44 @@ export default function PortfolioMap({ projects }: Props) {
           display: flex;
           gap: var(--spacing-sm);
           align-items: center;
-          flex-wrap: wrap;
+          flex-wrap: nowrap;
         }
 
         .map-search-input {
           flex: 1;
-          min-width: 200px;
+          min-width: 0;
           padding: 0.75rem;
           border: 1px solid var(--warm-grey-3);
           border-radius: 4px;
           font-size: 16px;
           font-family: inherit;
+        }
+
+        @media (max-width: 768px) {
+          .map-search-form {
+            flex-wrap: nowrap;
+          }
+
+          .map-search-input {
+            flex: 1;
+            min-width: 0;
+            font-size: 14px;
+            padding: 0.6rem;
+          }
+
+          .map-search-button {
+            padding: 0.6rem 1rem;
+            font-size: 14px;
+            white-space: nowrap;
+            flex-shrink: 0;
+          }
+
+          .map-clear-button {
+            padding: 0.6rem 1rem;
+            font-size: 14px;
+            white-space: nowrap;
+            flex-shrink: 0;
+          }
         }
 
         .map-search-input:focus {

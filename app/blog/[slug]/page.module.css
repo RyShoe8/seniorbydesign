@@ -21,13 +21,13 @@
   justify-content: center;
 }
 
-
-.blogPostHeroImage h1 {
-  position: relative;
-  z-index: 2;
-  color: #fff;
-  font-size: 75px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+.blogPostTitle {
+  text-align: center;
+  font-size: 48px;
+  line-height: 1.2;
+  margin-bottom: var(--spacing-md);
+  color: var(--sbd-brown);
+  font-weight: 600;
 }
 
 .heroImage {
@@ -109,8 +109,9 @@
 }
 
 @media (max-width: 768px) {
-  .blogPostHeroImage h1 {
-    font-size: 48px;
+  .blogPostTitle {
+    font-size: 32px;
+    margin-bottom: var(--spacing-sm);
   }
 
   .blogPostHeaderContent {
