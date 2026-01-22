@@ -49,8 +49,7 @@ export default function AdminDashboard() {
         blogPosts,
       });
     } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
-    } finally {
+          } finally {
       setIsLoading(false);
     }
   };

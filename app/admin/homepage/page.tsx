@@ -52,8 +52,7 @@ export default function HomepageManagement() {
         testimonials: [],
       });
     } catch (error) {
-      console.error('Error fetching homepage content:', error);
-    } finally {
+          } finally {
       setIsLoading(false);
     }
   };
@@ -64,8 +63,7 @@ export default function HomepageManagement() {
       const data = await response.json();
       setPartners(data.sort((a: Partner, b: Partner) => a.order - b.order));
     } catch (error) {
-      console.error('Error fetching partners:', error);
-    }
+          }
   };
 
   const handlePortfolioSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -89,8 +87,7 @@ export default function HomepageManagement() {
         fetchContent();
       }
     } catch (error) {
-      console.error('Error saving portfolio highlights:', error);
-      alert('Error saving content');
+            alert('Error saving content');
     } finally {
       setIsSaving(false);
     }
@@ -108,8 +105,7 @@ export default function HomepageManagement() {
         fetchContent();
       }
     } catch (error) {
-      console.error('Error adding testimonial:', error);
-      alert('Error adding testimonial');
+            alert('Error adding testimonial');
     }
   };
 
@@ -125,8 +121,7 @@ export default function HomepageManagement() {
         fetchContent();
       }
     } catch (error) {
-      console.error('Error updating testimonial:', error);
-      alert('Error updating testimonial');
+            alert('Error updating testimonial');
     }
   };
 
@@ -142,8 +137,7 @@ export default function HomepageManagement() {
         fetchContent();
       }
     } catch (error) {
-      console.error('Error deleting testimonial:', error);
-      alert('Error deleting testimonial');
+            alert('Error deleting testimonial');
     }
   };
 
@@ -196,8 +190,7 @@ export default function HomepageManagement() {
         alert(`Failed to upload logo: ${errorData.error || 'Unknown error'}\n\n${errorData.details || ''}\n\n${errorData.instructions || ''}`);
       }
     } catch (error: any) {
-      console.error('Error uploading logo:', error);
-      alert(`Error uploading logo: ${error.message || 'Unknown error'}`);
+            alert(`Error uploading logo: ${error.message || 'Unknown error'}`);
     } finally {
       setUploadingLogo(false);
     }
@@ -244,8 +237,7 @@ export default function HomepageManagement() {
         alert('Error saving partner');
       }
     } catch (error) {
-      console.error('Error saving partner:', error);
-      alert('Error saving partner');
+            alert('Error saving partner');
     }
   };
 
@@ -263,8 +255,7 @@ export default function HomepageManagement() {
         alert('Error deleting partner');
       }
     } catch (error) {
-      console.error('Error deleting partner:', error);
-      alert('Error deleting partner');
+            alert('Error deleting partner');
     }
   };
 

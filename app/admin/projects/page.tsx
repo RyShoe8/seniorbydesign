@@ -27,7 +27,7 @@ export default function ProjectMapManagement() {
       const data = await response.json();
       setProjects(data);
     } catch (error) {
-      console.error('Error fetching projects:', error);
+      // Error fetching projects
     } finally {
       setIsLoading(false);
     }
@@ -44,7 +44,7 @@ export default function ProjectMapManagement() {
         fetchProjects();
       }
     } catch (error) {
-      console.error('Error deleting project:', error);
+      // Error deleting project
     }
   };
 
@@ -63,8 +63,7 @@ export default function ProjectMapManagement() {
         alert('Error geocoding projects');
       }
     } catch (error) {
-      console.error('Error geocoding projects:', error);
-      alert('Error geocoding projects');
+            alert('Error geocoding projects');
     }
   };
 
@@ -85,7 +84,6 @@ export default function ProjectMapManagement() {
         alert(data.error || 'Error clearing geocoding');
       }
     } catch (error) {
-      console.error('Error clearing geocoding:', error);
       alert('Error clearing geocoding');
     }
   };
@@ -107,8 +105,7 @@ export default function ProjectMapManagement() {
         alert(data.error || 'Error re-geocoding project');
       }
     } catch (error) {
-      console.error('Error re-geocoding:', error);
-      alert('Error re-geocoding project');
+            alert('Error re-geocoding project');
     }
   };
 
@@ -165,7 +162,7 @@ export default function ProjectMapManagement() {
         (e.target as HTMLFormElement).reset();
       }
     } catch (error) {
-      console.error('Error saving project:', error);
+      // Error saving project
     }
   };
 

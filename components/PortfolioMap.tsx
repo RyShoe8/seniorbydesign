@@ -80,8 +80,6 @@ export default function PortfolioMap({ projects }: Props) {
       p => p.latitude != null && p.longitude != null
     );
 
-    console.log('Projects with coordinates:', projectsWithCoordsForMarkers.length, 'out of', filteredProjects.length);
-
     if (projectsWithCoordsForMarkers.length > 0) {
       import('@googlemaps/js-api-loader').then(({ Loader }) => {
         const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -102,14 +100,11 @@ export default function PortfolioMap({ projects }: Props) {
         const hasMapId = !!mapId && mapId !== 'DEMO_MAP_ID';
         const positions: Array<{ lat: number; lng: number }> = [];
         
-        console.log('Updating markers - Map ID:', mapId, 'hasMapId:', hasMapId, 'AdvancedMarkerElement available:', !!AdvancedMarkerElement);
-        console.log('Projects to mark:', projectsWithCoordsForMarkers.length);
         
         projectsWithCoordsForMarkers.forEach((project, index) => {
           if (project.latitude != null && project.longitude != null && mapInstanceRef.current) {
             try {
               const position = { lat: project.latitude, lng: project.longitude };
-              console.log(`Creating marker ${index + 1}/${projectsWithCoordsForMarkers.length}: ${project.name} at (${position.lat}, ${position.lng})`);
               let marker: any;
               
               // Use regular Marker by default (more reliable)
@@ -129,16 +124,13 @@ export default function PortfolioMap({ projects }: Props) {
                     title: project.name,
                     content: pinElement.element,
                   });
-                  console.log(`✓ Created AdvancedMarkerElement for ${project.name}`);
                 } catch (advError) {
-                  console.warn(`AdvancedMarkerElement failed for ${project.name}, falling back to Marker:`, advError);
                   // Fall back to regular Marker
                   marker = new Marker({
                     map: mapInstanceRef.current,
                     position,
                     title: project.name,
                   });
-                  console.log(`✓ Created regular Marker for ${project.name} (fallback)`);
                 }
               } else {
                 // Use regular Marker - more reliable and doesn't require Map ID
@@ -147,7 +139,6 @@ export default function PortfolioMap({ projects }: Props) {
                   position,
                   title: project.name,
                 });
-                console.log(`✓ Created regular Marker for ${project.name}`);
               }
               
               // Add click listener to show info window
@@ -168,12 +159,11 @@ export default function PortfolioMap({ projects }: Props) {
               markersRef.current.push(marker);
               positions.push(position);
             } catch (e) {
-              console.error(`✗ Error creating marker for project ${project.name}:`, e);
+              // Error creating marker
             }
           }
         });
         
-        console.log(`Successfully created ${markersRef.current.length} markers out of ${projectsWithCoordsForMarkers.length} projects`);
 
         // Fit map bounds to show all markers
         // Skip this if we're currently searching (search handler will handle centering)
@@ -203,8 +193,7 @@ export default function PortfolioMap({ projects }: Props) {
           }
         }
       }).catch((error) => {
-        console.error('Error updating markers:', error);
-      });
+              });
     }
   }, [filteredProjects, mapLoaded, isSearching]);
 
@@ -321,15 +310,12 @@ export default function PortfolioMap({ projects }: Props) {
         const mapReadyPromise = new Promise<any>((resolve) => {
           // Listen for map idle event to know when it's ready
           map.addListener('idle', () => {
-            console.log('Map is idle/ready');
             resolve(map);
           });
           // Also resolve immediately if map is already ready
           setTimeout(() => resolve(map), 100);
         });
         mapReadyPromiseRef.current = mapReadyPromise;
-        
-        console.log('Map instance set:', !!mapInstanceRef.current, 'Map object:', map);
 
         // Listen for map type changes to disable labels in satellite view
         map.addListener('maptypeid_changed', () => {
@@ -384,20 +370,12 @@ export default function PortfolioMap({ projects }: Props) {
           p => p.latitude != null && p.longitude != null
         );
 
-        console.log('Projects with coordinates:', projectsWithCoordsList.length, 'out of', filteredProjects.length);
-        console.log('Total projects:', projects.length);
         const projectsNeedingGeocoding = projects.filter(p => p.zipCode && (!p.latitude || !p.longitude));
-        if (projectsNeedingGeocoding.length > 0) {
-          console.log('Projects needing geocoding:', projectsNeedingGeocoding.length, '- Use "Geocode All Projects" button in admin panel');
-        }
 
         if (projectsWithCoordsList.length > 0) {
           const positions: Array<{ lat: number; lng: number }> = [];
           
-          console.log('Creating markers for', projectsWithCoordsList.length, 'projects');
-          console.log('Map ID:', mapId, 'hasMapId:', hasMapId, 'AdvancedMarkerElement available:', !!AdvancedMarkerElement);
-          
-          projectsWithCoordsList.forEach((project, index) => {
+                              projectsWithCoordsList.forEach((project, index) => {
             if (project.latitude != null && project.longitude != null) {
               try {
                 const position = { lat: project.latitude, lng: project.longitude };
@@ -421,16 +399,13 @@ export default function PortfolioMap({ projects }: Props) {
                       title: project.name,
                       content: pinElement.element,
                     });
-                    console.log(`✓ Created AdvancedMarkerElement for ${project.name}`);
                   } catch (advError) {
-                    console.warn(`AdvancedMarkerElement failed for ${project.name}, falling back to Marker:`, advError);
                     // Fall back to regular Marker
                     marker = new Marker({
                       map,
                       position,
                       title: project.name,
                     });
-                    console.log(`✓ Created regular Marker for ${project.name} (fallback)`);
                   }
                 } else {
                   // Use regular Marker - more reliable and doesn't require Map ID
@@ -439,7 +414,6 @@ export default function PortfolioMap({ projects }: Props) {
                     position,
                     title: project.name,
                   });
-                  console.log(`✓ Created regular Marker for ${project.name}`);
                 }
                 
                 // Add click listener to show info window
@@ -460,12 +434,10 @@ export default function PortfolioMap({ projects }: Props) {
                 markersRef.current.push(marker);
                 positions.push(position);
               } catch (e) {
-                console.error(`✗ Error creating marker for project ${project.name}:`, e);
+                // Error creating marker
               }
             }
           });
-          
-          console.log(`Successfully created ${markersRef.current.length} markers out of ${projectsWithCoordsList.length} projects`);
 
           // Fit map bounds to show all markers (only on initial load, not during search)
           if (positions.length > 0) {
@@ -494,14 +466,10 @@ export default function PortfolioMap({ projects }: Props) {
               map.setZoom(6);
             }
           }
-        } else {
-          console.log('No projects with coordinates found. Total projects:', projects.length);
-          console.log('Projects data:', projects);
         }
 
         setMapLoaded(true);
       } catch (error) {
-        console.error('Error loading Google Maps:', error);
         setMapError(true);
         cleanupMarkers();
       }
@@ -541,36 +509,25 @@ export default function PortfolioMap({ projects }: Props) {
     setIsSearching(true);
     try {
       const searchTerm = searchQuery.trim();
-      console.log('Searching for:', searchTerm);
       
       const response = await fetch(`/api/geocode?q=${encodeURIComponent(searchTerm)}`);
       const data = await response.json();
 
-      console.log('Geocode response:', response.status, data);
-
       if (!response.ok) {
         const errorMsg = data?.error || `HTTP ${response.status}`;
-        console.error('Geocoding failed - response not OK:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: data?.error,
-          data,
-        });
-        alert(`Location not found: ${errorMsg}. Please try a different ZIP code or state name (e.g., "75219" or "Texas").`);
+                alert(`Location not found: ${errorMsg}. Please try a different ZIP code or state name (e.g., "75219" or "Texas").`);
         setIsSearching(false);
         return;
       }
 
       if (data.error) {
         const errorMsg = data.error;
-        console.error('Geocoding failed - error in data:', errorMsg, data);
         alert(`Location not found: ${errorMsg}. Please try a different ZIP code or state name (e.g., "75219" or "Texas").`);
         setIsSearching(false);
         return;
       }
 
       if (!data.latitude || !data.longitude) {
-        console.error('Geocoding failed - missing coordinates:', data);
         alert('Location found but coordinates are missing. Please try a different search.');
         setIsSearching(false);
         return;
@@ -605,9 +562,8 @@ export default function PortfolioMap({ projects }: Props) {
       if (mapReadyPromiseRef.current) {
         try {
           mapToUse = await mapReadyPromiseRef.current;
-          console.log('Got map from promise');
         } catch (e) {
-          console.warn('Promise failed, trying other methods:', e);
+          // Promise failed, trying other methods
         }
       }
       
@@ -619,22 +575,15 @@ export default function PortfolioMap({ projects }: Props) {
       if (!mapToUse && mapRef.current) {
         const mapElement = mapRef.current as any;
         mapToUse = mapElement.__mapInstance || mapElement.map;
-        if (mapToUse) {
-          console.log('Found map instance on DOM element');
-        }
       }
       
       // Try window backup
       if (!mapToUse && typeof window !== 'undefined') {
         mapToUse = (window as any).__sbdMapInstance;
-        if (mapToUse) {
-          console.log('Found map instance on window');
-        }
       }
       
       // Final fallback: wait a bit if map still isn't ready
       if (!mapToUse) {
-        console.log('Map instance not found, waiting...');
         for (let i = 0; i < 30; i++) {
           await new Promise(resolve => setTimeout(resolve, 100));
           mapToUse = mapInstanceRef.current 
@@ -642,7 +591,6 @@ export default function PortfolioMap({ projects }: Props) {
             || (mapRef.current as any)?.map
             || (typeof window !== 'undefined' ? (window as any).__sbdMapInstance : null);
           if (mapToUse) {
-            console.log('Map instance found after', i + 1, 'attempts');
             break;
           }
         }
@@ -650,7 +598,6 @@ export default function PortfolioMap({ projects }: Props) {
       
       if (mapToUse && data.latitude && data.longitude) {
         try {
-          console.log('Centering map on:', data.latitude, data.longitude);
           mapToUse.setCenter({ lat: data.latitude, lng: data.longitude });
           
           // Use setTimeout to ensure the center call completes before zooming
@@ -662,32 +609,19 @@ export default function PortfolioMap({ projects }: Props) {
               } else {
                 mapToUse.setZoom(5); // Wider zoom for states (less zoomed in)
               }
-              console.log('Map zoomed to:', data.zipCode ? 10 : 6);
               // Clear searching flag after map is centered
               setIsSearching(false);
             } catch (zoomError) {
-              console.error('Error zooming map:', zoomError);
               setIsSearching(false);
             }
           }, 100);
         } catch (error) {
-          console.error('Error centering map:', error);
           setIsSearching(false);
         }
       } else {
-        console.warn('Map instance or coordinates not available:', {
-          hasMap: !!mapToUse,
-          mapInstanceRef: !!mapInstanceRef.current,
-          mapRef: !!mapRef.current,
-          domMap: !!(mapRef.current as any)?.__mapInstance,
-          windowMap: typeof window !== 'undefined' ? !!(window as any).__sbdMapInstance : false,
-          latitude: data.latitude,
-          longitude: data.longitude,
-        });
         setIsSearching(false);
       }
     } catch (error) {
-      console.error('Error searching:', error);
       alert('Error searching location');
     } finally {
       setIsSearching(false);

@@ -56,8 +56,7 @@ export default function PortfolioManagement() {
       });
       setCategories(normalizedData);
     } catch (error) {
-      console.error('Error fetching categories:', error);
-    } finally {
+          } finally {
       setIsLoading(false);
     }
   };
@@ -73,8 +72,7 @@ export default function PortfolioManagement() {
         fetchCategories();
       }
     } catch (error) {
-      console.error('Error deleting category:', error);
-    }
+          }
   };
 
   const handleEdit = (category: PortfolioCategory) => {
@@ -125,8 +123,7 @@ export default function PortfolioManagement() {
         alert('Failed to upload image');
       }
     } catch (error) {
-      console.error('Error uploading image:', error);
-      alert('Error uploading image');
+            alert('Error uploading image');
     } finally {
       setUploadingImage(false);
     }
@@ -167,8 +164,7 @@ export default function PortfolioManagement() {
         (e.target as HTMLFormElement).reset();
       }
     } catch (error) {
-      console.error('Error saving category:', error);
-    }
+          }
   };
 
   return (

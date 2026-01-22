@@ -17,8 +17,7 @@ export async function GET() {
     const content = await collection.findOne({});
     return NextResponse.json(content);
   } catch (error) {
-    console.error('Error fetching homepage content:', error);
-    return NextResponse.json(
+        return NextResponse.json(
       { error: 'Failed to fetch homepage content' },
       { status: 500 }
     );
@@ -64,8 +63,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ _id: result.insertedId, ...content });
     }
   } catch (error) {
-    console.error('Error saving homepage content:', error);
-    return NextResponse.json(
+        return NextResponse.json(
       { error: 'Failed to save homepage content' },
       { status: 500 }
     );

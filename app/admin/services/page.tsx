@@ -32,8 +32,7 @@ export default function ServicesManagement() {
       const data = await response.json();
       setServices(data);
     } catch (error) {
-      console.error('Error fetching services:', error);
-    } finally {
+          } finally {
       setIsLoading(false);
     }
   };
@@ -49,8 +48,7 @@ export default function ServicesManagement() {
         fetchServices();
       }
     } catch (error) {
-      console.error('Error deleting service:', error);
-    }
+          }
   };
 
   const handleEdit = (service: Service) => {
@@ -82,8 +80,7 @@ export default function ServicesManagement() {
         alert('Failed to upload hero image');
       }
     } catch (error) {
-      console.error('Error uploading hero image:', error);
-      alert('Error uploading hero image');
+            alert('Error uploading hero image');
     } finally {
       setUploadingHero(false);
     }
@@ -116,8 +113,7 @@ export default function ServicesManagement() {
 
       setAdditionalImages([...additionalImages, ...uploadedUrls]);
     } catch (error) {
-      console.error('Error uploading images:', error);
-      alert('Error uploading images');
+            alert('Error uploading images');
     } finally {
       setUploadingImages(false);
       // Reset the input
@@ -164,8 +160,7 @@ export default function ServicesManagement() {
         (e.target as HTMLFormElement).reset();
       }
     } catch (error) {
-      console.error('Error saving service:', error);
-      alert('Error saving service');
+            alert('Error saving service');
     }
   };
 

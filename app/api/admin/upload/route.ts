@@ -86,15 +86,12 @@ export async function POST(request: Request) {
         updatedAt: new Date(),
       });
     } catch (error) {
-      console.error('Error adding to media collection:', error);
-      // Don't fail the upload if media collection update fails
+            // Don't fail the upload if media collection update fails
     }
     
     return NextResponse.json({ url: publicUrl });
   } catch (error: any) {
-    console.error('Error uploading file:', error);
-    
-    // Provide more specific error messages
+        // Provide more specific error messages
     let errorMessage = 'Failed to upload file';
     let errorDetails = error.message || 'Unknown error';
     

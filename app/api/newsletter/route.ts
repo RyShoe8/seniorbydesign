@@ -39,15 +39,12 @@ export async function POST(request: Request) {
         );
       } catch (emailError) {
         // Log but don't fail the request if confirmation email fails
-        console.error('Error sending confirmation email:', emailError);
-      }
+              }
     }
     
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Newsletter signup error:', error);
-    
-    // Return appropriate error message
+        // Return appropriate error message
     const errorMessage = error?.message || 'Failed to process signup';
     return NextResponse.json(
       { error: errorMessage },

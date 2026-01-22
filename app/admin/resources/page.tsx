@@ -25,8 +25,7 @@ export default function ResourcesManagement() {
       const data = await response.json();
       setResources(data);
     } catch (error) {
-      console.error('Error fetching resources:', error);
-    } finally {
+          } finally {
       setIsLoading(false);
     }
   };
@@ -42,8 +41,7 @@ export default function ResourcesManagement() {
         fetchResources();
       }
     } catch (error) {
-      console.error('Error deleting resource:', error);
-    }
+          }
   };
 
   const handleEdit = (resource: Resource) => {
@@ -78,8 +76,7 @@ export default function ResourcesManagement() {
         await fetchResources();
       }
     } catch (error) {
-      console.error('Error saving resource:', error);
-    }
+          }
   };
 
   const handleCloseForm = () => {

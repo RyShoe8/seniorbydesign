@@ -17,8 +17,7 @@ export async function GET() {
     const partners = await collection.find({}).toArray();
     return NextResponse.json(partners);
   } catch (error) {
-    console.error('Error fetching partners:', error);
-    return NextResponse.json(
+        return NextResponse.json(
       { error: 'Failed to fetch partners' },
       { status: 500 }
     );
@@ -58,8 +57,7 @@ export async function POST(request: Request) {
     const result = await collection.insertOne(partner);
     return NextResponse.json({ _id: result.insertedId, ...partner });
   } catch (error) {
-    console.error('Error creating partner:', error);
-    return NextResponse.json(
+        return NextResponse.json(
       { error: 'Failed to create partner' },
       { status: 500 }
     );

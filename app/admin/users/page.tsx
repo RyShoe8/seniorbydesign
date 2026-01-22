@@ -31,8 +31,7 @@ export default function UserManagement() {
       const data = await response.json();
       setUsers(data);
     } catch (error) {
-      console.error('Error fetching users:', error);
-    } finally {
+          } finally {
       setIsLoading(false);
     }
   };
@@ -78,8 +77,7 @@ export default function UserManagement() {
       await fetchUsers();
       handleCancel();
     } catch (error) {
-      console.error('Error updating user:', error);
-      alert('Failed to update user');
+            alert('Failed to update user');
     } finally {
       setIsSaving(false);
     }

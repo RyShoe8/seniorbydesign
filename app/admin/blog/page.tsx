@@ -36,7 +36,7 @@ export default function BlogManagement() {
       const data = await response.json();
       setPosts(data);
     } catch (error) {
-      console.error('Error fetching blog posts:', error);
+      // Error fetching blog posts
     } finally {
       setIsLoading(false);
     }
@@ -53,8 +53,7 @@ export default function BlogManagement() {
         fetchPosts();
       }
     } catch (error) {
-      console.error('Error deleting blog post:', error);
-    }
+          }
   };
 
   const handleEdit = (post: BlogPost) => {
@@ -85,7 +84,6 @@ export default function BlogManagement() {
         alert('Failed to upload featured image');
       }
     } catch (error) {
-      console.error('Error uploading featured image:', error);
       alert('Error uploading featured image');
     } finally {
       setUploadingImage(false);
@@ -130,8 +128,7 @@ export default function BlogManagement() {
         alert('Failed to upload image');
       }
     } catch (error) {
-      console.error('Error uploading body image:', error);
-      alert('Error uploading image');
+            alert('Error uploading image');
     } finally {
       setUploadingBodyImage(false);
       // Reset the input
@@ -172,7 +169,6 @@ export default function BlogManagement() {
         (e.target as HTMLFormElement).reset();
       }
     } catch (error) {
-      console.error('Error saving blog post:', error);
       alert('Error saving blog post');
     }
   };

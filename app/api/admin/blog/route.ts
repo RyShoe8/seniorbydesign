@@ -18,8 +18,7 @@ export async function GET() {
     const posts = await collection.find({}).sort({ publishedAt: -1, createdAt: -1 }).toArray();
     return NextResponse.json(posts);
   } catch (error) {
-    console.error('Error fetching blog posts:', error);
-    return NextResponse.json(
+        return NextResponse.json(
       { error: 'Failed to fetch blog posts' },
       { status: 500 }
     );
@@ -58,8 +57,7 @@ export async function POST(request: Request) {
     const result = await collection.insertOne(post);
     return NextResponse.json({ _id: result.insertedId, ...post });
   } catch (error) {
-    console.error('Error creating blog post:', error);
-    return NextResponse.json(
+        return NextResponse.json(
       { error: 'Failed to create blog post' },
       { status: 500 }
     );

@@ -72,13 +72,11 @@ export async function addContactToBrevo(data: NewsletterSignupData): Promise<voi
       const errorData = await response.json().catch(() => ({}));
       // If contact already exists, that's okay (updateEnabled handles it)
       if (errorData.code !== 'duplicate_parameter') {
-        console.error('Error adding contact to Brevo:', errorData);
-        throw new Error(errorData.message || 'Failed to add contact to Brevo');
+                throw new Error(errorData.message || 'Failed to add contact to Brevo');
       }
     }
   } catch (error: any) {
-    console.error('Error adding contact to Brevo:', error);
-    throw error;
+        throw error;
   }
 }
 
@@ -124,12 +122,10 @@ export async function sendTransactionalEmail(
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error('Error sending transactional email:', errorData);
-      throw new Error(errorData.message || 'Failed to send email');
+            throw new Error(errorData.message || 'Failed to send email');
     }
   } catch (error) {
-    console.error('Error sending transactional email:', error);
-    throw error;
+        throw error;
   }
 }
 
@@ -186,13 +182,11 @@ export async function addContactFormToBrevo(data: ContactFormData): Promise<void
       const errorData = await response.json().catch(() => ({}));
       // If contact already exists, that's okay (updateEnabled handles it)
       if (errorData.code !== 'duplicate_parameter') {
-        console.error('Error adding contact form to Brevo:', errorData);
-        throw new Error(errorData.message || 'Failed to add contact form to Brevo');
+                throw new Error(errorData.message || 'Failed to add contact form to Brevo');
       }
     }
   } catch (error: any) {
-    console.error('Error adding contact form to Brevo:', error);
-    throw error;
+        throw error;
   }
 }
 

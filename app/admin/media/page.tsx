@@ -29,8 +29,7 @@ export default function MediaManagement() {
       const data = await response.json();
       setMediaItems(data);
     } catch (error) {
-      console.error('Error fetching media:', error);
-    } finally {
+          } finally {
       setIsLoading(false);
     }
   };
@@ -54,8 +53,7 @@ export default function MediaManagement() {
         alert('Failed to save changes');
       }
     } catch (error) {
-      console.error('Error saving media:', error);
-      alert('Error saving changes');
+            alert('Error saving changes');
     }
   };
 

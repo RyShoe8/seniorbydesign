@@ -50,8 +50,7 @@ export async function GET() {
     const allMediaItems = await collection.find({}).sort({ createdAt: -1 }).toArray();
     return NextResponse.json(allMediaItems);
   } catch (error) {
-    console.error('Error fetching media:', error);
-    return NextResponse.json(
+        return NextResponse.json(
       { error: 'Failed to fetch media' },
       { status: 500 }
     );
@@ -75,8 +74,7 @@ async function scanDirectory(dir: string, basePath: string, files: string[]): Pr
       }
     }
   } catch (error) {
-    console.error(`Error scanning directory ${dir}:`, error);
-  }
+      }
 }
 
 export async function PUT(request: Request) {
@@ -103,8 +101,7 @@ export async function PUT(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error updating media:', error);
-    return NextResponse.json(
+        return NextResponse.json(
       { error: 'Failed to update media' },
       { status: 500 }
     );

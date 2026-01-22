@@ -41,10 +41,8 @@ export async function getPartners() {
   try {
     const collection = await getPartnersCollection();
     const partners = await collection.find({}).sort({ order: 1 }).toArray();
-    console.log('Fetched partners:', partners.length, partners);
     return partners;
   } catch (error) {
-    console.error('Error fetching partners:', error);
     return [];
   }
 }

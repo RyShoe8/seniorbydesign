@@ -15,7 +15,6 @@ export async function geocodeZipCode(zipCode: string): Promise<GeocodeResult | n
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   
   if (!apiKey) {
-    console.error('GOOGLE_MAPS_API_KEY environment variable is not set');
     return null;
   }
 
@@ -28,8 +27,7 @@ export async function geocodeZipCode(zipCode: string): Promise<GeocodeResult | n
     );
 
     if (!response.ok) {
-      console.error(`Geocoding API request failed for ZIP ${zipCode}:`, response.statusText);
-      return null;
+            return null;
     }
 
     const data = await response.json();
@@ -38,32 +36,15 @@ export async function geocodeZipCode(zipCode: string): Promise<GeocodeResult | n
       const location = data.results[0].geometry.location;
       const formattedAddress = data.results[0].formatted_address;
       
-      // Log the result for debugging
-      console.log(`Geocoded ZIP ${zipCode} to: ${formattedAddress} (${location.lat}, ${location.lng})`);
-      
       return {
         latitude: location.lat,
         longitude: location.lng,
         formattedAddress,
       };
     } else {
-      // Enhanced error logging
-      const errorMsg = data.error_message || 'Unknown error';
-      if (data.status === 'REQUEST_DENIED') {
-        if (errorMsg.includes('referer restrictions')) {
-          console.error(`Geocoding failed for ZIP ${zipCode}: REQUEST_DENIED - API key has HTTP referrer restrictions. Server-side API keys cannot use referrer restrictions. Set Application restrictions to "None" in Google Cloud Console.`);
-        } else if (errorMsg.includes('IP')) {
-          console.error(`Geocoding failed for ZIP ${zipCode}: REQUEST_DENIED - IP address not authorized. Add Vercel server IPs to API key restrictions or set Application restrictions to "None".`);
-        } else {
-          console.error(`Geocoding failed for ZIP ${zipCode}: REQUEST_DENIED - ${errorMsg}`);
-        }
-      } else {
-        console.error(`Geocoding failed for ZIP ${zipCode}: ${data.status} - ${errorMsg}`);
-      }
       return null;
     }
   } catch (error) {
-    console.error(`Error geocoding ZIP code ${zipCode}:`, error);
     return null;
   }
 }

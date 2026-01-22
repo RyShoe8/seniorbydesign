@@ -9,8 +9,7 @@ export async function GET() {
     const members = await collection.find({}).toArray();
     return NextResponse.json(members);
   } catch (error) {
-    console.error('Error fetching team members:', error);
-    return NextResponse.json(
+        return NextResponse.json(
       { error: 'Failed to fetch team members' },
       { status: 500 }
     );

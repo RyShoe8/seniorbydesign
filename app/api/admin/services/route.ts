@@ -17,8 +17,7 @@ export async function GET() {
     const services = await collection.find({}).toArray();
     return NextResponse.json(services);
   } catch (error) {
-    console.error('Error fetching services:', error);
-    return NextResponse.json(
+        return NextResponse.json(
       { error: 'Failed to fetch services' },
       { status: 500 }
     );
@@ -49,8 +48,7 @@ export async function POST(request: Request) {
     const result = await collection.insertOne(service);
     return NextResponse.json({ _id: result.insertedId, ...service });
   } catch (error) {
-    console.error('Error creating service:', error);
-    return NextResponse.json(
+        return NextResponse.json(
       { error: 'Failed to create service' },
       { status: 500 }
     );

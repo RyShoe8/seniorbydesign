@@ -22,11 +22,6 @@ export default async function Home() {
   const portfolioCategories = await getPortfolioCategories();
   const partners = await getPartners();
   
-  // Debug logging
-  console.log('Homepage partners count:', partners?.length || 0);
-  if (partners && partners.length > 0) {
-    console.log('First partner:', partners[0]);
-  }
 
   return (
     <>

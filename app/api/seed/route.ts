@@ -8,8 +8,7 @@ export async function GET() {
     await seedDatabase();
     return NextResponse.json({ message: 'Database seeded successfully' });
   } catch (error) {
-    console.error('Seed error:', error);
-    return NextResponse.json(
+        return NextResponse.json(
       { error: 'Failed to seed database' },
       { status: 500 }
     );

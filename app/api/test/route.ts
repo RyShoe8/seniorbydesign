@@ -18,8 +18,7 @@ export async function GET() {
       message: 'MongoDB connection successful' 
     });
   } catch (error) {
-    console.error('MongoDB connection error:', error);
-    return NextResponse.json(
+        return NextResponse.json(
       { status: 'error', message: 'Failed to connect to MongoDB' },
       { status: 500 }
     );

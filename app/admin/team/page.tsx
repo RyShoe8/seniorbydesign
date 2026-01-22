@@ -33,8 +33,7 @@ export default function TeamManagement() {
       const data = await response.json();
       setMembers(data);
     } catch (error) {
-      console.error('Error fetching team members:', error);
-    } finally {
+          } finally {
       setIsLoading(false);
     }
   };
@@ -50,8 +49,7 @@ export default function TeamManagement() {
         fetchMembers();
       }
     } catch (error) {
-      console.error('Error deleting member:', error);
-    }
+          }
   };
 
   const handleEdit = (member: TeamMember) => {
@@ -82,8 +80,7 @@ export default function TeamManagement() {
         alert('Failed to upload profile image');
       }
     } catch (error) {
-      console.error('Error uploading profile image:', error);
-      alert('Error uploading profile image');
+            alert('Error uploading profile image');
     } finally {
       setUploadingProfileImage(false);
     }
@@ -122,8 +119,7 @@ export default function TeamManagement() {
         (e.target as HTMLFormElement).reset();
       }
     } catch (error) {
-      console.error('Error saving member:', error);
-    }
+          }
   };
 
   return (

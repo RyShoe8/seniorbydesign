@@ -32,9 +32,6 @@ export async function seedDatabase() {
     const existingUser = await usersCollection.findOne({ email: user.email });
     if (!existingUser) {
       await usersCollection.insertOne(user);
-      console.log(`Created admin user: ${user.email}`);
-    } else {
-      console.log(`User already exists: ${user.email}`);
     }
   }
 }

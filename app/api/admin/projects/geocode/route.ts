@@ -46,7 +46,6 @@ export async function POST(request: Request) {
           // Small delay to avoid rate limiting
           await new Promise(resolve => setTimeout(resolve, 100));
         } catch (error) {
-          console.error(`Error geocoding project ${project.name} (ZIP: ${project.zipCode}):`, error);
           failed++;
           failedProjects.push({ name: project.name || 'Unknown', zipCode: project.zipCode || 'N/A' });
         }
@@ -64,7 +63,6 @@ export async function POST(request: Request) {
         : 'All projects geocoded successfully!',
     });
   } catch (error) {
-    console.error('Error batch geocoding projects:', error);
     return NextResponse.json(
       { error: 'Failed to geocode projects' },
       { status: 500 }

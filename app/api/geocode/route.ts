@@ -20,7 +20,6 @@ export async function GET(request: Request) {
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     
     if (!apiKey) {
-      console.error('GOOGLE_MAPS_API_KEY is not set');
       return NextResponse.json(
         { error: 'Geocoding API key not configured' },
         { status: 500 }
@@ -54,12 +53,6 @@ export async function GET(request: Request) {
 
     const data = await response.json();
 
-    console.log('Google Geocoding API response:', {
-      status: data.status,
-      resultsCount: data.results?.length || 0,
-      query,
-    });
-
     if (data.status === 'OK' && data.results && data.results.length > 0) {
       const location = data.results[0].geometry.location;
       const result = data.results[0];
@@ -85,12 +78,6 @@ export async function GET(request: Request) {
         zipCode,
       });
     } else {
-      console.error('Geocoding failed:', {
-        status: data.status,
-        error_message: data.error_message,
-        query,
-      });
-      
       // Provide more helpful error messages
       let errorMessage = data.error_message || `Location not found (${data.status})`;
       if (data.status === 'REQUEST_DENIED') {
@@ -110,7 +97,6 @@ export async function GET(request: Request) {
       );
     }
   } catch (error) {
-    console.error('Error geocoding:', error);
     return NextResponse.json(
       { error: 'Failed to geocode location' },
       { status: 500 }

@@ -53,7 +53,6 @@ export async function PUT(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error updating project:', error);
     return NextResponse.json(
       { error: 'Failed to update project' },
       { status: 500 }
@@ -76,7 +75,6 @@ export async function DELETE(
     await collection.deleteOne({ _id: new ObjectId(params.id) });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error deleting project:', error);
     return NextResponse.json(
       { error: 'Failed to delete project' },
       { status: 500 }
@@ -156,7 +154,6 @@ export async function PATCH(
       );
     }
   } catch (error) {
-    console.error('Error processing PATCH request:', error);
     return NextResponse.json(
       { error: 'Failed to process request' },
       { status: 500 }

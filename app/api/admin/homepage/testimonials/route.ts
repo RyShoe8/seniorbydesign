@@ -46,8 +46,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error creating testimonial:', error);
-    return NextResponse.json(
+        return NextResponse.json(
       { error: 'Failed to create testimonial' },
       { status: 500 }
     );
@@ -98,8 +97,7 @@ export async function PUT(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error updating testimonial:', error);
-    return NextResponse.json(
+        return NextResponse.json(
       { error: 'Failed to update testimonial' },
       { status: 500 }
     );
@@ -152,8 +150,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error deleting testimonial:', error);
-    return NextResponse.json(
+        return NextResponse.json(
       { error: 'Failed to delete testimonial' },
       { status: 500 }
     );
