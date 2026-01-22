@@ -514,8 +514,8 @@ export default function PortfolioMap({ projects }: Props) {
       return;
     }
 
-    // Check if map is loaded
-    if (!mapLoaded || !mapInstanceRef.current) {
+    // Check if map instance exists (more reliable than state)
+    if (!mapInstanceRef.current) {
       alert('Map is still loading. Please wait a moment and try again.');
       return;
     }
