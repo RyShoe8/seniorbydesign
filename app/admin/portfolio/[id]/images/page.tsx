@@ -48,10 +48,8 @@ export default function PortfolioImageManagement() {
         setCategory({ ...data, images: normalizedImages });
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Failed to fetch category' }));
-        console.error('Error fetching category:', errorData.error || response.statusText);
       }
     } catch (error) {
-      console.error('Error fetching category:', error);
     } finally {
       setIsLoading(false);
     }
@@ -95,7 +93,7 @@ export default function PortfolioImageManagement() {
         alert('Failed to upload image');
       }
     } catch (error) {
-      console.error('Error uploading image:', error);
+      // Error('Error uploading image:', error);
       alert('Error uploading image');
     } finally {
       setUploadingImage(false);
@@ -124,7 +122,6 @@ export default function PortfolioImageManagement() {
         alert('Failed to update images');
       }
     } catch (error) {
-      console.error('Error updating images:', error);
       alert('Error updating images');
     }
   };

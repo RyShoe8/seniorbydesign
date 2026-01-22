@@ -20,7 +20,6 @@ export async function GET(
     
     return NextResponse.json(category);
   } catch (error) {
-    console.error('Error fetching portfolio category:', error);
     return NextResponse.json(
       { error: 'Failed to fetch category' },
       { status: 500 }

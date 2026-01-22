@@ -40,7 +40,6 @@ export async function GET(request: Request) {
     }
 
     const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(formattedQuery)}&key=${apiKey}&region=us&components=country:US`;
-    console.log('Geocoding URL:', geocodeUrl.replace(apiKey, 'API_KEY_HIDDEN'));
 
     const response = await fetch(geocodeUrl);
 

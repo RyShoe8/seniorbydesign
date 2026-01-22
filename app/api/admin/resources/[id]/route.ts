@@ -34,7 +34,7 @@ export async function PUT(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error updating resource:', error);
+    // Error('Error updating resource:', error);
     return NextResponse.json(
       { error: 'Failed to update resource' },
       { status: 500 }
@@ -57,7 +57,7 @@ export async function DELETE(
     await collection.deleteOne({ _id: new ObjectId(params.id) });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error deleting resource:', error);
+    // Error('Error deleting resource:', error);
     return NextResponse.json(
       { error: 'Failed to delete resource' },
       { status: 500 }

@@ -379,7 +379,6 @@ export default function PortfolioMap({ projects }: Props) {
             if (project.latitude != null && project.longitude != null) {
               try {
                 const position = { lat: project.latitude, lng: project.longitude };
-                console.log(`Creating marker ${index + 1}/${projectsWithCoordsList.length}: ${project.name} at (${position.lat}, ${position.lng})`);
                 let marker: any;
                 
                 // Use regular Marker by default (more reliable)

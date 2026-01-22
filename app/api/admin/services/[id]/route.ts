@@ -36,7 +36,7 @@ export async function PUT(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error updating service:', error);
+    // Error('Error updating service:', error);
     return NextResponse.json(
       { error: 'Failed to update service' },
       { status: 500 }
@@ -59,7 +59,7 @@ export async function DELETE(
     await collection.deleteOne({ _id: new ObjectId(params.id) });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error deleting service:', error);
+    // Error('Error deleting service:', error);
     return NextResponse.json(
       { error: 'Failed to delete service' },
       { status: 500 }
