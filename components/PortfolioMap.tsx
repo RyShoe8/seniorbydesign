@@ -16,23 +16,93 @@ interface Props {
 
 export default function PortfolioMap({ projects }: Props) {
   const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<google.maps.Map | null>(null);
+  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const observerRef = useRef<IntersectionObserver | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
 
+  // Cleanup function
+  const cleanupMarkers = () => {
+    markersRef.current.forEach(marker => {
+      try {
+        marker.map = null;
+      } catch (e) {
+        // Ignore errors during cleanup
+      }
+    });
+    markersRef.current = [];
+  };
+
+  // Update markers when projects change (if map is already loaded)
+  useEffect(() => {
+    if (!mapInstanceRef.current || !mapLoaded) {
+      return;
+    }
+
+    // Remove old markers
+    cleanupMarkers();
+
+    // Add new markers
+    const projectsWithCoords = projects.filter(
+      p => p.latitude != null && p.longitude != null
+    );
+
+    if (projectsWithCoords.length > 0) {
+      import('@googlemaps/js-api-loader').then(({ Loader }) => {
+        return Loader.importLibrary('marker');
+      }).then(({ Marker }) => {
+        projectsWithCoords.forEach((project) => {
+          if (project.latitude != null && project.longitude != null && mapInstanceRef.current) {
+            try {
+              const marker = new Marker({
+                position: { lat: project.latitude, lng: project.longitude },
+                map: mapInstanceRef.current,
+                title: project.name,
+              });
+              markersRef.current.push(marker);
+            } catch (e) {
+              console.error('Error creating marker:', e);
+            }
+          }
+        });
+      }).catch((error) => {
+        console.error('Error updating markers:', error);
+      });
+    }
+  }, [projects, mapLoaded]);
+
+  // Load map effect
   useEffect(() => {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     
     // Only load map if API key is available
-    if (!apiKey || !mapRef.current || projects.length === 0) {
+    if (!apiKey || !mapRef.current) {
       if (!apiKey) {
         setMapError(true);
       }
       return;
     }
 
+    // Disconnect observer cleanup
+    const disconnectObserver = () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+    };
+
     // Lazy load Google Maps only when component is in viewport
     const loadMap = async () => {
+      // Don't load if already loaded or if container doesn't exist
+      if (mapInstanceRef.current || !mapRef.current) {
+        return;
+      }
+
       try {
+        // Clean up any existing markers
+        cleanupMarkers();
+
         // Dynamically import Google Maps loader
         const { Loader } = await import('@googlemaps/js-api-loader');
         
@@ -44,7 +114,12 @@ export default function PortfolioMap({ projects }: Props) {
         const { Map } = await loader.importLibrary('maps');
         const { Marker } = await loader.importLibrary('marker');
 
-        const map = new Map(mapRef.current!, {
+        // Check if container still exists before creating map
+        if (!mapRef.current) {
+          return;
+        }
+
+        const map = new Map(mapRef.current, {
           center: { lat: 39.8283, lng: -98.5795 }, // Center of US
           zoom: 4,
           styles: [
@@ -56,62 +131,77 @@ export default function PortfolioMap({ projects }: Props) {
           ],
         });
 
-        // Add markers for each project
-        projects.forEach((project) => {
-          if (project.latitude && project.longitude) {
-            new Marker({
-              position: { lat: project.latitude, lng: project.longitude },
-              map,
-              title: project.name,
-            });
-          }
-        });
+        mapInstanceRef.current = map;
+
+        // Add markers for each project with coordinates
+        const projectsWithCoords = projects.filter(
+          p => p.latitude != null && p.longitude != null
+        );
+
+        if (projectsWithCoords.length > 0) {
+          projectsWithCoords.forEach((project) => {
+            if (project.latitude != null && project.longitude != null) {
+              try {
+                const marker = new Marker({
+                  position: { lat: project.latitude, lng: project.longitude },
+                  map,
+                  title: project.name,
+                });
+                markersRef.current.push(marker);
+              } catch (e) {
+                console.error('Error creating marker:', e);
+              }
+            }
+          });
+        }
 
         setMapLoaded(true);
       } catch (error) {
         console.error('Error loading Google Maps:', error);
         setMapError(true);
+        cleanupMarkers();
       }
     };
 
     // Use Intersection Observer to lazy load map when in viewport
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !mapLoaded && !mapError) {
-          loadMap();
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
+    if (!mapLoaded && !mapError && mapRef.current) {
+      observerRef.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && !mapInstanceRef.current) {
+            loadMap();
+            disconnectObserver();
+          }
+        },
+        { threshold: 0.1 }
+      );
 
-    if (mapRef.current) {
-      observer.observe(mapRef.current);
+      observerRef.current.observe(mapRef.current);
     }
 
     return () => {
-      observer.disconnect();
+      disconnectObserver();
+      cleanupMarkers();
+      // Reset map instance reference
+      mapInstanceRef.current = null;
     };
-  }, [projects, mapLoaded, mapError]);
+  }, [mapLoaded, mapError]);
 
   return (
     <div className="portfolio-map-container">
-      {mapError ? (
-        <div className="map-placeholder">
-          <p>Map will be available once Google Maps API key is configured.</p>
-          <p className="map-placeholder-info">
-            {projects.length} project{projects.length !== 1 ? 's' : ''} available
-          </p>
-        </div>
-      ) : (
-        <div ref={mapRef} className="portfolio-map">
-          {!mapLoaded && (
-            <div className="map-loading">
-              <p>Loading map...</p>
-            </div>
-          )}
-        </div>
-      )}
+      <div ref={mapRef} className="portfolio-map">
+        {mapError ? (
+          <div className="map-placeholder">
+            <p>Map will be available once Google Maps API key is configured.</p>
+            <p className="map-placeholder-info">
+              {projects.length} project{projects.length !== 1 ? 's' : ''} available
+            </p>
+          </div>
+        ) : !mapLoaded ? (
+          <div className="map-loading">
+            <p>Loading map...</p>
+          </div>
+        ) : null}
+      </div>
       <style jsx>{`
         .portfolio-map-container {
           width: 100%;
