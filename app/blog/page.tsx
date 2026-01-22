@@ -24,7 +24,7 @@ export default async function Blog() {
       <section className={styles.blogHero}>
         <div className={styles.blogHeroImage}>
           <Image
-            src="/images/Blog/Blog Header.webp"
+            src="/images/blog/principled design hero.jpg"
             alt="The Principled Design Journal"
             fill
             className={styles.heroImage}
