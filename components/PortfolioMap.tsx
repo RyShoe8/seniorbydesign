@@ -101,14 +101,18 @@ export default function PortfolioMap({ projects }: Props) {
         const hasMapId = !!mapId;
         const positions: Array<{ lat: number; lng: number }> = [];
         
-        projectsWithCoordsForMarkers.forEach((project) => {
+        console.log('Updating markers - Map ID:', mapId, 'hasMapId:', hasMapId, 'AdvancedMarkerElement available:', !!AdvancedMarkerElement);
+        console.log('Projects to mark:', projectsWithCoordsForMarkers.length);
+        
+        projectsWithCoordsForMarkers.forEach((project, index) => {
           if (project.latitude != null && project.longitude != null && mapInstanceRef.current) {
             try {
               const position = { lat: project.latitude, lng: project.longitude };
+              console.log(`Creating marker ${index + 1}/${projectsWithCoordsForMarkers.length}: ${project.name} at (${position.lat}, ${position.lng})`);
               let marker: any;
               
-              // Use AdvancedMarkerElement if Map ID is available, otherwise use regular Marker
-              if (hasMapId && AdvancedMarkerElement) {
+              // Try AdvancedMarkerElement first if Map ID is available, otherwise use regular Marker
+              if (hasMapId && AdvancedMarkerElement && PinElement) {
                 try {
                   const pinElement = new PinElement({
                     background: '#d4af37', // SBD gold color
@@ -123,22 +127,26 @@ export default function PortfolioMap({ projects }: Props) {
                     title: project.name,
                     content: pinElement.element,
                   });
+                  console.log(`✓ Created AdvancedMarkerElement for ${project.name}`);
                 } catch (advError) {
-                  console.warn('AdvancedMarkerElement failed, falling back to Marker:', advError);
+                  console.warn(`AdvancedMarkerElement failed for ${project.name}, falling back to Marker:`, advError);
                   // Fall back to regular Marker
                   marker = new Marker({
                     map: mapInstanceRef.current,
                     position,
                     title: project.name,
                   });
+                  console.log(`✓ Created regular Marker for ${project.name}`);
                 }
               } else {
-                // Use regular Marker when Map ID is not available
+                // Use regular Marker when Map ID is not available or AdvancedMarkerElement not available
+                console.log(`Using regular Marker for ${project.name} (hasMapId: ${hasMapId}, AdvancedMarkerElement: ${!!AdvancedMarkerElement})`);
                 marker = new Marker({
                   map: mapInstanceRef.current,
                   position,
                   title: project.name,
                 });
+                console.log(`✓ Created regular Marker for ${project.name}`);
               }
               
               // Add click listener to show info window
@@ -159,10 +167,12 @@ export default function PortfolioMap({ projects }: Props) {
               markersRef.current.push(marker);
               positions.push(position);
             } catch (e) {
-              console.error('Error creating marker for project:', project.name, e);
+              console.error(`✗ Error creating marker for project ${project.name}:`, e);
             }
           }
         });
+        
+        console.log(`Successfully created ${markersRef.current.length} markers out of ${projectsWithCoordsForMarkers.length} projects`);
 
         // Fit map bounds to show all markers
         if (positions.length > 0 && mapInstanceRef.current) {
@@ -355,14 +365,18 @@ export default function PortfolioMap({ projects }: Props) {
         if (projectsWithCoordsList.length > 0) {
           const positions: Array<{ lat: number; lng: number }> = [];
           
-          projectsWithCoordsList.forEach((project) => {
+          console.log('Creating markers for', projectsWithCoordsList.length, 'projects');
+          console.log('Map ID:', mapId, 'hasMapId:', hasMapId, 'AdvancedMarkerElement available:', !!AdvancedMarkerElement);
+          
+          projectsWithCoordsList.forEach((project, index) => {
             if (project.latitude != null && project.longitude != null) {
               try {
                 const position = { lat: project.latitude, lng: project.longitude };
+                console.log(`Creating marker ${index + 1}/${projectsWithCoordsList.length}: ${project.name} at (${position.lat}, ${position.lng})`);
                 let marker: any;
                 
-                // Use AdvancedMarkerElement if Map ID is available, otherwise use regular Marker
-                if (hasMapId && AdvancedMarkerElement) {
+                // Try AdvancedMarkerElement first if Map ID is available, otherwise use regular Marker
+                if (hasMapId && AdvancedMarkerElement && PinElement) {
                   try {
                     const pinElement = new PinElement({
                       background: '#d4af37', // SBD gold color
@@ -377,22 +391,26 @@ export default function PortfolioMap({ projects }: Props) {
                       title: project.name,
                       content: pinElement.element,
                     });
+                    console.log(`✓ Created AdvancedMarkerElement for ${project.name}`);
                   } catch (advError) {
-                    console.warn('AdvancedMarkerElement failed, falling back to Marker:', advError);
+                    console.warn(`AdvancedMarkerElement failed for ${project.name}, falling back to Marker:`, advError);
                     // Fall back to regular Marker
                     marker = new Marker({
                       map,
                       position,
                       title: project.name,
                     });
+                    console.log(`✓ Created regular Marker for ${project.name}`);
                   }
                 } else {
-                  // Use regular Marker when Map ID is not available
+                  // Use regular Marker when Map ID is not available or AdvancedMarkerElement not available
+                  console.log(`Using regular Marker for ${project.name} (hasMapId: ${hasMapId}, AdvancedMarkerElement: ${!!AdvancedMarkerElement})`);
                   marker = new Marker({
                     map,
                     position,
                     title: project.name,
                   });
+                  console.log(`✓ Created regular Marker for ${project.name}`);
                 }
                 
                 // Add click listener to show info window
@@ -413,10 +431,12 @@ export default function PortfolioMap({ projects }: Props) {
                 markersRef.current.push(marker);
                 positions.push(position);
               } catch (e) {
-                console.error('Error creating marker for project:', project.name, e);
+                console.error(`✗ Error creating marker for project ${project.name}:`, e);
               }
             }
           });
+          
+          console.log(`Successfully created ${markersRef.current.length} markers out of ${projectsWithCoordsList.length} projects`);
 
           // Fit map bounds to show all markers
           if (positions.length > 0) {
