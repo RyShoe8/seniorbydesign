@@ -447,15 +447,22 @@ export default function PortfolioMap({ projects }: Props) {
         // The map will center on the state location
         filtered = projects;
       } else {
+        // For general location searches, show all projects
         filtered = projects;
       }
 
       setFilteredProjects(filtered);
 
-      // Center map on searched location
+      // Center map on searched location and zoom appropriately
       if (mapInstanceRef.current && data.latitude && data.longitude) {
         mapInstanceRef.current.setCenter({ lat: data.latitude, lng: data.longitude });
-        mapInstanceRef.current.setZoom(8);
+        
+        // Zoom level: closer for ZIP codes, wider for states
+        if (data.zipCode) {
+          mapInstanceRef.current.setZoom(10); // Closer zoom for ZIP codes
+        } else {
+          mapInstanceRef.current.setZoom(6); // Wider zoom for states
+        }
       }
     } catch (error) {
       console.error('Error searching:', error);
