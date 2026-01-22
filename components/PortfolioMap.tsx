@@ -24,65 +24,13 @@ export default function PortfolioMap({ projects }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredProjects, setFilteredProjects] = useState<Project[]>(projects);
   const [isSearching, setIsSearching] = useState(false);
-  const [projectsWithCoords, setProjectsWithCoords] = useState<Project[]>([]);
-  const [isGeocoding, setIsGeocoding] = useState(false);
-
-  // Geocode projects that have zip codes but no coordinates
-  useEffect(() => {
-    const geocodeProjects = async () => {
-      const projectsNeedingGeocoding = projects.filter(
-        p => p.zipCode && (!p.latitude || !p.longitude)
-      );
-
-      if (projectsNeedingGeocoding.length === 0) {
-        setProjectsWithCoords(projects);
-        return;
-      }
-
-      setIsGeocoding(true);
-      const geocodedProjects = [...projects];
-
-      // Geocode projects in batches to avoid rate limits
-      for (let i = 0; i < projectsNeedingGeocoding.length; i++) {
-        const project = projectsNeedingGeocoding[i];
-        try {
-          const response = await fetch(`/api/geocode?q=${encodeURIComponent(project.zipCode)}`);
-          if (response.ok) {
-            const data = await response.json();
-            if (data.latitude && data.longitude) {
-              // Update the project in the array
-              const index = geocodedProjects.findIndex(p => p._id === project._id);
-              if (index !== -1) {
-                geocodedProjects[index] = {
-                  ...geocodedProjects[index],
-                  latitude: data.latitude,
-                  longitude: data.longitude,
-                };
-              }
-            }
-          }
-          // Small delay to avoid rate limiting
-          if (i < projectsNeedingGeocoding.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-          }
-        } catch (error) {
-          console.error(`Error geocoding project ${project.name}:`, error);
-        }
-      }
-
-      setProjectsWithCoords(geocodedProjects);
-      setIsGeocoding(false);
-    };
-
-    geocodeProjects();
-  }, [projects]);
 
   // Initialize filtered projects when projects prop changes
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setFilteredProjects(projectsWithCoords.length > 0 ? projectsWithCoords : projects);
+      setFilteredProjects(projects);
     }
-  }, [projects, projectsWithCoords, searchQuery]);
+  }, [projects, searchQuery]);
 
   // Cleanup function
   const cleanupMarkers = () => {
@@ -98,17 +46,15 @@ export default function PortfolioMap({ projects }: Props) {
 
   // Update filtered projects when search changes
   useEffect(() => {
-    const projectsToFilter = projectsWithCoords.length > 0 ? projectsWithCoords : projects;
-    
     if (!searchQuery.trim()) {
-      setFilteredProjects(projectsToFilter);
+      setFilteredProjects(projects);
       return;
     }
 
-    const query = searchQuery.trim().toLowerCase();
-    const filtered = projectsToFilter.filter(project => {
+    const queryLower = searchQuery.trim().toLowerCase();
+    const filtered = projects.filter(project => {
       // Match zip code
-      if (project.zipCode && project.zipCode.toLowerCase().includes(query)) {
+      if (project.zipCode && project.zipCode.toLowerCase().includes(queryLower)) {
         return true;
       }
       // Could add state matching here if we store state in projects
@@ -116,7 +62,7 @@ export default function PortfolioMap({ projects }: Props) {
     });
 
     setFilteredProjects(filtered);
-  }, [searchQuery, projects, projectsWithCoords]);
+  }, [searchQuery, projects]);
 
   // Update markers when filtered projects change (if map is already loaded)
   useEffect(() => {
@@ -127,11 +73,12 @@ export default function PortfolioMap({ projects }: Props) {
     // Remove old markers
     cleanupMarkers();
 
-    // Add new markers
-    const projectsToShow = projectsWithCoords.length > 0 ? projectsWithCoords : filteredProjects;
-    const projectsWithCoordsForMarkers = projectsToShow.filter(
+    // Add new markers - only use projects that already have coordinates stored
+    const projectsWithCoordsForMarkers = filteredProjects.filter(
       p => p.latitude != null && p.longitude != null
     );
+
+    console.log('Projects with coordinates:', projectsWithCoordsForMarkers.length, 'out of', filteredProjects.length);
 
     if (projectsWithCoordsForMarkers.length > 0) {
       import('@googlemaps/js-api-loader').then(({ Loader }) => {
@@ -328,15 +275,17 @@ export default function PortfolioMap({ projects }: Props) {
           }
         });
 
-        // Add markers for each project with coordinates
-        const projectsToShow = projectsWithCoords.length > 0 ? projectsWithCoords : filteredProjects;
-        const projectsWithCoordsList = projectsToShow.filter(
+        // Add markers for each project with coordinates - only use stored coordinates
+        const projectsWithCoordsList = filteredProjects.filter(
           p => p.latitude != null && p.longitude != null
         );
 
-        console.log('Projects with coordinates:', projectsWithCoordsList.length, projectsWithCoordsList);
+        console.log('Projects with coordinates:', projectsWithCoordsList.length, 'out of', filteredProjects.length);
         console.log('Total projects:', projects.length);
-        console.log('Projects needing geocoding:', projects.filter(p => p.zipCode && (!p.latitude || !p.longitude)).length);
+        const projectsNeedingGeocoding = projects.filter(p => p.zipCode && (!p.latitude || !p.longitude));
+        if (projectsNeedingGeocoding.length > 0) {
+          console.log('Projects needing geocoding:', projectsNeedingGeocoding.length, '- Use "Geocode All Projects" button in admin panel');
+        }
 
         if (projectsWithCoordsList.length > 0) {
           const positions: Array<{ lat: number; lng: number }> = [];
@@ -420,7 +369,7 @@ export default function PortfolioMap({ projects }: Props) {
       mapInstanceRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapLoaded, mapError, filteredProjects, projectsWithCoords]);
+  }, [mapLoaded, mapError, filteredProjects]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -451,13 +400,13 @@ export default function PortfolioMap({ projects }: Props) {
       let filtered: Project[] = [];
 
       if (data.zipCode) {
-        // Filter by zip code
+        // Filter by zip code - match projects with this zip code
         filtered = projects.filter(p => 
           p.zipCode && p.zipCode.toLowerCase().includes(data.zipCode.toLowerCase())
         );
       } else if (data.state) {
-        // For state search, we'd need to geocode each project's zip to get state
-        // For now, just show all projects and center on the state
+        // For state search, show all projects (we don't store state in projects)
+        // The map will center on the state location
         filtered = projects;
       } else {
         filtered = projects;
@@ -481,13 +430,13 @@ export default function PortfolioMap({ projects }: Props) {
   const handleClearSearch = () => {
     setSearchQuery('');
     setFilteredProjects(projects);
-    if (mapInstanceRef.current) {
+      if (mapInstanceRef.current) {
       // Reset to show all projects
-      const projectsWithCoords = projects.filter(
+      const projectsWithCoordsForBounds = projects.filter(
         p => p.latitude != null && p.longitude != null
       );
-      if (projectsWithCoords.length > 0) {
-        const positions = projectsWithCoords.map(p => ({
+      if (projectsWithCoordsForBounds.length > 0) {
+        const positions = projectsWithCoordsForBounds.map(p => ({
           lat: p.latitude!,
           lng: p.longitude!,
         }));
@@ -555,11 +504,6 @@ export default function PortfolioMap({ projects }: Props) {
       {!mapLoaded && !mapError && (
         <div className="map-loading">
           <p>Loading map...</p>
-        </div>
-      )}
-      {isGeocoding && (
-        <div className="map-geocoding">
-          <p>Geocoding projects... This may take a moment.</p>
         </div>
       )}
       <style jsx>{`
