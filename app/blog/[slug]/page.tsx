@@ -6,6 +6,57 @@ import Image from 'next/image';
 import { generateSEOMetadata, JSONLDSchema, ArticleSchema, BreadcrumbSchema } from '@/components/SEO';
 import styles from './page.module.css';
 
+function BlogPostContent({ body, title }: { body: string; title: string }) {
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  const imgRegex = /<img[^>]*src=["']([^"']+)["'][^>]*(?:alt=["']([^"']*)["'])?[^>]*>/g;
+  let match;
+  let partIndex = 0;
+
+  while ((match = imgRegex.exec(body)) !== null) {
+    // Add text before image
+    const textBefore = body.substring(lastIndex, match.index);
+    if (textBefore.trim()) {
+      textBefore.split('\n\n').forEach((paragraph, j) => {
+        if (paragraph.trim()) {
+          parts.push(<p key={`text-${partIndex}-${j}`}>{paragraph.trim()}</p>);
+        }
+      });
+    }
+    
+    // Add image
+    const src = match[1];
+    const alt = match[2] || '';
+    parts.push(
+      <div key={`img-${partIndex}`} className={styles.blogPostImage}>
+        <Image
+          src={src}
+          alt={alt || title}
+          width={1200}
+          height={800}
+          style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
+          unoptimized={src.startsWith('http')}
+        />
+      </div>
+    );
+    
+    lastIndex = imgRegex.lastIndex;
+    partIndex++;
+  }
+  
+  // Add remaining text
+  const remainingText = body.substring(lastIndex);
+  if (remainingText.trim()) {
+    remainingText.split('\n\n').forEach((paragraph, j) => {
+      if (paragraph.trim()) {
+        parts.push(<p key={`text-final-${j}`}>{paragraph.trim()}</p>);
+      }
+    });
+  }
+  
+  return <>{parts.length > 0 ? parts : <p>No content available.</p>}</>;
+}
+
 type Props = {
   params: { slug: string };
 };
@@ -92,9 +143,7 @@ export default async function BlogPostPage({ params }: Props) {
         <div className={styles.blogPostContent}>
           <div className="container">
             <div className={styles.blogPostBody}>
-              {post.body.split('\n\n').map((paragraph, i) => (
-                <p key={i}>{paragraph}</p>
-              ))}
+              <BlogPostContent body={post.body} title={post.title} />
             </div>
           </div>
         </div>
