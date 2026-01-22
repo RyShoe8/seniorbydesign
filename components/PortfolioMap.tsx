@@ -194,20 +194,20 @@ export default function PortfolioMap({ projects }: Props) {
 
   return (
     <div className="portfolio-map-container">
-      <div ref={mapRef} className="portfolio-map">
-        {mapError ? (
-          <div className="map-placeholder">
-            <p>Map will be available once Google Maps API key is configured.</p>
-            <p className="map-placeholder-info">
-              {projects.length} project{projects.length !== 1 ? 's' : ''} available
-            </p>
-          </div>
-        ) : !mapLoaded ? (
-          <div className="map-loading">
-            <p>Loading map...</p>
-          </div>
-        ) : null}
-      </div>
+      <div ref={mapRef} className="portfolio-map" />
+      {mapError && (
+        <div className="map-placeholder">
+          <p>Map will be available once Google Maps API key is configured.</p>
+          <p className="map-placeholder-info">
+            {projects.length} project{projects.length !== 1 ? 's' : ''} available
+          </p>
+        </div>
+      )}
+      {!mapLoaded && !mapError && (
+        <div className="map-loading">
+          <p>Loading map...</p>
+        </div>
+      )}
       <style jsx>{`
         .portfolio-map-container {
           width: 100%;
@@ -221,9 +221,13 @@ export default function PortfolioMap({ projects }: Props) {
         .portfolio-map {
           width: 100%;
           height: 100%;
+          position: relative;
         }
 
         .map-placeholder {
+          position: absolute;
+          top: 0;
+          left: 0;
           width: 100%;
           height: 100%;
           display: flex;
@@ -233,6 +237,8 @@ export default function PortfolioMap({ projects }: Props) {
           padding: var(--spacing-md);
           text-align: center;
           color: var(--sbd-brown);
+          background: var(--warm-grey-1);
+          z-index: 1;
         }
 
         .map-placeholder-info {
@@ -242,12 +248,17 @@ export default function PortfolioMap({ projects }: Props) {
         }
 
         .map-loading {
+          position: absolute;
+          top: 0;
+          left: 0;
           width: 100%;
           height: 100%;
           display: flex;
           align-items: center;
           justify-content: center;
           color: var(--sbd-brown);
+          background: var(--warm-grey-1);
+          z-index: 1;
         }
       `}</style>
     </div>

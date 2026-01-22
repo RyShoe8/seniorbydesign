@@ -10,6 +10,11 @@ export const metadata: Metadata = generateSEOMetadata({
   description: 'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.',
   url: '/',
   type: 'website',
+  icons: {
+    icon: '/images/SBD Logo.webp',
+    shortcut: '/images/SBD Logo.webp',
+    apple: '/images/SBD Logo.webp',
+  },
 })
 
 export default function RootLayout({
