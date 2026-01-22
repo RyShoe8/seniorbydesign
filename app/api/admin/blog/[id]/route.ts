@@ -68,7 +68,7 @@ export async function PUT(
       excerpt: body.excerpt || '',
       body: body.body,
       featuredImage: body.featuredImage || '',
-      author: body.author || session.user?.name || 'Admin',
+      author: body.author || session.user?.email || 'Admin',
       updatedAt: new Date(),
     };
 
