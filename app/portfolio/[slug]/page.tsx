@@ -46,7 +46,7 @@ export default async function PortfolioDetailPage({ params }: Props) {
     const firstImage = category.images[0];
     if (typeof firstImage === 'string') {
       // Old format: string[] - convert to PortfolioImage[]
-      images = (category.images as string[]).map((url: string, i: number) => ({
+      images = (category.images as unknown as string[]).map((url: string, i: number) => ({
         url,
         displayName: `${categoryName} image ${i + 1}`,
         altText: `${categoryName} image ${i + 1}`,
