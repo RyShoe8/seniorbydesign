@@ -430,9 +430,9 @@ export default function PortfolioMap({ projects }: Props) {
 
     setIsSearching(true);
     try {
-      const query = searchQuery.trim();
-      console.log('Searching for:', query);
-      const response = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
+      const searchTerm = searchQuery.trim();
+      console.log('Searching for:', searchTerm);
+      const response = await fetch(`/api/geocode?q=${encodeURIComponent(searchTerm)}`);
       const data = await response.json();
 
       console.log('Geocode response:', response.status, data);
@@ -446,7 +446,7 @@ export default function PortfolioMap({ projects }: Props) {
       }
 
       // Filter projects by zip code or state
-      const query = searchQuery.trim().toLowerCase();
+      const queryLower = searchTerm.toLowerCase();
       let filtered: Project[] = [];
 
       if (data.zipCode) {
