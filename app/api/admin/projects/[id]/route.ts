@@ -94,15 +94,17 @@ export async function PATCH(
     const collection = await getProjectsCollection();
     
     if (body.action === 'clearGeocode') {
-      // Clear geocoding coordinates
+      // Clear geocoding coordinates using $unset to remove the fields
       await collection.updateOne(
         { _id: new ObjectId(params.id) },
         { 
-          $set: { 
-            latitude: null, 
-            longitude: null,
+          $unset: { 
+            latitude: '', 
+            longitude: '',
+          },
+          $set: {
             updatedAt: new Date(),
-          } 
+          }
         }
       );
       return NextResponse.json({ success: true, message: 'Geocoding cleared' });

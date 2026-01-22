@@ -139,7 +139,7 @@ export default function PortfolioMap({ projects }: Props) {
         console.error('Error updating markers:', error);
       });
     }
-  }, [projects, mapLoaded]);
+  }, [filteredProjects, mapLoaded]);
 
   // Load map effect
   useEffect(() => {
