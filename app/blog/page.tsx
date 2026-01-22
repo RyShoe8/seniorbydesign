@@ -24,11 +24,12 @@ export default async function Blog() {
       <section className={styles.blogHero}>
         <div className={styles.blogHeroImage}>
           <Image
-            src="/images/Blog/principled design hero.jpg"
+            src="/images/Blog/principled%20design%20hero.jpg"
             alt="The Principled Design Journal"
             fill
             className={styles.heroImage}
             priority
+            unoptimized
           />
           <h1>The Principled Design Journal</h1>
         </div>
