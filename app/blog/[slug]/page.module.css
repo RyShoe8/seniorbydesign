@@ -26,6 +26,8 @@
   font-size: 48px;
   line-height: 1.2;
   margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--warm-grey-1);
   color: var(--sbd-brown);
   font-weight: 600;
 }
@@ -52,8 +54,7 @@
   align-items: center;
   gap: var(--spacing-md);
   flex-wrap: wrap;
-  padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--warm-grey-1);
+  margin-bottom: var(--spacing-md);
 }
 
 .backLink {
