@@ -137,7 +137,7 @@ export default function BlogManagement() {
   return (
     <div className="admin-page">
       <div className="admin-header">
-        <h1>Principled Design Management</h1>
+        <h1>Blog Management</h1>
         <button 
           onClick={() => { 
             setShowForm(true); 

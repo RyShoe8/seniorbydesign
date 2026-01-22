@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return generateSEOMetadata({
-    title: `${post.title} - Principled Design`,
+    title: `${post.title} - The Principled Design Journal`,
     description: post.excerpt || post.body.substring(0, 160),
     url: `/blog/${post.slug}`,
     image: post.featuredImage,
@@ -49,7 +49,7 @@ export default async function BlogPostPage({ params }: Props) {
       })} />
       <JSONLDSchema schema={BreadcrumbSchema([
         { name: 'Home', url: '/' },
-        { name: 'Principled Design', url: '/blog' },
+        { name: 'Blog', url: '/blog' },
         { name: post.title, url: `/blog/${post.slug}` },
       ])} />
       <article className="blog-post">
@@ -73,7 +73,7 @@ export default async function BlogPostPage({ params }: Props) {
         <div className="blog-post-header section-padding">
           <div className="container">
             <Link href="/blog" className={styles.backLink}>
-              ← Back to Principled Design
+              ← Back to Blog
             </Link>
             {post.publishedAt && (
               <p className={styles.blogPostDate}>

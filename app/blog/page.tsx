@@ -6,7 +6,7 @@ import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/component
 import styles from './page.module.css';
 
 export const metadata: Metadata = generateSEOMetadata({
-  title: 'Principled Design - Senior By Design',
+  title: 'The Principled Design Journal - Senior By Design',
   description: 'Latest insights and principles from Senior By Design about interior design, senior living communities, and design trends.',
   url: '/blog',
   type: 'website',
@@ -19,18 +19,18 @@ export default async function Blog() {
     <>
       <JSONLDSchema schema={BreadcrumbSchema([
         { name: 'Home', url: '/' },
-        { name: 'Principled Design', url: '/blog' },
+        { name: 'Blog', url: '/blog' },
       ])} />
       <section className={styles.blogHero}>
         <div className={styles.blogHeroImage}>
           <Image
             src="/images/Blog/Blog Header.webp"
-            alt="Principled Design"
+            alt="The Principled Design Journal"
             fill
             className={styles.heroImage}
             priority
           />
-          <h1>Principled Design</h1>
+          <h1>The Principled Design Journal</h1>
         </div>
       </section>
 

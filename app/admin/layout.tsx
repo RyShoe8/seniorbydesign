@@ -78,7 +78,7 @@ export default function AdminLayout({
             Resources & Links
           </Link>
           <Link href="/admin/blog" className={`nav-item ${pathname?.startsWith('/admin/blog') ? 'active' : ''}`}>
-            Principled Design
+            Blog
           </Link>
           <Link href="/admin/media" className={`nav-item ${pathname === '/admin/media' ? 'active' : ''}`}>
             Media Library
