@@ -514,12 +514,6 @@ export default function PortfolioMap({ projects }: Props) {
       return;
     }
 
-    // Check if map instance exists (more reliable than state)
-    if (!mapInstanceRef.current) {
-      alert('Map is still loading. Please wait a moment and try again.');
-      return;
-    }
-
     setIsSearching(true);
     try {
       const searchTerm = searchQuery.trim();
@@ -580,7 +574,19 @@ export default function PortfolioMap({ projects }: Props) {
       setFilteredProjects(filtered);
 
       // Center map on searched location and zoom appropriately
-      if (mapInstanceRef.current && data.latitude && data.longitude) {
+      // Retry a few times if map isn't ready yet
+      let mapReady = !!mapInstanceRef.current;
+      if (!mapReady) {
+        for (let i = 0; i < 10; i++) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          if (mapInstanceRef.current) {
+            mapReady = true;
+            break;
+          }
+        }
+      }
+      
+      if (mapReady && mapInstanceRef.current && data.latitude && data.longitude) {
         try {
           mapInstanceRef.current.setCenter({ lat: data.latitude, lng: data.longitude });
           
