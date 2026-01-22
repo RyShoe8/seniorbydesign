@@ -50,7 +50,13 @@ export default function PortfolioMap({ projects }: Props) {
 
     if (projectsWithCoords.length > 0) {
       import('@googlemaps/js-api-loader').then(({ Loader }) => {
-        return Loader.importLibrary('marker');
+        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+        if (!apiKey) return Promise.reject('API key not found');
+        const loader = new Loader({
+          apiKey: apiKey,
+          version: 'weekly',
+        });
+        return loader.importLibrary('marker');
       }).then(({ Marker }: { Marker: any }) => {
         projectsWithCoords.forEach((project) => {
           if (project.latitude != null && project.longitude != null && mapInstanceRef.current) {
@@ -70,7 +76,6 @@ export default function PortfolioMap({ projects }: Props) {
         console.error('Error updating markers:', error);
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projects, mapLoaded]);
 
   // Load map effect
