@@ -96,8 +96,9 @@ export default function PortfolioMap({ projects }: Props) {
       }).then(([markerLibrary, mapsLibrary]: [any, any]) => {
         const { AdvancedMarkerElement, PinElement, Marker } = markerLibrary;
         const { InfoWindow } = mapsLibrary;
-        const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
-        const hasMapId = !!mapId && mapId !== 'default';
+        const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID';
+        // Advanced Markers work with any valid Map ID (including DEMO_MAP_ID)
+        const hasMapId = !!mapId;
         const positions: Array<{ lat: number; lng: number }> = [];
         
         projectsWithCoordsForMarkers.forEach((project) => {
@@ -239,7 +240,8 @@ export default function PortfolioMap({ projects }: Props) {
         // Use AdvancedMarkerElement if Map ID is available, otherwise fall back to Marker
         const markerLibrary = await loader.importLibrary('marker') as any;
         const { AdvancedMarkerElement, PinElement, Marker } = markerLibrary;
-        const hasMapId = !!mapId && mapId !== 'default';
+        // Advanced Markers work with any valid Map ID (including DEMO_MAP_ID)
+        const hasMapId = !!mapId;
 
         // Check if container still exists before creating map
         if (!mapRef.current) {
@@ -247,10 +249,11 @@ export default function PortfolioMap({ projects }: Props) {
         }
 
         // Get Map ID from environment variable (required for Advanced Markers)
-        const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
+        // Use DEMO_MAP_ID as default - Google's demo Map ID that works without setup
+        const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID';
         
         const map = new Map(mapRef.current, {
-          mapId: mapId || 'default', // Map ID required for Advanced Markers
+          mapId: mapId, // Map ID required for Advanced Markers
           center: { lat: 39.8283, lng: -98.5795 }, // Center of US
           zoom: 4,
           mapTypeControl: true,
