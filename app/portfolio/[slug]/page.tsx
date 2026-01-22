@@ -43,16 +43,17 @@ export default async function PortfolioDetailPage({ params }: Props) {
   let images: Array<{ url: string; displayName: string; altText: string }> = [];
   
   if (category.images && category.images.length > 0) {
-    if (typeof category.images[0] === 'string') {
+    const firstImage = category.images[0];
+    if (typeof firstImage === 'string') {
       // Old format: string[] - convert to PortfolioImage[]
-      images = category.images.map((url: string, i: number) => ({
+      images = (category.images as string[]).map((url: string, i: number) => ({
         url,
         displayName: `${categoryName} image ${i + 1}`,
         altText: `${categoryName} image ${i + 1}`,
       }));
     } else {
       // New format: PortfolioImage[]
-      images = category.images;
+      images = category.images as Array<{ url: string; displayName: string; altText: string }>;
     }
   }
 
