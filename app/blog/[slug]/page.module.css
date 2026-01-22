@@ -1,6 +1,6 @@
 .blogPostHero {
   position: relative;
-  height: 400px;
+  height: 550px;
   overflow: hidden;
   max-width: 1200px;
   margin: 0 auto;
@@ -8,7 +8,7 @@
 
 @media (max-width: 768px) {
   .blogPostHero {
-    height: 300px;
+    height: 400px;
   }
 }
 
