@@ -18,6 +18,7 @@ export default function PortfolioMap({ projects }: Props) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
+  const infoWindowRef = useRef<any>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
@@ -88,8 +89,12 @@ export default function PortfolioMap({ projects }: Props) {
           apiKey: apiKey,
           version: 'weekly',
         });
-        return loader.importLibrary('marker');
-      }).then(({ Marker }: { Marker: any }) => {
+        return Promise.all([
+          loader.importLibrary('marker'),
+          loader.importLibrary('maps'),
+        ]);
+      }).then(([{ Marker }, mapsLibrary]: [{ Marker: any }, any]) => {
+        const { InfoWindow } = mapsLibrary;
         const positions: Array<{ lat: number; lng: number }> = [];
         
         projectsWithCoordsForMarkers.forEach((project) => {
@@ -101,6 +106,22 @@ export default function PortfolioMap({ projects }: Props) {
                 map: mapInstanceRef.current,
                 title: project.name,
               });
+              
+              // Add click listener to show info window
+              marker.addListener('click', () => {
+                // Close any existing info window
+                if (infoWindowRef.current) {
+                  infoWindowRef.current.close();
+                }
+                
+                // Create and open new info window
+                const infoWindow = new InfoWindow({
+                  content: `<div style="padding: 8px; font-weight: 500; color: #5c4a37;">${project.name}</div>`,
+                });
+                infoWindow.open(mapInstanceRef.current, marker);
+                infoWindowRef.current = infoWindow;
+              });
+              
               markersRef.current.push(marker);
               positions.push(position);
             } catch (e) {
@@ -299,6 +320,22 @@ export default function PortfolioMap({ projects }: Props) {
                   map,
                   title: project.name,
                 });
+                
+                // Add click listener to show info window
+                marker.addListener('click', () => {
+                  // Close any existing info window
+                  if (infoWindowRef.current) {
+                    infoWindowRef.current.close();
+                  }
+                  
+                  // Create and open new info window
+                  const infoWindow = new InfoWindow({
+                    content: `<div style="padding: 8px; font-weight: 500; color: #5c4a37;">${project.name}</div>`,
+                  });
+                  infoWindow.open(map, marker);
+                  infoWindowRef.current = infoWindow;
+                });
+                
                 markersRef.current.push(marker);
                 positions.push(position);
               } catch (e) {
