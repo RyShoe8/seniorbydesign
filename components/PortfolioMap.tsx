@@ -189,6 +189,10 @@ export default function PortfolioMap({ projects }: Props) {
         const map = new Map(mapRef.current, {
           center: { lat: 39.8283, lng: -98.5795 }, // Center of US
           zoom: 4,
+          mapTypeControl: true,
+          mapTypeControlOptions: {
+            mapTypeIds: ['roadmap', 'satellite'],
+          },
           styles: [
             {
               featureType: 'water',
