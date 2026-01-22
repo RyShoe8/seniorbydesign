@@ -21,6 +21,16 @@ export default function PortfolioMap({ projects }: Props) {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>(projects);
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Initialize filtered projects when projects prop changes
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredProjects(projects);
+    }
+  }, [projects]);
 
   // Cleanup function
   const cleanupMarkers = () => {
@@ -34,7 +44,27 @@ export default function PortfolioMap({ projects }: Props) {
     markersRef.current = [];
   };
 
-  // Update markers when projects change (if map is already loaded)
+  // Update filtered projects when search changes
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredProjects(projects);
+      return;
+    }
+
+    const query = searchQuery.trim().toLowerCase();
+    const filtered = projects.filter(project => {
+      // Match zip code
+      if (project.zipCode && project.zipCode.toLowerCase().includes(query)) {
+        return true;
+      }
+      // Could add state matching here if we store state in projects
+      return false;
+    });
+
+    setFilteredProjects(filtered);
+  }, [searchQuery, projects]);
+
+  // Update markers when filtered projects change (if map is already loaded)
   useEffect(() => {
     if (!mapInstanceRef.current || !mapLoaded) {
       return;
@@ -44,7 +74,7 @@ export default function PortfolioMap({ projects }: Props) {
     cleanupMarkers();
 
     // Add new markers
-    const projectsWithCoords = projects.filter(
+    const projectsWithCoords = filteredProjects.filter(
       p => p.latitude != null && p.longitude != null
     );
 
@@ -191,7 +221,7 @@ export default function PortfolioMap({ projects }: Props) {
         mapInstanceRef.current = map;
 
         // Add markers for each project with coordinates
-        const projectsWithCoords = projects.filter(
+        const projectsWithCoords = filteredProjects.filter(
           p => p.latitude != null && p.longitude != null
         );
 
@@ -279,10 +309,123 @@ export default function PortfolioMap({ projects }: Props) {
       mapInstanceRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapLoaded, mapError]);
+  }, [mapLoaded, mapError, filteredProjects]);
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) {
+      setFilteredProjects(projects);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const response = await fetch(`/api/geocode?q=${encodeURIComponent(searchQuery.trim())}`);
+      const data = await response.json();
+
+      if (data.error) {
+        alert(`Location not found: ${data.error}`);
+        setIsSearching(false);
+        return;
+      }
+
+      // Filter projects by zip code or state
+      const query = searchQuery.trim().toLowerCase();
+      let filtered: Project[] = [];
+
+      if (data.zipCode) {
+        // Filter by zip code
+        filtered = projects.filter(p => 
+          p.zipCode && p.zipCode.toLowerCase().includes(data.zipCode.toLowerCase())
+        );
+      } else if (data.state) {
+        // For state search, we'd need to geocode each project's zip to get state
+        // For now, just show all projects and center on the state
+        filtered = projects;
+      } else {
+        filtered = projects;
+      }
+
+      setFilteredProjects(filtered);
+
+      // Center map on searched location
+      if (mapInstanceRef.current && data.latitude && data.longitude) {
+        mapInstanceRef.current.setCenter({ lat: data.latitude, lng: data.longitude });
+        mapInstanceRef.current.setZoom(8);
+      }
+    } catch (error) {
+      console.error('Error searching:', error);
+      alert('Error searching location');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setFilteredProjects(projects);
+    if (mapInstanceRef.current) {
+      // Reset to show all projects
+      const projectsWithCoords = projects.filter(
+        p => p.latitude != null && p.longitude != null
+      );
+      if (projectsWithCoords.length > 0) {
+        const positions = projectsWithCoords.map(p => ({
+          lat: p.latitude!,
+          lng: p.longitude!,
+        }));
+        const lats = positions.map(p => p.lat);
+        const lngs = positions.map(p => p.lng);
+        const minLat = Math.min(...lats);
+        const maxLat = Math.max(...lats);
+        const minLng = Math.min(...lngs);
+        const maxLng = Math.max(...lngs);
+        
+        try {
+          const bounds = {
+            north: maxLat,
+            south: minLat,
+            east: maxLng,
+            west: minLng,
+          };
+          mapInstanceRef.current.fitBounds(bounds as any);
+        } catch (e) {
+          const centerLat = (minLat + maxLat) / 2;
+          const centerLng = (minLng + maxLng) / 2;
+          mapInstanceRef.current.setCenter({ lat: centerLat, lng: centerLng });
+          mapInstanceRef.current.setZoom(4);
+        }
+      }
+    }
+  };
 
   return (
     <div className="portfolio-map-container">
+      <div className="map-search-container">
+        <form onSubmit={handleSearch} className="map-search-form">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by ZIP code or state (e.g., 75219 or Texas)"
+            className="map-search-input"
+            disabled={isSearching}
+          />
+          <button type="submit" className="map-search-button" disabled={isSearching}>
+            {isSearching ? 'Searching...' : 'Search'}
+          </button>
+          {searchQuery && (
+            <button type="button" onClick={handleClearSearch} className="map-clear-button">
+              Clear
+            </button>
+          )}
+        </form>
+        {searchQuery && (
+          <p className="map-search-results">
+            Showing {filteredProjects.length} of {projects.length} project{projects.length !== 1 ? 's' : ''}
+          </p>
+        )}
+      </div>
       <div ref={mapRef} className="portfolio-map" />
       {mapError && (
         <div className="map-placeholder">
@@ -300,16 +443,85 @@ export default function PortfolioMap({ projects }: Props) {
       <style jsx>{`
         .portfolio-map-container {
           width: 100%;
-          height: 500px;
           border-radius: 8px;
           overflow: hidden;
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
           background: var(--warm-grey-1);
         }
 
+        .map-search-container {
+          padding: var(--spacing-md);
+          background: #fff;
+          border-bottom: 1px solid var(--warm-grey-1);
+        }
+
+        .map-search-form {
+          display: flex;
+          gap: var(--spacing-sm);
+          align-items: center;
+          flex-wrap: wrap;
+        }
+
+        .map-search-input {
+          flex: 1;
+          min-width: 200px;
+          padding: 0.75rem;
+          border: 1px solid var(--warm-grey-3);
+          border-radius: 4px;
+          font-size: 16px;
+          font-family: inherit;
+        }
+
+        .map-search-input:focus {
+          outline: none;
+          border-color: var(--sbd-gold);
+        }
+
+        .map-search-button,
+        .map-clear-button {
+          padding: 0.75rem 1.5rem;
+          border: none;
+          border-radius: 4px;
+          font-size: 16px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .map-search-button {
+          background-color: var(--sbd-gold);
+          color: #fff;
+        }
+
+        .map-search-button:hover:not(:disabled) {
+          background-color: var(--sbd-brown);
+        }
+
+        .map-search-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .map-clear-button {
+          background-color: transparent;
+          color: var(--sbd-brown);
+          border: 1px solid var(--sbd-brown);
+        }
+
+        .map-clear-button:hover {
+          background-color: var(--sbd-brown);
+          color: #fff;
+        }
+
+        .map-search-results {
+          margin-top: var(--spacing-sm);
+          font-size: 14px;
+          color: var(--warm-grey-3);
+        }
+
         .portfolio-map {
           width: 100%;
-          height: 100%;
+          height: 500px;
           position: relative;
         }
 
