@@ -201,7 +201,8 @@ export default function PortfolioMap({ projects }: Props) {
           version: 'weekly',
         });
 
-        const { Map } = await loader.importLibrary('maps') as { Map: any };
+        const mapsLibrary = await loader.importLibrary('maps') as any;
+        const { Map, InfoWindow } = mapsLibrary;
         const { Marker } = await loader.importLibrary('marker') as { Marker: any };
 
         // Check if container still exists before creating map
