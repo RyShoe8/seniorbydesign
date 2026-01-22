@@ -430,11 +430,17 @@ export default function PortfolioMap({ projects }: Props) {
 
     setIsSearching(true);
     try {
-      const response = await fetch(`/api/geocode?q=${encodeURIComponent(searchQuery.trim())}`);
+      const query = searchQuery.trim();
+      console.log('Searching for:', query);
+      const response = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
       const data = await response.json();
 
-      if (data.error) {
-        alert(`Location not found: ${data.error}`);
+      console.log('Geocode response:', response.status, data);
+
+      if (!response.ok || data.error) {
+        const errorMsg = data.error || `HTTP ${response.status}`;
+        console.error('Geocoding failed:', errorMsg, data);
+        alert(`Location not found: ${errorMsg}. Please try a different ZIP code or state name (e.g., "75219" or "Texas, USA").`);
         setIsSearching(false);
         return;
       }

@@ -19,15 +19,27 @@ export async function GET(request: Request) {
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     
     if (!apiKey) {
+      console.error('GOOGLE_MAPS_API_KEY is not set');
       return NextResponse.json(
         { error: 'Geocoding API key not configured' },
         { status: 500 }
       );
     }
 
-    const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}&region=us`
-    );
+    // Format query - if it's a state name, add ", USA" for better results
+    let formattedQuery = query.trim();
+    // Check if it looks like a state name (not a zip code - zip codes are numeric)
+    if (isNaN(Number(formattedQuery)) && !formattedQuery.match(/^\d{5}(-\d{4})?$/)) {
+      // It's likely a state name, add ", USA" if not already present
+      if (!formattedQuery.toLowerCase().includes('usa') && !formattedQuery.toLowerCase().includes('united states')) {
+        formattedQuery = `${formattedQuery}, USA`;
+      }
+    }
+
+    const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(formattedQuery)}&key=${apiKey}&region=us`;
+    console.log('Geocoding URL:', geocodeUrl.replace(apiKey, 'API_KEY_HIDDEN'));
+
+    const response = await fetch(geocodeUrl);
 
     if (!response.ok) {
       return NextResponse.json(
@@ -37,6 +49,12 @@ export async function GET(request: Request) {
     }
 
     const data = await response.json();
+
+    console.log('Google Geocoding API response:', {
+      status: data.status,
+      resultsCount: data.results?.length || 0,
+      query,
+    });
 
     if (data.status === 'OK' && data.results && data.results.length > 0) {
       const location = data.results[0].geometry.location;
@@ -63,8 +81,16 @@ export async function GET(request: Request) {
         zipCode,
       });
     } else {
+      console.error('Geocoding failed:', {
+        status: data.status,
+        error_message: data.error_message,
+        query,
+      });
       return NextResponse.json(
-        { error: 'Location not found', status: data.status },
+        { 
+          error: data.error_message || `Location not found (${data.status})`,
+          status: data.status,
+        },
         { status: 404 }
       );
     }
