@@ -286,7 +286,7 @@ export default function BlogManagement() {
               {posts.length === 0 ? (
                 <tr>
                   <td colSpan={5} style={{ textAlign: 'center', padding: 'var(--spacing-lg)' }}>
-                    No blog posts yet. Click "Add Post" to create one.
+                    No blog posts yet. Click &quot;Add Post&quot; to create one.
                   </td>
                 </tr>
               ) : (
