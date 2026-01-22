@@ -474,8 +474,15 @@ export default function PortfolioMap({ projects }: Props) {
       }
     };
 
-    // Use Intersection Observer to lazy load map when in viewport
+    // Load map immediately on mount instead of waiting for intersection
+    // Use Intersection Observer with aggressive settings to load map as soon as possible
     if (!mapLoaded && !mapError && mapRef.current) {
+      // Try to load immediately first
+      if (mapRef.current) {
+        loadMap();
+      }
+      
+      // Also set up observer as backup with very aggressive settings
       observerRef.current = new IntersectionObserver(
         (entries) => {
           if (entries[0].isIntersecting && !mapInstanceRef.current) {
@@ -483,7 +490,10 @@ export default function PortfolioMap({ projects }: Props) {
             disconnectObserver();
           }
         },
-        { threshold: 0.1 }
+        { 
+          threshold: 0,
+          rootMargin: '200px' // Start loading 200px before it's visible
+        }
       );
 
       observerRef.current.observe(mapRef.current);
@@ -699,11 +709,6 @@ export default function PortfolioMap({ projects }: Props) {
           <p className="map-placeholder-info">
             {projects.length} project{projects.length !== 1 ? 's' : ''} available
           </p>
-        </div>
-      )}
-      {!mapLoaded && !mapError && (
-        <div className="map-loading">
-          <p>Loading map...</p>
         </div>
       )}
       <style jsx>{`

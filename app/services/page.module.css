@@ -87,12 +87,15 @@
 
 .bulletsColumn ul {
   list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .bulletsColumn li {
-  padding: 0.5rem 0;
+  padding: 0.25rem 0;
   padding-left: 1.5rem;
   position: relative;
+  margin: 0;
 }
 
 .bulletsColumn li:before {
@@ -135,6 +138,10 @@
 @media (max-width: 768px) {
   .serviceBullets {
     grid-template-columns: 1fr;
+  }
+
+  .bulletsColumn li {
+    padding: 0.25rem 0;
   }
 
   .images2 {
