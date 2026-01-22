@@ -16,8 +16,8 @@ interface Props {
 
 export default function PortfolioMap({ projects }: Props) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const mapInstanceRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
@@ -51,7 +51,7 @@ export default function PortfolioMap({ projects }: Props) {
     if (projectsWithCoords.length > 0) {
       import('@googlemaps/js-api-loader').then(({ Loader }) => {
         return Loader.importLibrary('marker');
-      }).then(({ Marker }) => {
+      }).then(({ Marker }: { Marker: any }) => {
         projectsWithCoords.forEach((project) => {
           if (project.latitude != null && project.longitude != null && mapInstanceRef.current) {
             try {
@@ -70,6 +70,7 @@ export default function PortfolioMap({ projects }: Props) {
         console.error('Error updating markers:', error);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projects, mapLoaded]);
 
   // Load map effect
@@ -111,8 +112,8 @@ export default function PortfolioMap({ projects }: Props) {
           version: 'weekly',
         });
 
-        const { Map } = await loader.importLibrary('maps');
-        const { Marker } = await loader.importLibrary('marker');
+        const { Map } = await loader.importLibrary('maps') as { Map: any };
+        const { Marker } = await loader.importLibrary('marker') as { Marker: any };
 
         // Check if container still exists before creating map
         if (!mapRef.current) {
