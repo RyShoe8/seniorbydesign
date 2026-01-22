@@ -660,7 +660,7 @@ export default function PortfolioMap({ projects }: Props) {
               if (data.zipCode) {
                 mapToUse.setZoom(10); // Closer zoom for ZIP codes
               } else {
-                mapToUse.setZoom(6); // Wider zoom for states
+                mapToUse.setZoom(5); // Wider zoom for states (less zoomed in)
               }
               console.log('Map zoomed to:', data.zipCode ? 10 : 6);
               // Clear searching flag after map is centered
