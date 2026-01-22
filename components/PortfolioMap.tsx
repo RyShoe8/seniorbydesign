@@ -523,19 +523,6 @@ export default function PortfolioMap({ projects }: Props) {
     try {
       const searchTerm = searchQuery.trim();
       console.log('Searching for:', searchTerm);
-      console.log('Map loaded:', mapLoaded, 'Map instance:', !!mapInstanceRef.current);
-      console.log('mapRef.current:', !!mapRef.current);
-      
-      // Try to get map from the DOM element if ref isn't set
-      let mapInstance = mapInstanceRef.current;
-      if (!mapInstance && mapRef.current) {
-        // Google Maps stores the map instance on the DOM element
-        const mapElement = mapRef.current as any;
-        if (mapElement.__mapInstance) {
-          mapInstance = mapElement.__mapInstance;
-          console.log('Found map instance on DOM element');
-        }
-      }
       
       const response = await fetch(`/api/geocode?q=${encodeURIComponent(searchTerm)}`);
       const data = await response.json();
@@ -591,8 +578,30 @@ export default function PortfolioMap({ projects }: Props) {
       setFilteredProjects(filtered);
 
       // Center map on searched location and zoom appropriately
-      // Use the map instance we found (either from ref or DOM)
-      const mapToUse = mapInstance || mapInstanceRef.current;
+      // Get map instance right before using it (in case it loads during geocoding)
+      let mapToUse = mapInstanceRef.current;
+      
+      // Try to get map from the DOM element if ref isn't set
+      if (!mapToUse && mapRef.current) {
+        const mapElement = mapRef.current as any;
+        if (mapElement.__mapInstance) {
+          mapToUse = mapElement.__mapInstance;
+          console.log('Found map instance on DOM element');
+        }
+      }
+      
+      // Wait a bit if map still isn't ready (it should be if markers are visible)
+      if (!mapToUse) {
+        console.log('Map instance not found, waiting...');
+        for (let i = 0; i < 20; i++) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          mapToUse = mapInstanceRef.current || (mapRef.current as any)?.__mapInstance;
+          if (mapToUse) {
+            console.log('Map instance found after', i + 1, 'attempts');
+            break;
+          }
+        }
+      }
       
       if (mapToUse && data.latitude && data.longitude) {
         try {
@@ -604,7 +613,7 @@ export default function PortfolioMap({ projects }: Props) {
           } else {
             mapToUse.setZoom(6); // Wider zoom for states
           }
-          console.log('Map centered on:', data.latitude, data.longitude);
+          console.log('Map centered on:', data.latitude, data.longitude, 'Zoom:', data.zipCode ? 10 : 6);
         } catch (error) {
           console.error('Error centering map:', error);
         }
@@ -612,7 +621,7 @@ export default function PortfolioMap({ projects }: Props) {
         console.warn('Map instance or coordinates not available:', {
           hasMap: !!mapToUse,
           mapInstanceRef: !!mapInstanceRef.current,
-          mapInstance: !!mapInstance,
+          mapRef: !!mapRef.current,
           latitude: data.latitude,
           longitude: data.longitude,
         });
