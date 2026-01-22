@@ -93,7 +93,8 @@ export default function PortfolioMap({ projects }: Props) {
           loader.importLibrary('marker'),
           loader.importLibrary('maps'),
         ]);
-      }).then(([{ Marker }, mapsLibrary]: [{ Marker: any }, any]) => {
+      }).then(([markerLibrary, mapsLibrary]: [any, any]) => {
+        const { AdvancedMarkerElement, PinElement } = markerLibrary;
         const { InfoWindow } = mapsLibrary;
         const positions: Array<{ lat: number; lng: number }> = [];
         
@@ -101,10 +102,20 @@ export default function PortfolioMap({ projects }: Props) {
           if (project.latitude != null && project.longitude != null && mapInstanceRef.current) {
             try {
               const position = { lat: project.latitude, lng: project.longitude };
-              const marker = new Marker({
-                position,
+              
+              // Use AdvancedMarkerElement (new API) instead of deprecated Marker
+              const pinElement = new PinElement({
+                background: '#d4af37', // SBD gold color
+                borderColor: '#5c4a37', // SBD brown color
+                glyphColor: '#fff',
+                scale: 1.2,
+              });
+              
+              const marker = new AdvancedMarkerElement({
                 map: mapInstanceRef.current,
+                position,
                 title: project.name,
+                content: pinElement.element,
               });
               
               // Add click listener to show info window
@@ -203,7 +214,9 @@ export default function PortfolioMap({ projects }: Props) {
 
         const mapsLibrary = await loader.importLibrary('maps') as any;
         const { Map, InfoWindow } = mapsLibrary;
-        const { Marker } = await loader.importLibrary('marker') as { Marker: any };
+        // Use AdvancedMarkerElement instead of deprecated Marker
+        const markerLibrary = await loader.importLibrary('marker') as any;
+        const { AdvancedMarkerElement, PinElement } = markerLibrary;
 
         // Check if container still exists before creating map
         if (!mapRef.current) {
@@ -316,10 +329,20 @@ export default function PortfolioMap({ projects }: Props) {
             if (project.latitude != null && project.longitude != null) {
               try {
                 const position = { lat: project.latitude, lng: project.longitude };
-                const marker = new Marker({
-                  position,
+                
+                // Use AdvancedMarkerElement (new API) instead of deprecated Marker
+                const pinElement = new PinElement({
+                  background: '#d4af37', // SBD gold color
+                  borderColor: '#5c4a37', // SBD brown color
+                  glyphColor: '#fff',
+                  scale: 1.2,
+                });
+                
+                const marker = new AdvancedMarkerElement({
                   map,
+                  position,
                   title: project.name,
+                  content: pinElement.element,
                 });
                 
                 // Add click listener to show info window
@@ -416,19 +439,47 @@ export default function PortfolioMap({ projects }: Props) {
       return;
     }
 
+    // Check if map is loaded
+    if (!mapLoaded || !mapInstanceRef.current) {
+      alert('Map is still loading. Please wait a moment and try again.');
+      return;
+    }
+
     setIsSearching(true);
     try {
       const searchTerm = searchQuery.trim();
       console.log('Searching for:', searchTerm);
+      console.log('Map loaded:', mapLoaded, 'Map instance:', !!mapInstanceRef.current);
+      
       const response = await fetch(`/api/geocode?q=${encodeURIComponent(searchTerm)}`);
       const data = await response.json();
 
       console.log('Geocode response:', response.status, data);
 
-      if (!response.ok || data.error) {
-        const errorMsg = data.error || `HTTP ${response.status}`;
-        console.error('Geocoding failed:', errorMsg, data);
-        alert(`Location not found: ${errorMsg}. Please try a different ZIP code or state name (e.g., "75219" or "Texas, USA").`);
+      if (!response.ok) {
+        const errorMsg = data?.error || `HTTP ${response.status}`;
+        console.error('Geocoding failed - response not OK:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: data?.error,
+          data,
+        });
+        alert(`Location not found: ${errorMsg}. Please try a different ZIP code or state name (e.g., "75219" or "Texas").`);
+        setIsSearching(false);
+        return;
+      }
+
+      if (data.error) {
+        const errorMsg = data.error;
+        console.error('Geocoding failed - error in data:', errorMsg, data);
+        alert(`Location not found: ${errorMsg}. Please try a different ZIP code or state name (e.g., "75219" or "Texas").`);
+        setIsSearching(false);
+        return;
+      }
+
+      if (!data.latitude || !data.longitude) {
+        console.error('Geocoding failed - missing coordinates:', data);
+        alert('Location found but coordinates are missing. Please try a different search.');
         setIsSearching(false);
         return;
       }
@@ -455,14 +506,24 @@ export default function PortfolioMap({ projects }: Props) {
 
       // Center map on searched location and zoom appropriately
       if (mapInstanceRef.current && data.latitude && data.longitude) {
-        mapInstanceRef.current.setCenter({ lat: data.latitude, lng: data.longitude });
-        
-        // Zoom level: closer for ZIP codes, wider for states
-        if (data.zipCode) {
-          mapInstanceRef.current.setZoom(10); // Closer zoom for ZIP codes
-        } else {
-          mapInstanceRef.current.setZoom(6); // Wider zoom for states
+        try {
+          mapInstanceRef.current.setCenter({ lat: data.latitude, lng: data.longitude });
+          
+          // Zoom level: closer for ZIP codes, wider for states
+          if (data.zipCode) {
+            mapInstanceRef.current.setZoom(10); // Closer zoom for ZIP codes
+          } else {
+            mapInstanceRef.current.setZoom(6); // Wider zoom for states
+          }
+        } catch (error) {
+          console.error('Error centering map:', error);
         }
+      } else {
+        console.warn('Map instance or coordinates not available:', {
+          hasMap: !!mapInstanceRef.current,
+          latitude: data.latitude,
+          longitude: data.longitude,
+        });
       }
     } catch (error) {
       console.error('Error searching:', error);
