@@ -23,7 +23,19 @@ export async function getHomepageContent() {
 // Portfolio
 export async function getPortfolioCategories() {
   const collection = await getPortfolioCategoriesCollection();
-  return await collection.find({}).sort({ name: 1 }).toArray();
+  const categories = await collection.find({}).sort({ name: 1 }).toArray();
+  
+  // Ensure "Senior Living" appears first
+  const seniorLivingIndex = categories.findIndex(cat => 
+    cat.name.toLowerCase() === 'senior living'
+  );
+  
+  if (seniorLivingIndex > 0) {
+    const seniorLiving = categories.splice(seniorLivingIndex, 1)[0];
+    categories.unshift(seniorLiving);
+  }
+  
+  return categories;
 }
 
 export async function getPortfolioCategory(slug: string) {
