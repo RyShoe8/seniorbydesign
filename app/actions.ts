@@ -81,7 +81,7 @@ export async function getProjects() {
 export async function getBlogPosts() {
   const collection = await getBlogPostsCollection();
   return await collection
-    .find({ publishedAt: { $exists: true } })
+    .find({ publishedAt: { $exists: true, $ne: null } })
     .sort({ publishedAt: -1 })
     .toArray();
 }

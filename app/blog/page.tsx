@@ -12,6 +12,8 @@ export const metadata: Metadata = generateSEOMetadata({
   type: 'website',
 });
 
+export const revalidate = 0; // Always fetch fresh data
+
 export default async function Blog() {
   const posts = await getBlogPosts();
 

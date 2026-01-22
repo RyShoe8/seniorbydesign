@@ -73,9 +73,11 @@ export async function PUT(
     };
 
     // Handle publish/unpublish
-    if (body.published && !body.publishedAt) {
+    if (body.published) {
+      // If publishing, set publishedAt (or update it if already published)
       update.publishedAt = new Date();
-    } else if (!body.published) {
+    } else {
+      // If unpublishing, remove publishedAt
       update.publishedAt = undefined;
     }
 
