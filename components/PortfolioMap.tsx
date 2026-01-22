@@ -144,7 +144,7 @@ export default function PortfolioMap({ projects }: Props) {
       }).then(({ Marker }: { Marker: any }) => {
         const positions: Array<{ lat: number; lng: number }> = [];
         
-        projectsWithCoordsList.forEach((project) => {
+        projectsWithCoordsForMarkers.forEach((project) => {
           if (project.latitude != null && project.longitude != null && mapInstanceRef.current) {
             try {
               const position = { lat: project.latitude, lng: project.longitude };
