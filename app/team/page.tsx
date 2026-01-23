@@ -81,8 +81,7 @@ export default async function Team() {
                       className={styles.memberImage}
                       sizes="(max-width: 768px) 250px, 300px"
                       loading={index < 6 ? 'eager' : 'lazy'}
-                      unoptimized={member.profileImage.startsWith('https://')}
-                      quality={100}
+                      unoptimized={true}
                     />
                     <div className={styles.memberInfoOverlay}>
                       <h3>{member.name}</h3>
