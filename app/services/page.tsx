@@ -139,7 +139,15 @@ export default async function Services() {
               <div key={displaySlug} className={styles.servicePromo}>
                 <div className={styles.serviceHeader}>
                   <h2>{promo.title}</h2>
-                  {promo.description && <p>{promo.description}</p>}
+                  {promo.description ? (
+                    <p>{promo.description}</p>
+                  ) : service?.body ? (
+                    <div>
+                      {service.body.split('\n\n').map((paragraph, i) => (
+                        <p key={i}>{paragraph.trim()}</p>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className={styles.serviceContentGrid}>
