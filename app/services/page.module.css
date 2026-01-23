@@ -140,6 +140,7 @@
 @media (max-width: 768px) {
   .serviceBullets {
     grid-template-columns: 1fr;
+    gap: 0;
   }
 
   .bulletsColumn li {
