@@ -120,18 +120,10 @@ export default async function Services() {
       <section className="services-content section-padding">
         <div className="container">
           {servicePromotions.map((promo) => {
-            const service = services.find((s) => s.slug === promo.slug);
-            
-            // Debug: Log service lookup for FF&E and Overall Design
-            if (promo.slug === 'ff-e-services' || promo.slug === 'overall-design-and-development') {
-              console.log(`[Services Page] Looking for service with slug: "${promo.slug}"`);
-              console.log(`[Services Page] Found service:`, service ? {
-                slug: service.slug,
-                title: service.title,
-                hasHeroImage: !!service.heroImage,
-                heroImage: service.heroImage
-              } : 'NOT FOUND');
-              console.log(`[Services Page] Available service slugs:`, services.map(s => s.slug));
+            // Try exact match first, then case-insensitive match
+            let service = services.find((s) => s.slug === promo.slug);
+            if (!service) {
+              service = services.find((s) => s.slug?.toLowerCase() === promo.slug.toLowerCase());
             }
             
             return (
@@ -159,7 +151,7 @@ export default async function Services() {
                     </div>
                   </div>
 
-                  {promo.images > 0 && service?.heroImage && service.heroImage.trim() !== '' && (
+                  {promo.images > 0 && service?.heroImage && typeof service.heroImage === 'string' && service.heroImage.trim().length > 0 && (
                     <div className={styles.images1}>
                       <div className={styles.serviceImage}>
                         <Image
