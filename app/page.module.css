@@ -11,15 +11,22 @@
   left: 0;
   width: 100%;
   height: 100%;
-  animation: heroImageZoom 20s ease-in-out infinite;
+  animation: heroImageAnimation 25s ease-in-out infinite;
+  will-change: transform;
 }
 
-@keyframes heroImageZoom {
+@keyframes heroImageAnimation {
   0%, 100% {
-    transform: scale(1);
+    transform: scale(1) translateX(0) translateY(0);
+  }
+  25% {
+    transform: scale(1.05) translateX(-3px) translateY(-5px);
   }
   50% {
-    transform: scale(1.05);
+    transform: scale(1.08) translateX(0) translateY(-8px);
+  }
+  75% {
+    transform: scale(1.05) translateX(3px) translateY(-5px);
   }
 }
 
@@ -27,6 +34,7 @@
   object-fit: cover;
   width: 100%;
   height: 100%;
+  filter: brightness(1.08) contrast(1.15) saturate(1.05);
 }
 
 .heroPlaceholder {
@@ -43,14 +51,24 @@
   height: 100%;
   background: linear-gradient(
     to bottom,
-    rgba(89, 56, 37, 0.3) 0%,
-    rgba(89, 56, 37, 0.5) 50%,
-    rgba(89, 56, 37, 0.7) 100%
+    rgba(89, 56, 37, 0.25) 0%,
+    rgba(89, 56, 37, 0.4) 50%,
+    rgba(89, 56, 37, 0.6) 100%
   );
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1;
+  animation: overlayPulse 8s ease-in-out infinite;
+}
+
+@keyframes overlayPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.95;
+  }
 }
 
 .heroContent {
@@ -58,18 +76,28 @@
   color: #fff;
   max-width: 800px;
   padding: 0 var(--container-padding);
-  animation: heroContentFadeIn 1.2s ease-out;
+  animation: heroContentFadeIn 1.2s ease-out, heroContentFloat 6s ease-in-out infinite 1.2s;
   z-index: 2;
+  position: relative;
+}
+
+@keyframes heroContentFloat {
+  0%, 100% {
+    transform: translateY(100px);
+  }
+  50% {
+    transform: translateY(90px);
+  }
 }
 
 @keyframes heroContentFadeIn {
   0% {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(130px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(100px);
   }
 }
 
@@ -77,20 +105,30 @@
   font-size: 75px;
   color: #fff;
   margin-bottom: var(--spacing-md);
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
-  animation: heroHeadlineSlideIn 1s ease-out 0.3s both;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5), 0 0 20px rgba(203, 172, 109, 0.3);
+  animation: heroHeadlineSlideIn 1s ease-out 0.3s both, heroHeadlineShimmer 3s ease-in-out infinite 1.5s;
   font-weight: 600;
   letter-spacing: -1px;
+  position: relative;
 }
 
 @keyframes heroHeadlineSlideIn {
   0% {
     opacity: 0;
-    transform: translateX(-50px);
+    transform: translateX(-50px) scale(0.9);
   }
   100% {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes heroHeadlineShimmer {
+  0%, 100% {
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5), 0 0 20px rgba(203, 172, 109, 0.3);
+  }
+  50% {
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5), 0 0 30px rgba(203, 172, 109, 0.6);
   }
 }
 
@@ -98,42 +136,14 @@
   font-size: 24px;
   margin-bottom: var(--spacing-lg);
   line-height: 1.6;
-  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
-  animation: heroSubheadlineFadeIn 1s ease-out 0.6s both;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 255, 255, 0.2);
+  animation: heroSubheadlineFadeIn 1s ease-out 0.6s both, heroSubheadlineGlow 4s ease-in-out infinite 1s;
 }
 
 @keyframes heroSubheadlineFadeIn {
   0% {
     opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.heroButton {
-  display: inline-block;
-  padding: 1rem 2.5rem;
-  background-color: var(--sbd-gold);
-  color: #fff;
-  text-decoration: none;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 18px;
-  transition: all 0.3s ease;
-  animation: heroButtonBounce 1s ease-out 0.9s both;
-  box-shadow: 0 4px 15px rgba(203, 172, 109, 0.4);
-}
-
-@keyframes heroButtonBounce {
-  0% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.9);
-  }
-  50% {
-    transform: translateY(-5px) scale(1.05);
+    transform: translateY(20px) scale(0.95);
   }
   100% {
     opacity: 1;
@@ -141,10 +151,78 @@
   }
 }
 
+@keyframes heroSubheadlineGlow {
+  0%, 100% {
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 255, 255, 0.2);
+  }
+  50% {
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 255, 255, 0.4);
+  }
+}
+
+.heroButton {
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  background: linear-gradient(135deg, var(--sbd-gold) 0%, #d4b87a 100%);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 18px;
+  transition: all 0.3s ease;
+  animation: heroButtonBounce 1s ease-out 0.9s both, heroButtonPulse 2s ease-in-out infinite 2s;
+  box-shadow: 0 4px 15px rgba(203, 172, 109, 0.4), 0 0 20px rgba(203, 172, 109, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.heroButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: heroButtonShine 3s ease-in-out infinite;
+}
+
+@keyframes heroButtonBounce {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-5px) scale(1.05) rotate(1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+@keyframes heroButtonPulse {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(203, 172, 109, 0.4), 0 0 20px rgba(203, 172, 109, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(203, 172, 109, 0.6), 0 0 30px rgba(203, 172, 109, 0.4);
+  }
+}
+
+@keyframes heroButtonShine {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
 .heroButton:hover {
-  background-color: var(--sbd-brown);
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(203, 172, 109, 0.6);
+  background: linear-gradient(135deg, var(--sbd-brown) 0%, #6b4a2e 100%);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 25px rgba(203, 172, 109, 0.7), 0 0 40px rgba(203, 172, 109, 0.4);
 }
 
 .whoWeAreContent {

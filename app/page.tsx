@@ -65,7 +65,7 @@ export default async function Home() {
             className={styles.heroImage}
             priority
             quality={100}
-            unoptimized={false}
+            unoptimized={true}
           />
           <div className={styles.heroOverlay}>
             <div className={styles.heroContent}>
