@@ -80,7 +80,7 @@ export default function Contact() {
       <section className={styles.contactHero}>
         <div className={styles.contactHeroImage}>
           <Image
-            src="/images/Contact/Contact Header.webp"
+            src="/images/Contact Us Hero.jpg"
             alt="Contact Us"
             fill
             className={styles.heroImage}
