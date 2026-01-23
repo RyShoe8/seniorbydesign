@@ -93,7 +93,7 @@ export default async function Services() {
           'Upon approval of preliminary furniture layouts and budget, procure and deliver furniture, art, and accessories in preparation for installation.',
         ],
       },
-      images: 0,
+      images: 1,
     },
   ];
 
