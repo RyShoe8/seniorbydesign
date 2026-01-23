@@ -52,11 +52,14 @@ export async function addContactToBrevo(data: NewsletterSignupData): Promise<voi
       updateEnabled: true,
     };
     
-    // Subscribe to newsletter if requested
+    // Handle newsletter subscription/unsubscription
     const listIds = process.env.BREVO_LIST_ID ? [parseInt(process.env.BREVO_LIST_ID)] : [];
-    if (data.newsletter !== false && listIds.length > 0) {
+    
+    if (listIds.length > 0 && data.newsletter === true) {
+      // Subscribe to newsletter
       requestBody.listIds = listIds;
     }
+    // Note: If newsletter is false, we'll remove from list separately after creating/updating contact
     
     const response = await fetch('https://api.brevo.com/v3/contacts', {
       method: 'POST',
@@ -73,6 +76,35 @@ export async function addContactToBrevo(data: NewsletterSignupData): Promise<voi
       // If contact already exists, that's okay (updateEnabled handles it)
       if (errorData.code !== 'duplicate_parameter') {
                 throw new Error(errorData.message || 'Failed to add contact to Brevo');
+      }
+    }
+    
+    // If newsletter is explicitly false, remove contact from list
+    if (listIds.length > 0 && data.newsletter === false) {
+      try {
+        for (const listId of listIds) {
+          const removeResponse = await fetch(`https://api.brevo.com/v3/contacts/lists/${listId}/contacts/remove`, {
+            method: 'POST',
+            headers: {
+              'accept': 'application/json',
+              'api-key': apiKey,
+              'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+              emails: [data.email],
+            }),
+          });
+          
+          // Don't throw error if removal fails - contact might not be in list
+          if (!removeResponse.ok) {
+            const removeError = await removeResponse.json().catch(() => ({}));
+            // Log but don't fail - contact might not exist in list
+            console.log('Note: Could not remove contact from list:', removeError);
+          }
+        }
+      } catch (removeError) {
+        // Log but don't fail the entire operation
+        console.log('Note: Error removing contact from list:', removeError);
       }
     }
   } catch (error: any) {

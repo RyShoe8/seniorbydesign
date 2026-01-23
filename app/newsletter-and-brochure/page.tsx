@@ -17,7 +17,7 @@ export default function NewsletterAndBrochure() {
     city: '',
     state: '',
     zip: '',
-    newsletter: true,
+    newsletter: false,
     brochureType: 'digital' as 'digital' | 'physical',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,7 +71,7 @@ export default function NewsletterAndBrochure() {
           city: '',
           state: '',
           zip: '',
-          newsletter: true,
+          newsletter: false,
           brochureType: 'digital',
         });
       } else {
