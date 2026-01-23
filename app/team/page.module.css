@@ -38,7 +38,7 @@
 
 .heroImage {
   object-fit: cover;
-  object-position: center 70%;
+  object-position: center bottom;
 }
 
 @media (max-width: 768px) {
