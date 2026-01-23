@@ -126,14 +126,20 @@ export default async function Services() {
                 s.slug?.toLowerCase() === promo.slug.toLowerCase()
               );
               
-              // Skip if service doesn't exist in database
-              if (!service) return null;
+              // Debug: Log if service not found
+              if (!service && (promo.slug === 'ff-e-services' || promo.slug === 'overall-design-and-development')) {
+                console.log(`[Services Page] Service not found for slug: "${promo.slug}"`);
+                console.log(`[Services Page] Available slugs:`, services.map(s => s.slug));
+              }
+              
+              // Use service slug if found, otherwise use promo slug
+              const displaySlug = service?.slug || promo.slug;
             
             return (
-              <div key={service.slug} className={styles.servicePromo}>
+              <div key={displaySlug} className={styles.servicePromo}>
                 <div className={styles.serviceHeader}>
                   <h2>{promo.title}</h2>
-                  <p>{promo.description || service.body}</p>
+                  <p>{promo.description || service?.body || ''}</p>
                 </div>
 
                 <div className={styles.serviceContentGrid}>
@@ -154,7 +160,7 @@ export default async function Services() {
                     </div>
                   </div>
 
-                  {promo.images > 0 && service.heroImage && typeof service.heroImage === 'string' && service.heroImage.trim().length > 0 && (
+                  {promo.images > 0 && service?.heroImage && typeof service.heroImage === 'string' && service.heroImage.trim().length > 0 && (
                     <div className={styles.images1}>
                       <div className={styles.serviceImage}>
                         <Image
@@ -170,7 +176,7 @@ export default async function Services() {
                 </div>
 
                 <div className={styles.serviceCta}>
-                  <Link href={`/services/${service.slug}`} className="btn">
+                  <Link href={`/services/${displaySlug}`} className="btn">
                     Learn More
                   </Link>
                 </div>
