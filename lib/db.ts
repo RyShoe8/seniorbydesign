@@ -11,6 +11,7 @@ import {
   Partner,
   HomepageContent,
   Media,
+  BrochureSettings,
 } from './models';
 
 const DB_NAME = 'seniorbydesign';
@@ -74,6 +75,11 @@ export async function getHomepageContentCollection() {
 export async function getMediaCollection() {
   const db = await getDb();
   return db.collection<Media>('media');
+}
+
+export async function getBrochureSettingsCollection() {
+  const db = await getDb();
+  return db.collection<BrochureSettings>('brochureSettings');
 }
 
 

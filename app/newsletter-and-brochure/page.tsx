@@ -1,8 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './page.module.css';
+
+interface BrochureSettings {
+  allowMailRequests: boolean;
+}
 
 export default function NewsletterAndBrochure() {
   const [formData, setFormData] = useState({
@@ -18,6 +22,32 @@ export default function NewsletterAndBrochure() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [brochureSettings, setBrochureSettings] = useState<BrochureSettings>({
+    allowMailRequests: true,
+  });
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
+
+  useEffect(() => {
+    fetchBrochureSettings();
+  }, []);
+
+  const fetchBrochureSettings = async () => {
+    try {
+      const response = await fetch('/api/brochure-settings');
+      if (response.ok) {
+        const data = await response.json();
+        setBrochureSettings(data);
+        // If mail requests are disabled, ensure brochureType is set to digital
+        if (!data.allowMailRequests && formData.brochureType === 'physical') {
+          setFormData(prev => ({ ...prev, brochureType: 'digital' }));
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching brochure settings:', error);
+    } finally {
+      setIsLoadingSettings(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,71 +111,82 @@ export default function NewsletterAndBrochure() {
         <div className="container">
           <div className={styles.newsletterFormWrapper}>
             <h2>Join our family and receive our monthly newsletter</h2>
-            <p>Download our digital brochure or have a physical copy sent to you.</p>
+            <p>
+              {brochureSettings.allowMailRequests 
+                ? 'Download our digital brochure or have a physical copy sent to you.'
+                : 'Download our digital brochure.'}
+            </p>
 
-            <form onSubmit={handleSubmit} className="newsletter-form">
-              <div className={styles.formRow}>
+            {isLoadingSettings ? (
+              <p>Loading...</p>
+            ) : (
+              <form onSubmit={handleSubmit} className="newsletter-form">
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="firstName">First Name *</label>
+                    <input
+                      type="text"
+                      id="firstName"
+                      name="firstName"
+                      required
+                      value={formData.firstName}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="lastName">Last Name *</label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      name="lastName"
+                      required
+                      value={formData.lastName}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
                 <div className={styles.formGroup}>
-                  <label htmlFor="firstName">First Name *</label>
+                  <label htmlFor="email">Email *</label>
                   <input
-                    type="text"
-                    id="firstName"
-                    name="firstName"
+                    type="email"
+                    id="email"
+                    name="email"
                     required
-                    value={formData.firstName}
+                    value={formData.email}
                     onChange={handleChange}
                   />
                 </div>
+
                 <div className={styles.formGroup}>
-                  <label htmlFor="lastName">Last Name *</label>
-                  <input
-                    type="text"
-                    id="lastName"
-                    name="lastName"
-                    required
-                    value={formData.lastName}
-                    onChange={handleChange}
-                  />
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="newsletter"
+                      checked={formData.newsletter}
+                      onChange={handleChange}
+                    />
+                    Subscribe to monthly newsletter
+                  </label>
                 </div>
-              </div>
 
-              <div className={styles.formGroup}>
-                <label htmlFor="email">Email *</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>
-                  <input
-                    type="checkbox"
-                    name="newsletter"
-                    checked={formData.newsletter}
-                    onChange={handleChange}
-                  />
-                  Subscribe to monthly newsletter
-                </label>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="brochureType">Brochure Type *</label>
-                <select
-                  id="brochureType"
-                  name="brochureType"
-                  required
-                  value={formData.brochureType}
-                  onChange={handleChange}
-                >
-                  <option value="digital">Digital Download</option>
-                  <option value="physical">Physical Copy (Mailed)</option>
-                </select>
-              </div>
+                {brochureSettings.allowMailRequests ? (
+                  <div className={styles.formGroup}>
+                    <label htmlFor="brochureType">Brochure Type *</label>
+                    <select
+                      id="brochureType"
+                      name="brochureType"
+                      required
+                      value={formData.brochureType}
+                      onChange={handleChange}
+                    >
+                      <option value="digital">Digital Download</option>
+                      <option value="physical">Physical Copy (Mailed)</option>
+                    </select>
+                  </div>
+                ) : (
+                  <input type="hidden" name="brochureType" value="digital" />
+                )}
 
               {formData.brochureType === 'physical' && (
                 <>

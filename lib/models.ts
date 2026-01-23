@@ -132,6 +132,12 @@ export interface Media {
   updatedAt: Date;
 }
 
+export interface BrochureSettings {
+  _id?: ObjectId;
+  allowMailRequests: boolean;
+  updatedAt: Date;
+}
+
 
 
 
