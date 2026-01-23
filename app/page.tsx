@@ -57,16 +57,16 @@ export default async function Home() {
     <>
       {/* Hero Section */}
       <section className={styles.heroSection}>
-        <div className={styles.heroVideoContainer}>
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className={styles.heroVideo}
-          >
-            <source src="/videos/hero-video.mp4" type="video/mp4" />
-          </video>
+        <div className={styles.heroImageContainer}>
+          <Image
+            src="/images/The Team/The Team Hero.jpg"
+            alt="Soul Warming Interiors"
+            fill
+            className={styles.heroImage}
+            priority
+            quality={100}
+            unoptimized={false}
+          />
           <div className={styles.heroOverlay}>
             <div className={styles.heroContent}>
               <h1 className={styles.heroHeadline}>
@@ -75,7 +75,7 @@ export default async function Home() {
               <p className={styles.heroSubheadline}>
                 From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.
               </p>
-              <Link href="/portfolio" className="btn">Explore Our Portfolio</Link>
+              <Link href="/portfolio" className={styles.heroButton}>Explore Our Portfolio</Link>
             </div>
           </div>
         </div>
