@@ -35,6 +35,16 @@ export async function getPortfolioCategories() {
     categories.unshift(seniorLiving);
   }
   
+  // Ensure "Remodels" appears second (after Senior Living)
+  const remodelsIndex = categories.findIndex(cat => 
+    cat.name.toLowerCase() === 'remodels'
+  );
+  
+  if (remodelsIndex > 1) {
+    const remodels = categories.splice(remodelsIndex, 1)[0];
+    categories.splice(1, 0, remodels);
+  }
+  
   return categories;
 }
 
