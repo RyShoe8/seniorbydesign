@@ -60,21 +60,6 @@ export default async function Team() {
         </div>
       </section>
 
-      <section className="team-picture section-padding">
-        <div className="container">
-          <div className={styles.teamPhotoWrapper}>
-            <Image
-              src="/images/The Team/SBD-Group-Photo.webp"
-              alt="Senior By Design Team"
-              width={1200}
-              height={800}
-              className={styles.teamPhoto}
-              priority
-            />
-          </div>
-        </div>
-      </section>
-
       <section className="team-members section-padding">
         <div className="container">
           <h2 className={styles.centeredHeading}>Meet the experts</h2>

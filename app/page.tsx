@@ -56,7 +56,7 @@ export default async function Home() {
         <div className="container">
           <h2 className={styles.sectionHeading}>Our Portfolio</h2>
         </div>
-        <PortfolioCarousel categories={portfolioCategories.slice(0, 6).map(cat => ({
+        <PortfolioCarousel categories={portfolioCategories.map(cat => ({
           ...cat,
           _id: cat._id?.toString()
         }))} />
