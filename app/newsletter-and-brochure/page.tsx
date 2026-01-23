@@ -97,7 +97,7 @@ export default function NewsletterAndBrochure() {
       <section className={styles.newsletterHero}>
         <div className={styles.newsletterHeroImage}>
           <Image
-            src="/images/Newsletter/Newsletter Header.webp"
+            src="/images/Newsletter and Brochure Hero Image.jpg"
             alt="Newsletter & Brochure"
             fill
             className={styles.heroImage}
