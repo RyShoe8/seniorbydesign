@@ -139,7 +139,7 @@ export default async function Services() {
               <div key={displaySlug} className={styles.servicePromo}>
                 <div className={styles.serviceHeader}>
                   <h2>{promo.title}</h2>
-                  <p>{promo.description || service?.body || ''}</p>
+                  {promo.description && <p>{promo.description}</p>}
                 </div>
 
                 <div className={styles.serviceContentGrid}>
