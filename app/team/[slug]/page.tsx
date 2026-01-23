@@ -75,7 +75,8 @@ export default async function TeamMemberPage({ params }: Props) {
                   width={400}
                   height={500}
                   className={styles.memberProfileImage}
-                  unoptimized={member.profileImage.startsWith('https://')}
+                  unoptimized={true}
+                  quality={100}
                 />
               </div>
             )}
