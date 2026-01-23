@@ -158,21 +158,30 @@
   left: 0;
   right: 0;
   padding: var(--spacing-md);
-  background: none;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+  z-index: 2;
 }
 
 .memberInfoOverlay h3 {
-  color: var(--sbd-brown);
+  font-family: var(--font-heading);
+  color: #fff;
   margin-bottom: 0.25rem;
-  font-size: 24px;
-  text-shadow: 2px 2px 4px rgba(255, 255, 255, 1), -1px -1px 2px rgba(255, 255, 255, 1);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 1px 3px rgba(0, 0, 0, 0.9);
+  letter-spacing: 0.02em;
 }
 
 .memberInfoOverlay p {
+  font-family: var(--font-body);
   color: var(--sbd-gold);
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: 500;
   margin: 0;
-  text-shadow: 2px 2px 4px rgba(255, 255, 255, 1), -1px -1px 2px rgba(255, 255, 255, 1);
+  line-height: 1.3;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 1px 3px rgba(0, 0, 0, 0.9);
+  letter-spacing: 0.01em;
 }
 
 @media (max-width: 768px) {
@@ -182,6 +191,18 @@
 
   .teamGrid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+
+  .memberInfoOverlay {
+    padding: var(--spacing-sm);
+  }
+
+  .memberInfoOverlay h3 {
+    font-size: 22px;
+  }
+
+  .memberInfoOverlay p {
+    font-size: 16px;
   }
 }
 
