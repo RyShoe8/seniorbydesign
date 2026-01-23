@@ -256,6 +256,7 @@ export default function NewsletterAndBrochure() {
                   {isSubmitting ? 'Processing...' : 'Submit'}
                 </button>
               </form>
+            )}
           </div>
         </div>
       </section>
