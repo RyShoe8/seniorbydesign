@@ -61,7 +61,7 @@ export default async function Services() {
       images: 1,
     },
     {
-      slug: 'overall-design-and-development',
+      slug: 'Overall-design-and-development',
       title: 'Overall design & DEVELOPMENT',
       description: 'Our design and dedicated procurement teams re-imagine environments to create a better way of living. No two projects are alike. We have designed 175+ senior living communities and procured over $100M in acquisitions.',
       bullets: {
@@ -80,7 +80,7 @@ export default async function Services() {
       images: 1,
     },
     {
-      slug: 'ff-e-services',
+      slug: 'FF&E-Services',
       title: 'FF&E Services',
       description: '',
       bullets: {
