@@ -40,6 +40,9 @@
 .heroImage {
   object-fit: cover;
   object-position: center 30%;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: 100%;
 }
 
 @media (max-width: 768px) {
@@ -133,6 +136,7 @@
   position: relative;
   overflow: hidden;
   transform: translateZ(0);
+  contain: layout style paint;
 }
 
 .memberImage {

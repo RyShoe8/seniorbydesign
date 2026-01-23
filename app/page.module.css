@@ -13,6 +13,7 @@
   height: 100%;
   animation: heroImageAnimation 25s ease-in-out infinite;
   will-change: transform;
+  contain: layout style paint;
 }
 
 @keyframes heroImageAnimation {
@@ -35,6 +36,7 @@
   width: 100%;
   height: 100%;
   filter: brightness(1.02) contrast(1.05);
+  aspect-ratio: 16 / 9;
 }
 
 .heroPlaceholder {

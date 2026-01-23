@@ -2,6 +2,7 @@
   position: relative;
   height: 500px;
   overflow: hidden;
+  contain: layout style paint;
 }
 
 @media (max-width: 768px) {
@@ -39,6 +40,9 @@
 
 .heroImage {
   object-fit: cover;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: 100%;
 }
 
 .twoColumn {
@@ -202,6 +206,7 @@
   position: relative;
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  contain: layout style paint;
 }
 
 .galleryItem:hover {
@@ -214,6 +219,7 @@
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
+  contain: layout style paint;
 }
 
 .galleryItem:hover .galleryImage {

@@ -52,6 +52,7 @@
   text-decoration: none;
   color: inherit;
   display: block;
+  contain: layout style paint;
 }
 
 .portfolioCard:hover {
@@ -63,6 +64,8 @@
   width: 100%;
   height: 250px;
   object-fit: cover;
+  aspect-ratio: 16 / 10;
+  contain: layout style paint;
 }
 
 .portfolioCard h3 {

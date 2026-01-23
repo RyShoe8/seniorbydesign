@@ -126,6 +126,7 @@ export default function PortfolioGallery({ images, categoryName }: Props) {
           transition: transform 0.3s ease;
           aspect-ratio: 1;
           position: relative;
+          contain: layout style paint;
         }
 
         .thumbnail:hover {

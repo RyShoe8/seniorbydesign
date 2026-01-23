@@ -245,6 +245,17 @@ img {
   display: block;
 }
 
+/* Prevent layout shifts for images */
+img[loading="lazy"] {
+  content-visibility: auto;
+}
+
+/* Ensure images with fill prop don't cause layout shifts */
+picture,
+picture img {
+  display: block;
+}
+
 /* Loading States */
 .loading {
   opacity: 0.6;
