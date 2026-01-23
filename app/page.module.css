@@ -147,6 +147,18 @@
   box-shadow: 0 6px 20px rgba(203, 172, 109, 0.6);
 }
 
+.whoWeAreContent {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.whoWeAreContent p {
+  font-size: 19px;
+  line-height: 1.8;
+  color: var(--sbd-brown);
+}
+
 .ourWorkSection {
   background: #fff;
 }

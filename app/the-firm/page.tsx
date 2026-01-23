@@ -40,7 +40,7 @@ export default function TheFirm() {
             <div className={styles.columnContent}>
               <h2>Company Culture</h2>
               <p>
-                We are not a catalog-inspired design firm. Our team scours markets around the world to hand-select collectible found items, antiques, customized art, and furniture from local craftsmen and multi-national manufacturers that fulfill our stringent senior living requirements. These items are stored in our 35,000 square foot warehouse allowing us to offer these high-quality furnishings at a minimal cost.
+                Our team scours markets around the world to hand-select collectible found items, antiques, customized art, and furniture from local craftsmen and multi-national manufacturers that fulfill our stringent senior living requirements. We are not a catalog-inspired design firm. These items are stored in our 35,000 square foot warehouse allowing us to offer these high-quality furnishings at a minimal cost.
               </p>
               <p>
                 It&apos;s our great love of family that inspires all of our designs, and our aim is to reflect that genuine respect and love by making each community a place where residents love to live, and professionals love to work.

@@ -81,6 +81,18 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Who We Are Section */}
+      <section className="who-we-are-section section-padding">
+        <div className="container">
+          <h2 className={styles.sectionHeading}>Who We Are</h2>
+          <div className={styles.whoWeAreContent}>
+            <p>
+              Our team scours markets around the world to hand-select collectible found items, antiques, customized art, and furniture from local craftsmen and multi-national manufacturers that fulfill our stringent senior living requirements. We are not a catalog-inspired design firm. These items are stored in our 35,000 square foot warehouse allowing us to offer these high-quality furnishings at a minimal cost.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Our Portfolio Section */}
       <section id="our-portfolio" className={`${styles.ourWorkSection} section-padding`}>
         <div className="container">
