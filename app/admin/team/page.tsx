@@ -199,7 +199,12 @@ export default function TeamManagement() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setProfileImageUrl('')}
+                      onClick={() => {
+                        setProfileImageUrl('');
+                        if (editingMember) {
+                          setEditingMember({ ...editingMember, profileImage: '' });
+                        }
+                      }}
                       className="btn-small btn-danger"
                       style={{ marginLeft: '0.5rem', marginTop: '0.5rem' }}
                     >
