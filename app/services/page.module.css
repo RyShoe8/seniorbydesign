@@ -121,6 +121,8 @@
 
 .images1 {
   grid-template-columns: 1fr;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .images2 {
@@ -132,14 +134,14 @@
   border-radius: 8px;
   overflow: hidden;
   contain: layout style paint;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 9;
 }
 
 .serviceImageImg {
   width: 100%;
   height: auto;
   border-radius: 8px;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
 }
 
