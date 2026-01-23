@@ -18,6 +18,10 @@ export default function UserManagement() {
   const [editRole, setEditRole] = useState<'admin' | 'user'>('user');
   const [editPassword, setEditPassword] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [newRole, setNewRole] = useState<'admin' | 'user'>('user');
+  const [newPassword, setNewPassword] = useState('');
 
   useEffect(() => {
     if (session?.user?.role === 'admin') {
@@ -48,36 +52,60 @@ export default function UserManagement() {
     setEditEmail('');
     setEditRole('user');
     setEditPassword('');
+    setShowAddForm(false);
+    setNewEmail('');
+    setNewRole('user');
+    setNewPassword('');
   };
 
   const handleSave = async () => {
-    if (!editingUser) return;
-
     setIsSaving(true);
     try {
-      const response = await fetch('/api/admin/users', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          _id: editingUser._id,
-          email: editEmail,
-          role: editRole,
-          password: editPassword || undefined,
-        }),
-      });
+      if (editingUser) {
+        // Update existing user
+        const response = await fetch('/api/admin/users', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            _id: editingUser._id,
+            email: editEmail,
+            role: editRole,
+            password: editPassword || undefined,
+          }),
+        });
 
-      if (!response.ok) {
-        const error = await response.json();
-        alert(error.error || 'Failed to update user');
-        return;
+        if (!response.ok) {
+          const error = await response.json();
+          alert(error.error || 'Failed to update user');
+          return;
+        }
+      } else {
+        // Create new user
+        const response = await fetch('/api/admin/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: newEmail,
+            role: newRole,
+            password: newPassword,
+          }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          alert(error.error || 'Failed to create user');
+          return;
+        }
       }
 
       await fetchUsers();
       handleCancel();
     } catch (error) {
-            alert('Failed to update user');
+      alert(editingUser ? 'Failed to update user' : 'Failed to create user');
     } finally {
       setIsSaving(false);
     }
@@ -89,7 +117,21 @@ export default function UserManagement() {
 
   return (
     <div className="admin-page">
-      <h1>User Management</h1>
+      <div className="admin-header">
+        <h1>User Management</h1>
+        <button 
+          onClick={() => {
+            setShowAddForm(true);
+            setEditingUser(null);
+            setNewEmail('');
+            setNewRole('user');
+            setNewPassword('');
+          }}
+          className="btn"
+        >
+          Add User
+        </button>
+      </div>
       {isLoading ? (
         <p>Loading...</p>
       ) : (
@@ -123,34 +165,36 @@ export default function UserManagement() {
             </table>
           </div>
 
-          {editingUser && (
+          {(editingUser || showAddForm) && (
             <div className="edit-form">
-              <h2>Edit User</h2>
+              <h2>{editingUser ? 'Edit User' : 'Add User'}</h2>
               <div className="form-group">
                 <label>Email:</label>
                 <input
                   type="email"
-                  value={editEmail}
-                  onChange={(e) => setEditEmail(e.target.value)}
+                  value={editingUser ? editEmail : newEmail}
+                  onChange={(e) => editingUser ? setEditEmail(e.target.value) : setNewEmail(e.target.value)}
+                  required
                 />
               </div>
               <div className="form-group">
                 <label>Role:</label>
                 <select
-                  value={editRole}
-                  onChange={(e) => setEditRole(e.target.value as 'admin' | 'user')}
+                  value={editingUser ? editRole : newRole}
+                  onChange={(e) => editingUser ? setEditRole(e.target.value as 'admin' | 'user') : setNewRole(e.target.value as 'admin' | 'user')}
                 >
                   <option value="user">User</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>
               <div className="form-group">
-                <label>New Password (leave blank to keep current):</label>
+                <label>{editingUser ? 'New Password (leave blank to keep current):' : 'Password:'}</label>
                 <input
                   type="password"
-                  value={editPassword}
-                  onChange={(e) => setEditPassword(e.target.value)}
-                  placeholder="Enter new password"
+                  value={editingUser ? editPassword : newPassword}
+                  onChange={(e) => editingUser ? setEditPassword(e.target.value) : setNewPassword(e.target.value)}
+                  placeholder={editingUser ? 'Enter new password' : 'Enter password'}
+                  required={!editingUser}
                 />
               </div>
               <div className="form-actions">
@@ -159,7 +203,7 @@ export default function UserManagement() {
                   onClick={handleSave}
                   disabled={isSaving}
                 >
-                  {isSaving ? 'Saving...' : 'Save'}
+                  {isSaving ? 'Saving...' : editingUser ? 'Save' : 'Create'}
                 </button>
                 <button 
                   className="btn btn-secondary"
@@ -175,6 +219,29 @@ export default function UserManagement() {
       )}
 
       <style jsx>{`
+        .admin-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: var(--spacing-md);
+        }
+
+        .btn {
+          padding: 0.75rem 1.5rem;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 16px;
+          font-weight: 500;
+          transition: all 0.3s ease;
+          background-color: var(--sbd-gold);
+          color: #fff;
+        }
+
+        .btn:hover:not(:disabled) {
+          background-color: var(--sbd-brown);
+        }
+
         .users-table {
           background: #fff;
           border-radius: 8px;

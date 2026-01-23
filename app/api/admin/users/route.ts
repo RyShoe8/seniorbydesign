@@ -30,6 +30,50 @@ export async function GET() {
   }
 }
 
+export async function POST(request: Request) {
+  const session = await getServerSession(authOptions);
+
+  if (!session || session.user?.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const { email, role, password } = body;
+
+    if (!email || !password) {
+      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+    }
+
+    const usersCollection = await getUsersCollection();
+    
+    // Check if user already exists
+    const existingUser = await usersCollection.findOne({ email });
+    if (existingUser) {
+      return NextResponse.json({ error: 'User with this email already exists' }, { status: 400 });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const now = new Date();
+
+    const result = await usersCollection.insertOne({
+      email,
+      password: hashedPassword,
+      role: role || 'user',
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    return NextResponse.json({ success: true, _id: result.insertedId });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    return NextResponse.json(
+      { error: 'Failed to create user' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PUT(request: Request) {
   const session = await getServerSession(authOptions);
 
@@ -68,7 +112,8 @@ export async function PUT(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-        return NextResponse.json(
+    console.error('Error updating user:', error);
+    return NextResponse.json(
       { error: 'Failed to update user' },
       { status: 500 }
     );
