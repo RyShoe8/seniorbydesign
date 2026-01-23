@@ -119,18 +119,21 @@ export default async function Services() {
 
       <section className="services-content section-padding">
         <div className="container">
-          {servicePromotions.map((promo) => {
-            // Try exact match first, then case-insensitive match
-            let service = services.find((s) => s.slug === promo.slug);
-            if (!service) {
-              service = services.find((s) => s.slug?.toLowerCase() === promo.slug.toLowerCase());
-            }
+          {servicePromotions
+            .map((promo) => {
+              // Find matching service from database - use database slug as source of truth
+              const service = services.find((s) => 
+                s.slug?.toLowerCase() === promo.slug.toLowerCase()
+              );
+              
+              // Skip if service doesn't exist in database
+              if (!service) return null;
             
             return (
-              <div key={promo.slug} className={styles.servicePromo}>
+              <div key={service.slug} className={styles.servicePromo}>
                 <div className={styles.serviceHeader}>
                   <h2>{promo.title}</h2>
-                  <p>{promo.description || service?.body}</p>
+                  <p>{promo.description || service.body}</p>
                 </div>
 
                 <div className={styles.serviceContentGrid}>
@@ -151,7 +154,7 @@ export default async function Services() {
                     </div>
                   </div>
 
-                  {promo.images > 0 && service?.heroImage && typeof service.heroImage === 'string' && service.heroImage.trim().length > 0 && (
+                  {promo.images > 0 && service.heroImage && typeof service.heroImage === 'string' && service.heroImage.trim().length > 0 && (
                     <div className={styles.images1}>
                       <div className={styles.serviceImage}>
                         <Image
@@ -167,7 +170,7 @@ export default async function Services() {
                 </div>
 
                 <div className={styles.serviceCta}>
-                  <Link href={`/services/${promo.slug}`} className="btn">
+                  <Link href={`/services/${service.slug}`} className="btn">
                     Learn More
                   </Link>
                 </div>
