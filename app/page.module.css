@@ -3,6 +3,7 @@
   height: 100vh;
   min-height: 600px;
   overflow: hidden;
+  border-bottom: 1px solid #000;
 }
 
 .heroImageContainer {
@@ -241,6 +242,7 @@
 
 .ourWorkSection {
   background: #fff;
+  border-top: 1px solid #000;
 }
 
 .sectionHeading {

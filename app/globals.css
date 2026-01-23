@@ -221,6 +221,19 @@ label {
   background-color: var(--warm-grey-1);
 }
 
+/* Homepage section dividers */
+.who-we-are-section {
+  border-top: 1px solid #000;
+}
+
+.testimonials-section {
+  border-top: 1px solid #000;
+}
+
+.partners-section {
+  border-top: 1px solid #000;
+}
+
 .section-padding {
   padding: var(--spacing-xl) 0;
 }
