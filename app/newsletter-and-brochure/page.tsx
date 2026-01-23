@@ -110,11 +110,11 @@ export default function NewsletterAndBrochure() {
       <section className="newsletter-content section-padding">
         <div className="container">
           <div className={styles.newsletterFormWrapper}>
-            <h2>Join our family and receive our monthly newsletter</h2>
+            <h2>Download Our Brochure</h2>
             <p>
               {brochureSettings.allowMailRequests 
-                ? 'Download our digital brochure or have a physical copy sent to you.'
-                : 'Download our digital brochure.'}
+                ? 'Get instant access to our digital brochure, or opt to receive a physical copy by mail. You can also join our family and receive our monthly newsletter.'
+                : 'Get instant access to our digital brochure. You can also join our family and receive our monthly newsletter.'}
             </p>
 
             {isLoadingSettings ? (
