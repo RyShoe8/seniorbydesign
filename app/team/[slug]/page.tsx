@@ -28,6 +28,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
+export const revalidate = 0; // Always fetch fresh data
+
 export default async function TeamMemberPage({ params }: Props) {
   const member = await getTeamMember(params.slug);
 
