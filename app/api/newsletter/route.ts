@@ -21,18 +21,36 @@ export async function POST(request: Request) {
     // Send confirmation email if brochure type is digital
     if (body.brochureType === 'digital') {
       try {
-        // Get base URL from request or use environment variable
-        const origin = request.headers.get('origin');
-        const host = request.headers.get('host');
-        let baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
-                     (process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : null) ||
-                     origin || (host ? `https://${host}` : 'https://seniorbydesign.com');
+        // Get base URL - prioritize production domain for email reliability
+        // Always use production domain for emails to ensure images load
+        let baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://seniorbydesign.com';
         
-        // Ensure baseUrl doesn't have trailing slash
-        baseUrl = baseUrl.replace(/\/$/, '');
+        // If NEXT_PUBLIC_BASE_URL is not set, try to get from request but fallback to production
+        if (!process.env.NEXT_PUBLIC_BASE_URL) {
+          const origin = request.headers.get('origin');
+          const host = request.headers.get('host');
+          
+          // Only use request origin/host if it's the production domain
+          if (origin && origin.includes('seniorbydesign.com')) {
+            baseUrl = origin;
+          } else if (host && host.includes('seniorbydesign.com')) {
+            baseUrl = `https://${host}`;
+          } else {
+            // Default to production domain for email reliability
+            baseUrl = 'https://seniorbydesign.com';
+          }
+        }
         
-        // Encode the space in the logo filename for proper URL
-        const logoUrl = `${baseUrl}/images/${encodeURIComponent('SBD Logo.webp')}`;
+        // Ensure baseUrl doesn't have trailing slash and is HTTPS
+        baseUrl = baseUrl.replace(/\/$/, '').replace(/^http:/, 'https:');
+        
+        // Construct logo URL - encode spaces properly for email clients
+        // Email clients prefer %20 over + for spaces
+        const logoFileName = 'SBD Logo.webp';
+        const logoUrl = `${baseUrl}/images/${logoFileName.replace(/ /g, '%20')}`;
+        
+        // Log for debugging (remove in production if needed)
+        console.log('Email logo URL:', logoUrl);
         
         // Construct brochure download URL - encode spaces in filename
         const brochureFileName = 'SBD Interactive Brochure.pdf';
@@ -40,7 +58,7 @@ export async function POST(request: Request) {
         
         if (!brochureUrl) {
           // Construct URL if env var not set
-          brochureUrl = `${baseUrl}/files/${encodeURIComponent(brochureFileName)}`;
+          brochureUrl = `${baseUrl}/files/${brochureFileName.replace(/ /g, '%20')}`;
         } else {
           // If env var is set but contains unencoded spaces, encode them
           brochureUrl = brochureUrl.replace(/ /g, '%20');
@@ -48,9 +66,9 @@ export async function POST(request: Request) {
         
         const confirmationSubject = 'Welcome to Senior By Design - Your Digital Brochure';
         const confirmationHtml = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="text-align: center; margin-bottom: 30px;">
-              <img src="${logoUrl}" alt="Senior By Design" style="max-width: 200px; height: auto;" />
+              <img src="${logoUrl}" alt="Senior By Design" width="200" style="max-width: 200px; height: auto; display: block; margin: 0 auto; border: 0;" />
             </div>
             <h2 style="color: #593825; margin-top: 0;">Thank you for subscribing!</h2>
             <p>Dear ${body.firstName || 'Valued Customer'},</p>
