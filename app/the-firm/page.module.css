@@ -3,6 +3,7 @@
   height: 500px;
   overflow: hidden;
   contain: layout style paint;
+  border-bottom: 1px solid #000;
 }
 
 @media (max-width: 768px) {

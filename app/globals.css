@@ -234,6 +234,32 @@ label {
   border-top: 1px solid #000;
 }
 
+/* The Firm page section dividers */
+.firm-section {
+  border-top: 1px solid #000;
+}
+
+.firm-video-section {
+  border-top: 1px solid #000;
+}
+
+.firm-gallery {
+  border-top: 1px solid #000;
+}
+
+/* Team page section dividers */
+.team-intro {
+  border-top: 1px solid #000;
+}
+
+.team-quote {
+  border-top: 1px solid #000;
+}
+
+.team-members {
+  border-top: 1px solid #000;
+}
+
 .section-padding {
   padding: var(--spacing-xl) 0;
 }
