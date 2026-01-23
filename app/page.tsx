@@ -22,6 +22,36 @@ export default async function Home() {
   const portfolioCategories = await getPortfolioCategories();
   const partners = await getPartners();
   
+  // Define desired order for homepage carousel (Remodels in 2nd position)
+  const homepageOrder = [
+    'Senior Living',
+    'Remodels',
+    'Active Adult 55+',
+    'Office Remodels',
+    'Memory Support',
+    'Model units',
+    'Multifamily',
+  ];
+
+  // Sort categories for homepage carousel
+  const sortedPortfolioCategories = [...portfolioCategories].sort((a, b) => {
+    const aIndex = homepageOrder.findIndex(name => 
+      a.name?.toLowerCase() === name.toLowerCase()
+    );
+    const bIndex = homepageOrder.findIndex(name => 
+      b.name?.toLowerCase() === name.toLowerCase()
+    );
+    
+    // If both are in desired order, sort by their position
+    if (aIndex !== -1 && bIndex !== -1) {
+      return aIndex - bIndex;
+    }
+    // If only one is in desired order, it comes first
+    if (aIndex !== -1) return -1;
+    if (bIndex !== -1) return 1;
+    // If neither is in desired order, sort alphabetically
+    return (a.name || '').localeCompare(b.name || '');
+  });
 
   return (
     <>
@@ -56,7 +86,7 @@ export default async function Home() {
         <div className="container">
           <h2 className={styles.sectionHeading}>Our Portfolio</h2>
         </div>
-        <PortfolioCarousel categories={portfolioCategories.map(cat => ({
+        <PortfolioCarousel categories={sortedPortfolioCategories.map(cat => ({
           ...cat,
           _id: cat._id?.toString()
         }))} />
