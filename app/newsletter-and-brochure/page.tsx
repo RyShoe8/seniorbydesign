@@ -188,74 +188,74 @@ export default function NewsletterAndBrochure() {
                   <input type="hidden" name="brochureType" value="digital" />
                 )}
 
-              {formData.brochureType === 'physical' && (
-                <>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="address">Address *</label>
-                    <input
-                      type="text"
-                      id="address"
-                      name="address"
-                      required={formData.brochureType === 'physical'}
-                      value={formData.address}
-                      onChange={handleChange}
-                    />
+                {formData.brochureType === 'physical' && (
+                  <>
+                    <div className={styles.formGroup}>
+                      <label htmlFor="address">Address *</label>
+                      <input
+                        type="text"
+                        id="address"
+                        name="address"
+                        required={formData.brochureType === 'physical'}
+                        value={formData.address}
+                        onChange={handleChange}
+                      />
+                    </div>
+
+                    <div className={styles.formRow}>
+                      <div className={styles.formGroup}>
+                        <label htmlFor="city">City *</label>
+                        <input
+                          type="text"
+                          id="city"
+                          name="city"
+                          required={formData.brochureType === 'physical'}
+                          value={formData.city}
+                          onChange={handleChange}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label htmlFor="state">State *</label>
+                        <input
+                          type="text"
+                          id="state"
+                          name="state"
+                          required={formData.brochureType === 'physical'}
+                          value={formData.state}
+                          onChange={handleChange}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label htmlFor="zip">ZIP Code *</label>
+                        <input
+                          type="text"
+                          id="zip"
+                          name="zip"
+                          required={formData.brochureType === 'physical'}
+                          value={formData.zip}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {submitStatus === 'success' && (
+                  <div className={`${styles.formMessage} ${styles.success}`}>
+                    Thank you! {formData.brochureType === 'digital' ? 'Your download link has been sent to your email.' : 'Your brochure will be mailed to you shortly.'}
                   </div>
+                )}
 
-                  <div className={styles.formRow}>
-                    <div className={styles.formGroup}>
-                      <label htmlFor="city">City *</label>
-                      <input
-                        type="text"
-                        id="city"
-                        name="city"
-                        required={formData.brochureType === 'physical'}
-                        value={formData.city}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label htmlFor="state">State *</label>
-                      <input
-                        type="text"
-                        id="state"
-                        name="state"
-                        required={formData.brochureType === 'physical'}
-                        value={formData.state}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label htmlFor="zip">ZIP Code *</label>
-                      <input
-                        type="text"
-                        id="zip"
-                        name="zip"
-                        required={formData.brochureType === 'physical'}
-                        value={formData.zip}
-                        onChange={handleChange}
-                      />
-                    </div>
+                {submitStatus === 'error' && (
+                  <div className={`${styles.formMessage} ${styles.error}`}>
+                    There was an error processing your request. Please try again.
                   </div>
-                </>
-              )}
+                )}
 
-              {submitStatus === 'success' && (
-                <div className={`${styles.formMessage} ${styles.success}`}>
-                  Thank you! {formData.brochureType === 'digital' ? 'Your download link has been sent to your email.' : 'Your brochure will be mailed to you shortly.'}
-                </div>
-              )}
-
-              {submitStatus === 'error' && (
-                <div className={`${styles.formMessage} ${styles.error}`}>
-                  There was an error processing your request. Please try again.
-                </div>
-              )}
-
-              <button type="submit" className="btn" disabled={isSubmitting}>
-                {isSubmitting ? 'Processing...' : 'Submit'}
-              </button>
-            </form>
+                <button type="submit" className="btn" disabled={isSubmitting}>
+                  {isSubmitting ? 'Processing...' : 'Submit'}
+                </button>
+              </form>
           </div>
         </div>
       </section>
