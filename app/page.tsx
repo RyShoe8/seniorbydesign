@@ -82,7 +82,7 @@ export default async function Home() {
       </section>
 
       {/* Who We Are Section */}
-      <section className="who-we-are-section section-padding">
+      <section className="who-we-are-section section-padding bg-warm-grey">
         <div className="container">
           <h2 className={styles.sectionHeading}>Who We Are</h2>
           <div className={styles.whoWeAreContent}>
