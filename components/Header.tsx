@@ -46,8 +46,8 @@ export default function Header() {
           <Image
             src="/images/SBD Logo.webp"
             alt="Senior By Design"
-            width={180}
-            height={180}
+            width={200}
+            height={200}
             className={styles.logoImage}
             priority
           />
@@ -90,8 +90,8 @@ export default function Header() {
             <Image
               src="/images/SBD Logo.webp"
               alt="Senior By Design"
-              width={140}
-              height={140}
+              width={150}
+              height={150}
               className={styles.mobileLogoImage}
               priority
             />
