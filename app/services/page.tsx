@@ -121,6 +121,19 @@ export default async function Services() {
         <div className="container">
           {servicePromotions.map((promo) => {
             const service = services.find((s) => s.slug === promo.slug);
+            
+            // Debug: Log service lookup for FF&E and Overall Design
+            if (promo.slug === 'ff-e-services' || promo.slug === 'overall-design-and-development') {
+              console.log(`[Services Page] Looking for service with slug: "${promo.slug}"`);
+              console.log(`[Services Page] Found service:`, service ? {
+                slug: service.slug,
+                title: service.title,
+                hasHeroImage: !!service.heroImage,
+                heroImage: service.heroImage
+              } : 'NOT FOUND');
+              console.log(`[Services Page] Available service slugs:`, services.map(s => s.slug));
+            }
+            
             return (
               <div key={promo.slug} className={styles.servicePromo}>
                 <div className={styles.serviceHeader}>
@@ -146,7 +159,7 @@ export default async function Services() {
                     </div>
                   </div>
 
-                  {promo.images > 0 && service?.heroImage && (
+                  {promo.images > 0 && service?.heroImage && service.heroImage.trim() !== '' && (
                     <div className={styles.images1}>
                       <div className={styles.serviceImage}>
                         <Image
