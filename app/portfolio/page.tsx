@@ -11,6 +11,13 @@ export const metadata: Metadata = generateSEOMetadata({
   description: 'Explore our portfolio of senior living communities and design projects across the United States.',
   url: '/portfolio',
   type: 'website',
+  keywords: [
+    'senior living portfolio',
+    'interior design portfolio',
+    'senior living communities',
+    'multifamily design portfolio',
+    'commercial design projects',
+  ],
 });
 
 export const revalidate = 0; // Always fetch fresh data

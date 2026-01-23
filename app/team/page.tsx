@@ -10,6 +10,12 @@ export const metadata: Metadata = generateSEOMetadata({
   description: 'SBD founder Reid Bonner, and his team of talented designers have collectively been designing, creating and manufacturing interior products for over 25 years.',
   url: '/team',
   type: 'website',
+  keywords: [
+    'interior design team',
+    'senior living design experts',
+    'commercial design professionals',
+    'interior designers',
+  ],
 });
 
 export const revalidate = 0; // Always fetch fresh data

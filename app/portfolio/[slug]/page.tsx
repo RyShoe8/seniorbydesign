@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getPortfolioCategory } from '../../actions';
 import PortfolioGallery from '@/components/PortfolioGallery';
-import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
+import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema, CollectionPageSchema, ImageGallerySchema } from '@/components/SEO';
 
 type Props = {
   params: { slug: string };
@@ -27,6 +27,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     url: `/portfolio/${params.slug}`,
     image: imageUrl,
     type: 'website',
+    keywords: [
+      'interior design portfolio',
+      categoryName.toLowerCase(),
+      'senior living design',
+      'commercial design',
+    ],
   });
 }
 
@@ -57,6 +63,11 @@ export default async function PortfolioDetailPage({ params }: Props) {
     }
   }
 
+  const imageUrls = images.map(img => ({
+    url: img.url,
+    altText: img.altText || img.displayName,
+  }));
+
   return (
     <>
       <JSONLDSchema schema={BreadcrumbSchema([
@@ -64,6 +75,17 @@ export default async function PortfolioDetailPage({ params }: Props) {
         { name: 'Portfolio', url: '/portfolio' },
         { name: categoryName, url: `/portfolio/${params.slug}` },
       ])} />
+      <JSONLDSchema schema={CollectionPageSchema({
+        name: categoryName,
+        description: `Explore our ${categoryName} portfolio showcasing our interior design work for senior living communities.`,
+        url: `/portfolio/${params.slug}`,
+        images: imageUrls,
+      })} />
+      <JSONLDSchema schema={ImageGallerySchema({
+        name: categoryName,
+        description: `Image gallery showcasing ${categoryName} portfolio work.`,
+        images: imageUrls,
+      })} />
       <PortfolioGallery images={images} categoryName={categoryName} />
     </>
   );

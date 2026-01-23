@@ -78,6 +78,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     type: 'article',
     publishedTime: post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
     modifiedTime: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
+    keywords: [
+      'interior design',
+      'senior living design',
+      'design principles',
+      'commercial design',
+    ],
   });
 }
 
@@ -97,6 +103,12 @@ export default async function BlogPostPage({ params }: Props) {
         image: post.featuredImage,
         publishedTime: post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
         modifiedTime: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
+        keywords: [
+          'interior design',
+          'senior living design',
+          'commercial design',
+          'design principles',
+        ],
       })} />
       <JSONLDSchema schema={BreadcrumbSchema([
         { name: 'Home', url: '/' },

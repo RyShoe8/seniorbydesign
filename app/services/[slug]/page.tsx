@@ -25,6 +25,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     url: `/services/${service.slug}`,
     image: service.heroImage,
     type: 'website',
+    keywords: [
+      'interior design services',
+      service.title.toLowerCase(),
+      'senior living design',
+      'commercial interior design',
+    ],
   });
 }
 

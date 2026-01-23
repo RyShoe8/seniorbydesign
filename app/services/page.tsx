@@ -10,6 +10,15 @@ export const metadata: Metadata = generateSEOMetadata({
   description: 'Commercial interior design experience including working with all aspects of senior living communities, medical facilities, public spaces, offices, restaurants, hotels and churches.',
   url: '/services',
   type: 'website',
+  keywords: [
+    'interior design services',
+    'senior living design',
+    'commercial interior design',
+    'FF&E services',
+    'space planning',
+    'furniture procurement',
+    'interior environments design',
+  ],
 });
 
 export default async function Services() {

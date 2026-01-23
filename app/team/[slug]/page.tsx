@@ -25,6 +25,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     url: `/team/${member.slug}`,
     image: member.profileImage,
     type: 'profile',
+    keywords: [
+      'interior designer',
+      member.name,
+      member.title,
+      'senior living design',
+    ],
   });
 }
 

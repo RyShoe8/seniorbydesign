@@ -5,7 +5,7 @@ import NewsletterCTA from '@/components/NewsletterCTA';
 import TestimonialsCarousel from '@/components/TestimonialsCarousel';
 import PortfolioCarousel from '@/components/PortfolioCarousel';
 import { getHomepageContent, getPortfolioCategories, getPartners } from './actions';
-import { generateSEOMetadata } from '@/components/SEO';
+import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
 import styles from './page.module.css';
 
 export const metadata: Metadata = generateSEOMetadata({
@@ -13,6 +13,16 @@ export const metadata: Metadata = generateSEOMetadata({
   description: 'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.',
   url: '/',
   type: 'website',
+  keywords: [
+    'senior living interior design',
+    'commercial interior design',
+    'multifamily design',
+    'interior design services',
+    'senior living communities',
+    'FF&E services',
+    'space planning',
+    'furniture procurement',
+  ],
 });
 
 export const revalidate = 0; // Always fetch fresh data
@@ -55,6 +65,9 @@ export default async function Home() {
 
   return (
     <>
+      <JSONLDSchema schema={BreadcrumbSchema([
+        { name: 'Home', url: '/' },
+      ])} />
       {/* Hero Section */}
       <section className={styles.heroSection}>
         <div className={styles.heroImageContainer}>

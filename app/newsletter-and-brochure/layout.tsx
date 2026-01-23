@@ -6,6 +6,11 @@ export const metadata: Metadata = generateSEOMetadata({
   description: 'Join our family and receive our monthly newsletter. Download our digital brochure or have a physical copy sent to you.',
   url: '/newsletter-and-brochure',
   type: 'website',
+  keywords: [
+    'interior design newsletter',
+    'design brochure',
+    'senior living design resources',
+  ],
 });
 
 export default function NewsletterLayout({

@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import NewsletterCTA from '@/components/NewsletterCTA';
 import WarehouseGallery from '@/components/WarehouseGallery';
 import Image from 'next/image';
-import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
+import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema, VideoObjectSchema } from '@/components/SEO';
 import styles from './page.module.css';
 
 export const metadata: Metadata = generateSEOMetadata({
@@ -10,6 +10,13 @@ export const metadata: Metadata = generateSEOMetadata({
   description: 'We are not a catalog-inspired design firm. Our team scours markets around the world to hand-select collectible found items, antiques, customized art, and furniture.',
   url: '/the-firm',
   type: 'website',
+  keywords: [
+    'interior design firm',
+    'senior living design company',
+    'commercial interior design',
+    'warehouse design center',
+    'custom furniture procurement',
+  ],
 });
 
 export default function TheFirm() {
@@ -19,6 +26,18 @@ export default function TheFirm() {
         { name: 'Home', url: '/' },
         { name: 'The Firm', url: '/the-firm' },
       ])} />
+      <JSONLDSchema schema={VideoObjectSchema({
+        name: 'Senior By Design Company Overview',
+        description: 'Learn about Senior By Design and our approach to interior design for senior living communities.',
+        embedUrl: 'https://www.youtube.com/embed/eRI9GKC_VmA?si=2JRGGP4UxMDYF2ci',
+        uploadDate: '2024-01-01',
+      })} />
+      <JSONLDSchema schema={VideoObjectSchema({
+        name: 'Senior By Design Warehouse Tour',
+        description: 'Take a tour of our 35,000 square foot warehouse design center.',
+        embedUrl: 'https://www.youtube.com/embed/au7HLQnwb6I?si=WFrKFX6ek1TodzJl',
+        uploadDate: '2024-01-01',
+      })} />
       {/* Header Image */}
       <section className={styles.firmHero}>
         <div className={styles.firmHeroImage}>

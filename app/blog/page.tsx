@@ -10,6 +10,13 @@ export const metadata: Metadata = generateSEOMetadata({
   description: 'Latest insights and principles from Senior By Design about interior design, senior living communities, and design trends.',
   url: '/blog',
   type: 'website',
+  keywords: [
+    'interior design blog',
+    'senior living design insights',
+    'design principles',
+    'commercial design trends',
+    'interior design articles',
+  ],
 });
 
 export const revalidate = 0; // Always fetch fresh data
