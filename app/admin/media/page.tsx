@@ -156,7 +156,7 @@ export default function MediaManagement() {
               ) : (
                 <div className="media-info">
                   <h3 className="media-name">{item.displayName}</h3>
-                  <p className="media-alt">{item.altText || <em>No alt text</em>}</p>
+                  <p className="media-alt">{item.altText && item.altText.trim() ? item.altText : <em>No alt text</em>}</p>
                   <p className="media-path">{item.filePath}</p>
                   <button
                     onClick={() => setEditingItem(item)}

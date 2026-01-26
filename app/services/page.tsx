@@ -193,7 +193,7 @@ export default async function Services() {
                 </div>
 
                 <div className={styles.serviceCta}>
-                  <Link href={`/services/${displaySlug}`} className="btn">
+                  <Link href={`/services/${encodeURIComponent(displaySlug)}`} className="btn">
                     Learn More
                   </Link>
                 </div>

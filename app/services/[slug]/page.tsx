@@ -11,7 +11,9 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const service = await getService(params.slug);
+  // Decode the slug to handle URL-encoded characters like & in FF&E
+  const decodedSlug = decodeURIComponent(params.slug);
+  const service = await getService(decodedSlug);
   
   if (!service) {
     return {
@@ -35,7 +37,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ServicePage({ params }: Props) {
-  const service = await getService(params.slug);
+  // Decode the slug to handle URL-encoded characters like & in FF&E
+  const decodedSlug = decodeURIComponent(params.slug);
+  const service = await getService(decodedSlug);
 
   if (!service) {
     notFound();
