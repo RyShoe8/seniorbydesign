@@ -150,7 +150,7 @@ export default function PortfolioMap({ projects }: Props) {
                 
                 // Create and open new info window
                 const infoWindow = new InfoWindow({
-                  content: `<div style="padding: 8px; font-weight: 500; color: #5c4a37; display: flex; align-items: center; justify-content: space-between; gap: 12px; white-space: nowrap;"><span>${project.name}</span></div>`,
+                  content: `<div style="padding: 8px; font-weight: 500; color: #5c4a37; white-space: nowrap;">${project.name}</div>`,
                 });
                 infoWindow.open(mapInstanceRef.current, marker);
                 infoWindowRef.current = infoWindow;
@@ -424,7 +424,7 @@ export default function PortfolioMap({ projects }: Props) {
                   
                   // Create and open new info window
                   const infoWindow = new InfoWindow({
-                    content: `<div style="padding: 8px; font-weight: 500; color: #5c4a37; display: flex; align-items: center; justify-content: space-between; gap: 12px; white-space: nowrap;"><span>${project.name}</span></div>`,
+                    content: `<div style="padding: 8px; font-weight: 500; color: #5c4a37; white-space: nowrap;">${project.name}</div>`,
                   });
                   infoWindow.open(map, marker);
                   infoWindowRef.current = infoWindow;
@@ -858,6 +858,26 @@ export default function PortfolioMap({ projects }: Props) {
           color: var(--sbd-brown);
           background: var(--warm-grey-1);
           z-index: 1;
+        }
+
+        /* Style Google Maps InfoWindow to keep content and close button on same line */
+        :global(.gm-style-iw) {
+          display: flex !important;
+          align-items: center !important;
+          flex-wrap: nowrap !important;
+        }
+
+        :global(.gm-style-iw-d) {
+          flex: 1 !important;
+          min-width: 0 !important;
+          white-space: nowrap !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+        }
+
+        :global(.gm-ui-hover-effect) {
+          flex-shrink: 0 !important;
+          margin-left: 8px !important;
         }
       `}</style>
     </div>
