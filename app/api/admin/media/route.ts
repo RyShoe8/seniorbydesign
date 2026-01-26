@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { getMediaCollection } from '@/lib/db';
+import { getMediaCollection, getPortfolioCategoriesCollection } from '@/lib/db';
 import { ObjectId } from 'mongodb';
 import { readdir } from 'fs/promises';
 import { join } from 'path';
@@ -46,9 +46,37 @@ export async function GET() {
       await collection.insertMany(newMediaItems);
     }
     
-    // Return all media items
+    // Get all portfolio categories to cross-reference alt text
+    const portfolioCollection = await getPortfolioCategoriesCollection();
+    const portfolioCategories = await portfolioCollection.find({}).toArray();
+    
+    // Create a map of image URLs to their alt text from portfolio images
+    const portfolioImageAltTextMap = new Map<string, string>();
+    portfolioCategories.forEach(category => {
+      if (category.images && Array.isArray(category.images)) {
+        category.images.forEach((img: any) => {
+          if (typeof img === 'object' && img.url && img.altText) {
+            portfolioImageAltTextMap.set(img.url, img.altText);
+          }
+        });
+      }
+    });
+    
+    // Return all media items, enriching with alt text from portfolio images if available
     const allMediaItems = await collection.find({}).sort({ createdAt: -1 }).toArray();
-    return NextResponse.json(allMediaItems);
+    const enrichedMediaItems = allMediaItems.map(item => {
+      // If media item has no alt text but portfolio has it, use portfolio alt text
+      const portfolioAltText = portfolioImageAltTextMap.get(item.filePath);
+      if (portfolioAltText && (!item.altText || !item.altText.trim())) {
+        return {
+          ...item,
+          altText: portfolioAltText,
+        };
+      }
+      return item;
+    });
+    
+    return NextResponse.json(enrichedMediaItems);
   } catch (error) {
         return NextResponse.json(
       { error: 'Failed to fetch media' },
