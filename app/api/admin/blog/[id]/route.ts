@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { getBlogPostsCollection } from '@/lib/db';
+import { getBlogPostsCollection, getMediaCollection } from '@/lib/db';
 import { ObjectId } from 'mongodb';
 
 export const dynamic = 'force-dynamic';
@@ -55,6 +55,21 @@ export async function PUT(
     const body = await request.json();
     const collection = await getBlogPostsCollection();
     
+    // Get the existing blog post to check for old image
+    const existingPost = await collection.findOne({ _id: new ObjectId(params.id) });
+    const oldFeaturedImage = existingPost?.featuredImage;
+    const newFeaturedImage = body.featuredImage || '';
+    
+    // If featured image changed and old one exists, delete it from media library
+    if (oldFeaturedImage && oldFeaturedImage !== newFeaturedImage && oldFeaturedImage.trim() !== '') {
+      try {
+        const mediaCollection = await getMediaCollection();
+        await mediaCollection.deleteOne({ filePath: oldFeaturedImage });
+      } catch (error) {
+        console.error('Failed to delete old featured image from media library:', error);
+      }
+    }
+    
     // Generate slug from title if not provided
     const slug = body.slug || body.title
       .toLowerCase()
@@ -66,7 +81,7 @@ export async function PUT(
       title: body.title,
       excerpt: body.excerpt || '',
       body: body.body,
-      featuredImage: body.featuredImage || '',
+      featuredImage: newFeaturedImage,
       author: body.author || session.user?.email || 'Admin',
       updatedAt: new Date(),
     };
@@ -111,6 +126,19 @@ export async function DELETE(
     }
 
     const collection = await getBlogPostsCollection();
+    
+    // Get the blog post before deleting to remove its featured image
+    const post = await collection.findOne({ _id: new ObjectId(params.id) });
+    
+    if (post?.featuredImage && post.featuredImage.trim() !== '') {
+      try {
+        const mediaCollection = await getMediaCollection();
+        await mediaCollection.deleteOne({ filePath: post.featuredImage });
+      } catch (error) {
+        console.error('Failed to delete featured image from media library:', error);
+      }
+    }
+    
     await collection.deleteOne({ _id: new ObjectId(params.id) });
     return NextResponse.json({ success: true });
   } catch (error) {
