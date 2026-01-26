@@ -150,7 +150,7 @@ export default function PortfolioMap({ projects }: Props) {
                 
                 // Create and open new info window
                 const infoWindow = new InfoWindow({
-                  content: `<div style="padding: 8px; font-weight: 500; color: #5c4a37;">${project.name}</div>`,
+                  content: `<div style="padding: 8px; font-weight: 500; color: #5c4a37; display: flex; align-items: center; justify-content: space-between; gap: 12px; white-space: nowrap;"><span>${project.name}</span></div>`,
                 });
                 infoWindow.open(mapInstanceRef.current, marker);
                 infoWindowRef.current = infoWindow;
@@ -424,7 +424,7 @@ export default function PortfolioMap({ projects }: Props) {
                   
                   // Create and open new info window
                   const infoWindow = new InfoWindow({
-                    content: `<div style="padding: 8px; font-weight: 500; color: #5c4a37;">${project.name}</div>`,
+                    content: `<div style="padding: 8px; font-weight: 500; color: #5c4a37; display: flex; align-items: center; justify-content: space-between; gap: 12px; white-space: nowrap;"><span>${project.name}</span></div>`,
                   });
                   infoWindow.open(map, marker);
                   infoWindowRef.current = infoWindow;
