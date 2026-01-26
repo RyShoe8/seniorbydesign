@@ -57,6 +57,34 @@ export default function MediaManagement() {
     }
   };
 
+  const handleDelete = async (item: MediaItem) => {
+    if (!item._id) return;
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${item.displayName || item.filePath}"?\n\nThis will remove the media entry from the library. The actual file will remain on the server.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch(`/api/admin/media?id=${item._id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        fetchMedia();
+        if (editingItem?._id === item._id) {
+          setEditingItem(null);
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to delete media' }));
+        alert(errorData.error || 'Failed to delete media');
+      }
+    } catch (error) {
+      alert('Error deleting media');
+    }
+  };
+
   const folders = ['all', ...Array.from(new Set(mediaItems.map(item => item.folder || 'root').filter(Boolean)))];
 
   const filteredItems = filterFolder === 'all' 
@@ -158,12 +186,20 @@ export default function MediaManagement() {
                   <h3 className="media-name">{item.displayName}</h3>
                   <p className="media-alt">{item.altText && item.altText.trim() ? item.altText : <em>No alt text</em>}</p>
                   <p className="media-path">{item.filePath}</p>
-                  <button
-                    onClick={() => setEditingItem(item)}
-                    className="btn-small"
-                  >
-                    Edit
-                  </button>
+                  <div className="media-actions">
+                    <button
+                      onClick={() => setEditingItem(item)}
+                      className="btn-small"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(item)}
+                      className="btn-small btn-delete"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -341,6 +377,21 @@ export default function MediaManagement() {
         .btn-small {
           padding: 0.5rem 1rem;
           font-size: 14px;
+        }
+
+        .media-actions {
+          display: flex;
+          gap: var(--spacing-sm);
+          margin-top: var(--spacing-sm);
+        }
+
+        .btn-delete {
+          background-color: #dc3545;
+          color: #fff;
+        }
+
+        .btn-delete:hover {
+          background-color: #c82333;
         }
 
         @media (max-width: 768px) {
