@@ -16,6 +16,7 @@ interface PortfolioCategory {
   slug: string;
   name: string;
   images: PortfolioImage[];
+  order: number;
 }
 
 export default function PortfolioManagement() {
@@ -140,6 +141,7 @@ export default function PortfolioManagement() {
     const data = {
       slug: formData.get('slug') as string,
       name: formData.get('name') as string,
+      order: parseInt(formData.get('order') as string) || 0,
       images: portfolioImages,
     };
 
@@ -196,6 +198,21 @@ export default function PortfolioManagement() {
                   required
                   defaultValue={editingCategory?.name || ''}
                 />
+              </div>
+              <div className="form-group">
+                <label htmlFor="order">Display Order *</label>
+                <input
+                  type="number"
+                  id="order"
+                  name="order"
+                  required
+                  min="1"
+                  defaultValue={editingCategory?.order || categories.length + 1}
+                  placeholder="1"
+                />
+                <p style={{ fontSize: '14px', color: 'var(--warm-grey-3)', marginTop: '0.5rem' }}>
+                  Setting order to 3 will place this category 3rd and automatically shift others back.
+                </p>
               </div>
               <div className="form-group">
                 <label htmlFor="slug">Slug *</label>
@@ -302,6 +319,7 @@ export default function PortfolioManagement() {
               <tr>
                 <th>Name</th>
                 <th>Slug</th>
+                <th>Order</th>
                 <th>Images</th>
                 <th>Actions</th>
               </tr>
@@ -311,6 +329,7 @@ export default function PortfolioManagement() {
                 <tr key={category._id}>
                   <td>{category.name}</td>
                   <td>{category.slug}</td>
+                  <td>{category.order || 0}</td>
                   <td>{category.images?.length || 0}</td>
                   <td>
                     <button 

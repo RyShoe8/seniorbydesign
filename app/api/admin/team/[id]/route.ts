@@ -20,10 +20,12 @@ export async function PUT(
     const body = await request.json();
     const collection = await getTeamMembersCollection();
     
-    // Get the existing team member to check for old image
+    // Get the existing team member to check for old image and order
     const existingMember = await collection.findOne({ _id: new ObjectId(params.id) });
     const oldProfileImage = existingMember?.profileImage;
     const newProfileImage = body.profileImage || '';
+    const oldOrder = existingMember?.order || 0;
+    const newOrder = body.order !== undefined ? parseInt(body.order) : oldOrder;
     
     // If profile image changed and old one exists, delete it from media library
     if (oldProfileImage && oldProfileImage !== newProfileImage && oldProfileImage.trim() !== '') {
@@ -36,6 +38,29 @@ export async function PUT(
       }
     }
     
+    // Handle order shifting
+    if (newOrder !== oldOrder) {
+      if (newOrder > oldOrder) {
+        // Moving forward: shift items between oldOrder and newOrder back by 1
+        await collection.updateMany(
+          { 
+            _id: { $ne: new ObjectId(params.id) },
+            order: { $gt: oldOrder, $lte: newOrder }
+          },
+          { $inc: { order: -1 } }
+        );
+      } else {
+        // Moving backward: shift items between newOrder and oldOrder forward by 1
+        await collection.updateMany(
+          { 
+            _id: { $ne: new ObjectId(params.id) },
+            order: { $gte: newOrder, $lt: oldOrder }
+          },
+          { $inc: { order: 1 } }
+        );
+      }
+    }
+    
     const update = {
       slug: body.slug,
       name: body.name,
@@ -45,6 +70,7 @@ export async function PUT(
       linkedin: body.linkedin || '',
       facebook: body.facebook || '',
       instagram: body.instagram || '',
+      order: newOrder,
       updatedAt: new Date(),
     };
 

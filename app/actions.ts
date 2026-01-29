@@ -23,29 +23,23 @@ export async function getHomepageContent() {
 // Portfolio
 export async function getPortfolioCategories() {
   const collection = await getPortfolioCategoriesCollection();
+  
+  // Handle migration for existing records without order field
   const categories = await collection.find({}).sort({ name: 1 }).toArray();
+  const itemsWithoutOrder = categories.filter(cat => cat.order === undefined);
   
-  // Ensure "Senior Living" appears first
-  const seniorLivingIndex = categories.findIndex(cat => 
-    cat.name.toLowerCase() === 'senior living'
-  );
-  
-  if (seniorLivingIndex > 0) {
-    const seniorLiving = categories.splice(seniorLivingIndex, 1)[0];
-    categories.unshift(seniorLiving);
+  if (itemsWithoutOrder.length > 0) {
+    // Maintain current alphabetical order as default
+    itemsWithoutOrder.forEach(async (cat, index) => {
+      await collection.updateOne(
+        { _id: cat._id },
+        { $set: { order: index + 1 } }
+      );
+    });
   }
   
-  // Ensure "Remodels" appears second (after Senior Living)
-  const remodelsIndex = categories.findIndex(cat => 
-    cat.name.toLowerCase() === 'remodels'
-  );
-  
-  if (remodelsIndex > 1) {
-    const remodels = categories.splice(remodelsIndex, 1)[0];
-    categories.splice(1, 0, remodels);
-  }
-  
-  return categories;
+  // Always sort by order, fallback to name for items without order
+  return await collection.find({}).sort({ order: 1, name: 1 }).toArray();
 }
 
 export async function getPortfolioCategory(slug: string) {
@@ -72,7 +66,23 @@ export async function getPartners() {
 // Team
 export async function getTeamMembers() {
   const collection = await getTeamMembersCollection();
-  return await collection.find({}).sort({ name: 1 }).toArray();
+  
+  // Handle migration for existing records without order field
+  const members = await collection.find({}).sort({ name: 1 }).toArray();
+  const itemsWithoutOrder = members.filter(member => member.order === undefined);
+  
+  if (itemsWithoutOrder.length > 0) {
+    // Maintain current alphabetical order as default
+    itemsWithoutOrder.forEach(async (member, index) => {
+      await collection.updateOne(
+        { _id: member._id },
+        { $set: { order: index + 1 } }
+      );
+    });
+  }
+  
+  // Always sort by order, fallback to name for items without order
+  return await collection.find({}).sort({ order: 1, name: 1 }).toArray();
 }
 
 export async function getTeamMember(slug: string) {

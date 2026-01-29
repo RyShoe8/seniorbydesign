@@ -35,6 +35,25 @@ export async function POST(request: Request) {
     const body = await request.json();
     const collection = await getTeamMembersCollection();
     
+    // Handle migration for existing records without order field
+    const existingMembers = await collection.find({ order: { $exists: false } }).toArray();
+    if (existingMembers.length > 0) {
+      existingMembers.forEach(async (member, index) => {
+        await collection.updateOne(
+          { _id: member._id },
+          { $set: { order: index + 1 } }
+        );
+      });
+    }
+    
+    const newOrder = body.order !== undefined ? parseInt(body.order) : 0;
+    
+    // Shift all members with order >= newOrder back by 1
+    await collection.updateMany(
+      { order: { $gte: newOrder } },
+      { $inc: { order: 1 } }
+    );
+    
     const member = {
       slug: body.slug,
       name: body.name,
@@ -44,6 +63,7 @@ export async function POST(request: Request) {
       linkedin: body.linkedin || '',
       facebook: body.facebook || '',
       instagram: body.instagram || '',
+      order: newOrder,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

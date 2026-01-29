@@ -36,10 +36,30 @@ export async function POST(request: Request) {
     const body = await request.json();
     const collection = await getPortfolioCategoriesCollection();
     
+    // Handle migration for existing records without order field
+    const existingCategories = await collection.find({ order: { $exists: false } }).toArray();
+    if (existingCategories.length > 0) {
+      existingCategories.forEach(async (cat, index) => {
+        await collection.updateOne(
+          { _id: cat._id },
+          { $set: { order: index + 1 } }
+        );
+      });
+    }
+    
+    const newOrder = body.order !== undefined ? parseInt(body.order) : 0;
+    
+    // Shift all categories with order >= newOrder back by 1
+    await collection.updateMany(
+      { order: { $gte: newOrder } },
+      { $inc: { order: 1 } }
+    );
+    
     const category = {
       slug: body.slug,
       name: body.name,
       images: body.images || [],
+      order: newOrder,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

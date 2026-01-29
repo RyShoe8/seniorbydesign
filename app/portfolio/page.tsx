@@ -31,36 +31,7 @@ export default async function Portfolio() {
     _id: p._id?.toString(),
   }));
 
-  // Define desired order by name (case-insensitive matching)
-  const desiredOrder = [
-    'Active Adult 55+',
-    'Senior Living',
-    'Remodels',
-    'Office Remodels',
-    'Memory Support',
-    'Model units',
-    'Multifamily',
-  ];
-
-  // Sort categories according to desired order, then by name for any not in the list
-  const displayCategories = [...categories].sort((a, b) => {
-    const aIndex = desiredOrder.findIndex(name => 
-      a.name?.toLowerCase() === name.toLowerCase()
-    );
-    const bIndex = desiredOrder.findIndex(name => 
-      b.name?.toLowerCase() === name.toLowerCase()
-    );
-    
-    // If both are in desired order, sort by their position
-    if (aIndex !== -1 && bIndex !== -1) {
-      return aIndex - bIndex;
-    }
-    // If only one is in desired order, it comes first
-    if (aIndex !== -1) return -1;
-    if (bIndex !== -1) return 1;
-    // If neither is in desired order, sort alphabetically
-    return (a.name || '').localeCompare(b.name || '');
-  });
+  // Categories are now sorted by order field in database via getPortfolioCategories()
 
   return (
     <>
@@ -91,7 +62,7 @@ export default async function Portfolio() {
       <section className="portfolio-categories section-padding">
         <div className="container">
           <div className={styles.portfolioGrid}>
-            {displayCategories.map((category) => {
+            {categories.map((category) => {
               const displayName = category.name || '';
               const linkSlug = category.slug || '';
               

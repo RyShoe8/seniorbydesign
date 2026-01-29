@@ -58,10 +58,12 @@ export async function PUT(
     const body = await request.json();
     const collection = await getPortfolioCategoriesCollection();
     
-    // Get the existing category to check for old images
+    // Get the existing category to check for old images and order
     const existingCategory = await collection.findOne({ _id: new ObjectId(params.id) });
     const oldImages = existingCategory?.images || [];
     const newImages = body.images || [];
+    const oldOrder = existingCategory?.order || 0;
+    const newOrder = body.order !== undefined ? parseInt(body.order) : oldOrder;
     
     // Extract URLs from both old and new images (handle both string[] and PortfolioImage[] formats)
     const getImageUrls = (images: any[]): string[] => {
@@ -88,10 +90,34 @@ export async function PUT(
       }
     }
     
+    // Handle order shifting
+    if (newOrder !== oldOrder) {
+      if (newOrder > oldOrder) {
+        // Moving forward: shift items between oldOrder and newOrder back by 1
+        await collection.updateMany(
+          { 
+            _id: { $ne: new ObjectId(params.id) },
+            order: { $gt: oldOrder, $lte: newOrder }
+          },
+          { $inc: { order: -1 } }
+        );
+      } else {
+        // Moving backward: shift items between newOrder and oldOrder forward by 1
+        await collection.updateMany(
+          { 
+            _id: { $ne: new ObjectId(params.id) },
+            order: { $gte: newOrder, $lt: oldOrder }
+          },
+          { $inc: { order: 1 } }
+        );
+      }
+    }
+    
     const update = {
       slug: body.slug,
       name: body.name,
       images: newImages,
+      order: newOrder,
       updatedAt: new Date(),
     };
 

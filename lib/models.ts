@@ -31,6 +31,7 @@ export interface PortfolioCategory {
   slug: string;
   name: string;
   images: PortfolioImage[];
+  order: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -65,6 +66,7 @@ export interface TeamMember {
   linkedin?: string;
   facebook?: string;
   instagram?: string;
+  order: number;
   createdAt: Date;
   updatedAt: Date;
 }

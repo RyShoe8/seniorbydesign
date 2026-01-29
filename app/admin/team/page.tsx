@@ -13,6 +13,7 @@ interface TeamMember {
   linkedin?: string;
   facebook?: string;
   instagram?: string;
+  order: number;
 }
 
 export default function TeamManagement() {
@@ -98,6 +99,7 @@ export default function TeamManagement() {
       linkedin: formData.get('linkedin') as string,
       facebook: formData.get('facebook') as string,
       instagram: formData.get('instagram') as string,
+      order: parseInt(formData.get('order') as string) || 0,
     };
 
     try {
@@ -160,6 +162,21 @@ export default function TeamManagement() {
                     required
                     defaultValue={editingMember?.title || ''}
                   />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="order">Display Order *</label>
+                  <input
+                    type="number"
+                    id="order"
+                    name="order"
+                    required
+                    min="1"
+                    defaultValue={editingMember?.order || members.length + 1}
+                    placeholder="1"
+                  />
+                  <p style={{ fontSize: '14px', color: 'var(--warm-grey-3)', marginTop: '0.5rem' }}>
+                    Setting order to 3 will place this team member 3rd and automatically shift others back.
+                  </p>
                 </div>
               </div>
               <div className="form-group">
@@ -281,6 +298,7 @@ export default function TeamManagement() {
               <tr>
                 <th>Name</th>
                 <th>Title</th>
+                <th>Order</th>
                 <th>Slug</th>
                 <th>Actions</th>
               </tr>
@@ -290,6 +308,7 @@ export default function TeamManagement() {
                 <tr key={member._id}>
                   <td>{member.name}</td>
                   <td>{member.title}</td>
+                  <td>{member.order || 0}</td>
                   <td>{member.slug}</td>
                   <td>
                     <button onClick={() => handleEdit(member)} className="btn-small">Edit</button>
