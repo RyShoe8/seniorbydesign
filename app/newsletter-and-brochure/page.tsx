@@ -30,7 +30,7 @@ export default function NewsletterAndBrochure() {
 
   useEffect(() => {
     fetchBrochureSettings();
-  }, []);
+  }, [fetchBrochureSettings]);
 
   const fetchBrochureSettings = async () => {
     try {
@@ -44,7 +44,7 @@ export default function NewsletterAndBrochure() {
         }
       }
     } catch (error) {
-      console.error('Error fetching brochure settings:', error);
+      console.error(&apos;Error fetching brochure settings:&apos;, error);
     } finally {
       setIsLoadingSettings(false);
     }
