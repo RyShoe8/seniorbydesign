@@ -22,6 +22,7 @@ export default function NewsletterAndBrochure() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [requestSubmitted, setRequestSubmitted] = useState(false);
   const [brochureSettings, setBrochureSettings] = useState<BrochureSettings>({
     allowMailRequests: true,
   });
@@ -63,6 +64,7 @@ export default function NewsletterAndBrochure() {
 
       if (response.ok) {
         setSubmitStatus('success');
+        setRequestSubmitted(true);
         setFormData({
           firstName: '',
           lastName: '',
@@ -256,6 +258,37 @@ export default function NewsletterAndBrochure() {
                   {isSubmitting ? 'Processing...' : 'Submit'}
                 </button>
               </form>
+            )}
+
+            {/* Download Section - Appears after successful form submission */}
+            {requestSubmitted && (
+              <section className={`${styles.downloadSection} section-padding`}>
+                <div className="container">
+                  <h2 className={styles.centeredHeading}>📄 Your Brochure is Ready!</h2>
+                  <div className={styles.downloadOptions}>
+                    <div className={styles.downloadCard}>
+                      <h3>📥 Download Now</h3>
+                      <p>Get instant access to our interactive digital brochure.</p>
+                      <a 
+                        href="/files/SBD Interactive Brochure.pdf" 
+                        download="SBD Interactive Brochure.pdf"
+                        className={`btn ${styles.downloadBtn}`}
+                      >
+                        📄 Download Brochure
+                      </a>
+                    </div>
+                    
+                    <div className={styles.downloadCard}>
+                      <h3>✅ Email Confirmation</h3>
+                      <p>We've also sent this to your email as a backup.</p>
+                      <div className={styles.emailConfirmation}>
+                        <span className={styles.emailIcon}>📧</span>
+                        <span>Check your inbox: <strong>{formData.email || 'your email'}</strong></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
             )}
           </div>
         </div>

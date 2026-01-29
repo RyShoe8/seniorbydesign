@@ -116,6 +116,80 @@
   }
 }
 
+/* Download Section Styles */
+.downloadSection {
+  background: #f8f9fa;
+  border-top: 3px solid #e9ecef;
+}
+
+.downloadOptions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-md);
+}
+
+.downloadCard {
+  background: #fff;
+  padding: var(--spacing-xl);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.downloadCard:hover {
+  transform: translateY(-4px);
+}
+
+.downloadCard h3 {
+  color: var(--sbd-brown);
+  margin-bottom: var(--spacing-sm);
+  font-size: 1.25rem;
+}
+
+.downloadCard p {
+  color: var(--warm-grey-3);
+  margin-bottom: var(--spacing-md);
+  line-height: 1.5;
+}
+
+.downloadBtn {
+  display: inline-block;
+  background: var(--sbd-gold);
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.downloadBtn:hover {
+  background-color: var(--sbd-brown);
+}
+
+.emailConfirmation {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: rgba(0, 123, 255, 0.1);
+  border-radius: 4px;
+}
+
+.emailIcon {
+  font-size: 1.2rem;
+}
+
+.centeredHeading {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+  color: var(--sbd-brown);
+}
+
 
 
 
