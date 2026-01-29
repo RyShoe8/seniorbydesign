@@ -80,7 +80,7 @@ export default function Contact() {
       <section className={styles.contactHero}>
         <div className={styles.contactHeroImage}>
           <Image
-            src="/images/Contact Us Hero.jpg"
+            src="/images/The Team/The Team Hero.jpg"
             alt="Contact Us"
             fill
             className={styles.heroImage}
