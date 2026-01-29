@@ -111,6 +111,21 @@ export default function UserManagement() {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this user?')) return;
+    
+    try {
+      const response = await fetch(`/api/admin/users/${id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        fetchUsers();
+      }
+    } catch (error) {
+      // Following established pattern - silent error handling
+    }
+  };
+
   if (session?.user?.role !== 'admin') {
     return <div>Access denied. Admin only.</div>;
   }
@@ -157,7 +172,9 @@ export default function UserManagement() {
                       >
                         Edit
                       </button>
-                      <button className="btn-small btn-danger">Delete</button>
+                      <button onClick={() => user._id && handleDelete(user._id)} className="btn-small btn-danger">
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
