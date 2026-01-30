@@ -36,6 +36,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
+export const revalidate = 0; // Always fetch fresh data
+
 export default async function ServicePage({ params }: Props) {
   // Decode the slug to handle URL-encoded characters like & in FF&E
   const decodedSlug = decodeURIComponent(params.slug);
