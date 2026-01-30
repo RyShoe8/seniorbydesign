@@ -125,6 +125,12 @@
   margin: 0 auto;
 }
 
+@media (min-width: 769px) {
+  .images1 {
+    max-width: 900px;
+  }
+}
+
 .images2 {
   grid-template-columns: 1fr 1fr;
 }

@@ -85,6 +85,12 @@
   gap: var(--spacing-md);
 }
 
+@media (min-width: 769px) {
+  .serviceGallery {
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  }
+}
+
 .galleryItem {
   border-radius: 8px;
   overflow: hidden;
