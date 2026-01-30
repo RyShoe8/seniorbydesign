@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import styles from './page.module.css';
 
@@ -28,27 +28,30 @@ export default function NewsletterAndBrochure() {
   });
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
-  const fetchBrochureSettings = async () => {
+  const fetchBrochureSettings = useCallback(async () => {
     try {
       const response = await fetch('/api/brochure-settings');
       if (response.ok) {
         const data = await response.json();
         setBrochureSettings(data);
         // If mail requests are disabled, ensure brochureType is set to digital
-        if (!data.allowMailRequests && formData.brochureType === 'physical') {
-          setFormData(prev => ({ ...prev, brochureType: 'digital' }));
-        }
+        setFormData(prev => {
+          if (!data.allowMailRequests && prev.brochureType === 'physical') {
+            return { ...prev, brochureType: 'digital' };
+          }
+          return prev;
+        });
       }
     } catch (error) {
       console.error('Error fetching brochure settings:', error);
     } finally {
       setIsLoadingSettings(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchBrochureSettings();
-  }, []);
+  }, [fetchBrochureSettings]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -280,7 +283,7 @@ export default function NewsletterAndBrochure() {
                     
                     <div className={styles.downloadCard}>
                       <h3>✅ Email Confirmation</h3>
-                      <p>We've also sent this to your email as a backup.</p>
+                      <p>We&apos;ve also sent this to your email as a backup.</p>
                       <div className={styles.emailConfirmation}>
                         <span className={styles.emailIcon}>📧</span>
                         <span>Check your inbox: <strong>{formData.email || 'your email'}</strong></span>
