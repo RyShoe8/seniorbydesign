@@ -28,10 +28,6 @@ export default function NewsletterAndBrochure() {
   });
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
-  useEffect(() => {
-    fetchBrochureSettings();
-  }, [fetchBrochureSettings]);
-
   const fetchBrochureSettings = async () => {
     try {
       const response = await fetch('/api/brochure-settings');
@@ -44,11 +40,15 @@ export default function NewsletterAndBrochure() {
         }
       }
     } catch (error) {
-      console.error(&apos;Error fetching brochure settings:&apos;, error);
+      console.error('Error fetching brochure settings:', error);
     } finally {
       setIsLoadingSettings(false);
     }
   };
+
+  useEffect(() => {
+    fetchBrochureSettings();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -296,5 +296,3 @@ export default function NewsletterAndBrochure() {
     </>
   );
 }
-
-// Test build fix
