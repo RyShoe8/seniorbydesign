@@ -26,7 +26,8 @@
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: radial-gradient(circle at top, rgba(89, 56, 37, 0.35), rgba(0, 0, 0, 0.7));
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -35,59 +36,67 @@
 }
 
 .modal {
-  background: #fff;
+  background: linear-gradient(180deg, #fff 0%, #faf7f2 100%);
   width: 100%;
-  max-width: 720px;
-  border-radius: 12px;
-  padding: var(--spacing-lg);
+  max-width: 760px;
+  border-radius: 16px;
+  padding: var(--spacing-lg) var(--spacing-xl);
   position: relative;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(203, 172, 109, 0.35);
 }
 
 .modalClose {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 18px;
+  right: 18px;
   border: none;
-  background: transparent;
-  font-size: 28px;
+  background: #fff;
+  font-size: 24px;
   cursor: pointer;
   color: var(--sbd-brown);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
 .modalStep h4 {
-  font-size: 28px;
+  font-size: 30px;
   color: var(--sbd-brown);
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
   text-align: center;
+  letter-spacing: -0.2px;
 }
 
 .choiceButtons {
   display: grid;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-md);
 }
 
 .secondaryBtn {
-  border: 2px solid var(--sbd-gold);
-  background: transparent;
+  border: 2px solid rgba(203, 172, 109, 0.7);
+  background: #fff;
   color: var(--sbd-brown);
-  padding: 0.75rem 1.25rem;
-  border-radius: 4px;
+  padding: 0.9rem 1.5rem;
+  border-radius: 8px;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 17px;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 8px 18px rgba(89, 56, 37, 0.12);
 }
 
 .secondaryBtn:hover {
   background: var(--sbd-gold);
   color: #fff;
+  transform: translateY(-1px);
 }
 
 .modalForm {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-md);
 }
 
 .formRow {
@@ -103,10 +112,18 @@
 }
 
 .formGroup input {
-  border: 1px solid var(--warm-grey-3);
-  border-radius: 4px;
-  padding: 0.75rem 0.9rem;
+  border: 1px solid rgba(191, 183, 176, 0.7);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
   font-family: inherit;
+  background: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.formGroup input:focus {
+  border-color: var(--sbd-gold);
+  box-shadow: 0 0 0 3px rgba(203, 172, 109, 0.25);
+  outline: none;
 }
 
 .checkboxLabel {
@@ -119,6 +136,8 @@
 
 .formActions {
   margin-top: var(--spacing-sm);
+  display: flex;
+  justify-content: center;
 }
 
 .formError {
@@ -128,6 +147,7 @@
 .downloadBtn {
   display: inline-block;
   margin-top: var(--spacing-sm);
+  padding: 0.9rem 1.6rem;
 }
 
 @media (max-width: 768px) {
