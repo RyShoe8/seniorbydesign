@@ -6,14 +6,18 @@ import {
   getBlogPosts,
 } from './actions';
 
+// Revalidate sitemap every hour
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
 
   // Note: Admin pages (/admin/*) and API routes (/api/*) are explicitly excluded from the sitemap
   // They are protected by authentication middleware and should not be indexed by search engines
 
-  // Static pages
-  const staticPages: MetadataRoute.Sitemap = [
+  try {
+    // Static pages
+    const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
       lastModified: new Date(),
@@ -70,51 +74,71 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Dynamic portfolio categories
-  const portfolioCategories = await getPortfolioCategories();
-  const portfolioPages: MetadataRoute.Sitemap = portfolioCategories.map((category) => ({
-    url: `${baseUrl}/portfolio/${category.slug}`,
-    lastModified: category.updatedAt ? new Date(category.updatedAt) : new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }));
+    // Dynamic portfolio categories
+    const portfolioCategories = await getPortfolioCategories().catch(() => []);
+    const portfolioPages: MetadataRoute.Sitemap = portfolioCategories
+      .filter((category) => category.slug) // Only include categories with valid slugs
+      .map((category) => ({
+        url: `${baseUrl}/portfolio/${encodeURIComponent(category.slug)}`,
+        lastModified: category.updatedAt ? new Date(category.updatedAt) : new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      }));
 
-  // Dynamic services
-  const services = await getServices();
-  const servicePages: MetadataRoute.Sitemap = services.map((service) => ({
-    url: `${baseUrl}/services/${service.slug}`,
-    lastModified: service.updatedAt ? new Date(service.updatedAt) : new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
-  }));
+    // Dynamic services
+    const services = await getServices().catch(() => []);
+    const servicePages: MetadataRoute.Sitemap = services
+      .filter((service) => service.slug) // Only include services with valid slugs
+      .map((service) => ({
+        url: `${baseUrl}/services/${encodeURIComponent(service.slug)}`,
+        lastModified: service.updatedAt ? new Date(service.updatedAt) : new Date(),
+        changeFrequency: 'monthly' as const,
+        priority: 0.7,
+      }));
 
-  // Dynamic team members
-  const teamMembers = await getTeamMembers();
-  const teamPages: MetadataRoute.Sitemap = teamMembers.map((member) => ({
-    url: `${baseUrl}/team/${member.slug}`,
-    lastModified: member.updatedAt ? new Date(member.updatedAt) : new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.6,
-  }));
+    // Dynamic team members
+    const teamMembers = await getTeamMembers().catch(() => []);
+    const teamPages: MetadataRoute.Sitemap = teamMembers
+      .filter((member) => member.slug) // Only include members with valid slugs
+      .map((member) => ({
+        url: `${baseUrl}/team/${encodeURIComponent(member.slug)}`,
+        lastModified: member.updatedAt ? new Date(member.updatedAt) : new Date(),
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
+      }));
 
-  // Dynamic blog posts
-  const blogPosts = await getBlogPosts();
-  const blogPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
-    url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: post.updatedAt 
-      ? new Date(post.updatedAt) 
-      : post.publishedAt 
-        ? new Date(post.publishedAt) 
-        : new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
-  }));
+    // Dynamic blog posts - only include published posts
+    const blogPosts = await getBlogPosts().catch(() => []);
+    const blogPages: MetadataRoute.Sitemap = blogPosts
+      .filter((post) => post.slug && post.publishedAt) // Only include published posts with valid slugs
+      .map((post) => ({
+        url: `${baseUrl}/blog/${encodeURIComponent(post.slug)}`,
+        lastModified: post.updatedAt 
+          ? new Date(post.updatedAt) 
+          : post.publishedAt 
+            ? new Date(post.publishedAt) 
+            : new Date(),
+        changeFrequency: 'monthly' as const,
+        priority: 0.7,
+      }));
 
-  return [
-    ...staticPages,
-    ...portfolioPages,
-    ...servicePages,
-    ...teamPages,
-    ...blogPages,
-  ];
+    return [
+      ...staticPages,
+      ...portfolioPages,
+      ...servicePages,
+      ...teamPages,
+      ...blogPages,
+    ];
+  } catch (error) {
+    // If there's an error, return at least the static pages
+    console.error('Error generating sitemap:', error);
+    return [
+      {
+        url: baseUrl,
+        lastModified: new Date(),
+        changeFrequency: 'daily',
+        priority: 1,
+      },
+    ];
+  }
 }
