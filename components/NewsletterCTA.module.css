@@ -165,6 +165,10 @@
   gap: var(--spacing-sm);
 }
 
+.formRowThreeCol {
+  grid-template-columns: 2fr 1.5fr 1fr;
+}
+
 .formGroup {
   display: flex;
   flex-direction: column;
@@ -252,6 +256,84 @@
 
 .formError {
   color: #dc3545;
+}
+
+.stateDropdown {
+  position: relative;
+}
+
+.stateDropdown input {
+  width: 100%;
+}
+
+.stateDropdownList {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 2px solid rgba(191, 183, 176, 0.6);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(203, 172, 109, 0.2);
+  margin-top: -2px;
+}
+
+.stateDropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.2rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-bottom: 1px solid rgba(191, 183, 176, 0.2);
+}
+
+.stateDropdownItem:last-child {
+  border-bottom: none;
+}
+
+.stateDropdownItem:hover,
+.stateDropdownItemHighlighted {
+  background: linear-gradient(135deg, rgba(203, 172, 109, 0.1) 0%, rgba(203, 172, 109, 0.05) 100%);
+  color: var(--sbd-brown);
+}
+
+.stateDropdownValue {
+  font-weight: 600;
+  color: var(--sbd-gold);
+  min-width: 40px;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.stateDropdownLabel {
+  flex: 1;
+  color: var(--sbd-brown);
+  font-size: 15px;
+}
+
+.stateDropdownList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.stateDropdownList::-webkit-scrollbar-track {
+  background: rgba(191, 183, 176, 0.1);
+  border-radius: 4px;
+}
+
+.stateDropdownList::-webkit-scrollbar-thumb {
+  background: rgba(203, 172, 109, 0.5);
+  border-radius: 4px;
+}
+
+.stateDropdownList::-webkit-scrollbar-thumb:hover {
+  background: rgba(203, 172, 109, 0.7);
 }
 
 .downloadBtn {

@@ -1,7 +1,60 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import styles from './NewsletterCTA.module.css';
+
+const US_STATES = [
+  { value: 'AL', label: 'Alabama' },
+  { value: 'AK', label: 'Alaska' },
+  { value: 'AZ', label: 'Arizona' },
+  { value: 'AR', label: 'Arkansas' },
+  { value: 'CA', label: 'California' },
+  { value: 'CO', label: 'Colorado' },
+  { value: 'CT', label: 'Connecticut' },
+  { value: 'DE', label: 'Delaware' },
+  { value: 'FL', label: 'Florida' },
+  { value: 'GA', label: 'Georgia' },
+  { value: 'HI', label: 'Hawaii' },
+  { value: 'ID', label: 'Idaho' },
+  { value: 'IL', label: 'Illinois' },
+  { value: 'IN', label: 'Indiana' },
+  { value: 'IA', label: 'Iowa' },
+  { value: 'KS', label: 'Kansas' },
+  { value: 'KY', label: 'Kentucky' },
+  { value: 'LA', label: 'Louisiana' },
+  { value: 'ME', label: 'Maine' },
+  { value: 'MD', label: 'Maryland' },
+  { value: 'MA', label: 'Massachusetts' },
+  { value: 'MI', label: 'Michigan' },
+  { value: 'MN', label: 'Minnesota' },
+  { value: 'MS', label: 'Mississippi' },
+  { value: 'MO', label: 'Missouri' },
+  { value: 'MT', label: 'Montana' },
+  { value: 'NE', label: 'Nebraska' },
+  { value: 'NV', label: 'Nevada' },
+  { value: 'NH', label: 'New Hampshire' },
+  { value: 'NJ', label: 'New Jersey' },
+  { value: 'NM', label: 'New Mexico' },
+  { value: 'NY', label: 'New York' },
+  { value: 'NC', label: 'North Carolina' },
+  { value: 'ND', label: 'North Dakota' },
+  { value: 'OH', label: 'Ohio' },
+  { value: 'OK', label: 'Oklahoma' },
+  { value: 'OR', label: 'Oregon' },
+  { value: 'PA', label: 'Pennsylvania' },
+  { value: 'RI', label: 'Rhode Island' },
+  { value: 'SC', label: 'South Carolina' },
+  { value: 'SD', label: 'South Dakota' },
+  { value: 'TN', label: 'Tennessee' },
+  { value: 'TX', label: 'Texas' },
+  { value: 'UT', label: 'Utah' },
+  { value: 'VT', label: 'Vermont' },
+  { value: 'VA', label: 'Virginia' },
+  { value: 'WA', label: 'Washington' },
+  { value: 'WV', label: 'West Virginia' },
+  { value: 'WI', label: 'Wisconsin' },
+  { value: 'WY', label: 'Wyoming' },
+];
 
 export default function NewsletterCTA() {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,6 +74,11 @@ export default function NewsletterCTA() {
     zip: '',
     newsletter: false,
   });
+  const [stateDropdownOpen, setStateDropdownOpen] = useState(false);
+  const [stateSearchValue, setStateSearchValue] = useState('');
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const stateDropdownRef = useRef<HTMLDivElement>(null);
+  const stateInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -78,6 +136,9 @@ export default function NewsletterCTA() {
     setStep('choice');
     setSubmitStatus('idle');
     setIsSubmitting(false);
+    setStateSearchValue('');
+    setStateDropdownOpen(false);
+    setHighlightedIndex(-1);
   };
 
   const handleChoice = (choice: 'digital' | 'physical') => {
@@ -92,6 +153,99 @@ export default function NewsletterCTA() {
       [e.target.name]: value,
     });
   };
+
+  const filteredStates = US_STATES.filter(
+    (state) =>
+      state.label.toLowerCase().includes(stateSearchValue.toLowerCase()) ||
+      state.value.toLowerCase().includes(stateSearchValue.toLowerCase())
+  );
+
+  const handleStateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setStateSearchValue(value);
+    setStateDropdownOpen(true);
+    setHighlightedIndex(-1);
+    
+    // If exact match found, auto-select it
+    const exactMatch = US_STATES.find(
+      (state) =>
+        state.label.toLowerCase() === value.toLowerCase() ||
+        state.value.toLowerCase() === value.toLowerCase()
+    );
+    if (exactMatch) {
+      setFormData({ ...formData, state: exactMatch.value });
+    } else {
+      setFormData({ ...formData, state: value });
+    }
+  };
+
+  const handleStateSelect = (state: { value: string; label: string }) => {
+    setFormData({ ...formData, state: state.value });
+    setStateSearchValue(state.label);
+    setStateDropdownOpen(false);
+    setHighlightedIndex(-1);
+    stateInputRef.current?.blur();
+  };
+
+  const handleStateInputFocus = () => {
+    setStateDropdownOpen(true);
+  };
+
+  const handleStateInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!stateDropdownOpen && filteredStates.length > 0) {
+      if (e.key === 'ArrowDown' || e.key === 'Enter') {
+        e.preventDefault();
+        setStateDropdownOpen(true);
+        return;
+      }
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setHighlightedIndex((prev) =>
+        prev < filteredStates.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : -1));
+    } else if (e.key === 'Enter' && highlightedIndex >= 0) {
+      e.preventDefault();
+      handleStateSelect(filteredStates[highlightedIndex]);
+    } else if (e.key === 'Escape') {
+      setStateDropdownOpen(false);
+      setHighlightedIndex(-1);
+      stateInputRef.current?.blur();
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        stateDropdownRef.current &&
+        !stateDropdownRef.current.contains(event.target as Node)
+      ) {
+        setStateDropdownOpen(false);
+        setHighlightedIndex(-1);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Update search value when formData.state changes externally
+  useEffect(() => {
+    if (formData.state) {
+      const state = US_STATES.find((s) => s.value === formData.state);
+      if (state) {
+        setStateSearchValue(state.label);
+      } else {
+        setStateSearchValue(formData.state);
+      }
+    } else {
+      setStateSearchValue('');
+    }
+  }, [formData.state]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,6 +275,9 @@ export default function NewsletterCTA() {
           zip: '',
           newsletter: false,
         });
+        setStateSearchValue('');
+        setStateDropdownOpen(false);
+        setHighlightedIndex(-1);
       } else {
         setSubmitStatus('error');
       }
@@ -237,7 +394,7 @@ export default function NewsletterCTA() {
                       />
                     </div>
 
-                    <div className={styles.formRow}>
+                    <div className={`${styles.formRow} ${styles.formRowThreeCol}`}>
                       <div className={styles.formGroup}>
                         <label htmlFor="ctaCity">City *</label>
                         <input
@@ -251,14 +408,38 @@ export default function NewsletterCTA() {
                       </div>
                       <div className={styles.formGroup}>
                         <label htmlFor="ctaState">State *</label>
-                        <input
-                          type="text"
-                          id="ctaState"
-                          name="state"
-                          required
-                          value={formData.state}
-                          onChange={handleChange}
-                        />
+                        <div className={styles.stateDropdown} ref={stateDropdownRef}>
+                          <input
+                            type="text"
+                            id="ctaState"
+                            name="state"
+                            required
+                            value={stateSearchValue}
+                            onChange={handleStateInputChange}
+                            onFocus={handleStateInputFocus}
+                            onKeyDown={handleStateInputKeyDown}
+                            ref={stateInputRef}
+                            autoComplete="off"
+                            placeholder="Select or type a state"
+                          />
+                          {stateDropdownOpen && filteredStates.length > 0 && (
+                            <div className={styles.stateDropdownList}>
+                              {filteredStates.map((state, index) => (
+                                <div
+                                  key={state.value}
+                                  className={`${styles.stateDropdownItem} ${
+                                    index === highlightedIndex ? styles.stateDropdownItemHighlighted : ''
+                                  }`}
+                                  onClick={() => handleStateSelect(state)}
+                                  onMouseEnter={() => setHighlightedIndex(index)}
+                                >
+                                  <span className={styles.stateDropdownValue}>{state.value}</span>
+                                  <span className={styles.stateDropdownLabel}>{state.label}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <div className={styles.formGroup}>
                         <label htmlFor="ctaZip">ZIP Code *</label>
