@@ -52,11 +52,24 @@ export async function addContactToBrevo(data: NewsletterSignupData): Promise<voi
       updateEnabled: true,
     };
     
-    // Handle newsletter subscription/unsubscription
-    const listIds = process.env.BREVO_LIST_ID ? [parseInt(process.env.BREVO_LIST_ID)] : [];
+    // Handle newsletter subscription and brochure list
+    const listIds: number[] = [];
     
-    if (listIds.length > 0 && data.newsletter === true) {
-      // Subscribe to newsletter
+    // Add to newsletter list if subscribed
+    if (data.newsletter === true) {
+      const newsletterListId = process.env.BREVO_LIST_ID;
+      if (newsletterListId) {
+        listIds.push(parseInt(newsletterListId));
+      }
+    }
+    
+    // Add to brochure list (list 5) if requesting a brochure
+    if (data.brochureType === 'digital' || data.brochureType === 'physical') {
+      const brochureListId = process.env.BREVO_BROCHURE_LIST_ID || '5';
+      listIds.push(parseInt(brochureListId));
+    }
+    
+    if (listIds.length > 0) {
       requestBody.listIds = listIds;
     }
     // Note: If newsletter is false, we'll remove from list separately after creating/updating contact

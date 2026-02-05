@@ -33,15 +33,19 @@
   justify-content: center;
   z-index: 9999;
   padding: var(--spacing-md);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .modal {
   background: linear-gradient(180deg, #fff 0%, #faf7f2 100%);
   width: 100%;
   max-width: 760px;
+  max-height: 90vh;
   border-radius: 20px;
   padding: var(--spacing-xl) var(--spacing-2xl);
   position: relative;
+  margin: auto;
   box-shadow: 
     0 30px 80px rgba(0, 0, 0, 0.35),
     0 0 0 1px rgba(203, 172, 109, 0.2),
@@ -49,6 +53,8 @@
   border: 2px solid rgba(203, 172, 109, 0.5);
   outline: 2px solid rgba(203, 172, 109, 0.2);
   outline-offset: 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .modalClose {
