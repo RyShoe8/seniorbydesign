@@ -118,11 +118,15 @@ export default function UserManagement() {
       const response = await fetch(`/api/admin/users/${id}`, {
         method: 'DELETE',
       });
+      
       if (response.ok) {
-        fetchUsers();
+        await fetchUsers();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to delete user');
       }
     } catch (error) {
-      // Following established pattern - silent error handling
+      alert('Failed to delete user. Please try again.');
     }
   };
 
