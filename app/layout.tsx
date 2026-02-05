@@ -5,17 +5,25 @@ import ConditionalLayout from '@/components/ConditionalLayout'
 import Analytics from '@/components/Analytics'
 import { generateSEOMetadata, JSONLDSchema, OrganizationSchema, WebSiteSchema } from '@/components/SEO'
 
-export const metadata: Metadata = generateSEOMetadata({
-  title: 'Senior By Design - Soul Warming Interiors',
-  description: 'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.',
-  url: '/',
-  type: 'website',
-  icons: {
-    icon: '/images/SBD Logo.webp',
-    shortcut: '/images/SBD Logo.webp',
-    apple: '/images/SBD Logo.webp',
+export const metadata: Metadata = {
+  ...generateSEOMetadata({
+    title: 'Senior By Design - Soul Warming Interiors',
+    description: 'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.',
+    url: '/',
+    type: 'website',
+    icons: {
+      icon: '/images/SBD Logo.webp',
+      shortcut: '/images/SBD Logo.webp',
+      apple: '/images/SBD Logo.webp',
+    },
+  }),
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
   },
-})
+  themeColor: '#CBB86D',
+}
 
 export default function RootLayout({
   children,

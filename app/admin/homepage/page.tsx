@@ -571,9 +571,26 @@ export default function HomepageManagement() {
             padding: var(--spacing-xs);
           }
 
+          .testimonial-box {
+            padding: var(--spacing-xs);
+          }
+
+          .testimonial-review {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .testimonial-author {
+            padding-top: var(--spacing-xs);
+            margin-top: var(--spacing-xs);
+          }
+
           .testimonial-actions {
             margin-top: var(--spacing-xs);
             padding-top: var(--spacing-xs);
+          }
+
+          .partner-box {
+            padding: var(--spacing-xs);
           }
         }
 

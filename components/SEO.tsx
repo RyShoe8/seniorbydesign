@@ -129,8 +129,10 @@ export function OrganizationSchema() {
         contactType: 'Customer Service',
         areaServed: 'US',
         availableLanguage: 'English',
+        email: 'info@seniorbydesign.com',
       },
     ],
+    email: 'info@seniorbydesign.com',
     sameAs: [
       'https://www.facebook.com/Seniorbydesign',
       'https://www.linkedin.com/company/senior-by-design/',
@@ -348,7 +350,9 @@ export function LocalBusinessSchema() {
     image: `${siteUrl}/images/SBD Logo.webp`,
     url: siteUrl,
     telephone: '+1-833-773-3744',
+    email: 'info@seniorbydesign.com',
     priceRange: '$$',
+    description: 'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve. Specializing in senior living communities, multifamily, and commercial interior design.',
     address: {
       '@type': 'PostalAddress',
       addressCountry: 'US',
@@ -362,6 +366,10 @@ export function LocalBusinessSchema() {
       'https://www.linkedin.com/company/senior-by-design/',
       'https://www.youtube.com/@SeniorByDesign',
     ],
+    areaServed: {
+      '@type': 'Country',
+      name: 'United States',
+    },
   };
 }
 
