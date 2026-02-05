@@ -419,6 +419,18 @@ export default function BrochureManagement() {
           margin-bottom: var(--spacing-xl);
         }
 
+        @media (max-width: 768px) {
+          .admin-form {
+            padding: var(--spacing-xs);
+            border-radius: 4px;
+            margin-bottom: var(--spacing-md);
+          }
+
+          .chart-wrapper {
+            padding: var(--spacing-xs);
+          }
+        }
+
         .form-section {
           margin-bottom: var(--spacing-xl);
         }

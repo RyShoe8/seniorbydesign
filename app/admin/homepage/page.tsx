@@ -551,6 +551,19 @@ export default function HomepageManagement() {
           margin-bottom: var(--spacing-xl);
         }
 
+        @media (max-width: 768px) {
+          .admin-form {
+            padding: var(--spacing-xs);
+            border-radius: 4px;
+            margin-bottom: var(--spacing-md);
+          }
+
+          .testimonial-card,
+          .partner-card {
+            padding: var(--spacing-xs);
+          }
+        }
+
         .form-section {
           margin-bottom: var(--spacing-xl);
           padding-bottom: var(--spacing-lg);

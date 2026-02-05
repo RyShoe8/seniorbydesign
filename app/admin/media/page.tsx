@@ -251,6 +251,20 @@ export default function MediaManagement() {
           transition: box-shadow 0.3s ease;
         }
 
+        @media (max-width: 768px) {
+          .media-card {
+            border-radius: 4px;
+          }
+
+          .media-info {
+            padding: var(--spacing-xs);
+          }
+
+          .media-edit-form {
+            padding: var(--spacing-xs);
+          }
+        }
+
         .media-card:hover {
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }

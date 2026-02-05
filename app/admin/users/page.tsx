@@ -297,6 +297,17 @@ export default function UserManagement() {
           margin-top: var(--spacing-md);
         }
 
+        @media (max-width: 768px) {
+          .users-table {
+            padding: var(--spacing-xs);
+            border-radius: 4px;
+          }
+
+          .user-card {
+            padding: var(--spacing-xs);
+          }
+        }
+
         .users-table-desktop {
           width: 100%;
           border-collapse: collapse;
@@ -457,6 +468,11 @@ export default function UserManagement() {
 
           .admin-header .btn {
             width: 100%;
+          }
+
+          .edit-form {
+            padding: var(--spacing-xs);
+            border-radius: 4px;
           }
 
           .form-group input,

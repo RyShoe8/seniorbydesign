@@ -258,7 +258,7 @@ export default function AdminLayout({
           }
 
           .admin-main {
-            padding: var(--spacing-md);
+            padding: var(--spacing-sm) var(--spacing-xs);
             width: 100%;
           }
         }

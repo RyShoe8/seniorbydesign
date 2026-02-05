@@ -352,6 +352,17 @@ export default function ResourcesManagement() {
           max-width: 100%;
         }
 
+        @media (max-width: 768px) {
+          .admin-table-container {
+            padding: var(--spacing-xs);
+            border-radius: 4px;
+          }
+
+          .resource-card {
+            padding: var(--spacing-xs);
+          }
+        }
+
         .admin-table-desktop {
           width: 100%;
           border-collapse: collapse;

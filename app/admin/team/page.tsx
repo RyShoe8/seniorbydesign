@@ -480,6 +480,17 @@ export default function TeamManagement() {
           overflow-x: auto;
         }
 
+        @media (max-width: 768px) {
+          .admin-table-container {
+            padding: var(--spacing-xs);
+            border-radius: 4px;
+          }
+
+          .team-card {
+            padding: var(--spacing-xs);
+          }
+        }
+
         .admin-table-desktop {
           width: 100%;
           border-collapse: collapse;

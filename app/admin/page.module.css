@@ -27,11 +27,11 @@
 @media (max-width: 768px) {
   .dashboardStats {
     grid-template-columns: 1fr;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-xs);
   }
 
   .statCard {
-    padding: var(--spacing-sm);
+    padding: var(--spacing-xs);
   }
 
   .statCard h3 {
