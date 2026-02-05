@@ -73,6 +73,7 @@ export default function NewsletterCTA() {
     city: '',
     state: '',
     zip: '',
+    website: '',
     newsletter: false,
   });
   const [stateDropdownOpen, setStateDropdownOpen] = useState(false);
@@ -138,6 +139,17 @@ export default function NewsletterCTA() {
     setStep('choice');
     setSubmitStatus('idle');
     setIsSubmitting(false);
+    setFormData({
+      firstName: '',
+      lastName: '',
+      email: '',
+      address: '',
+      city: '',
+      state: '',
+      zip: '',
+      website: '',
+      newsletter: false,
+    });
     setStateSearchValue('');
     setStateDropdownOpen(false);
     setHighlightedIndex(-1);
@@ -312,6 +324,7 @@ export default function NewsletterCTA() {
           city: '',
           state: '',
           zip: '',
+          website: '',
           newsletter: false,
         });
         setStateSearchValue('');
@@ -407,6 +420,32 @@ export default function NewsletterCTA() {
                     value={formData.email}
                     onChange={handleChange}
                     onFocus={handleInputFocus}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="ctaZip">ZIP Code *</label>
+                  <input
+                    type="text"
+                    id="ctaZip"
+                    name="zip"
+                    required
+                    value={formData.zip}
+                    onChange={handleChange}
+                    onFocus={handleInputFocus}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="ctaWebsite">Your Website</label>
+                  <input
+                    type="url"
+                    id="ctaWebsite"
+                    name="website"
+                    value={formData.website}
+                    onChange={handleChange}
+                    onFocus={handleInputFocus}
+                    placeholder="https://example.com"
                   />
                 </div>
 

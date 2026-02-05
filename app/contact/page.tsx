@@ -11,6 +11,8 @@ export default function Contact() {
     phone: '',
     email: '',
     company: '',
+    zip: '',
+    website: '',
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,6 +58,8 @@ export default function Contact() {
           phone: '',
           email: '',
           company: '',
+          zip: '',
+          website: '',
           message: '',
         });
       } else {
@@ -154,6 +158,31 @@ export default function Contact() {
                     value={formData.company}
                     onChange={handleChange}
                   />
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="zip">ZIP Code *</label>
+                    <input
+                      type="text"
+                      id="zip"
+                      name="zip"
+                      required
+                      value={formData.zip}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="website">Your Website</label>
+                    <input
+                      type="url"
+                      id="website"
+                      name="website"
+                      value={formData.website}
+                      onChange={handleChange}
+                      placeholder="https://example.com"
+                    />
+                  </div>
                 </div>
 
                 <div className={styles.formGroup}>

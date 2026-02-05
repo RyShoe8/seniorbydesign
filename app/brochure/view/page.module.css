@@ -6,20 +6,20 @@
   bottom: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.95);
+  background: rgba(0, 0, 0, 0.98);
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  overflow: hidden;
 }
 
 .closeButton {
   position: fixed;
   top: var(--spacing-md);
   right: var(--spacing-md);
-  background: rgba(255, 255, 255, 0.9);
-  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
   width: 48px;
   height: 48px;
@@ -29,28 +29,59 @@
   cursor: pointer;
   z-index: 10000;
   transition: all 0.3s ease;
-  color: var(--sbd-brown);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
 }
 
 .closeButton:hover {
-  background: #fff;
-  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.2);
   color: var(--sbd-gold);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  transform: scale(1.1);
+  border-color: var(--sbd-gold);
 }
 
-.pdfFrame {
+.pagesContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
   width: 100%;
   height: 100%;
-  border: none;
-  background: #fff;
+  padding: 0;
 }
 
-/* Mobile: Full screen */
+.pageWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pageCanvas {
+  display: block;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Mobile: Single page */
 @media (max-width: 768px) {
-  .viewerContainer {
+  .pagesContainer {
     padding: 0;
+    gap: 0;
+  }
+
+  .pageWrapper {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .pageCanvas {
+    width: 100vw;
+    height: 100vh;
+    box-shadow: none;
   }
 
   .closeButton {
@@ -61,14 +92,151 @@
   }
 }
 
-/* Desktop: Maximized with padding */
+/* Desktop: Two pages side-by-side */
 @media (min-width: 769px) {
-  .viewerContainer {
-    padding: var(--spacing-lg);
+  .pagesContainer {
+    padding: 40px;
   }
 
-  .pdfFrame {
-    border-radius: 8px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  .pageCanvas {
+    border-radius: 4px;
   }
+}
+
+/* Navigation */
+.navigation {
+  position: fixed;
+  bottom: var(--spacing-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 0;
+}
+
+.navButton:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--sbd-gold);
+  border-color: var(--sbd-gold);
+  transform: scale(1.1);
+}
+
+.navButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pageIndicator {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  min-width: 60px;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+/* Mobile navigation adjustments */
+@media (max-width: 768px) {
+  .navigation {
+    bottom: var(--spacing-md);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .navButton {
+    width: 40px;
+    height: 40px;
+  }
+
+  .pageIndicator {
+    font-size: 13px;
+    min-width: 50px;
+  }
+}
+
+/* Loading state */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+}
+
+.loader {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--sbd-gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingText {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  font-family: var(--font-body);
+}
+
+/* Error state */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl);
+}
+
+.errorText {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 18px;
+  font-family: var(--font-body);
+  text-align: center;
+}
+
+.retryButton {
+  background: var(--sbd-gold);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retryButton:hover {
+  background: var(--sbd-brown);
+  transform: translateY(-2px);
 }

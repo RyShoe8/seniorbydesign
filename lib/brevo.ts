@@ -16,6 +16,7 @@ export interface NewsletterSignupData {
   city?: string;
   state?: string;
   zip?: string;
+  website?: string;
   newsletter?: boolean;
   brochureType?: 'digital' | 'physical';
 }
@@ -24,6 +25,8 @@ export interface ContactFormData {
   name: string;
   email: string;
   phone?: string;
+  website?: string;
+  zip?: string;
   message: string;
 }
 
@@ -39,11 +42,22 @@ export async function addContactToBrevo(data: NewsletterSignupData): Promise<voi
     
     if (data.firstName) attributes.FIRSTNAME = data.firstName;
     if (data.lastName) attributes.LASTNAME = data.lastName;
-    if (data.address) attributes.ADDRESS = data.address;
+    if (data.address) attributes.STREET_ADDRESS = data.address;
     if (data.city) attributes.CITY = data.city;
-    if (data.state) attributes.STATE = data.state;
-    if (data.zip) attributes.ZIP = data.zip;
+    if (data.state) {
+      attributes.STATE = data.state;
+      attributes.COUNTRY = 'United States';
+    }
+    if (data.zip) attributes.ZIP_CODE = data.zip;
+    if (data.website) attributes.WEB_PAGE = data.website;
     if (data.brochureType) attributes.BROCHURE_TYPE = data.brochureType;
+    
+    // Set DATE_ADDED in DD-MM-YYYY format
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    attributes.DATE_ADDED = `${day}-${month}-${year}`;
     
     // Prepare request body
     const requestBody: any = {
@@ -200,10 +214,19 @@ export async function addContactFormToBrevo(data: ContactFormData): Promise<void
       attributes.SMS = data.phone; // Standard Brevo phone field
       attributes.LANDLINE_NUMBER = data.phone; // Landline number field
     }
+    if (data.website) attributes.WEB_PAGE = data.website;
+    if (data.zip) attributes.ZIP_CODE = data.zip;
     // Store the message in a custom attribute
     attributes.MESSAGE = data.message;
     attributes.CONTACT_FORM_SUBMISSION = 'true';
     attributes.SUBMISSION_DATE = new Date().toISOString();
+    
+    // Set DATE_ADDED in DD-MM-YYYY format
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    attributes.DATE_ADDED = `${day}-${month}-${year}`;
     
     // Prepare request body
     const requestBody: any = {

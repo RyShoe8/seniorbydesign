@@ -17,6 +17,7 @@ export default function NewsletterAndBrochure() {
     city: '',
     state: '',
     zip: '',
+    website: '',
     newsletter: false,
     brochureType: 'digital' as 'digital' | 'physical',
   });
@@ -76,6 +77,7 @@ export default function NewsletterAndBrochure() {
           city: '',
           state: '',
           zip: '',
+          website: '',
           newsletter: false,
           brochureType: 'digital',
         });
@@ -160,6 +162,30 @@ export default function NewsletterAndBrochure() {
                     required
                     value={formData.email}
                     onChange={handleChange}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="zip">ZIP Code *</label>
+                  <input
+                    type="text"
+                    id="zip"
+                    name="zip"
+                    required
+                    value={formData.zip}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="website">Your Website</label>
+                  <input
+                    type="url"
+                    id="website"
+                    name="website"
+                    value={formData.website}
+                    onChange={handleChange}
+                    placeholder="https://example.com"
                   />
                 </div>
 

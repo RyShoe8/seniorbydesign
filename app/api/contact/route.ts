@@ -9,6 +9,8 @@ interface ContactFormRequestBody {
   phone?: string;
   email: string;
   company?: string;
+  zip?: string;
+  website?: string;
   message: string;
 }
 
@@ -29,6 +31,8 @@ export async function POST(request: Request) {
       name: `${body.firstName} ${body.lastName}`.trim(),
       email: body.email,
       phone: body.phone,
+      zip: body.zip,
+      website: body.website,
       message: body.message,
     };
     
