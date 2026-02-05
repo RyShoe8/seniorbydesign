@@ -432,14 +432,14 @@
 .brochureButton {
   position: relative;
   overflow: hidden;
-  min-height: 200px;
+  min-height: 240px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  margin: 0 auto;
+  margin: var(--spacing-md) auto 0;
   width: 100%;
-  max-width: 600px;
+  max-width: 700px;
 }
 
 .brochureButton::before {
@@ -470,7 +470,7 @@
 
 @media (max-width: 768px) {
   .brochureButton {
-    min-height: 160px;
+    min-height: 180px;
     padding: 1.5rem;
   }
 
