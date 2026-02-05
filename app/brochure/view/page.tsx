@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import styles from './page.module.css';
 
 // Dynamically import PDF.js only on client side
@@ -22,9 +21,12 @@ interface PageSize {
   scale: number;
 }
 
+// Type for PDF document (using any since pdfjs-dist types aren't available at compile time)
+type PDFDocument = any;
+
 export default function BrochureViewer() {
   const router = useRouter();
-  const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
+  const [pdfDoc, setPdfDoc] = useState<PDFDocument | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
