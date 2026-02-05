@@ -440,6 +440,11 @@
   margin: var(--spacing-md) auto 0;
   width: 100%;
   max-width: 700px;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  outline: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .brochureButton::before {
@@ -466,6 +471,12 @@
 .brochureButton:hover .brochureButtonText {
   transform: translateY(-2px);
   text-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+.brochureButton:active,
+.brochureButton:focus {
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @media (max-width: 768px) {
