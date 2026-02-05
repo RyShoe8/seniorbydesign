@@ -429,6 +429,53 @@
   }
 }
 
+.brochureButton {
+  position: relative;
+  overflow: hidden;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.brochureButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
+  z-index: 1;
+}
+
+.brochureButtonText {
+  position: relative;
+  z-index: 2;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.brochureButton:hover .brochureButtonText {
+  transform: translateY(-2px);
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+@media (max-width: 768px) {
+  .brochureButton {
+    min-height: 160px;
+    padding: 1.5rem;
+  }
+
+  .brochureButtonText {
+    font-size: 18px;
+  }
+}
+
 
 
 

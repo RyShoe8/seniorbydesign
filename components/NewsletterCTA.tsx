@@ -4,6 +4,17 @@ import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import styles from './NewsletterCTA.module.css';
 
+// Dynamically import PDF.js only on client side
+let pdfjsLib: any = null;
+
+const loadPDFJS = async () => {
+  if (typeof window !== 'undefined' && !pdfjsLib) {
+    pdfjsLib = await import('pdfjs-dist');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+  }
+  return pdfjsLib;
+};
+
 const US_STATES = [
   { value: 'AL', label: 'Alabama' },
   { value: 'AK', label: 'Alaska' },
@@ -83,6 +94,7 @@ export default function NewsletterCTA() {
   const stateInputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const submitButtonRef = useRef<HTMLButtonElement>(null);
+  const [brochurePreview, setBrochurePreview] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -100,6 +112,43 @@ export default function NewsletterCTA() {
     };
 
     fetchSettings();
+  }, []);
+
+  // Load brochure preview (first page)
+  useEffect(() => {
+    const loadBrochurePreview = async () => {
+      try {
+        const pdfjs = await loadPDFJS();
+        if (!pdfjs) return;
+
+        const loadingTask = pdfjs.getDocument('/files/SBD Interactive Brochure.pdf');
+        const pdf = await loadingTask.promise;
+        const page = await pdf.getPage(1);
+        
+        // Render at a reasonable size for button preview
+        const viewport = page.getViewport({ scale: 0.5 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        if (!context) return;
+
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        await page.render({
+          canvasContext: context,
+          viewport: viewport,
+        }).promise;
+
+        // Convert to data URL
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        setBrochurePreview(dataUrl);
+      } catch (error) {
+        console.error('Error loading brochure preview:', error);
+        // Silently fail - button will just show without preview
+      }
+    };
+
+    loadBrochurePreview();
   }, []);
 
   useEffect(() => {
@@ -394,8 +443,19 @@ export default function NewsletterCTA() {
         <h3 className={styles.newsletterCtaHeading}>
           See how we design spaces residents love and operators trust.
         </h3>
-        <button type="button" className="btn" onClick={openModal}>
-          Get the brochure
+        <button 
+          type="button" 
+          className={`btn ${styles.brochureButton}`}
+          onClick={openModal}
+          style={brochurePreview ? {
+            backgroundImage: `url(${brochurePreview})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            position: 'relative',
+          } : {}}
+        >
+          <span className={styles.brochureButtonText}>Get the brochure</span>
         </button>
       </div>
 
