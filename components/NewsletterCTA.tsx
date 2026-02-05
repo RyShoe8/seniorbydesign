@@ -79,6 +79,7 @@ export default function NewsletterCTA() {
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const stateDropdownRef = useRef<HTMLDivElement>(null);
   const stateInputRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -247,6 +248,43 @@ export default function NewsletterCTA() {
     }
   }, [formData.state]);
 
+  // Handle input focus to scroll into view (for mobile keyboard)
+  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Delay to ensure keyboard has opened and viewport has adjusted
+    setTimeout(() => {
+      const input = e.target;
+      const modal = modalRef.current;
+      if (modal && input) {
+        // Use scrollIntoView with options for better mobile support
+        input.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest',
+        });
+        
+        // Also ensure the modal itself is scrolled if needed
+        // This handles cases where the modal container needs to scroll
+        const inputRect = input.getBoundingClientRect();
+        const modalRect = modal.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        
+        // Check if input is below the visible viewport (accounting for keyboard)
+        // The keyboard typically takes up about 40-50% of viewport on mobile
+        const estimatedKeyboardHeight = viewportHeight * 0.4;
+        const availableHeight = viewportHeight - estimatedKeyboardHeight;
+        
+        if (inputRect.bottom > availableHeight) {
+          // Input is hidden by keyboard, scroll modal to bring it into view
+          const scrollAmount = inputRect.bottom - availableHeight + 20; // 20px padding
+          modal.scrollBy({
+            top: scrollAmount,
+            behavior: 'smooth',
+          });
+        }
+      }
+    }, 350); // Delay to account for keyboard animation
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -310,7 +348,7 @@ export default function NewsletterCTA() {
             }
           }}
         >
-          <div className={styles.modal}>
+          <div className={styles.modal} ref={modalRef}>
             <button type="button" className={styles.modalClose} onClick={closeModal} aria-label="Close">
               ×
             </button>
@@ -341,6 +379,7 @@ export default function NewsletterCTA() {
                       required
                       value={formData.firstName}
                       onChange={handleChange}
+                      onFocus={handleInputFocus}
                     />
                   </div>
                   <div className={styles.formGroup}>
@@ -352,6 +391,7 @@ export default function NewsletterCTA() {
                       required
                       value={formData.lastName}
                       onChange={handleChange}
+                      onFocus={handleInputFocus}
                     />
                   </div>
                 </div>
@@ -365,6 +405,7 @@ export default function NewsletterCTA() {
                     required
                     value={formData.email}
                     onChange={handleChange}
+                    onFocus={handleInputFocus}
                   />
                 </div>
 
@@ -391,6 +432,7 @@ export default function NewsletterCTA() {
                         required
                         value={formData.address}
                         onChange={handleChange}
+                        onFocus={handleInputFocus}
                       />
                     </div>
 
@@ -404,6 +446,7 @@ export default function NewsletterCTA() {
                           required
                           value={formData.city}
                           onChange={handleChange}
+                          onFocus={handleInputFocus}
                         />
                       </div>
                       <div className={styles.formGroup}>
@@ -416,7 +459,10 @@ export default function NewsletterCTA() {
                             required
                             value={stateSearchValue}
                             onChange={handleStateInputChange}
-                            onFocus={handleStateInputFocus}
+                            onFocus={(e) => {
+                              handleStateInputFocus();
+                              handleInputFocus(e);
+                            }}
                             onKeyDown={handleStateInputKeyDown}
                             ref={stateInputRef}
                             autoComplete="off"
@@ -450,6 +496,7 @@ export default function NewsletterCTA() {
                           required
                           value={formData.zip}
                           onChange={handleChange}
+                          onFocus={handleInputFocus}
                         />
                       </div>
                     </div>

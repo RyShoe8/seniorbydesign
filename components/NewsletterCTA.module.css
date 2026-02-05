@@ -55,6 +55,8 @@
   outline-offset: 8px;
   overflow-y: auto;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 .modalClose {
@@ -357,10 +359,19 @@
 }
 
 @media (max-width: 768px) {
+  .modalOverlay {
+    align-items: flex-start;
+    padding-top: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+  }
+
   .modal {
     padding: var(--spacing-lg);
     border-radius: 16px;
     outline-offset: 4px;
+    max-height: calc(100vh - var(--spacing-md) * 2);
+    margin-top: 0;
+    margin-bottom: 0;
   }
 
   .modalStep h4 {
