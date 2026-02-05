@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getPortfolioCategories, getProjects } from '../actions';
 import PortfolioMap from '@/components/PortfolioMap';
+import NewsletterCTA from '@/components/NewsletterCTA';
 import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
 import styles from './page.module.css';
 
@@ -59,8 +60,11 @@ export default async function Portfolio() {
         </div>
       </section>
 
+      <NewsletterCTA />
+
       <section className="portfolio-categories section-padding">
         <div className="container">
+          <h2 className={styles.sectionHeading}>Project Categories</h2>
           <div className={styles.portfolioGrid}>
             {categories.map((category) => {
               const displayName = category.name || '';

@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { getTeamMembers } from '../actions';
 import Image from 'next/image';
+import NewsletterCTA from '@/components/NewsletterCTA';
 import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
 import styles from './page.module.css';
 
@@ -107,6 +108,8 @@ export default async function Team() {
           </div>
         </div>
       </section>
+
+      <NewsletterCTA />
     </>
   );
 }
