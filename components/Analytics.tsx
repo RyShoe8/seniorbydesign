@@ -23,6 +23,11 @@ export default function Analytics() {
         data-key="SFC+ff7C2Znl/GxFtNhNBw"
         strategy="afterInteractive"
       />
+      {/* Cookie Consent Banner */}
+      <Script
+        src="//cdn.cookie-script.com/s/b4889a02e90ed695b01129b1729fe388.js"
+        strategy="afterInteractive"
+      />
     </>
   );
 }

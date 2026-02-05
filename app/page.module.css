@@ -377,7 +377,7 @@
 
 @media (max-width: 768px) {
   .partnersTabs {
-    justify-content: flex-start;
+    justify-content: center;
     overflow-x: auto;
     padding-bottom: var(--spacing-xs);
   }
