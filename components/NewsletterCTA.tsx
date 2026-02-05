@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import Link from 'next/link';
 import styles from './NewsletterCTA.module.css';
 
 const US_STATES = [
@@ -519,13 +520,22 @@ export default function NewsletterCTA() {
               <div className={styles.modalStep}>
                 <h4>Your Brochure is Ready</h4>
                 {brochureType === 'digital' ? (
-                  <a
-                    href="/files/SBD Interactive Brochure.pdf"
-                    download="SBD Interactive Brochure.pdf"
-                    className={`btn ${styles.downloadBtn}`}
-                  >
-                    Download Brochure
-                  </a>
+                  <div className={styles.brochureActions}>
+                    <Link
+                      href="/brochure/view"
+                      className={`btn ${styles.viewBtn}`}
+                      onClick={closeModal}
+                    >
+                      View Brochure
+                    </Link>
+                    <a
+                      href="/files/SBD Interactive Brochure.pdf"
+                      download="SBD Interactive Brochure.pdf"
+                      className={`btn ${styles.downloadBtn}`}
+                    >
+                      Download Brochure
+                    </a>
+                  </div>
                 ) : (
                   <p>Thanks! Your brochure will be mailed to you shortly.</p>
                 )}
