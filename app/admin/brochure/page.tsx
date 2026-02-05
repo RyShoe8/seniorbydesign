@@ -32,18 +32,117 @@ function BrochureRequestsChart({
 }) {
   const width = 600;
   const height = 240;
-  const padding = 30;
+  const padding = 40;
+  const bottomPadding = 50;
+  const leftPadding = 50;
+  const chartWidth = width - leftPadding - padding;
+  const chartHeight = height - padding - bottomPadding;
   const maxValue = Math.max(1, ...digital, ...physical);
-  const digitalPoints = buildPoints(digital, maxValue, width, height, padding);
-  const physicalPoints = buildPoints(physical, maxValue, width, height, padding);
-  const firstLabel = labels[0];
-  const lastLabel = labels[labels.length - 1];
+  
+  // Build points with adjusted padding
+  const digitalPoints = labels.length > 0 ? labels.map((_, index) => {
+    const x = leftPadding + (chartWidth * index) / Math.max(labels.length - 1, 1);
+    const y = padding + (chartHeight * (1 - digital[index] / Math.max(maxValue, 1)));
+    return `${x},${y}`;
+  }).join(' ') : '';
+  
+  const physicalPoints = labels.length > 0 ? labels.map((_, index) => {
+    const x = leftPadding + (chartWidth * index) / Math.max(labels.length - 1, 1);
+    const y = padding + (chartHeight * (1 - physical[index] / Math.max(maxValue, 1)));
+    return `${x},${y}`;
+  }).join(' ') : '';
+
+  // Y-axis tick marks and labels
+  const yTicks = 5;
+  const yTickValues: number[] = [];
+  for (let i = 0; i <= yTicks; i++) {
+    yTickValues.push(Math.round((maxValue * i) / yTicks));
+  }
+
+  // X-axis labels (show all if 7 or fewer, otherwise show every nth)
+  const maxXLabels = 7;
+  const xLabelInterval = labels.length > maxXLabels ? Math.ceil(labels.length / maxXLabels) : 1;
 
   return (
     <div className="chart">
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Brochure requests chart">
-        <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#D6D1CA" />
-        <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="#D6D1CA" />
+        {/* Y-axis line */}
+        <line 
+          x1={leftPadding} 
+          y1={padding} 
+          x2={leftPadding} 
+          y2={height - bottomPadding} 
+          stroke="#D6D1CA" 
+          strokeWidth="2"
+        />
+        
+        {/* X-axis line */}
+        <line 
+          x1={leftPadding} 
+          y1={height - bottomPadding} 
+          x2={width - padding} 
+          y2={height - bottomPadding} 
+          stroke="#D6D1CA" 
+          strokeWidth="2"
+        />
+        
+        {/* Y-axis tick marks and labels */}
+        {yTickValues.map((value, i) => {
+          const y = padding + (chartHeight * (1 - value / Math.max(maxValue, 1)));
+          return (
+            <g key={`y-tick-${i}`}>
+              <line
+                x1={leftPadding - 5}
+                y1={y}
+                x2={leftPadding}
+                y2={y}
+                stroke="#D6D1CA"
+                strokeWidth="1"
+              />
+              <text
+                x={leftPadding - 10}
+                y={y + 4}
+                textAnchor="end"
+                fontSize="11"
+                fill="#666"
+                fontFamily="var(--font-body)"
+              >
+                {value}
+              </text>
+            </g>
+          );
+        })}
+        
+        {/* X-axis tick marks and labels */}
+        {labels.map((label, index) => {
+          if (index % xLabelInterval !== 0 && index !== labels.length - 1) return null;
+          const x = leftPadding + (chartWidth * index) / Math.max(labels.length - 1, 1);
+          return (
+            <g key={`x-tick-${index}`}>
+              <line
+                x1={x}
+                y1={height - bottomPadding}
+                x2={x}
+                y2={height - bottomPadding + 5}
+                stroke="#D6D1CA"
+                strokeWidth="1"
+              />
+              <text
+                x={x}
+                y={height - bottomPadding + 20}
+                textAnchor="middle"
+                fontSize="10"
+                fill="#666"
+                fontFamily="var(--font-body)"
+                transform={label.length > 10 ? `rotate(-45 ${x} ${height - bottomPadding + 20})` : ''}
+              >
+                {label}
+              </text>
+            </g>
+          );
+        })}
+        
+        {/* Data lines */}
         {digitalPoints && (
           <polyline
             points={digitalPoints}
@@ -61,10 +160,6 @@ function BrochureRequestsChart({
           />
         )}
       </svg>
-      <div className="chart-axis">
-        <span>{firstLabel}</span>
-        <span>{lastLabel}</span>
-      </div>
     </div>
   );
 }
@@ -77,7 +172,6 @@ export default function BrochureManagement() {
   const [isSaving, setIsSaving] = useState(false);
   const [isChartLoading, setIsChartLoading] = useState(false);
   const [chartError, setChartError] = useState('');
-  const [period, setPeriod] = useState<'day' | 'week' | 'month' | 'year'>('month');
   const [datePreset, setDatePreset] = useState<'today' | '7' | '30' | '90' | 'ytd' | 'custom'>('today');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
@@ -114,12 +208,28 @@ export default function BrochureManagement() {
   useEffect(() => {
     if (!startDate || !endDate) return;
     fetchChartData();
-  }, [period, startDate, endDate]);
+  }, [startDate, endDate]);
+
+  // Determine period based on date range
+  const getPeriod = (start: string, end: string): 'day' | 'week' | 'month' | 'year' => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays <= 1) return 'day';
+    if (diffDays <= 7) return 'day';
+    if (diffDays <= 30) return 'day';
+    if (diffDays <= 90) return 'week';
+    if (diffDays <= 365) return 'month';
+    return 'year';
+  };
 
   const fetchChartData = async () => {
     setIsChartLoading(true);
     setChartError('');
     try {
+      const period = getPeriod(startDate, endDate);
       const response = await fetch(
         `/api/admin/brochure/requests?period=${period}&start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`
       );
@@ -203,20 +313,6 @@ export default function BrochureManagement() {
           <h2>Brochure Requests</h2>
 
           <div className="chart-controls">
-            <div className="control-group">
-              <label htmlFor="period">Period</label>
-              <select
-                id="period"
-                value={period}
-                onChange={(e) => setPeriod(e.target.value as 'day' | 'week' | 'month' | 'year')}
-              >
-                <option value="day">Day</option>
-                <option value="week">Week</option>
-                <option value="month">Month</option>
-                <option value="year">Year</option>
-              </select>
-            </div>
-
             <div className="control-group">
               <label htmlFor="preset">Date Range</label>
               <select
@@ -377,13 +473,6 @@ export default function BrochureManagement() {
           display: block;
         }
 
-        .chart-axis {
-          display: flex;
-          justify-content: space-between;
-          font-size: 12px;
-          color: var(--warm-grey-3);
-          margin-top: 0.5rem;
-        }
 
         .chart-legend {
           display: flex;

@@ -87,8 +87,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Missing start or end date' }, { status: 400 });
   }
 
-  const startDate = new Date(startParam);
-  const endDate = new Date(endParam);
+  // Parse dates and ensure end date includes the full day
+  const startDate = new Date(startParam + 'T00:00:00.000Z');
+  const endDate = new Date(endParam + 'T23:59:59.999Z');
 
   if (!isValidDate(startDate) || !isValidDate(endDate)) {
     return NextResponse.json({ error: 'Invalid date range' }, { status: 400 });
@@ -107,11 +108,14 @@ export async function GET(request: Request) {
   let cursor = normalizeStart(startDate, period);
   const endCursor = normalizeStart(endDate, period);
 
-  while (cursor <= endCursor) {
+  // Ensure we always have at least one bucket, even for single-day queries
+  do {
     const label = bucketLabel(cursor, period);
     buckets[label] = { digital: 0, physical: 0 };
-    cursor = nextBucket(cursor, period);
-  }
+    const next = nextBucket(cursor, period);
+    if (next > endCursor) break;
+    cursor = next;
+  } while (cursor <= endCursor);
 
   for (const requestItem of requests) {
     const createdAt = new Date(requestItem.createdAt);
