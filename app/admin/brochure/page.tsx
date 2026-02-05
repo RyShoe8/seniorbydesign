@@ -247,7 +247,7 @@ export default function BrochureManagement() {
     } finally {
       setIsChartLoading(false);
     }
-  };
+  }, [startDate, endDate]);
 
   const fetchSettings = async () => {
     try {
