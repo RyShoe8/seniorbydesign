@@ -68,21 +68,14 @@ export default function BrochureViewer() {
       const viewport = page.getViewport({ scale: 1 });
       
       if (isMobileView) {
-        // Mobile: Use more vertical space, minimize top/bottom padding
-        // Reserve minimal space for close button and page indicator
-        const topSpace = 50; // Space for close button
-        const bottomSpace = 40; // Space for page indicator
-        const availableHeight = viewportHeight - topSpace - bottomSpace;
-        
-        // Calculate scale to maximize page size while maintaining aspect ratio
-        const widthScale = viewportWidth / viewport.width;
-        const heightScale = availableHeight / viewport.height;
-        const baseScale = Math.min(widthScale, heightScale * 1.05); // Slight preference for height
+        // Mobile: Fill full viewport width like Android native viewer
+        // Pages scale to fit width, height scales proportionally
+        const baseScale = viewportWidth / viewport.width;
         
         // Apply zoom level
         const finalScale = baseScale * zoomLevel;
         setPageSize({
-          width: viewport.width * finalScale,
+          width: viewportWidth * zoomLevel,
           height: viewport.height * finalScale,
           scale: finalScale,
         });
@@ -155,23 +148,27 @@ export default function BrochureViewer() {
       const page = await pdfDoc.getPage(pageNum);
       const viewport = page.getViewport({ scale: pageSize.scale });
       
-      // Set canvas dimensions to match viewport exactly
-      const dpr = window.devicePixelRatio || 1;
+      // Set canvas dimensions for high DPI displays (Android native quality)
+      const dpr = window.devicePixelRatio || 2; // Default to 2x for better quality
       const displayWidth = Math.floor(pageSize.width);
       const displayHeight = Math.floor(pageSize.height);
       
       canvas.width = displayWidth * dpr;
       canvas.height = displayHeight * dpr;
       
-      // Set CSS size to match display size (not accounting for DPR)
+      // Set CSS size to match display size
       canvas.style.width = `${displayWidth}px`;
       canvas.style.height = `${displayHeight}px`;
 
-      const context = canvas.getContext('2d');
+      const context = canvas.getContext('2d', { alpha: false }); // Disable alpha for better performance
       if (!context) return;
 
       // Scale context for high DPI displays
       context.scale(dpr, dpr);
+      
+      // Improve rendering quality
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = 'high';
 
       const renderContext = {
         canvasContext: context,
@@ -254,7 +251,7 @@ export default function BrochureViewer() {
     return Math.sqrt(dx * dx + dy * dy);
   };
 
-  // Swipe and pinch gesture handling for mobile
+  // Swipe and pinch gesture handling for mobile (Android native style)
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 1) {
       // Single touch - track for swipe
@@ -263,6 +260,7 @@ export default function BrochureViewer() {
       setIsZooming(false);
     } else if (e.touches.length === 2) {
       // Two touches - pinch to zoom
+      e.preventDefault();
       setIsZooming(true);
       initialDistance.current = getDistance(e.touches[0], e.touches[1]);
       initialZoom.current = zoomLevel;
@@ -271,11 +269,12 @@ export default function BrochureViewer() {
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (e.touches.length === 2 && initialDistance.current !== null) {
-      // Pinch zoom
+      // Pinch zoom - smooth and responsive like Android
       e.preventDefault();
+      e.stopPropagation();
       const currentDistance = getDistance(e.touches[0], e.touches[1]);
       const scale = currentDistance / initialDistance.current;
-      const newZoom = Math.max(0.5, Math.min(3, initialZoom.current * scale));
+      const newZoom = Math.max(0.5, Math.min(5, initialZoom.current * scale)); // Increased max zoom
       setZoomLevel(newZoom);
     }
   };
@@ -309,13 +308,13 @@ export default function BrochureViewer() {
     }
   };
 
-  // Zoom controls
+  // Zoom controls (Android native style - smoother increments)
   const handleZoomIn = () => {
-    setZoomLevel(prev => Math.min(3, prev + 0.25));
+    setZoomLevel(prev => Math.min(5, prev * 1.2)); // Multiplicative for smoother feel
   };
 
   const handleZoomOut = () => {
-    setZoomLevel(prev => Math.max(0.5, prev - 0.25));
+    setZoomLevel(prev => Math.max(0.5, prev / 1.2));
   };
 
   const handleZoomReset = () => {
