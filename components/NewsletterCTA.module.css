@@ -23,6 +23,123 @@
   margin-bottom: var(--spacing-md);
 }
 
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: var(--spacing-md);
+}
+
+.modal {
+  background: #fff;
+  width: 100%;
+  max-width: 720px;
+  border-radius: 12px;
+  padding: var(--spacing-lg);
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.modalClose {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  cursor: pointer;
+  color: var(--sbd-brown);
+}
+
+.modalStep h4 {
+  font-size: 28px;
+  color: var(--sbd-brown);
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+.choiceButtons {
+  display: grid;
+  gap: var(--spacing-sm);
+}
+
+.secondaryBtn {
+  border: 2px solid var(--sbd-gold);
+  background: transparent;
+  color: var(--sbd-brown);
+  padding: 0.75rem 1.25rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.secondaryBtn:hover {
+  background: var(--sbd-gold);
+  color: #fff;
+}
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formGroup input {
+  border: 1px solid var(--warm-grey-3);
+  border-radius: 4px;
+  padding: 0.75rem 0.9rem;
+  font-family: inherit;
+}
+
+.checkboxLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 16px;
+  color: var(--sbd-brown);
+}
+
+.formActions {
+  margin-top: var(--spacing-sm);
+}
+
+.formError {
+  color: #dc3545;
+}
+
+.downloadBtn {
+  display: inline-block;
+  margin-top: var(--spacing-sm);
+}
+
+@media (max-width: 768px) {
+  .modal {
+    padding: var(--spacing-md);
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
   .newsletterCtaHeading {
     font-size: 32px;
