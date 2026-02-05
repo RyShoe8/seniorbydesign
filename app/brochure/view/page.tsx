@@ -2,13 +2,19 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import * as pdfjsLib from 'pdfjs-dist';
+import dynamic from 'next/dynamic';
 import styles from './page.module.css';
 
-// Set up PDF.js worker
-if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-}
+// Dynamically import PDF.js only on client side
+let pdfjsLib: any = null;
+
+const loadPDFJS = async () => {
+  if (typeof window !== 'undefined' && !pdfjsLib) {
+    pdfjsLib = await import('pdfjs-dist');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+  }
+  return pdfjsLib;
+};
 
 interface PageSize {
   width: number;
@@ -41,7 +47,7 @@ export default function BrochureViewer() {
   }, []);
 
   // Calculate page size based on viewport
-  const calculatePageSize = useCallback(() => {
+  const calculatePageSize = useCallback(async () => {
     if (!pdfDoc || !containerRef.current) return;
 
     const container = containerRef.current;
@@ -49,11 +55,12 @@ export default function BrochureViewer() {
     const viewportHeight = window.innerHeight;
     const isMobileView = viewportWidth < 769;
 
-    if (isMobileView) {
-      // Mobile: Single page fills entire viewport
-      const page = pdfDoc.getPage(1);
-      page.then((p) => {
-        const viewport = p.getViewport({ scale: 1 });
+    try {
+      const page = await pdfDoc.getPage(1);
+      const viewport = page.getViewport({ scale: 1 });
+      
+      if (isMobileView) {
+        // Mobile: Single page fills entire viewport
         const scale = Math.min(
           viewportWidth / viewport.width,
           viewportHeight / viewport.height
@@ -63,19 +70,15 @@ export default function BrochureViewer() {
           height: viewport.height * scale,
           scale,
         });
-      });
-    } else {
-      // Desktop: Two pages side-by-side
-      const padding = 40;
-      const gap = 20;
-      const containerWidth = viewportWidth - padding * 2;
-      const containerHeight = viewportHeight - padding * 2;
-      const pageWidth = (containerWidth - gap) / 2;
-      const pageHeight = containerHeight;
-
-      const page = pdfDoc.getPage(1);
-      page.then((p) => {
-        const viewport = p.getViewport({ scale: 1 });
+      } else {
+        // Desktop: Two pages side-by-side
+        const padding = 40;
+        const gap = 20;
+        const containerWidth = viewportWidth - padding * 2;
+        const containerHeight = viewportHeight - padding * 2;
+        const pageWidth = (containerWidth - gap) / 2;
+        const pageHeight = containerHeight;
+        
         const scale = Math.min(
           pageWidth / viewport.width,
           pageHeight / viewport.height
@@ -85,7 +88,9 @@ export default function BrochureViewer() {
           height: viewport.height * scale,
           scale,
         });
-      });
+      }
+    } catch (err) {
+      console.error('Error calculating page size:', err);
     }
   }, [pdfDoc]);
 
@@ -95,7 +100,14 @@ export default function BrochureViewer() {
       try {
         setLoading(true);
         setError(null);
-        const loadingTask = pdfjsLib.getDocument('/files/SBD Interactive Brochure.pdf');
+        
+        // Load PDF.js library first
+        const pdfjs = await loadPDFJS();
+        if (!pdfjs) {
+          throw new Error('Failed to load PDF.js library');
+        }
+        
+        const loadingTask = pdfjs.getDocument('/files/SBD Interactive Brochure.pdf');
         const pdf = await loadingTask.promise;
         setPdfDoc(pdf);
         setTotalPages(pdf.numPages);
@@ -121,7 +133,7 @@ export default function BrochureViewer() {
 
   // Render page to canvas
   const renderPage = useCallback(async (pageNum: number, canvas: HTMLCanvasElement) => {
-    if (!pdfDoc || !canvas) return;
+    if (!pdfDoc || !canvas || pageSize.scale === 0) return;
 
     try {
       const page = await pdfDoc.getPage(pageNum);
