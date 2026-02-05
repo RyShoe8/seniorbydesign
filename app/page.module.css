@@ -263,8 +263,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-  transform: translateZ(0);
+  transform: translate3d(0, 0, 0);
   isolation: isolate;
+  position: relative;
 }
 
 .partnersTabs {
@@ -318,14 +319,13 @@
   align-items: center;
   box-sizing: border-box;
   overflow: hidden;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-font-smoothing: subpixel-antialiased;
+  transform: translate3d(0, 0, 0);
+  will-change: scroll-position;
+  -webkit-overflow-scrolling: touch;
 }
 
 .partnerLogo {
   opacity: 0.7;
-  transition: opacity 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -337,11 +337,18 @@
   overflow: hidden;
   min-width: 0;
   transform: translateZ(0);
-  will-change: opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .partnerLogo:hover {
   opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+/* Disable transitions during scroll to prevent jank */
+.partners-section:not(:hover) .partnerLogo {
+  transition: none;
 }
 
 .partnerLogo img,
