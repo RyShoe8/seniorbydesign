@@ -64,10 +64,12 @@ export default function BrochureViewer() {
       const viewport = page.getViewport({ scale: 1 });
       
       if (isMobileView) {
-        // Mobile: Single page fills entire viewport
+        // Mobile: Single page fills entire viewport (accounting for close button space)
+        const topPadding = 60; // Space for close button
+        const availableHeight = viewportHeight - topPadding;
         const scale = Math.min(
           viewportWidth / viewport.width,
-          viewportHeight / viewport.height
+          availableHeight / viewport.height
         );
         setPageSize({
           width: viewport.width * scale,
@@ -143,11 +145,21 @@ export default function BrochureViewer() {
       const page = await pdfDoc.getPage(pageNum);
       const viewport = page.getViewport({ scale: pageSize.scale });
       
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
+      // Set canvas dimensions to match viewport exactly
+      const dpr = window.devicePixelRatio || 1;
+      const displayWidth = Math.floor(viewport.width);
+      const displayHeight = Math.floor(viewport.height);
+      
+      canvas.width = displayWidth * dpr;
+      canvas.height = displayHeight * dpr;
+      canvas.style.width = `${displayWidth}px`;
+      canvas.style.height = `${displayHeight}px`;
 
       const context = canvas.getContext('2d');
       if (!context) return;
+
+      // Scale context for high DPI displays
+      context.scale(dpr, dpr);
 
       const renderContext = {
         canvasContext: context,
