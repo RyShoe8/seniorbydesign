@@ -58,6 +58,7 @@ export async function PUT(
       displayName: body.displayName !== undefined ? body.displayName : currentPartner.displayName,
       altText: body.altText !== undefined ? body.altText : currentPartner.altText,
       url: body.url !== undefined ? body.url : currentPartner.url,
+      category: body.category !== undefined ? body.category : currentPartner.category,
       order: newOrder,
       updatedAt: new Date(),
     };

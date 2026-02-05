@@ -17,6 +17,7 @@ interface Partner {
   displayName?: string;
   altText?: string;
   url?: string;
+  category?: 'Owner and Operators' | 'Architects' | 'Construction Partners';
   order: number;
 }
 
@@ -178,12 +179,14 @@ export default function HomepageManagement() {
       return;
     }
 
+    const categoryValue = formData.get('category') as string;
     const partnerData = {
       name: formData.get('displayName') as string,
       logo: logo,
       displayName: formData.get('displayName') as string,
       altText: formData.get('altText') as string,
       url: formData.get('url') as string || '',
+      category: categoryValue ? categoryValue : undefined,
       order: parseInt(formData.get('order') as string) || partners.length + 1,
     };
 
@@ -325,6 +328,19 @@ export default function HomepageManagement() {
                     defaultValue={editingPartner?.url || ''}
                     placeholder="https://example.com"
                   />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="category">Category (optional)</label>
+                  <select
+                    id="category"
+                    name="category"
+                    defaultValue={editingPartner?.category || ''}
+                  >
+                    <option value="">Uncategorized</option>
+                    <option value="Owner and Operators">Owner and Operators</option>
+                    <option value="Architects">Architects</option>
+                    <option value="Construction Partners">Construction Partners</option>
+                  </select>
                 </div>
                 <div className="form-group">
                   <label htmlFor="order">Display Order *</label>

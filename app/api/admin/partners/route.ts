@@ -49,6 +49,7 @@ export async function POST(request: Request) {
       displayName: body.displayName || '',
       altText: body.altText || '',
       url: body.url || '',
+      category: body.category || undefined,
       order: newOrder,
       createdAt: new Date(),
       updatedAt: new Date(),

@@ -100,6 +100,7 @@ export interface Partner {
   displayName?: string;
   altText?: string;
   url?: string;
+  category?: 'Owner and Operators' | 'Architects' | 'Construction Partners';
   order: number;
   createdAt: Date;
   updatedAt: Date;

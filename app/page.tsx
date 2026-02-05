@@ -4,6 +4,7 @@ import Link from 'next/link';
 import NewsletterCTA from '@/components/NewsletterCTA';
 import TestimonialsCarousel from '@/components/TestimonialsCarousel';
 import PortfolioCarousel from '@/components/PortfolioCarousel';
+import PartnersTabs from '@/components/PartnersTabs';
 import { getHomepageContent, getPortfolioCategories, getPartners } from './actions';
 import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
 import styles from './page.module.css';
@@ -101,39 +102,12 @@ export default async function Home() {
         <div className="container">
           <h2 className={`${styles.sectionHeading} text-center`}>You&apos;re In Good Hands</h2>
           {partners && Array.isArray(partners) && partners.length > 0 ? (
-            <div className={styles.partnersGrid}>
-              {partners.map((partner) => {
-                if (!partner || !partner.logo) return null;
-                const logoUrl = partner.logo;
-                const altText = partner.altText || partner.displayName || partner.name || 'Partner logo';
-                
-                return (
-                  <div key={partner._id?.toString()} className={styles.partnerLogo}>
-                    {partner.url ? (
-                      <a href={partner.url} target="_blank" rel="noopener noreferrer">
-                        <Image
-                          src={logoUrl}
-                          alt={altText}
-                          width={320}
-                          height={180}
-                          style={{ maxWidth: '100%', maxHeight: '180px', width: 'auto', height: 'auto', objectFit: 'contain' }}
-                          unoptimized={logoUrl.startsWith('http')}
-                        />
-                      </a>
-                    ) : (
-                      <Image
-                        src={logoUrl}
-                        alt={altText}
-                        width={320}
-                        height={180}
-                        style={{ maxWidth: '100%', maxHeight: '180px', width: 'auto', height: 'auto', objectFit: 'contain' }}
-                        unoptimized={logoUrl.startsWith('http')}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            <PartnersTabs
+              partners={partners.map((partner) => ({
+                ...partner,
+                _id: partner._id?.toString(),
+              }))}
+            />
           ) : (
             <p className="text-center" style={{ color: 'var(--warm-grey-3)', padding: 'var(--spacing-lg)' }}>
               No partners added yet. Add partner logos in the admin panel.
