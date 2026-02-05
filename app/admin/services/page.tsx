@@ -487,6 +487,18 @@ export default function ServicesManagement() {
           .service-card {
             padding: var(--spacing-xs);
           }
+
+          .service-card-content {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .service-card-field {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .service-card-label {
+            margin-bottom: 0.125rem;
+          }
         }
 
         .admin-table-desktop {

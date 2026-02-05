@@ -306,6 +306,18 @@ export default function UserManagement() {
           .user-card {
             padding: var(--spacing-xs);
           }
+
+          .user-card-content {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .user-card-field {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .user-card-label {
+            margin-bottom: 0.125rem;
+          }
         }
 
         .users-table-desktop {

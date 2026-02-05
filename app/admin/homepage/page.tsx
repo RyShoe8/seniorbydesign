@@ -562,6 +562,19 @@ export default function HomepageManagement() {
           .partner-card {
             padding: var(--spacing-xs);
           }
+
+          .testimonial-box {
+            padding: var(--spacing-xs);
+          }
+
+          .testimonial-form-box {
+            padding: var(--spacing-xs);
+          }
+
+          .testimonial-actions {
+            margin-top: var(--spacing-xs);
+            padding-top: var(--spacing-xs);
+          }
         }
 
         .form-section {

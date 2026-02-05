@@ -505,6 +505,18 @@ export default function ProjectMapManagement() {
           .project-card {
             padding: var(--spacing-xs);
           }
+
+          .project-card-content {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .project-card-field {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .project-card-label {
+            margin-bottom: 0.125rem;
+          }
         }
 
         .admin-table-desktop {

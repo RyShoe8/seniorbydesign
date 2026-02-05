@@ -569,6 +569,18 @@ export default function BlogManagement() {
           .blog-card {
             padding: var(--spacing-xs);
           }
+
+          .blog-card-content {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .blog-card-field {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .blog-card-label {
+            margin-bottom: 0.125rem;
+          }
         }
 
         .admin-table-desktop {

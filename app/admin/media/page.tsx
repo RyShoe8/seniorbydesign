@@ -260,8 +260,24 @@ export default function MediaManagement() {
             padding: var(--spacing-xs);
           }
 
+          .media-name {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .media-alt {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .media-path {
+            margin-bottom: var(--spacing-xs);
+          }
+
           .media-edit-form {
             padding: var(--spacing-xs);
+          }
+
+          .form-group {
+            margin-bottom: var(--spacing-xs);
           }
         }
 

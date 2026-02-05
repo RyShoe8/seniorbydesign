@@ -489,6 +489,18 @@ export default function TeamManagement() {
           .team-card {
             padding: var(--spacing-xs);
           }
+
+          .team-card-content {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .team-card-field {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .team-card-label {
+            margin-bottom: 0.125rem;
+          }
         }
 
         .admin-table-desktop {

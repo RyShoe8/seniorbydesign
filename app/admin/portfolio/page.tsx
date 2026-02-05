@@ -572,6 +572,18 @@ export default function PortfolioManagement() {
           .portfolio-card {
             padding: var(--spacing-xs);
           }
+
+          .portfolio-card-content {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .portfolio-card-field {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .portfolio-card-label {
+            margin-bottom: 0.125rem;
+          }
         }
 
         .admin-table-desktop {

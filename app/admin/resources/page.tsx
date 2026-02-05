@@ -361,6 +361,18 @@ export default function ResourcesManagement() {
           .resource-card {
             padding: var(--spacing-xs);
           }
+
+          .resource-card-content {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .resource-card-field {
+            margin-bottom: var(--spacing-xs);
+          }
+
+          .resource-card-label {
+            margin-bottom: 0.125rem;
+          }
         }
 
         .admin-table-desktop {
