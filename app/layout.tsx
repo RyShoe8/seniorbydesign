@@ -11,12 +11,24 @@ export const metadata: Metadata = {
     description: 'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.',
     url: '/',
     type: 'website',
-    icons: {
-      icon: '/images/SBD Logo.webp',
-      shortcut: '/images/SBD Logo.webp',
-      apple: '/images/SBD Logo.webp',
-    },
   }),
+  icons: {
+    icon: [
+      {
+        url: '/images/SBD Logo.webp',
+        sizes: '32x32',
+        type: 'image/webp',
+      },
+    ],
+    shortcut: '/images/SBD Logo.webp',
+    apple: [
+      {
+        url: '/images/SBD Logo.webp',
+        sizes: '180x180',
+        type: 'image/webp',
+      },
+    ],
+  },
   viewport: {
     width: 'device-width',
     initialScale: 1,
