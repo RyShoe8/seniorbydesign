@@ -92,11 +92,12 @@ export async function addContactToBrevo(data: NewsletterSignupData): Promise<voi
       }
     }
     
-    // If newsletter is explicitly false, remove contact from list
-    if (listIds.length > 0 && data.newsletter === false) {
-      try {
-        for (const listId of listIds) {
-          const removeResponse = await fetch(`https://api.brevo.com/v3/contacts/lists/${listId}/contacts/remove`, {
+    // If newsletter is explicitly false or undefined, remove contact from newsletter list
+    if (data.newsletter !== true) {
+      const newsletterListId = process.env.BREVO_LIST_ID;
+      if (newsletterListId) {
+        try {
+          const removeResponse = await fetch(`https://api.brevo.com/v3/contacts/lists/${newsletterListId}/contacts/remove`, {
             method: 'POST',
             headers: {
               'accept': 'application/json',
@@ -112,12 +113,12 @@ export async function addContactToBrevo(data: NewsletterSignupData): Promise<voi
           if (!removeResponse.ok) {
             const removeError = await removeResponse.json().catch(() => ({}));
             // Log but don't fail - contact might not exist in list
-            console.log('Note: Could not remove contact from list:', removeError);
+            console.log('Note: Could not remove contact from newsletter list:', removeError);
           }
+        } catch (removeError) {
+          // Log but don't fail the entire operation
+          console.log('Note: Error removing contact from newsletter list:', removeError);
         }
-      } catch (removeError) {
-        // Log but don't fail the entire operation
-        console.log('Note: Error removing contact from list:', removeError);
       }
     }
   } catch (error: any) {
