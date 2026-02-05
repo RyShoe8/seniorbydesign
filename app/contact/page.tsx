@@ -38,10 +38,11 @@ export default function Contact() {
     setSubmitStatus('idle');
 
     try {
-      // Format phone number before submitting
+      // Format phone number and website URL before submitting
       const formattedData = {
         ...formData,
         phone: formData.phone ? formatPhoneNumber(formData.phone) : formData.phone,
+        website: formData.website ? formatWebsite(formData.website) : '',
       };
 
       const response = await fetch('/api/contact', {
@@ -72,11 +73,41 @@ export default function Contact() {
     }
   };
 
+  const formatWebsite = (url: string): string => {
+    if (!url) return '';
+    // Remove whitespace
+    url = url.trim();
+    if (!url) return '';
+    
+    // Remove www. if present
+    url = url.replace(/^www\./i, '');
+    
+    // Remove http:// or https:// if present
+    url = url.replace(/^https?:\/\//i, '');
+    
+    // Add https:// if not empty
+    if (url) {
+      url = `https://${url}`;
+    }
+    
+    return url;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (e.target.value) {
+      const formatted = formatWebsite(e.target.value);
+      setFormData({
+        ...formData,
+        website: formatted,
+      });
+    }
   };
 
   return (
@@ -175,12 +206,13 @@ export default function Contact() {
                   <div className={styles.formGroup}>
                     <label htmlFor="website">Your Website</label>
                     <input
-                      type="url"
+                      type="text"
                       id="website"
                       name="website"
                       value={formData.website}
                       onChange={handleChange}
-                      placeholder="https://example.com"
+                      onBlur={handleWebsiteBlur}
+                      placeholder="example.com"
                     />
                   </div>
                 </div>

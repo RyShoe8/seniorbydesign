@@ -160,12 +160,49 @@ export default function NewsletterCTA() {
     setStep('form');
   };
 
+  const formatWebsite = (url: string): string => {
+    if (!url) return '';
+    // Remove whitespace
+    url = url.trim();
+    if (!url) return '';
+    
+    // Remove www. if present
+    url = url.replace(/^www\./i, '');
+    
+    // Remove http:// or https:// if present
+    url = url.replace(/^https?:\/\//i, '');
+    
+    // Add https:// if not empty
+    if (url) {
+      url = `https://${url}`;
+    }
+    
+    return url;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    let value: any = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    
+    // Format website URL before storing
+    if (e.target.name === 'website' && e.target.type !== 'checkbox') {
+      // Don't format while typing, only format on blur
+      // Store the raw value for display
+    }
+    
     setFormData({
       ...formData,
       [e.target.name]: value,
     });
+  };
+
+  const handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (e.target.value) {
+      const formatted = formatWebsite(e.target.value);
+      setFormData({
+        ...formData,
+        website: formatted,
+      });
+    }
   };
 
   const filteredStates = US_STATES.filter(
@@ -304,13 +341,17 @@ export default function NewsletterCTA() {
     setSubmitStatus('idle');
 
     try {
+      // Format website URL before submitting
+      const formattedData = {
+        ...formData,
+        website: formData.website ? formatWebsite(formData.website) : '',
+        brochureType,
+      };
+      
       const response = await fetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          brochureType,
-        }),
+        body: JSON.stringify(formattedData),
       });
 
       if (response.ok) {
@@ -439,13 +480,14 @@ export default function NewsletterCTA() {
                 <div className={styles.formGroup}>
                   <label htmlFor="ctaWebsite">Your Website</label>
                   <input
-                    type="url"
+                    type="text"
                     id="ctaWebsite"
                     name="website"
                     value={formData.website}
                     onChange={handleChange}
+                    onBlur={handleWebsiteBlur}
                     onFocus={handleInputFocus}
-                    placeholder="https://example.com"
+                    placeholder="example.com"
                   />
                 </div>
 

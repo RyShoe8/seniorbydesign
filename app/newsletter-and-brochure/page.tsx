@@ -54,16 +54,42 @@ export default function NewsletterAndBrochure() {
     fetchBrochureSettings();
   }, [fetchBrochureSettings]);
 
+  const formatWebsite = (url: string): string => {
+    if (!url) return '';
+    // Remove whitespace
+    url = url.trim();
+    if (!url) return '';
+    
+    // Remove www. if present
+    url = url.replace(/^www\./i, '');
+    
+    // Remove http:// or https:// if present
+    url = url.replace(/^https?:\/\//i, '');
+    
+    // Add https:// if not empty
+    if (url) {
+      url = `https://${url}`;
+    }
+    
+    return url;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
 
     try {
+      // Format website URL before submitting
+      const formattedData = {
+        ...formData,
+        website: formData.website ? formatWebsite(formData.website) : '',
+      };
+      
       const response = await fetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formattedData),
       });
 
       if (response.ok) {
@@ -97,6 +123,16 @@ export default function NewsletterAndBrochure() {
       ...formData,
       [e.target.name]: value,
     });
+  };
+
+  const handleWebsiteBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (e.target.value) {
+      const formatted = formatWebsite(e.target.value);
+      setFormData({
+        ...formData,
+        website: formatted,
+      });
+    }
   };
 
   return (
@@ -180,12 +216,13 @@ export default function NewsletterAndBrochure() {
                 <div className={styles.formGroup}>
                   <label htmlFor="website">Your Website</label>
                   <input
-                    type="url"
+                    type="text"
                     id="website"
                     name="website"
                     value={formData.website}
                     onChange={handleChange}
-                    placeholder="https://example.com"
+                    onBlur={handleWebsiteBlur}
+                    placeholder="example.com"
                   />
                 </div>
 
