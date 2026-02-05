@@ -39,66 +39,118 @@
   background: linear-gradient(180deg, #fff 0%, #faf7f2 100%);
   width: 100%;
   max-width: 760px;
-  border-radius: 16px;
-  padding: var(--spacing-lg) var(--spacing-xl);
+  border-radius: 20px;
+  padding: var(--spacing-xl) var(--spacing-2xl);
   position: relative;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(203, 172, 109, 0.7);
-  outline: 1px solid rgba(203, 172, 109, 0.35);
-  outline-offset: 6px;
+  box-shadow: 
+    0 30px 80px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(203, 172, 109, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(203, 172, 109, 0.5);
+  outline: 2px solid rgba(203, 172, 109, 0.2);
+  outline-offset: 8px;
 }
 
 .modalClose {
   position: absolute;
-  top: 18px;
-  right: 18px;
+  top: 20px;
+  right: 20px;
   border: none;
-  background: #fff;
-  font-size: 24px;
+  background: linear-gradient(135deg, #fff 0%, #faf7f2 100%);
+  font-size: 28px;
+  line-height: 1;
   cursor: pointer;
   color: var(--sbd-brown);
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 
+    0 4px 12px rgba(89, 56, 37, 0.2),
+    0 0 0 1px rgba(203, 172, 109, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.modalClose:hover {
+  background: var(--sbd-gold);
+  color: #fff;
+  transform: scale(1.1);
+  box-shadow: 
+    0 6px 20px rgba(89, 56, 37, 0.3),
+    0 0 0 1px rgba(203, 172, 109, 0.5);
+}
+
+.modalStep {
+  padding: var(--spacing-sm) 0;
 }
 
 .modalStep h4 {
-  font-size: 30px;
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 600;
   color: var(--sbd-brown);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
   text-align: center;
-  letter-spacing: -0.2px;
+  letter-spacing: -0.3px;
+  line-height: 1.3;
 }
 
 .choiceButtons {
   display: grid;
   gap: var(--spacing-md);
+  max-width: 500px;
+  margin: 0 auto;
 }
 
 .secondaryBtn {
-  border: 2px solid rgba(203, 172, 109, 0.7);
-  background: #fff;
+  border: 2px solid rgba(203, 172, 109, 0.8);
+  background: linear-gradient(135deg, #fff 0%, #faf7f2 100%);
   color: var(--sbd-brown);
-  padding: 0.9rem 1.5rem;
-  border-radius: 8px;
+  padding: 1rem 2rem;
+  border-radius: 10px;
   font-weight: 600;
-  font-size: 17px;
+  font-size: 18px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 8px 18px rgba(89, 56, 37, 0.12);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 4px 16px rgba(89, 56, 37, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  position: relative;
+  overflow: hidden;
+}
+
+.secondaryBtn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s ease;
+}
+
+.secondaryBtn:hover::before {
+  left: 100%;
 }
 
 .secondaryBtn:hover {
-  background: var(--sbd-gold);
+  background: linear-gradient(135deg, var(--sbd-gold) 0%, #d4b87a 100%);
   color: #fff;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  border-color: var(--sbd-gold);
+  box-shadow: 
+    0 8px 24px rgba(203, 172, 109, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .modalForm {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-lg);
+  padding: var(--spacing-sm) 0;
 }
 
 .formRow {
@@ -110,41 +162,86 @@
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.6rem;
+}
+
+.formGroup label {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--sbd-brown);
+  letter-spacing: 0.01em;
 }
 
 .formGroup input {
-  border: 1px solid rgba(191, 183, 176, 0.7);
-  border-radius: 8px;
-  padding: 0.85rem 1rem;
+  border: 2px solid rgba(191, 183, 176, 0.6);
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
   font-family: inherit;
+  font-size: 16px;
   background: #fff;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .formGroup input:focus {
   border-color: var(--sbd-gold);
-  box-shadow: 0 0 0 3px rgba(203, 172, 109, 0.25);
+  box-shadow: 
+    0 0 0 4px rgba(203, 172, 109, 0.2),
+    inset 0 2px 4px rgba(0, 0, 0, 0.02);
   outline: none;
+  transform: translateY(-1px);
 }
 
 .checkboxLabel {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   font-size: 16px;
+  font-weight: 500;
   color: var(--sbd-brown);
   width: 100%;
+  padding: 0.75rem;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.checkboxLabel:hover {
+  background-color: rgba(203, 172, 109, 0.05);
 }
 
 .checkboxLabel input {
   margin: 0;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--sbd-gold);
 }
 
 .formActions {
-  margin-top: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid rgba(191, 183, 176, 0.3);
   display: flex;
   justify-content: flex-end;
+}
+
+.formActions .btn {
+  padding: 1rem 2.5rem;
+  font-size: 17px;
+  font-weight: 600;
+  border-radius: 10px;
+  box-shadow: 
+    0 4px 16px rgba(203, 172, 109, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.formActions .btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 24px rgba(203, 172, 109, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .formError {
@@ -153,13 +250,38 @@
 
 .downloadBtn {
   display: inline-block;
-  margin-top: var(--spacing-sm);
-  padding: 0.9rem 1.6rem;
+  margin-top: var(--spacing-md);
+  padding: 1rem 2.5rem;
+  font-size: 17px;
+  font-weight: 600;
+  border-radius: 10px;
+  box-shadow: 
+    0 4px 16px rgba(203, 172, 109, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.downloadBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 24px rgba(203, 172, 109, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 @media (max-width: 768px) {
   .modal {
-    padding: var(--spacing-md);
+    padding: var(--spacing-lg);
+    border-radius: 16px;
+    outline-offset: 4px;
+  }
+
+  .modalStep h4 {
+    font-size: 26px;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .choiceButtons {
+    max-width: 100%;
   }
 
   .formRow {
@@ -168,6 +290,11 @@
 
   .formActions {
     justify-content: center;
+    padding-top: var(--spacing-sm);
+  }
+
+  .formActions .btn {
+    width: 100%;
   }
 }
 
