@@ -202,18 +202,6 @@ export default function NewsletterAndBrochure() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label htmlFor="zip">ZIP Code *</label>
-                  <input
-                    type="text"
-                    id="zip"
-                    name="zip"
-                    required
-                    value={formData.zip}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
                   <label htmlFor="website">Your Website</label>
                   <input
                     type="text"
@@ -299,7 +287,7 @@ export default function NewsletterAndBrochure() {
                           type="text"
                           id="zip"
                           name="zip"
-                          required={formData.brochureType === 'physical'}
+                          required
                           value={formData.zip}
                           onChange={handleChange}
                         />

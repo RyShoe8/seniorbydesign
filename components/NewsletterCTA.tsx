@@ -465,19 +465,6 @@ export default function NewsletterCTA() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label htmlFor="ctaZip">ZIP Code *</label>
-                  <input
-                    type="text"
-                    id="ctaZip"
-                    name="zip"
-                    required
-                    value={formData.zip}
-                    onChange={handleChange}
-                    onFocus={handleInputFocus}
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
                   <label htmlFor="ctaWebsite">Your Website</label>
                   <input
                     type="text"
@@ -513,6 +500,19 @@ export default function NewsletterCTA() {
                         name="address"
                         required
                         value={formData.address}
+                        onChange={handleChange}
+                        onFocus={handleInputFocus}
+                      />
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="ctaZip">ZIP Code *</label>
+                      <input
+                        type="text"
+                        id="ctaZip"
+                        name="zip"
+                        required
+                        value={formData.zip}
                         onChange={handleChange}
                         onFocus={handleInputFocus}
                       />

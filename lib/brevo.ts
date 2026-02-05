@@ -48,7 +48,10 @@ export async function addContactToBrevo(data: NewsletterSignupData): Promise<voi
       attributes.STATE = data.state;
       attributes.COUNTRY = 'United States';
     }
-    if (data.zip) attributes.ZIP_CODE = data.zip;
+    // Only include zip code for physical brochure requests
+    if (data.zip && data.brochureType === 'physical') {
+      attributes.ZIP_CODE = data.zip;
+    }
     if (data.website) attributes.WEB_PAGE = data.website;
     if (data.brochureType) attributes.BROCHURE_TYPE = data.brochureType;
     
