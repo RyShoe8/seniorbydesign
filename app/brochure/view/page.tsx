@@ -33,12 +33,16 @@ export default function BrochureViewer() {
   const [error, setError] = useState<string | null>(null);
   const [pageSize, setPageSize] = useState<PageSize>({ width: 0, height: 0, scale: 1 });
   const [isMobile, setIsMobile] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [isZooming, setIsZooming] = useState(false);
   
   const leftCanvasRef = useRef<HTMLCanvasElement>(null);
   const rightCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
+  const initialDistance = useRef<number | null>(null);
+  const initialZoom = useRef<number>(1);
 
   // Check if mobile
   useEffect(() => {
@@ -64,13 +68,14 @@ export default function BrochureViewer() {
       const viewport = page.getViewport({ scale: 1 });
       
       if (isMobileView) {
-        // Mobile: Single page fills entire viewport width, height scales proportionally
-        const scale = viewportWidth / viewport.width;
-        const scaledHeight = viewport.height * scale;
+        // Mobile: Single page fills entire viewport width, height scales proportionally, then apply zoom
+        const baseScale = viewportWidth / viewport.width;
+        const finalScale = baseScale * zoomLevel;
+        const scaledHeight = viewport.height * finalScale;
         setPageSize({
-          width: viewportWidth,
+          width: viewportWidth * zoomLevel,
           height: scaledHeight,
-          scale,
+          scale: finalScale,
         });
       } else {
         // Desktop: Two pages side-by-side
@@ -124,14 +129,14 @@ export default function BrochureViewer() {
     loadPDF();
   }, []);
 
-  // Recalculate page size when PDF loads or window resizes
+  // Recalculate page size when PDF loads, window resizes, or zoom changes
   useEffect(() => {
     if (pdfDoc) {
       calculatePageSize();
       window.addEventListener('resize', calculatePageSize);
       return () => window.removeEventListener('resize', calculatePageSize);
     }
-  }, [pdfDoc, calculatePageSize]);
+  }, [pdfDoc, calculatePageSize, zoomLevel]);
 
   // Render page to canvas
   const renderPage = useCallback(async (pageNum: number, canvas: HTMLCanvasElement) => {
