@@ -33,10 +33,14 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 10000;
+  z-index: 10001;
   transition: all 0.3s ease;
   color: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  pointer-events: auto;
+  user-select: none;
 }
 
 .closeButton:hover {
@@ -84,6 +88,7 @@
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
+    pointer-events: auto;
   }
 
   .pageWrapper {
@@ -113,8 +118,13 @@
   .closeButton {
     top: var(--spacing-sm);
     right: var(--spacing-sm);
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    pointer-events: auto;
   }
 
   .navigation {

@@ -329,7 +329,11 @@ export default function BrochureViewer() {
     };
   }, []);
 
-  const handleClose = () => {
+  const handleClose = (e?: React.MouseEvent | React.TouchEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     router.back();
   };
 
@@ -364,7 +368,16 @@ export default function BrochureViewer() {
 
   return (
     <div className={styles.viewerContainer} ref={containerRef}>
-      <button className={styles.closeButton} onClick={handleClose} aria-label="Close PDF viewer">
+      <button 
+        className={styles.closeButton} 
+        onClick={handleClose}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleClose(e);
+        }}
+        aria-label="Close PDF viewer"
+      >
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
