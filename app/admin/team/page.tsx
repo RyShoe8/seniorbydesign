@@ -292,35 +292,68 @@ export default function TeamManagement() {
       {isLoading ? (
         <p>Loading...</p>
       ) : (
-        <div className="admin-table-container">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Title</th>
-                <th>Order</th>
-                <th>Slug</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {members.map((member) => (
-                <tr key={member._id}>
-                  <td>{member.name}</td>
-                  <td>{member.title}</td>
-                  <td>{member.order || 0}</td>
-                  <td>{member.slug}</td>
-                  <td>
-                    <button onClick={() => handleEdit(member)} className="btn-small">Edit</button>
-                    <button onClick={() => member._id && handleDelete(member._id)} className="btn-small btn-danger">
-                      Delete
-                    </button>
-                  </td>
+        <>
+          <div className="admin-table-container">
+            <table className="admin-table admin-table-desktop">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Title</th>
+                  <th>Order</th>
+                  <th>Slug</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {members.map((member) => (
+                  <tr key={member._id}>
+                    <td>{member.name}</td>
+                    <td>{member.title}</td>
+                    <td>{member.order || 0}</td>
+                    <td>{member.slug}</td>
+                    <td>
+                      <button onClick={() => handleEdit(member)} className="btn-small">Edit</button>
+                      <button onClick={() => member._id && handleDelete(member._id)} className="btn-small btn-danger">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          <div className="team-cards-mobile">
+            {members.map((member) => (
+              <div key={member._id} className="team-card">
+                <div className="team-card-content">
+                  <div className="team-card-field">
+                    <span className="team-card-label">Name:</span>
+                    <span className="team-card-value">{member.name}</span>
+                  </div>
+                  <div className="team-card-field">
+                    <span className="team-card-label">Title:</span>
+                    <span className="team-card-value">{member.title}</span>
+                  </div>
+                  <div className="team-card-field">
+                    <span className="team-card-label">Order:</span>
+                    <span className="team-card-value">{member.order || 0}</span>
+                  </div>
+                  <div className="team-card-field">
+                    <span className="team-card-label">Slug:</span>
+                    <span className="team-card-value">{member.slug}</span>
+                  </div>
+                </div>
+                <div className="team-card-actions">
+                  <button onClick={() => handleEdit(member)} className="btn btn-small">Edit</button>
+                  <button onClick={() => member._id && handleDelete(member._id)} className="btn btn-small btn-danger">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       <style jsx>{`
@@ -352,6 +385,32 @@ export default function TeamManagement() {
           width: 90%;
           max-height: 90vh;
           overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+          .admin-form-content {
+            width: 95%;
+            padding: var(--spacing-md);
+            max-height: 95vh;
+          }
+
+          .form-row {
+            grid-template-columns: 1fr;
+          }
+
+          .form-group input,
+          .form-group textarea {
+            min-height: 44px;
+            font-size: 16px;
+          }
+
+          .form-actions {
+            flex-direction: column;
+          }
+
+          .form-actions .btn {
+            width: 100%;
+          }
         }
 
         .admin-form-content h2 {
@@ -421,31 +480,91 @@ export default function TeamManagement() {
           overflow-x: auto;
         }
 
-        .admin-table {
+        .admin-table-desktop {
           width: 100%;
           border-collapse: collapse;
         }
 
-        .admin-table th,
-        .admin-table td {
+        .team-cards-mobile {
+          display: none;
+        }
+
+        .admin-table-desktop th,
+        .admin-table-desktop td {
           padding: var(--spacing-sm);
           text-align: left;
           border-bottom: 1px solid var(--warm-grey-1);
         }
 
-        .admin-table th {
+        .admin-table-desktop th {
           font-weight: 600;
           color: var(--sbd-brown);
         }
 
-        .btn-small {
-          padding: 0.25rem 0.75rem;
+        .team-card {
+          background: #fff;
+          border: 1px solid var(--warm-grey-1);
+          border-radius: 8px;
+          padding: var(--spacing-md);
+          margin-bottom: var(--spacing-md);
+        }
+
+        .team-card:last-child {
+          margin-bottom: 0;
+        }
+
+        .team-card-content {
+          margin-bottom: var(--spacing-md);
+        }
+
+        .team-card-field {
+          display: flex;
+          flex-direction: column;
+          margin-bottom: var(--spacing-sm);
+        }
+
+        .team-card-field:last-child {
+          margin-bottom: 0;
+        }
+
+        .team-card-label {
+          font-weight: 600;
+          color: var(--sbd-brown);
           font-size: 14px;
-          margin-right: 0.5rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .team-card-value {
+          color: var(--warm-grey-3);
+          font-size: 16px;
+        }
+
+        .team-card-actions {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing-sm);
+        }
+
+        .btn-small {
+          padding: 0.75rem 1rem;
+          font-size: 16px;
+          min-height: 44px;
+          width: 100%;
         }
 
         .btn-danger {
           background: #dc3545;
+          color: #fff;
+        }
+
+        @media (max-width: 768px) {
+          .admin-table-desktop {
+            display: none;
+          }
+
+          .team-cards-mobile {
+            display: block;
+          }
         }
 
         .upload-status {

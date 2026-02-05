@@ -313,41 +313,80 @@ export default function PortfolioManagement() {
       {isLoading ? (
         <p>Loading...</p>
       ) : (
-        <div className="admin-table-container">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Slug</th>
-                <th>Order</th>
-                <th>Images</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((category) => (
-                <tr key={category._id}>
-                  <td>{category.name}</td>
-                  <td>{category.slug}</td>
-                  <td>{category.order || 0}</td>
-                  <td>{category.images?.length || 0}</td>
-                  <td>
-                    <button 
-                      onClick={() => category._id && router.push(`/admin/portfolio/${category._id}/images`)} 
-                      className="btn-small"
-                    >
-                      Manage Images
-                    </button>
-                    <button onClick={() => handleEdit(category)} className="btn-small">Edit</button>
-                    <button onClick={() => category._id && handleDelete(category._id)} className="btn-small btn-danger">
-                      Delete
-                    </button>
-                  </td>
+        <>
+          <div className="admin-table-container">
+            <table className="admin-table admin-table-desktop">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Slug</th>
+                  <th>Order</th>
+                  <th>Images</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {categories.map((category) => (
+                  <tr key={category._id}>
+                    <td>{category.name}</td>
+                    <td>{category.slug}</td>
+                    <td>{category.order || 0}</td>
+                    <td>{category.images?.length || 0}</td>
+                    <td>
+                      <button 
+                        onClick={() => category._id && router.push(`/admin/portfolio/${category._id}/images`)} 
+                        className="btn-small"
+                      >
+                        Manage Images
+                      </button>
+                      <button onClick={() => handleEdit(category)} className="btn-small">Edit</button>
+                      <button onClick={() => category._id && handleDelete(category._id)} className="btn-small btn-danger">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          <div className="portfolio-cards-mobile">
+            {categories.map((category) => (
+              <div key={category._id} className="portfolio-card">
+                <div className="portfolio-card-content">
+                  <div className="portfolio-card-field">
+                    <span className="portfolio-card-label">Name:</span>
+                    <span className="portfolio-card-value">{category.name}</span>
+                  </div>
+                  <div className="portfolio-card-field">
+                    <span className="portfolio-card-label">Slug:</span>
+                    <span className="portfolio-card-value">{category.slug}</span>
+                  </div>
+                  <div className="portfolio-card-field">
+                    <span className="portfolio-card-label">Order:</span>
+                    <span className="portfolio-card-value">{category.order || 0}</span>
+                  </div>
+                  <div className="portfolio-card-field">
+                    <span className="portfolio-card-label">Images:</span>
+                    <span className="portfolio-card-value">{category.images?.length || 0}</span>
+                  </div>
+                </div>
+                <div className="portfolio-card-actions">
+                  <button 
+                    onClick={() => category._id && router.push(`/admin/portfolio/${category._id}/images`)} 
+                    className="btn btn-small"
+                  >
+                    Manage Images
+                  </button>
+                  <button onClick={() => handleEdit(category)} className="btn btn-small">Edit</button>
+                  <button onClick={() => category._id && handleDelete(category._id)} className="btn btn-small btn-danger">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       <style jsx>{`
@@ -379,6 +418,28 @@ export default function PortfolioManagement() {
           width: 90%;
           max-height: 90vh;
           overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+          .admin-form-content {
+            width: 95%;
+            padding: var(--spacing-md);
+            max-height: 95vh;
+          }
+
+          .form-group input,
+          .form-group textarea {
+            min-height: 44px;
+            font-size: 16px;
+          }
+
+          .form-actions {
+            flex-direction: column;
+          }
+
+          .form-actions .btn {
+            width: 100%;
+          }
         }
 
         .admin-form-content h2 {
@@ -502,31 +563,91 @@ export default function PortfolioManagement() {
           overflow-x: auto;
         }
 
-        .admin-table {
+        .admin-table-desktop {
           width: 100%;
           border-collapse: collapse;
         }
 
-        .admin-table th,
-        .admin-table td {
+        .portfolio-cards-mobile {
+          display: none;
+        }
+
+        .admin-table-desktop th,
+        .admin-table-desktop td {
           padding: var(--spacing-sm);
           text-align: left;
           border-bottom: 1px solid var(--warm-grey-1);
         }
 
-        .admin-table th {
+        .admin-table-desktop th {
           font-weight: 600;
           color: var(--sbd-brown);
         }
 
-        .btn-small {
-          padding: 0.25rem 0.75rem;
+        .portfolio-card {
+          background: #fff;
+          border: 1px solid var(--warm-grey-1);
+          border-radius: 8px;
+          padding: var(--spacing-md);
+          margin-bottom: var(--spacing-md);
+        }
+
+        .portfolio-card:last-child {
+          margin-bottom: 0;
+        }
+
+        .portfolio-card-content {
+          margin-bottom: var(--spacing-md);
+        }
+
+        .portfolio-card-field {
+          display: flex;
+          flex-direction: column;
+          margin-bottom: var(--spacing-sm);
+        }
+
+        .portfolio-card-field:last-child {
+          margin-bottom: 0;
+        }
+
+        .portfolio-card-label {
+          font-weight: 600;
+          color: var(--sbd-brown);
           font-size: 14px;
-          margin-right: 0.5rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .portfolio-card-value {
+          color: var(--warm-grey-3);
+          font-size: 16px;
+        }
+
+        .portfolio-card-actions {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing-sm);
+        }
+
+        .btn-small {
+          padding: 0.75rem 1rem;
+          font-size: 16px;
+          min-height: 44px;
+          width: 100%;
         }
 
         .btn-danger {
           background: #dc3545;
+          color: #fff;
+        }
+
+        @media (max-width: 768px) {
+          .admin-table-desktop {
+            display: none;
+          }
+
+          .portfolio-cards-mobile {
+            display: block;
+          }
         }
       `}</style>
     </div>

@@ -147,43 +147,78 @@ export default function ResourcesManagement() {
       {isLoading ? (
         <p>Loading...</p>
       ) : (
-        <div className="admin-table-container">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Resource Name</th>
-                <th>Link</th>
-                <th>Note</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {resources.map((resource) => (
-                <tr key={resource._id}>
-                  <td>{resource.name}</td>
-                  <td>
-                    <a href={resource.link} target="_blank" rel="noopener noreferrer">
+        <>
+          <div className="admin-table-container">
+            <table className="admin-table admin-table-desktop">
+              <thead>
+                <tr>
+                  <th>Resource Name</th>
+                  <th>Link</th>
+                  <th>Note</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {resources.map((resource) => (
+                  <tr key={resource._id}>
+                    <td>{resource.name}</td>
+                    <td>
+                      <a href={resource.link} target="_blank" rel="noopener noreferrer">
+                        {resource.link}
+                      </a>
+                    </td>
+                    <td className="note-cell">
+                      {resource.note ? (
+                        <div className="resource-note">{resource.note}</div>
+                      ) : (
+                        <span className="no-note">-</span>
+                      )}
+                    </td>
+                    <td>
+                      <button onClick={() => handleEdit(resource)} className="btn-small">Edit</button>
+                      <button onClick={() => resource._id && handleDelete(resource._id)} className="btn-small btn-danger">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          <div className="resources-cards-mobile">
+            {resources.map((resource) => (
+              <div key={resource._id} className="resource-card">
+                <div className="resource-card-content">
+                  <div className="resource-card-field">
+                    <span className="resource-card-label">Resource Name:</span>
+                    <span className="resource-card-value">{resource.name}</span>
+                  </div>
+                  <div className="resource-card-field">
+                    <span className="resource-card-label">Link:</span>
+                    <a href={resource.link} target="_blank" rel="noopener noreferrer" className="resource-card-link">
                       {resource.link}
                     </a>
-                  </td>
-                  <td className="note-cell">
+                  </div>
+                  <div className="resource-card-field">
+                    <span className="resource-card-label">Note:</span>
                     {resource.note ? (
-                      <div className="resource-note">{resource.note}</div>
+                      <div className="resource-card-note">{resource.note}</div>
                     ) : (
-                      <span className="no-note">-</span>
+                      <span className="resource-card-no-note">-</span>
                     )}
-                  </td>
-                  <td>
-                    <button onClick={() => handleEdit(resource)} className="btn-small">Edit</button>
-                    <button onClick={() => resource._id && handleDelete(resource._id)} className="btn-small btn-danger">
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                </div>
+                <div className="resource-card-actions">
+                  <button onClick={() => handleEdit(resource)} className="btn btn-small">Edit</button>
+                  <button onClick={() => resource._id && handleDelete(resource._id)} className="btn btn-small btn-danger">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       <style jsx>{`
@@ -229,6 +264,29 @@ export default function ResourcesManagement() {
           border-radius: 8px;
           max-width: 600px;
           width: 90%;
+        }
+
+        @media (max-width: 768px) {
+          .admin-form-content {
+            width: 95%;
+            padding: var(--spacing-md);
+            max-height: 95vh;
+            overflow-y: auto;
+          }
+
+          .form-group input,
+          .form-group textarea {
+            min-height: 44px;
+            font-size: 16px;
+          }
+
+          .form-actions {
+            flex-direction: column;
+          }
+
+          .form-actions .btn {
+            width: 100%;
+          }
         }
 
         .admin-form-content h2 {
@@ -294,15 +352,19 @@ export default function ResourcesManagement() {
           max-width: 100%;
         }
 
-        .admin-table {
+        .admin-table-desktop {
           width: 100%;
           border-collapse: collapse;
           table-layout: fixed;
           min-width: 800px;
         }
 
-        .admin-table th,
-        .admin-table td {
+        .resources-cards-mobile {
+          display: none;
+        }
+
+        .admin-table-desktop th,
+        .admin-table-desktop td {
           padding: var(--spacing-sm);
           text-align: left;
           border-bottom: 1px solid var(--warm-grey-1);
@@ -311,28 +373,28 @@ export default function ResourcesManagement() {
           word-break: break-all;
         }
 
-        .admin-table th {
+        .admin-table-desktop th {
           font-weight: 600;
           color: var(--sbd-brown);
         }
 
-        .admin-table th:nth-child(1) {
+        .admin-table-desktop th:nth-child(1) {
           width: 20%;
         }
 
-        .admin-table th:nth-child(2) {
+        .admin-table-desktop th:nth-child(2) {
           width: 30%;
         }
 
-        .admin-table th:nth-child(3) {
+        .admin-table-desktop th:nth-child(3) {
           width: 35%;
         }
 
-        .admin-table th:nth-child(4) {
+        .admin-table-desktop th:nth-child(4) {
           width: 15%;
         }
 
-        .admin-table a {
+        .admin-table-desktop a {
           color: var(--sbd-gold);
           text-decoration: underline;
           word-break: break-all;
@@ -364,10 +426,90 @@ export default function ResourcesManagement() {
           font-style: italic;
         }
 
-        .btn-small {
-          padding: 0.25rem 0.75rem;
+        .resource-card {
+          background: #fff;
+          border: 1px solid var(--warm-grey-1);
+          border-radius: 8px;
+          padding: var(--spacing-md);
+          margin-bottom: var(--spacing-md);
+        }
+
+        .resource-card:last-child {
+          margin-bottom: 0;
+        }
+
+        .resource-card-content {
+          margin-bottom: var(--spacing-md);
+        }
+
+        .resource-card-field {
+          display: flex;
+          flex-direction: column;
+          margin-bottom: var(--spacing-sm);
+        }
+
+        .resource-card-field:last-child {
+          margin-bottom: 0;
+        }
+
+        .resource-card-label {
+          font-weight: 600;
+          color: var(--sbd-brown);
           font-size: 14px;
-          margin-right: 0.5rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .resource-card-value {
+          color: var(--warm-grey-3);
+          font-size: 16px;
+          word-wrap: break-word;
+        }
+
+        .resource-card-link {
+          color: var(--sbd-gold);
+          text-decoration: underline;
+          word-break: break-all;
+          font-size: 16px;
+        }
+
+        .resource-card-note {
+          background: var(--warm-grey-1);
+          padding: 0.5rem 0.75rem;
+          border-radius: 4px;
+          font-size: 14px;
+          line-height: 1.5;
+          color: var(--sbd-brown);
+          white-space: pre-wrap;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+        }
+
+        .resource-card-no-note {
+          color: var(--warm-grey-3);
+          font-style: italic;
+        }
+
+        .resource-card-actions {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing-sm);
+        }
+
+        .btn-small {
+          padding: 0.75rem 1rem;
+          font-size: 16px;
+          min-height: 44px;
+          width: 100%;
+        }
+
+        @media (max-width: 768px) {
+          .admin-table-desktop {
+            display: none;
+          }
+
+          .resources-cards-mobile {
+            display: block;
+          }
         }
 
         .add-resource-btn {

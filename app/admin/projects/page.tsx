@@ -254,7 +254,7 @@ export default function ProjectMapManagement() {
             </div>
           )}
           <div className="admin-table-container">
-            <table className="admin-table">
+            <table className="admin-table admin-table-desktop">
               <thead>
                 <tr>
                   <th>Project Name</th>
@@ -316,6 +316,65 @@ export default function ProjectMapManagement() {
               </tbody>
             </table>
           </div>
+          
+          <div className="projects-cards-mobile">
+            {projects.map((project) => (
+              <div key={project._id} className="project-card">
+                <div className="project-card-content">
+                  <div className="project-card-field">
+                    <span className="project-card-label">Project Name:</span>
+                    <span className="project-card-value">{project.name}</span>
+                  </div>
+                  <div className="project-card-field">
+                    <span className="project-card-label">ZIP Code:</span>
+                    <span className="project-card-value">{project.zipCode}</span>
+                  </div>
+                  <div className="project-card-field">
+                    <span className="project-card-label">Coordinates:</span>
+                    {project.latitude && project.longitude ? (
+                      <span className="project-card-value" style={{ fontSize: '14px', color: 'var(--warm-grey-3)' }}>
+                        {project.latitude.toFixed(4)}, {project.longitude.toFixed(4)}
+                      </span>
+                    ) : (
+                      <span className="project-card-value" style={{ fontSize: '14px', color: '#dc3545' }}>Not geocoded</span>
+                    )}
+                  </div>
+                </div>
+                <div className="project-card-actions">
+                  <button onClick={() => handleEdit(project)} className="btn btn-small">Edit</button>
+                  {project.latitude && project.longitude ? (
+                    <>
+                      <button 
+                        onClick={() => project._id && handleClearGeocode(project._id)} 
+                        className="btn btn-small"
+                        style={{ backgroundColor: '#ffc107', color: '#000' }}
+                      >
+                        Clear Geocode
+                      </button>
+                      <button 
+                        onClick={() => project._id && handleRegeocode(project._id)} 
+                        className="btn btn-small"
+                        style={{ backgroundColor: '#17a2b8', color: '#fff' }}
+                      >
+                        Re-geocode
+                      </button>
+                    </>
+                  ) : (
+                    <button 
+                      onClick={() => project._id && handleRegeocode(project._id)} 
+                      className="btn btn-small"
+                      style={{ backgroundColor: '#28a745', color: '#fff' }}
+                    >
+                      Geocode
+                    </button>
+                  )}
+                  <button onClick={() => project._id && handleDelete(project._id)} className="btn btn-small btn-danger">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </>
       )}
 
@@ -346,6 +405,28 @@ export default function ProjectMapManagement() {
           border-radius: 8px;
           max-width: 600px;
           width: 90%;
+        }
+
+        @media (max-width: 768px) {
+          .admin-form-content {
+            width: 95%;
+            padding: var(--spacing-md);
+            max-height: 95vh;
+            overflow-y: auto;
+          }
+
+          .form-group input {
+            min-height: 44px;
+            font-size: 16px;
+          }
+
+          .form-actions {
+            flex-direction: column;
+          }
+
+          .form-actions .btn {
+            width: 100%;
+          }
         }
 
         .admin-form-content h2 {
@@ -415,31 +496,91 @@ export default function ProjectMapManagement() {
           overflow-x: auto;
         }
 
-        .admin-table {
+        .admin-table-desktop {
           width: 100%;
           border-collapse: collapse;
         }
 
-        .admin-table th,
-        .admin-table td {
+        .projects-cards-mobile {
+          display: none;
+        }
+
+        .admin-table-desktop th,
+        .admin-table-desktop td {
           padding: var(--spacing-sm);
           text-align: left;
           border-bottom: 1px solid var(--warm-grey-1);
         }
 
-        .admin-table th {
+        .admin-table-desktop th {
           font-weight: 600;
           color: var(--sbd-brown);
         }
 
-        .btn-small {
-          padding: 0.25rem 0.75rem;
+        .project-card {
+          background: #fff;
+          border: 1px solid var(--warm-grey-1);
+          border-radius: 8px;
+          padding: var(--spacing-md);
+          margin-bottom: var(--spacing-md);
+        }
+
+        .project-card:last-child {
+          margin-bottom: 0;
+        }
+
+        .project-card-content {
+          margin-bottom: var(--spacing-md);
+        }
+
+        .project-card-field {
+          display: flex;
+          flex-direction: column;
+          margin-bottom: var(--spacing-sm);
+        }
+
+        .project-card-field:last-child {
+          margin-bottom: 0;
+        }
+
+        .project-card-label {
+          font-weight: 600;
+          color: var(--sbd-brown);
           font-size: 14px;
-          margin-right: 0.5rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .project-card-value {
+          color: var(--warm-grey-3);
+          font-size: 16px;
+        }
+
+        .project-card-actions {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing-sm);
+        }
+
+        .btn-small {
+          padding: 0.75rem 1rem;
+          font-size: 16px;
+          min-height: 44px;
+          width: 100%;
         }
 
         .btn-danger {
           background: #dc3545;
+          color: #fff;
+        }
+
+        @media (max-width: 768px) {
+          .admin-table-desktop {
+            display: none;
+          }
+
+          .projects-cards-mobile {
+            display: block;
+          }
         }
       `}</style>
     </div>

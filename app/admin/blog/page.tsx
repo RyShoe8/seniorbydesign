@@ -335,49 +335,94 @@ export default function BlogManagement() {
       {isLoading ? (
         <p>Loading...</p>
       ) : (
-        <div className="admin-table-container">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Author</th>
-                <th>Published</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {posts.length === 0 ? (
+        <>
+          <div className="admin-table-container">
+            <table className="admin-table admin-table-desktop">
+              <thead>
                 <tr>
-                  <td colSpan={5} style={{ textAlign: 'center', padding: 'var(--spacing-lg)' }}>
-                    No blog posts yet. Click &quot;Add Post&quot; to create one.
-                  </td>
+                  <th>Title</th>
+                  <th>Author</th>
+                  <th>Published</th>
+                  <th>Date</th>
+                  <th>Actions</th>
                 </tr>
-              ) : (
-                posts.map((post) => (
-                  <tr key={post._id}>
-                    <td>{post.title}</td>
-                    <td>{post.author}</td>
-                    <td>{post.publishedAt ? 'Yes' : 'No'}</td>
-                    <td>
-                      {post.publishedAt 
-                        ? new Date(post.publishedAt).toLocaleDateString()
-                        : post.createdAt 
-                        ? new Date(post.createdAt).toLocaleDateString()
-                        : '-'}
-                    </td>
-                    <td>
-                      <button onClick={() => handleEdit(post)} className="btn-small">Edit</button>
-                      <button onClick={() => post._id && handleDelete(post._id)} className="btn-small btn-danger">
-                        Delete
-                      </button>
+              </thead>
+              <tbody>
+                {posts.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} style={{ textAlign: 'center', padding: 'var(--spacing-lg)' }}>
+                      No blog posts yet. Click &quot;Add Post&quot; to create one.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ) : (
+                  posts.map((post) => (
+                    <tr key={post._id}>
+                      <td>{post.title}</td>
+                      <td>{post.author}</td>
+                      <td>{post.publishedAt ? 'Yes' : 'No'}</td>
+                      <td>
+                        {post.publishedAt 
+                          ? new Date(post.publishedAt).toLocaleDateString()
+                          : post.createdAt 
+                          ? new Date(post.createdAt).toLocaleDateString()
+                          : '-'}
+                      </td>
+                      <td>
+                        <button onClick={() => handleEdit(post)} className="btn-small">Edit</button>
+                        <button onClick={() => post._id && handleDelete(post._id)} className="btn-small btn-danger">
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+          
+          <div className="blog-cards-mobile">
+            {posts.length === 0 ? (
+              <div className="blog-card-empty">
+                No blog posts yet. Click &quot;Add Post&quot; to create one.
+              </div>
+            ) : (
+              posts.map((post) => (
+                <div key={post._id} className="blog-card">
+                  <div className="blog-card-content">
+                    <div className="blog-card-field">
+                      <span className="blog-card-label">Title:</span>
+                      <span className="blog-card-value">{post.title}</span>
+                    </div>
+                    <div className="blog-card-field">
+                      <span className="blog-card-label">Author:</span>
+                      <span className="blog-card-value">{post.author}</span>
+                    </div>
+                    <div className="blog-card-field">
+                      <span className="blog-card-label">Published:</span>
+                      <span className="blog-card-value">{post.publishedAt ? 'Yes' : 'No'}</span>
+                    </div>
+                    <div className="blog-card-field">
+                      <span className="blog-card-label">Date:</span>
+                      <span className="blog-card-value">
+                        {post.publishedAt 
+                          ? new Date(post.publishedAt).toLocaleDateString()
+                          : post.createdAt 
+                          ? new Date(post.createdAt).toLocaleDateString()
+                          : '-'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="blog-card-actions">
+                    <button onClick={() => handleEdit(post)} className="btn btn-small">Edit</button>
+                    <button onClick={() => post._id && handleDelete(post._id)} className="btn btn-small btn-danger">
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </>
       )}
 
       <style jsx>{`
@@ -416,6 +461,28 @@ export default function BlogManagement() {
           width: 90%;
           max-height: 90vh;
           overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+          .admin-form-content {
+            width: 95%;
+            padding: var(--spacing-md);
+            max-height: 95vh;
+          }
+
+          .form-group input,
+          .form-group textarea {
+            min-height: 44px;
+            font-size: 16px;
+          }
+
+          .form-actions {
+            flex-direction: column;
+          }
+
+          .form-actions .btn {
+            width: 100%;
+          }
         }
 
         .admin-form-content h2 {
@@ -493,15 +560,19 @@ export default function BlogManagement() {
           max-width: 100%;
         }
 
-        .admin-table {
+        .admin-table-desktop {
           width: 100%;
           border-collapse: collapse;
           table-layout: fixed;
           min-width: 800px;
         }
 
-        .admin-table th,
-        .admin-table td {
+        .blog-cards-mobile {
+          display: none;
+        }
+
+        .admin-table-desktop th,
+        .admin-table-desktop td {
           padding: var(--spacing-sm);
           text-align: left;
           border-bottom: 1px solid var(--warm-grey-1);
@@ -509,35 +580,100 @@ export default function BlogManagement() {
           word-wrap: break-word;
         }
 
-        .admin-table th {
+        .admin-table-desktop th {
           font-weight: 600;
           color: var(--sbd-brown);
         }
 
-        .admin-table th:nth-child(1) {
+        .admin-table-desktop th:nth-child(1) {
           width: 30%;
         }
 
-        .admin-table th:nth-child(2) {
+        .admin-table-desktop th:nth-child(2) {
           width: 15%;
         }
 
-        .admin-table th:nth-child(3) {
+        .admin-table-desktop th:nth-child(3) {
           width: 10%;
         }
 
-        .admin-table th:nth-child(4) {
+        .admin-table-desktop th:nth-child(4) {
           width: 15%;
         }
 
-        .admin-table th:nth-child(5) {
+        .admin-table-desktop th:nth-child(5) {
           width: 30%;
         }
 
-        .btn-small {
-          padding: 0.25rem 0.75rem;
+        .blog-card {
+          background: #fff;
+          border: 1px solid var(--warm-grey-1);
+          border-radius: 8px;
+          padding: var(--spacing-md);
+          margin-bottom: var(--spacing-md);
+        }
+
+        .blog-card:last-child {
+          margin-bottom: 0;
+        }
+
+        .blog-card-empty {
+          background: #fff;
+          border: 1px solid var(--warm-grey-1);
+          border-radius: 8px;
+          padding: var(--spacing-lg);
+          text-align: center;
+          color: var(--warm-grey-3);
+        }
+
+        .blog-card-content {
+          margin-bottom: var(--spacing-md);
+        }
+
+        .blog-card-field {
+          display: flex;
+          flex-direction: column;
+          margin-bottom: var(--spacing-sm);
+        }
+
+        .blog-card-field:last-child {
+          margin-bottom: 0;
+        }
+
+        .blog-card-label {
+          font-weight: 600;
+          color: var(--sbd-brown);
           font-size: 14px;
-          margin-right: 0.5rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .blog-card-value {
+          color: var(--warm-grey-3);
+          font-size: 16px;
+          word-wrap: break-word;
+        }
+
+        .blog-card-actions {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing-sm);
+        }
+
+        .btn-small {
+          padding: 0.75rem 1rem;
+          font-size: 16px;
+          min-height: 44px;
+          width: 100%;
+        }
+
+        @media (max-width: 768px) {
+          .admin-table-desktop {
+            display: none;
+          }
+
+          .blog-cards-mobile {
+            display: block;
+          }
         }
 
         .btn-danger {

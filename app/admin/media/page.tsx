@@ -397,11 +397,45 @@ export default function MediaManagement() {
         @media (max-width: 768px) {
           .media-grid {
             grid-template-columns: 1fr;
+            gap: var(--spacing-md);
           }
 
           .admin-header {
             flex-direction: column;
             align-items: flex-start;
+          }
+
+          .filter-controls {
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+          }
+
+          .filter-select {
+            width: 100%;
+            min-height: 44px;
+          }
+
+          .form-input {
+            min-height: 44px;
+            font-size: 16px;
+          }
+
+          .form-actions {
+            flex-direction: column;
+          }
+
+          .form-actions .btn {
+            width: 100%;
+          }
+
+          .media-actions {
+            flex-direction: column;
+          }
+
+          .media-actions .btn {
+            width: 100%;
+            min-height: 44px;
           }
         }
       `}</style>

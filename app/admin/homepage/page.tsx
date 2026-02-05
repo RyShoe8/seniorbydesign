@@ -748,6 +748,45 @@ export default function HomepageManagement() {
             align-items: flex-start;
             gap: var(--spacing-sm);
           }
+
+          .section-header .btn {
+            width: 100%;
+            min-height: 44px;
+          }
+
+          .form-group input,
+          .form-group textarea {
+            min-height: 44px;
+            font-size: 16px;
+          }
+
+          .form-actions {
+            flex-direction: column;
+          }
+
+          .form-actions .btn {
+            width: 100%;
+          }
+
+          .testimonial-actions {
+            flex-direction: column;
+          }
+
+          .testimonial-actions .btn-small {
+            width: 100%;
+            min-height: 44px;
+            font-size: 16px;
+          }
+
+          .partner-actions {
+            flex-direction: column;
+          }
+
+          .partner-actions .btn-small {
+            width: 100%;
+            min-height: 44px;
+            font-size: 16px;
+          }
         }
       `}</style>
     </div>

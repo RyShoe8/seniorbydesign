@@ -24,6 +24,25 @@
   color: var(--sbd-brown);
 }
 
+@media (max-width: 768px) {
+  .dashboardStats {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .statCard {
+    padding: var(--spacing-sm);
+  }
+
+  .statCard h3 {
+    font-size: 16px;
+  }
+
+  .statNumber {
+    font-size: 28px;
+  }
+}
+
 
 
 

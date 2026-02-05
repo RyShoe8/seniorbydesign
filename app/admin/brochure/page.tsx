@@ -460,6 +460,31 @@ export default function BrochureManagement() {
           align-items: center;
         }
 
+        @media (max-width: 768px) {
+          .chart-controls {
+            grid-template-columns: 1fr;
+          }
+
+          .control-group select,
+          .control-group input[type='date'] {
+            min-height: 44px;
+            font-size: 16px;
+            width: 100%;
+          }
+
+          .date-range {
+            grid-template-columns: 1fr;
+          }
+
+          .form-actions {
+            flex-direction: column;
+          }
+
+          .form-actions .btn {
+            width: 100%;
+          }
+        }
+
         .chart-wrapper {
           background: #fff;
           border: 1px solid var(--warm-grey-1);

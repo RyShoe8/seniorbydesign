@@ -312,31 +312,56 @@ export default function ServicesManagement() {
       {isLoading ? (
         <p>Loading...</p>
       ) : (
-        <div className="admin-table-container">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Slug</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {services.map((service) => (
-                <tr key={service._id}>
-                  <td>{service.title}</td>
-                  <td>{service.slug}</td>
-                  <td>
-                    <button onClick={() => handleEdit(service)} className="btn-small">Edit</button>
-                    <button onClick={() => service._id && handleDelete(service._id)} className="btn-small btn-danger">
-                      Delete
-                    </button>
-                  </td>
+        <>
+          <div className="admin-table-container">
+            <table className="admin-table admin-table-desktop">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Slug</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {services.map((service) => (
+                  <tr key={service._id}>
+                    <td>{service.title}</td>
+                    <td>{service.slug}</td>
+                    <td>
+                      <button onClick={() => handleEdit(service)} className="btn-small">Edit</button>
+                      <button onClick={() => service._id && handleDelete(service._id)} className="btn-small btn-danger">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          <div className="services-cards-mobile">
+            {services.map((service) => (
+              <div key={service._id} className="service-card">
+                <div className="service-card-content">
+                  <div className="service-card-field">
+                    <span className="service-card-label">Title:</span>
+                    <span className="service-card-value">{service.title}</span>
+                  </div>
+                  <div className="service-card-field">
+                    <span className="service-card-label">Slug:</span>
+                    <span className="service-card-value">{service.slug}</span>
+                  </div>
+                </div>
+                <div className="service-card-actions">
+                  <button onClick={() => handleEdit(service)} className="btn btn-small">Edit</button>
+                  <button onClick={() => service._id && handleDelete(service._id)} className="btn btn-small btn-danger">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       <style jsx>{`
@@ -368,6 +393,28 @@ export default function ServicesManagement() {
           width: 90%;
           max-height: 90vh;
           overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+          .admin-form-content {
+            width: 95%;
+            padding: var(--spacing-md);
+            max-height: 95vh;
+          }
+
+          .form-group input,
+          .form-group textarea {
+            min-height: 44px;
+            font-size: 16px;
+          }
+
+          .form-actions {
+            flex-direction: column;
+          }
+
+          .form-actions .btn {
+            width: 100%;
+          }
         }
 
         .admin-form-content h2 {
@@ -431,27 +478,76 @@ export default function ServicesManagement() {
           overflow-x: auto;
         }
 
-        .admin-table {
+        .admin-table-desktop {
           width: 100%;
           border-collapse: collapse;
         }
 
-        .admin-table th,
-        .admin-table td {
+        .services-cards-mobile {
+          display: none;
+        }
+
+        .admin-table-desktop th,
+        .admin-table-desktop td {
           padding: var(--spacing-sm);
           text-align: left;
           border-bottom: 1px solid var(--warm-grey-1);
         }
 
-        .admin-table th {
+        .admin-table-desktop th {
           font-weight: 600;
           color: var(--sbd-brown);
         }
 
-        .btn-small {
-          padding: 0.25rem 0.75rem;
+        .service-card {
+          background: #fff;
+          border: 1px solid var(--warm-grey-1);
+          border-radius: 8px;
+          padding: var(--spacing-md);
+          margin-bottom: var(--spacing-md);
+        }
+
+        .service-card:last-child {
+          margin-bottom: 0;
+        }
+
+        .service-card-content {
+          margin-bottom: var(--spacing-md);
+        }
+
+        .service-card-field {
+          display: flex;
+          flex-direction: column;
+          margin-bottom: var(--spacing-sm);
+        }
+
+        .service-card-field:last-child {
+          margin-bottom: 0;
+        }
+
+        .service-card-label {
+          font-weight: 600;
+          color: var(--sbd-brown);
           font-size: 14px;
-          margin-right: 0.5rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .service-card-value {
+          color: var(--warm-grey-3);
+          font-size: 16px;
+        }
+
+        .service-card-actions {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing-sm);
+        }
+
+        .btn-small {
+          padding: 0.75rem 1rem;
+          font-size: 16px;
+          min-height: 44px;
+          width: 100%;
         }
 
         .btn-danger {
@@ -461,6 +557,16 @@ export default function ServicesManagement() {
 
         .btn-danger:hover {
           background: #c82333;
+        }
+
+        @media (max-width: 768px) {
+          .admin-table-desktop {
+            display: none;
+          }
+
+          .services-cards-mobile {
+            display: block;
+          }
         }
 
         .upload-status {

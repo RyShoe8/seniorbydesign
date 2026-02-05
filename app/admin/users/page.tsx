@@ -152,7 +152,7 @@ export default function UserManagement() {
       ) : (
         <>
           <div className="users-table">
-            <table>
+            <table className="users-table-desktop">
               <thead>
                 <tr>
                   <th>Email</th>
@@ -180,6 +180,37 @@ export default function UserManagement() {
                 ))}
               </tbody>
             </table>
+            
+            <div className="users-cards-mobile">
+              {users.map((user) => (
+                <div key={user._id} className="user-card">
+                  <div className="user-card-content">
+                    <div className="user-card-field">
+                      <span className="user-card-label">Email:</span>
+                      <span className="user-card-value">{user.email}</span>
+                    </div>
+                    <div className="user-card-field">
+                      <span className="user-card-label">Role:</span>
+                      <span className="user-card-value">{user.role}</span>
+                    </div>
+                  </div>
+                  <div className="user-card-actions">
+                    <button 
+                      className="btn btn-small"
+                      onClick={() => handleEdit(user)}
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      onClick={() => user._id && handleDelete(user._id)} 
+                      className="btn btn-small btn-danger"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {(editingUser || showAddForm) && (
@@ -266,27 +297,86 @@ export default function UserManagement() {
           margin-top: var(--spacing-md);
         }
 
-        table {
+        .users-table-desktop {
           width: 100%;
           border-collapse: collapse;
         }
 
-        th,
-        td {
+        .users-cards-mobile {
+          display: none;
+        }
+
+        .users-table-desktop th,
+        .users-table-desktop td {
           padding: var(--spacing-sm);
           text-align: left;
           border-bottom: 1px solid var(--warm-grey-1);
         }
 
-        th {
+        .users-table-desktop th {
           font-weight: 600;
           color: var(--sbd-brown);
         }
 
-        .btn-small {
-          padding: 0.25rem 0.75rem;
+        .user-card {
+          background: #fff;
+          border: 1px solid var(--warm-grey-1);
+          border-radius: 8px;
+          padding: var(--spacing-md);
+          margin-bottom: var(--spacing-md);
+        }
+
+        .user-card:last-child {
+          margin-bottom: 0;
+        }
+
+        .user-card-content {
+          margin-bottom: var(--spacing-md);
+        }
+
+        .user-card-field {
+          display: flex;
+          flex-direction: column;
+          margin-bottom: var(--spacing-sm);
+        }
+
+        .user-card-field:last-child {
+          margin-bottom: 0;
+        }
+
+        .user-card-label {
+          font-weight: 600;
+          color: var(--sbd-brown);
           font-size: 14px;
-          margin-right: 0.5rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .user-card-value {
+          color: var(--warm-grey-3);
+          font-size: 16px;
+        }
+
+        .user-card-actions {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing-sm);
+        }
+
+        .btn-small {
+          padding: 0.75rem 1rem;
+          font-size: 16px;
+          min-height: 44px;
+          width: 100%;
+        }
+
+        @media (max-width: 768px) {
+          .users-table-desktop {
+            display: none;
+          }
+
+          .users-cards-mobile {
+            display: block;
+          }
         }
 
         .btn-danger {
@@ -357,6 +447,31 @@ export default function UserManagement() {
         .btn-secondary:hover:not(:disabled) {
           background-color: var(--sbd-gold);
           color: #fff;
+        }
+
+        @media (max-width: 768px) {
+          .admin-header {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .admin-header .btn {
+            width: 100%;
+          }
+
+          .form-group input,
+          .form-group select {
+            min-height: 44px;
+            font-size: 16px;
+          }
+
+          .form-actions {
+            flex-direction: column;
+          }
+
+          .form-actions .btn {
+            width: 100%;
+          }
         }
       `}</style>
     </div>
