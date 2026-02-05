@@ -43,7 +43,9 @@
   padding: var(--spacing-lg) var(--spacing-xl);
   position: relative;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(203, 172, 109, 0.35);
+  border: 1px solid rgba(203, 172, 109, 0.7);
+  outline: 1px solid rgba(203, 172, 109, 0.35);
+  outline-offset: 6px;
 }
 
 .modalClose {
@@ -127,17 +129,22 @@
 }
 
 .checkboxLabel {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 0.5rem;
   font-size: 16px;
   color: var(--sbd-brown);
+  width: 100%;
+}
+
+.checkboxLabel input {
+  margin: 0;
 }
 
 .formActions {
   margin-top: var(--spacing-sm);
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
 }
 
 .formError {
@@ -157,6 +164,10 @@
 
   .formRow {
     grid-template-columns: 1fr;
+  }
+
+  .formActions {
+    justify-content: center;
   }
 }
 
