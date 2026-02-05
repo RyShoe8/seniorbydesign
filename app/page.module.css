@@ -266,6 +266,7 @@
   transform: translate3d(0, 0, 0);
   isolation: isolate;
   position: relative;
+  contain: layout style paint;
 }
 
 .partnersTabs {
@@ -319,9 +320,8 @@
   align-items: center;
   box-sizing: border-box;
   overflow: hidden;
+  contain: layout style paint;
   transform: translate3d(0, 0, 0);
-  will-change: scroll-position;
-  -webkit-overflow-scrolling: touch;
 }
 
 .partnerLogo {
