@@ -68,13 +68,22 @@ export default function BrochureViewer() {
       const viewport = page.getViewport({ scale: 1 });
       
       if (isMobileView) {
-        // Mobile: Single page fills entire viewport width, height scales proportionally, then apply zoom
-        const baseScale = viewportWidth / viewport.width;
+        // Mobile: Use more vertical space, minimize top/bottom padding
+        // Reserve minimal space for close button and page indicator
+        const topSpace = 50; // Space for close button
+        const bottomSpace = 40; // Space for page indicator
+        const availableHeight = viewportHeight - topSpace - bottomSpace;
+        
+        // Calculate scale to maximize page size while maintaining aspect ratio
+        const widthScale = viewportWidth / viewport.width;
+        const heightScale = availableHeight / viewport.height;
+        const baseScale = Math.min(widthScale, heightScale * 1.05); // Slight preference for height
+        
+        // Apply zoom level
         const finalScale = baseScale * zoomLevel;
-        const scaledHeight = viewport.height * finalScale;
         setPageSize({
-          width: viewportWidth * zoomLevel,
-          height: scaledHeight,
+          width: viewport.width * finalScale,
+          height: viewport.height * finalScale,
           scale: finalScale,
         });
       } else {
@@ -238,33 +247,79 @@ export default function BrochureViewer() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [router, prevPage, nextPage]);
 
-  // Swipe gesture handling for mobile
+  // Calculate distance between two touch points
+  const getDistance = (touch1: Touch, touch2: Touch) => {
+    const dx = touch1.clientX - touch2.clientX;
+    const dy = touch1.clientY - touch2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  // Swipe and pinch gesture handling for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-    touchStartY.current = e.touches[0].clientY;
+    if (e.touches.length === 1) {
+      // Single touch - track for swipe
+      touchStartX.current = e.touches[0].clientX;
+      touchStartY.current = e.touches[0].clientY;
+      setIsZooming(false);
+    } else if (e.touches.length === 2) {
+      // Two touches - pinch to zoom
+      setIsZooming(true);
+      initialDistance.current = getDistance(e.touches[0], e.touches[1]);
+      initialZoom.current = zoomLevel;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2 && initialDistance.current !== null) {
+      // Pinch zoom
+      e.preventDefault();
+      const currentDistance = getDistance(e.touches[0], e.touches[1]);
+      const scale = currentDistance / initialDistance.current;
+      const newZoom = Math.max(0.5, Math.min(3, initialZoom.current * scale));
+      setZoomLevel(newZoom);
+    }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!touchStartX.current || !touchStartY.current) return;
+    if (e.touches.length === 0) {
+      // All touches ended
+      if (!isZooming && touchStartX.current !== null && touchStartY.current !== null) {
+        // Handle swipe
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        const deltaX = touchStartX.current - touchEndX;
+        const deltaY = touchStartY.current - touchEndY;
 
-    const touchEndX = e.changedTouches[0].clientX;
-    const touchEndY = e.changedTouches[0].clientY;
-    const deltaX = touchStartX.current - touchEndX;
-    const deltaY = touchStartY.current - touchEndY;
-
-    // Only handle horizontal swipes (ignore vertical scrolling)
-    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
-      if (deltaX > 0) {
-        // Swipe left - next page
-        nextPage();
-      } else {
-        // Swipe right - previous page
-        prevPage();
+        // Only handle horizontal swipes (ignore vertical scrolling)
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+          if (deltaX > 0) {
+            // Swipe left - next page
+            nextPage();
+          } else {
+            // Swipe right - previous page
+            prevPage();
+          }
+        }
       }
+      
+      touchStartX.current = null;
+      touchStartY.current = null;
+      initialDistance.current = null;
+      setIsZooming(false);
     }
+  };
 
-    touchStartX.current = null;
-    touchStartY.current = null;
+  // Zoom controls
+  const handleZoomIn = () => {
+    setZoomLevel(prev => Math.min(3, prev + 0.25));
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel(prev => Math.max(0.5, prev - 0.25));
+  };
+
+  const handleZoomReset = () => {
+    setZoomLevel(1);
   };
 
   // Prevent body scroll
@@ -319,6 +374,7 @@ export default function BrochureViewer() {
       <div 
         className={styles.pagesContainer}
         onTouchStart={isMobile ? handleTouchStart : undefined}
+        onTouchMove={isMobile ? handleTouchMove : undefined}
         onTouchEnd={isMobile ? handleTouchEnd : undefined}
       >
         {isMobile ? (
@@ -340,9 +396,38 @@ export default function BrochureViewer() {
       </div>
 
       {isMobile ? (
-        <div className={styles.mobilePageIndicator}>
-          <span>{currentPage} / {totalPages}</span>
-        </div>
+        <>
+          <div className={styles.mobilePageIndicator}>
+            <span>{currentPage} / {totalPages}</span>
+          </div>
+          <div className={styles.mobileZoomControls}>
+            <button
+              className={styles.zoomButton}
+              onClick={handleZoomOut}
+              aria-label="Zoom out"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <button
+              className={styles.zoomButton}
+              onClick={handleZoomReset}
+              aria-label="Reset zoom"
+            >
+              <span>{Math.round(zoomLevel * 100)}%</span>
+            </button>
+            <button
+              className={styles.zoomButton}
+              onClick={handleZoomIn}
+              aria-label="Zoom in"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </>
       ) : (
         <div className={styles.navigation}>
           <button
