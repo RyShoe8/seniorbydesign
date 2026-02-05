@@ -44,6 +44,7 @@
   max-height: 90vh;
   border-radius: 20px;
   padding: var(--spacing-xl) var(--spacing-2xl);
+  padding-bottom: calc(var(--spacing-xl) + 100px);
   position: relative;
   margin: auto;
   box-shadow: 
@@ -380,6 +381,7 @@
 
   .modal {
     padding: var(--spacing-lg);
+    padding-bottom: calc(var(--spacing-lg) + 120px);
     border-radius: 16px;
     outline-offset: 4px;
     max-height: calc(100vh - var(--spacing-md) * 2);

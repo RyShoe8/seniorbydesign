@@ -82,6 +82,7 @@ export default function NewsletterCTA() {
   const stateDropdownRef = useRef<HTMLDivElement>(null);
   const stateInputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+  const submitButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -304,35 +305,41 @@ export default function NewsletterCTA() {
     setTimeout(() => {
       const input = e.target;
       const modal = modalRef.current;
+      const submitButton = submitButtonRef.current;
+      
       if (modal && input) {
-        // Use scrollIntoView with options for better mobile support
-        input.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-          inline: 'nearest',
-        });
-        
-        // Also ensure the modal itself is scrolled if needed
-        // This handles cases where the modal container needs to scroll
-        const inputRect = input.getBoundingClientRect();
-        const modalRect = modal.getBoundingClientRect();
         const viewportHeight = window.innerHeight;
-        
-        // Check if input is below the visible viewport (accounting for keyboard)
-        // The keyboard typically takes up about 40-50% of viewport on mobile
         const estimatedKeyboardHeight = viewportHeight * 0.4;
         const availableHeight = viewportHeight - estimatedKeyboardHeight;
         
-        if (inputRect.bottom > availableHeight) {
-          // Input is hidden by keyboard, scroll modal to bring it into view
-          const scrollAmount = inputRect.bottom - availableHeight + 20; // 20px padding
+        // Get positions
+        const inputRect = input.getBoundingClientRect();
+        const submitRect = submitButton?.getBoundingClientRect();
+        const modalRect = modal.getBoundingClientRect();
+        
+        // Calculate how much space we need for input + submit button
+        const inputBottom = inputRect.bottom;
+        const submitHeight = submitRect ? submitRect.height + 20 : 80; // 20px padding
+        const neededSpace = inputBottom + submitHeight;
+        
+        // Check if submit button would be hidden
+        if (neededSpace > availableHeight) {
+          // Scroll to ensure both input and submit button are visible
+          const scrollAmount = neededSpace - availableHeight + 40; // Extra padding
+          modal.scrollBy({
+            top: scrollAmount,
+            behavior: 'smooth',
+          });
+        } else if (inputRect.bottom > availableHeight - submitHeight) {
+          // Input is too low, scroll it up a bit
+          const scrollAmount = inputRect.bottom - (availableHeight - submitHeight) + 20;
           modal.scrollBy({
             top: scrollAmount,
             behavior: 'smooth',
           });
         }
       }
-    }, 350); // Delay to account for keyboard animation
+    }, 400); // Slightly longer delay to ensure keyboard is fully open
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -590,7 +597,12 @@ export default function NewsletterCTA() {
                 )}
 
                 <div className={styles.formActions}>
-                  <button type="submit" className="btn" disabled={isSubmitting}>
+                  <button 
+                    type="submit" 
+                    className="btn" 
+                    disabled={isSubmitting}
+                    ref={submitButtonRef}
+                  >
                     {isSubmitting ? 'Processing...' : 'Submit'}
                   </button>
                 </div>
