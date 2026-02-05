@@ -205,11 +205,6 @@ export default function BrochureManagement() {
     }
   }, [datePreset]);
 
-  useEffect(() => {
-    if (!startDate || !endDate) return;
-    fetchChartData();
-  }, [startDate, endDate, fetchChartData]);
-
   // Determine period based on date range
   const getPeriod = (start: string, end: string): 'day' | 'week' | 'month' | 'year' => {
     const startDate = new Date(start);
@@ -248,6 +243,11 @@ export default function BrochureManagement() {
       setIsChartLoading(false);
     }
   }, [startDate, endDate]);
+
+  useEffect(() => {
+    if (!startDate || !endDate) return;
+    fetchChartData();
+  }, [startDate, endDate, fetchChartData]);
 
   const fetchSettings = async () => {
     try {
