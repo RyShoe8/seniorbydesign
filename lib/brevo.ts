@@ -52,6 +52,10 @@ export async function addContactToBrevo(data: NewsletterSignupData): Promise<voi
       updateEnabled: true,
     };
     
+    // Set email blacklist status based on newsletter opt-in
+    // If newsletter is not explicitly true, blacklist them from email communications
+    requestBody.emailBlacklisted = data.newsletter !== true;
+    
     // Handle newsletter subscription and brochure list
     const listIds: number[] = [];
     
