@@ -37,6 +37,8 @@ export default function BrochureViewer() {
   const leftCanvasRef = useRef<HTMLCanvasElement>(null);
   const rightCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
 
   // Check if mobile
   useEffect(() => {
@@ -221,6 +223,35 @@ export default function BrochureViewer() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [router, prevPage, nextPage]);
 
+  // Swipe gesture handling for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartX.current || !touchStartY.current) return;
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaX = touchStartX.current - touchEndX;
+    const deltaY = touchStartY.current - touchEndY;
+
+    // Only handle horizontal swipes (ignore vertical scrolling)
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+      if (deltaX > 0) {
+        // Swipe left - next page
+        nextPage();
+      } else {
+        // Swipe right - previous page
+        prevPage();
+      }
+    }
+
+    touchStartX.current = null;
+    touchStartY.current = null;
+  };
+
   // Prevent body scroll
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -270,7 +301,11 @@ export default function BrochureViewer() {
         </svg>
       </button>
 
-      <div className={styles.pagesContainer}>
+      <div 
+        className={styles.pagesContainer}
+        onTouchStart={isMobile ? handleTouchStart : undefined}
+        onTouchEnd={isMobile ? handleTouchEnd : undefined}
+      >
         {isMobile ? (
           <div className={styles.pageWrapper}>
             <canvas ref={leftCanvasRef} className={styles.pageCanvas} />
@@ -289,39 +324,41 @@ export default function BrochureViewer() {
         )}
       </div>
 
-      <div className={styles.navigation}>
-        <button
-          className={`${styles.navButton} ${styles.navButtonPrev}`}
-          onClick={prevPage}
-          disabled={!canGoPrev}
-          aria-label="Previous page"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
+      {isMobile ? (
+        <div className={styles.mobilePageIndicator}>
+          <span>{currentPage} / {totalPages}</span>
+        </div>
+      ) : (
+        <div className={styles.navigation}>
+          <button
+            className={`${styles.navButton} ${styles.navButtonPrev}`}
+            onClick={prevPage}
+            disabled={!canGoPrev}
+            aria-label="Previous page"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
 
-        <div className={styles.pageIndicator}>
-          {isMobile ? (
-            <span>{currentPage} / {totalPages}</span>
-          ) : (
+          <div className={styles.pageIndicator}>
             <span>
               {currentPage}-{Math.min(currentPage + 1, totalPages)} / {totalPages}
             </span>
-          )}
-        </div>
+          </div>
 
-        <button
-          className={`${styles.navButton} ${styles.navButtonNext}`}
-          onClick={nextPage}
-          disabled={!canGoNext}
-          aria-label="Next page"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
-      </div>
+          <button
+            className={`${styles.navButton} ${styles.navButtonNext}`}
+            onClick={nextPage}
+            disabled={!canGoNext}
+            aria-label="Next page"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

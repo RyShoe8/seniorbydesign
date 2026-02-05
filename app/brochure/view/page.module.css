@@ -71,6 +71,7 @@
   .pagesContainer {
     padding: 0;
     gap: 0;
+    touch-action: pan-y;
   }
 
   .pageWrapper {
@@ -82,6 +83,7 @@
     width: 100vw;
     height: 100vh;
     box-shadow: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .closeButton {
@@ -89,6 +91,31 @@
     right: var(--spacing-sm);
     width: 40px;
     height: 40px;
+  }
+
+  .navigation {
+    display: none;
+  }
+
+  .mobilePageIndicator {
+    position: fixed;
+    top: var(--spacing-sm);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 10000;
+  }
+
+  .mobilePageIndicator span {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-body);
+    letter-spacing: 0.5px;
   }
 }
 
