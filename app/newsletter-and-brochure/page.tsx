@@ -267,28 +267,15 @@ export default function NewsletterAndBrochure() {
             {requestSubmitted && (
               <section className={`${styles.downloadSection} section-padding`}>
                 <div className="container">
-                  <h2 className={styles.centeredHeading}>📄 Your Brochure is Ready!</h2>
+                  <h2 className={styles.centeredHeading}>Your Brochure is Ready</h2>
                   <div className={styles.downloadOptions}>
-                    <div className={styles.downloadCard}>
-                      <h3>📥 Download Now</h3>
-                      <p>Get instant access to our interactive digital brochure.</p>
-                      <a 
-                        href="/files/SBD Interactive Brochure.pdf" 
-                        download="SBD Interactive Brochure.pdf"
-                        className={`btn ${styles.downloadBtn}`}
-                      >
-                        📄 Download Brochure
-                      </a>
-                    </div>
-                    
-                    <div className={styles.downloadCard}>
-                      <h3>✅ Email Confirmation</h3>
-                      <p>We&apos;ve also sent this to your email as a backup.</p>
-                      <div className={styles.emailConfirmation}>
-                        <span className={styles.emailIcon}>📧</span>
-                        <span>Check your inbox: <strong>{formData.email || 'your email'}</strong></span>
-                      </div>
-                    </div>
+                    <a
+                      href="/files/SBD Interactive Brochure.pdf"
+                      download="SBD Interactive Brochure.pdf"
+                      className={`btn ${styles.downloadBtn}`}
+                    >
+                      Download Brochure
+                    </a>
                   </div>
                 </div>
               </section>

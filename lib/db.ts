@@ -12,6 +12,7 @@ import {
   HomepageContent,
   Media,
   BrochureSettings,
+  BrochureRequest,
 } from './models';
 
 const DB_NAME = 'seniorbydesign';
@@ -80,6 +81,11 @@ export async function getMediaCollection() {
 export async function getBrochureSettingsCollection() {
   const db = await getDb();
   return db.collection<BrochureSettings>('brochureSettings');
+}
+
+export async function getBrochureRequestsCollection() {
+  const db = await getDb();
+  return db.collection<BrochureRequest>('brochureRequests');
 }
 
 

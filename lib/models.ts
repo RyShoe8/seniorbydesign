@@ -140,6 +140,12 @@ export interface BrochureSettings {
   updatedAt: Date;
 }
 
+export interface BrochureRequest {
+  _id?: ObjectId;
+  brochureType: 'digital' | 'physical';
+  createdAt: Date;
+}
+
 
 
 

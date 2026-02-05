@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { addContactToBrevo, sendTransactionalEmail, NewsletterSignupData } from '@/lib/brevo';
+import { getBrochureRequestsCollection } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +18,15 @@ export async function POST(request: Request) {
     
     // Add contact to Brevo
     await addContactToBrevo(body);
+
+    // Track brochure request type (no PII)
+    if (body.brochureType === 'digital' || body.brochureType === 'physical') {
+      const requestsCollection = await getBrochureRequestsCollection();
+      await requestsCollection.insertOne({
+        brochureType: body.brochureType,
+        createdAt: new Date(),
+      });
+    }
     
     // Send confirmation email if brochure type is digital
     if (body.brochureType === 'digital') {
