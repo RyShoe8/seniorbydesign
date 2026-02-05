@@ -78,7 +78,7 @@ export default function BrochureManagement() {
   const [isChartLoading, setIsChartLoading] = useState(false);
   const [chartError, setChartError] = useState('');
   const [period, setPeriod] = useState<'day' | 'week' | 'month' | 'year'>('month');
-  const [datePreset, setDatePreset] = useState<'7' | '30' | '90' | 'ytd' | 'custom'>('30');
+  const [datePreset, setDatePreset] = useState<'today' | '7' | '30' | '90' | 'ytd' | 'custom'>('today');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [chartData, setChartData] = useState<{ labels: string[]; digital: number[]; physical: number[] }>({
@@ -93,7 +93,12 @@ export default function BrochureManagement() {
 
   useEffect(() => {
     const now = new Date();
-    if (datePreset === 'ytd') {
+    if (datePreset === 'today') {
+      const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+      const todayStr = today.toISOString().slice(0, 10);
+      setStartDate(todayStr);
+      setEndDate(todayStr);
+    } else if (datePreset === 'ytd') {
       const start = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
       setStartDate(start.toISOString().slice(0, 10));
       setEndDate(now.toISOString().slice(0, 10));
@@ -212,8 +217,9 @@ export default function BrochureManagement() {
               <select
                 id="preset"
                 value={datePreset}
-                onChange={(e) => setDatePreset(e.target.value as '7' | '30' | '90' | 'ytd' | 'custom')}
+                onChange={(e) => setDatePreset(e.target.value as 'today' | '7' | '30' | '90' | 'ytd' | 'custom')}
               >
+                <option value="today">Today</option>
                 <option value="7">Last 7 days</option>
                 <option value="30">Last 30 days</option>
                 <option value="90">Last 90 days</option>
