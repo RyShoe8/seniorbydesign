@@ -70,6 +70,8 @@ export default function PartnersTabs({ partners }: { partners: Partner[] }) {
                       height={180}
                       style={{ maxWidth: '100%', maxHeight: '180px', width: 'auto', height: 'auto', objectFit: 'contain' }}
                       unoptimized={logoUrl.startsWith('http')}
+                      loading="lazy"
+                      decoding="async"
                     />
                   </a>
                 ) : (
@@ -80,6 +82,8 @@ export default function PartnersTabs({ partners }: { partners: Partner[] }) {
                     height={180}
                     style={{ maxWidth: '100%', maxHeight: '180px', width: 'auto', height: 'auto', objectFit: 'contain' }}
                     unoptimized={logoUrl.startsWith('http')}
+                    loading="lazy"
+                    decoding="async"
                   />
                 )}
               </div>
