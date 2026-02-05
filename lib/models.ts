@@ -110,7 +110,6 @@ export interface HomepageContent {
   heroHeadline: string;
   heroSubheadline: string;
   heroVideo?: string;
-  portfolioHighlights: string[];
   testimonials: {
     review: string;
     name: string;

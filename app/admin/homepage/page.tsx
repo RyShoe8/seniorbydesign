@@ -22,7 +22,6 @@ interface Partner {
 
 interface HomepageContent {
   _id?: string;
-  portfolioHighlights: string[];
   testimonials: Testimonial[];
 }
 
@@ -48,7 +47,6 @@ export default function HomepageManagement() {
       const response = await fetch('/api/admin/homepage');
       const data = await response.json();
       setContent(data || {
-        portfolioHighlights: [],
         testimonials: [],
       });
     } catch (error) {
@@ -64,33 +62,6 @@ export default function HomepageManagement() {
       setPartners(data.sort((a: Partner, b: Partner) => a.order - b.order));
     } catch (error) {
           }
-  };
-
-  const handlePortfolioSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSaving(true);
-    const formData = new FormData(e.currentTarget);
-    
-    const data = {
-      portfolioHighlights: (formData.get('portfolioHighlights') as string).split('\n').filter(h => h.trim()),
-    };
-
-    try {
-      const response = await fetch('/api/admin/homepage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        alert('Portfolio highlights saved successfully!');
-        fetchContent();
-      }
-    } catch (error) {
-            alert('Error saving content');
-    } finally {
-      setIsSaving(false);
-    }
   };
 
   const handleAddTestimonial = async (testimonial: Testimonial) => {
@@ -263,28 +234,6 @@ export default function HomepageManagement() {
     <div className="admin-page">
       <h1>Homepage Content Management</h1>
       
-      {/* Portfolio Highlights Section */}
-      <form onSubmit={handlePortfolioSubmit} className="admin-form">
-        <div className="form-section">
-          <h2>Portfolio Highlights</h2>
-          <div className="form-group">
-            <label htmlFor="portfolioHighlights">Portfolio Category Slugs (one per line)</label>
-            <textarea
-              id="portfolioHighlights"
-              name="portfolioHighlights"
-              rows={6}
-              defaultValue={content?.portfolioHighlights?.join('\n') || ''}
-              placeholder="active-adult-55&#10;senior-living&#10;remodels"
-            />
-          </div>
-          <div className="form-actions">
-            <button type="submit" className="btn" disabled={isSaving}>
-              {isSaving ? 'Saving...' : 'Save Portfolio Highlights'}
-            </button>
-          </div>
-        </div>
-      </form>
-
       {/* Partners Section */}
       <div className="admin-form">
         <div className="form-section">

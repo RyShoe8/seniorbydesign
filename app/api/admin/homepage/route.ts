@@ -40,7 +40,6 @@ export async function POST(request: Request) {
       heroHeadline: 'Soul Warming Interiors',
       heroSubheadline: 'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.',
       heroVideo: '',
-      portfolioHighlights: [],
       testimonials: [],
       partners: [],
     };
@@ -49,7 +48,6 @@ export async function POST(request: Request) {
       heroHeadline: currentContent.heroHeadline,
       heroSubheadline: currentContent.heroSubheadline,
       heroVideo: currentContent.heroVideo || '',
-      portfolioHighlights: body.portfolioHighlights || currentContent.portfolioHighlights || [],
       testimonials: currentContent.testimonials || [],
       partners: currentContent.partners || [],
       updatedAt: new Date(),

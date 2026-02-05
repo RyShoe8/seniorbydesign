@@ -116,7 +116,7 @@ export default async function Home() {
                           alt={altText}
                           width={320}
                           height={180}
-                          style={{ maxWidth: '320px', maxHeight: '180px', width: 'auto', height: 'auto', objectFit: 'contain' }}
+                          style={{ maxWidth: '100%', maxHeight: '180px', width: 'auto', height: 'auto', objectFit: 'contain' }}
                           unoptimized={logoUrl.startsWith('http')}
                         />
                       </a>
@@ -126,7 +126,7 @@ export default async function Home() {
                         alt={altText}
                         width={320}
                         height={180}
-                        style={{ maxWidth: '320px', maxHeight: '180px', width: 'auto', height: 'auto', objectFit: 'contain' }}
+                        style={{ maxWidth: '100%', maxHeight: '180px', width: 'auto', height: 'auto', objectFit: 'contain' }}
                         unoptimized={logoUrl.startsWith('http')}
                       />
                     )}

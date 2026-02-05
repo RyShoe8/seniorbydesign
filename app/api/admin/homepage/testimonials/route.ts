@@ -37,7 +37,6 @@ export async function POST(request: Request) {
         heroHeadline: '',
         heroSubheadline: '',
         heroVideo: '',
-        portfolioHighlights: [],
         testimonials: [testimonial],
         partners: [],
         updatedAt: new Date(),
