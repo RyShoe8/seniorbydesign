@@ -64,16 +64,12 @@ export default function BrochureViewer() {
       const viewport = page.getViewport({ scale: 1 });
       
       if (isMobileView) {
-        // Mobile: Single page fills entire viewport (accounting for close button space)
-        const topPadding = 60; // Space for close button
-        const availableHeight = viewportHeight - topPadding;
-        const scale = Math.min(
-          viewportWidth / viewport.width,
-          availableHeight / viewport.height
-        );
+        // Mobile: Single page fills entire viewport width, height scales proportionally
+        const scale = viewportWidth / viewport.width;
+        const scaledHeight = viewport.height * scale;
         setPageSize({
-          width: viewport.width * scale,
-          height: viewport.height * scale,
+          width: viewportWidth,
+          height: scaledHeight,
           scale,
         });
       } else {
@@ -147,11 +143,13 @@ export default function BrochureViewer() {
       
       // Set canvas dimensions to match viewport exactly
       const dpr = window.devicePixelRatio || 1;
-      const displayWidth = Math.floor(viewport.width);
-      const displayHeight = Math.floor(viewport.height);
+      const displayWidth = Math.floor(pageSize.width);
+      const displayHeight = Math.floor(pageSize.height);
       
       canvas.width = displayWidth * dpr;
       canvas.height = displayHeight * dpr;
+      
+      // Set CSS size to match display size (not accounting for DPR)
       canvas.style.width = `${displayWidth}px`;
       canvas.style.height = `${displayHeight}px`;
 
@@ -170,7 +168,7 @@ export default function BrochureViewer() {
     } catch (err) {
       console.error('Error rendering page:', err);
     }
-  }, [pdfDoc, pageSize.scale]);
+  }, [pdfDoc, pageSize]);
 
   // Render pages when current page or page size changes
   useEffect(() => {
