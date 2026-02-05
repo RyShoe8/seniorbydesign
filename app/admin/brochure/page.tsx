@@ -191,7 +191,12 @@ export default function BrochureManagement() {
 
   return (
     <div className="admin-page">
-      <h1>Brochure Settings</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-md)' }}>
+        <h1>Brochure Settings</h1>
+        <a href="/brochure/view" target="_blank" rel="noopener noreferrer" className="btn" style={{ textDecoration: 'none' }}>
+          View Brochure
+        </a>
+      </div>
       
       <div className="admin-form">
         <div className="form-section">
