@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface BrochureSettings {
   _id?: string;
@@ -208,7 +208,7 @@ export default function BrochureManagement() {
   useEffect(() => {
     if (!startDate || !endDate) return;
     fetchChartData();
-  }, [startDate, endDate]);
+  }, [startDate, endDate, fetchChartData]);
 
   // Determine period based on date range
   const getPeriod = (start: string, end: string): 'day' | 'week' | 'month' | 'year' => {
@@ -225,7 +225,7 @@ export default function BrochureManagement() {
     return 'year';
   };
 
-  const fetchChartData = async () => {
+  const fetchChartData = useCallback(async () => {
     setIsChartLoading(true);
     setChartError('');
     try {
