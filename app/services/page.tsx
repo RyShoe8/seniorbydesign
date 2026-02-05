@@ -92,7 +92,7 @@ export default async function Services() {
       images: 1,
     },
     {
-      slug: 'FF&E-Services',
+      slug: 'FFE-Services',
       title: 'FF&E Services',
       description: 'At Senior by Design, FF&E is far more than sourcing furniture it is a highly curated, hands-on process rooted in performance, comfort, and design integrity. We source furniture, finishes, and equipment from around the world, focusing exclusively on commercial-grade products that are appropriate for senior living and multifamily environments. We rigorously vet not only our vendors, but their products as well. It is not uncommon for us to review a catalog of hundreds of seating options, travel directly to the factory, and determine that only a small percentage truly meet our standards for durability, comfort, scale, and long-term use.',
       bullets: {
