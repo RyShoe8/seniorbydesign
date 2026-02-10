@@ -147,6 +147,11 @@ export async function addContactToBrevo(data: NewsletterSignupData): Promise<voi
   }
 }
 
+export interface EmailAttachment {
+  name: string;
+  content: string; // base64 encoded
+}
+
 /**
  * Send transactional email via Brevo REST API
  */
@@ -154,7 +159,8 @@ export async function sendTransactionalEmail(
   to: { email: string; name?: string }[],
   subject: string,
   htmlContent: string,
-  textContent?: string
+  textContent?: string,
+  attachments?: EmailAttachment[]
 ): Promise<void> {
   try {
     const apiKey = getBrevoApiKey();
@@ -175,6 +181,10 @@ export async function sendTransactionalEmail(
     
     if (textContent) {
       requestBody.textContent = textContent;
+    }
+    
+    if (attachments && attachments.length > 0) {
+      requestBody.attachment = attachments;
     }
     
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {

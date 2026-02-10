@@ -180,6 +180,14 @@ export default function BrochureManagement() {
     digital: [],
     physical: [],
   });
+  const [emailFormData, setEmailFormData] = useState({
+    email: '',
+    name: '',
+    message: '',
+  });
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [emailError, setEmailError] = useState('');
 
   useEffect(() => {
     fetchSettings();
@@ -295,6 +303,63 @@ export default function BrochureManagement() {
     });
   };
 
+  const handleEmailFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setEmailFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+    // Clear status when user starts typing
+    if (emailStatus !== 'idle') {
+      setEmailStatus('idle');
+      setEmailError('');
+    }
+  };
+
+  const handleEmailSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    // Validate email
+    if (!emailFormData.email || !emailFormData.email.includes('@')) {
+      setEmailStatus('error');
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+
+    setIsSendingEmail(true);
+    setEmailStatus('idle');
+    setEmailError('');
+
+    try {
+      const response = await fetch('/api/admin/brochure/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: emailFormData.email.trim(),
+          name: emailFormData.name.trim() || undefined,
+          message: emailFormData.message.trim() || undefined,
+        }),
+      });
+
+      if (response.ok) {
+        setEmailStatus('success');
+        setEmailFormData({ email: '', name: '', message: '' });
+        // Clear success message after 5 seconds
+        setTimeout(() => setEmailStatus('idle'), 5000);
+      } else {
+        const error = await response.json();
+        setEmailStatus('error');
+        setEmailError(error.error || 'Failed to send email');
+      }
+    } catch (error) {
+      console.error('Error sending brochure email:', error);
+      setEmailStatus('error');
+      setEmailError('An error occurred while sending the email');
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
   if (isLoading) {
     return <p>Loading...</p>;
   }
@@ -406,6 +471,73 @@ export default function BrochureManagement() {
           <div className="form-actions">
             <button type="submit" className="btn" disabled={isSaving}>
               {isSaving ? 'Saving...' : 'Save Settings'}
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <form onSubmit={handleEmailSubmit} className="admin-form">
+        <div className="form-section">
+          <h2>Email Brochure</h2>
+          <p style={{ marginBottom: 'var(--spacing-md)', color: 'var(--warm-grey-3)', fontSize: '14px' }}>
+            Send the brochure directly to someone via email. The PDF will be attached and a download link will be included in the email.
+          </p>
+          
+          <div className="form-group">
+            <label htmlFor="emailRecipient">Recipient Email *</label>
+            <input
+              type="email"
+              id="emailRecipient"
+              name="email"
+              value={emailFormData.email}
+              onChange={handleEmailFormChange}
+              required
+              placeholder="recipient@example.com"
+              style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--warm-grey-3)', borderRadius: '4px', fontFamily: 'inherit', fontSize: '16px' }}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="emailName">Recipient Name (Optional)</label>
+            <input
+              type="text"
+              id="emailName"
+              name="name"
+              value={emailFormData.name}
+              onChange={handleEmailFormChange}
+              placeholder="John Doe"
+              style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--warm-grey-3)', borderRadius: '4px', fontFamily: 'inherit', fontSize: '16px' }}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="emailMessage">Personal Message (Optional)</label>
+            <textarea
+              id="emailMessage"
+              name="message"
+              value={emailFormData.message}
+              onChange={handleEmailFormChange}
+              placeholder="Add a personal note to include in the email..."
+              rows={4}
+              style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--warm-grey-3)', borderRadius: '4px', fontFamily: 'inherit', fontSize: '16px', resize: 'vertical' }}
+            />
+          </div>
+
+          {emailStatus === 'success' && (
+            <div style={{ padding: '12px', backgroundColor: '#d4edda', border: '1px solid #c3e6cb', borderRadius: '4px', color: '#155724', marginBottom: 'var(--spacing-md)' }}>
+              Brochure sent successfully!
+            </div>
+          )}
+
+          {emailStatus === 'error' && (
+            <div style={{ padding: '12px', backgroundColor: '#f8d7da', border: '1px solid #f5c6cb', borderRadius: '4px', color: '#721c24', marginBottom: 'var(--spacing-md)' }}>
+              {emailError || 'Failed to send email. Please try again.'}
+            </div>
+          )}
+
+          <div className="form-actions">
+            <button type="submit" className="btn" disabled={isSendingEmail}>
+              {isSendingEmail ? 'Sending...' : 'Send Brochure'}
             </button>
           </div>
         </div>

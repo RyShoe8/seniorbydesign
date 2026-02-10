@@ -111,7 +111,7 @@ export default function ServicesManagement() {
         }
       }
 
-      setAdditionalImages([...additionalImages, ...uploadedUrls]);
+      setAdditionalImages([...uploadedUrls, ...additionalImages]);
     } catch (error) {
             alert('Error uploading images');
     } finally {

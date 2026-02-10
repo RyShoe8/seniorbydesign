@@ -83,7 +83,7 @@ export default function PortfolioImageManagement() {
           altText: currentImageAltText.trim(),
         };
         
-        const updatedImages = [...category.images, newImage];
+        const updatedImages = [newImage, ...category.images];
         await updateCategoryImages(updatedImages);
         
         setCurrentImageDisplayName('');

@@ -115,7 +115,7 @@ export default function PortfolioManagement() {
           displayName: currentImageDisplayName.trim(),
           altText: currentImageAltText.trim(),
         };
-        setPortfolioImages([...portfolioImages, newImage]);
+        setPortfolioImages([newImage, ...portfolioImages]);
         setCurrentImageDisplayName('');
         setCurrentImageAltText('');
         // Reset file input
