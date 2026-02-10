@@ -25,8 +25,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Get sender name from session or use default
-    const senderName = session.user?.name || session.user?.email?.split('@')[0] || 'Senior By Design';
+    // Get sender name from session email or use default
+    const senderName = session.user?.email?.split('@')[0] || 'Senior By Design';
 
     // Generate email content
     const htmlContent = generateBrochureEmailTemplate({
