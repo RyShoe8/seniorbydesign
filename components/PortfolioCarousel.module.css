@@ -68,6 +68,25 @@
   contain: layout style paint;
 }
 
+.imagePlaceholder {
+  width: 100%;
+  height: 250px;
+  aspect-ratio: 16 / 10;
+  background: var(--warm-grey-1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  color: var(--warm-grey-3);
+  font-size: 14px;
+}
+
+.placeholderIcon {
+  font-size: 48px;
+  opacity: 0.5;
+}
+
 .portfolioCard h3 {
   padding: var(--spacing-sm);
   font-size: 24px;

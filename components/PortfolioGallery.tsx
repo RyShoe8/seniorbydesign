@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getPortfolioImageUrl } from '@/lib/image-utils';
 
 interface PortfolioImage {
   url: string;
@@ -20,6 +21,7 @@ export default function PortfolioGallery({ images, categoryName }: Props) {
   const imageAlts = images.map(img => img.altText || img.displayName);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [failedImageIndices, setFailedImageIndices] = useState<Set<number>>(new Set());
 
   const openFullscreen = (index: number) => {
     setCurrentImageIndex(index);
@@ -51,22 +53,33 @@ export default function PortfolioGallery({ images, categoryName }: Props) {
           {imageUrls.length > 0 ? (
             <div className="portfolio-gallery">
               <div className="gallery-thumbnails">
-                {imageUrls.map((imageUrl, index) => (
-                  <div
-                    key={index}
-                    className="thumbnail"
-                    onClick={() => openFullscreen(index)}
-                  >
-                    <Image
-                      src={imageUrl}
-                      alt={imageAlts[index] || `Portfolio image ${index + 1}`}
-                      fill
-                      style={{ objectFit: 'cover' }}
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-                      unoptimized={imageUrl.startsWith('http')}
-                    />
-                  </div>
-                ))}
+                {imageUrls.map((imageUrl, index) => {
+                  const hasError = failedImageIndices.has(index);
+                  return (
+                    <div
+                      key={index}
+                      className="thumbnail"
+                      onClick={() => !hasError && openFullscreen(index)}
+                    >
+                      {hasError ? (
+                        <div className="thumbnail-placeholder">
+                          <span className="placeholder-icon">📷</span>
+                          <span>{imageAlts[index] || `Image ${index + 1}`}</span>
+                        </div>
+                      ) : (
+                        <Image
+                          src={imageUrl}
+                          alt={imageAlts[index] || `Portfolio image ${index + 1}`}
+                          fill
+                          style={{ objectFit: 'cover' }}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
+                          unoptimized={imageUrl.startsWith('http')}
+                          onError={() => setFailedImageIndices((prev) => new Set(prev).add(index))}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ) : (
@@ -86,12 +99,21 @@ export default function PortfolioGallery({ images, categoryName }: Props) {
             ‹
           </button>
           <div className="fullscreen-image" onClick={(e) => e.stopPropagation()}>
-            <Image
-              src={imageUrls[currentImageIndex]}
-              alt={imageAlts[currentImageIndex] || `Portfolio image ${currentImageIndex + 1}`}
-              width={1200}
-              height={800}
-            />
+            {failedImageIndices.has(currentImageIndex) ? (
+              <div className="fullscreen-placeholder">
+                <span className="placeholder-icon">📷</span>
+                <span>{imageAlts[currentImageIndex] || `Image ${currentImageIndex + 1}`}</span>
+              </div>
+            ) : (
+              <Image
+                src={getPortfolioImageUrl(imageUrls[currentImageIndex])}
+                alt={imageAlts[currentImageIndex] || `Portfolio image ${currentImageIndex + 1}`}
+                width={1200}
+                height={800}
+                unoptimized={imageUrls[currentImageIndex]?.startsWith('http') || getPortfolioImageUrl(imageUrls[currentImageIndex]).startsWith('/api/image-proxy')}
+                onError={() => setFailedImageIndices((prev) => new Set(prev).add(currentImageIndex))}
+              />
+            )}
           </div>
           <button className="nav-btn next-btn" onClick={(e) => { e.stopPropagation(); nextImage(); }}>
             ›
@@ -127,6 +149,31 @@ export default function PortfolioGallery({ images, categoryName }: Props) {
           aspect-ratio: 1;
           position: relative;
           contain: layout style paint;
+        }
+
+        .thumbnail-placeholder,
+        .fullscreen-placeholder {
+          position: absolute;
+          inset: 0;
+          background: var(--warm-grey-1);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: var(--spacing-xs);
+          color: var(--warm-grey-3);
+          font-size: 14px;
+        }
+
+        .fullscreen-placeholder {
+          position: relative;
+          min-width: 400px;
+          min-height: 300px;
+        }
+
+        .placeholder-icon {
+          font-size: 48px;
+          opacity: 0.5;
         }
 
         .thumbnail:hover {

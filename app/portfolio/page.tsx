@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { getPortfolioCategories, getProjects } from '../actions';
 import PortfolioMap from '@/components/PortfolioMap';
 import NewsletterCTA from '@/components/NewsletterCTA';
+import PortfolioCategoryImage from '@/components/PortfolioCategoryImage';
 import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
 import styles from './page.module.css';
 
@@ -85,17 +86,11 @@ export default async function Portfolio() {
                 >
                   {imageUrl ? (
                     <div className={styles.categoryImageWrapper}>
-                      <Image
+                      <PortfolioCategoryImage
                         src={imageUrl}
                         alt={imageAlt}
-                        fill
-                        className={styles.categoryImage}
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-                        unoptimized={imageUrl.startsWith('http')}
+                        displayName={displayName}
                       />
-                      <div className={styles.categoryOverlay}>
-                        <h3>{displayName}</h3>
-                      </div>
                     </div>
                   ) : (
                     <div className={styles.categoryPlaceholder}>

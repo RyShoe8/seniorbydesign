@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getPortfolioImageUrl } from '@/lib/image-utils';
 import styles from './PortfolioCarousel.module.css';
 
 interface PortfolioImage {
@@ -26,6 +27,7 @@ export default function PortfolioCarousel({ categories }: PortfolioCarouselProps
   const carouselRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
   const updateScrollButtons = () => {
     if (!carouselRef.current) return;
@@ -85,21 +87,30 @@ export default function PortfolioCarousel({ categories }: PortfolioCarouselProps
             const firstImage = category.images?.[0];
             const imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url;
             const imageAlt = typeof firstImage === 'string' ? category.name : (firstImage?.altText || category.name);
-            
+            const cardKey = category._id?.toString() || category.slug;
+            const imageFailed = failedImages.has(cardKey);
+
             return (
               <Link
-                key={category._id?.toString() || category.slug}
+                key={cardKey}
                 href={`/portfolio/${category.slug}`}
                 className={styles.portfolioCard}
               >
-                {imageUrl && (
+                {imageUrl && !imageFailed ? (
                   <Image
-                    src={imageUrl}
+                    src={getPortfolioImageUrl(imageUrl)}
                     alt={imageAlt}
                     width={400}
                     height={300}
                     className={styles.portfolioImage}
+                    unoptimized={imageUrl.startsWith('http') || getPortfolioImageUrl(imageUrl).startsWith('/api/image-proxy')}
+                    onError={() => setFailedImages((prev) => new Set(prev).add(cardKey))}
                   />
+                ) : (
+                  <div className={styles.imagePlaceholder}>
+                    <span className={styles.placeholderIcon}>📷</span>
+                    <span>{category.name}</span>
+                  </div>
                 )}
                 <h3>{category.name}</h3>
               </Link>
