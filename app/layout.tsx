@@ -1,9 +1,16 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import Providers from '@/components/Providers'
 import ConditionalLayout from '@/components/ConditionalLayout'
 import Analytics from '@/components/Analytics'
 import { generateSEOMetadata, JSONLDSchema, OrganizationSchema, WebSiteSchema } from '@/components/SEO'
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#CBB86D',
+}
 
 export const metadata: Metadata = {
   ...generateSEOMetadata({
@@ -34,12 +41,6 @@ export const metadata: Metadata = {
       },
     ],
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-  },
-  themeColor: '#CBB86D',
 }
 
 export default function RootLayout({

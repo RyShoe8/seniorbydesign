@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { get } from '@vercel/blob';
 
 const BLOB_DOMAIN_REGEX = /^https:\/\/([a-z0-9]+)\.(?:public|private)\.blob\.vercel-storage\.com\//;
 
@@ -15,37 +16,22 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Invalid image URL' }, { status: 400 });
   }
 
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-
   try {
-    const headers: HeadersInit = {
-      'Cache-Control': 'public, max-age=31536000, immutable',
-    };
+    const access = url.includes('.private.blob.vercel-storage.com') ? 'private' : 'public';
+    const token = process.env.BLOB_READ_WRITE_TOKEN;
 
-    // For private blobs, include the token for authentication
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(url, {
-      headers,
-      cache: 'force-cache',
+    const result = await get(url, {
+      access,
+      token: token || undefined,
     });
 
-    if (!response.ok) {
-      return NextResponse.json(
-        { error: `Upstream returned ${response.status}` },
-        { status: response.status }
-      );
+    if (!result) {
+      return NextResponse.json({ error: 'Blob not found' }, { status: 404 });
     }
 
-    const contentType = response.headers.get('content-type') || 'image/jpeg';
-    const blob = await response.blob();
-
-    return new NextResponse(blob, {
-      status: 200,
+    return new NextResponse(result.stream, {
       headers: {
-        'Content-Type': contentType,
+        'Content-Type': result.blob?.contentType || 'image/jpeg',
         'Cache-Control': 'public, max-age=31536000, immutable',
       },
     });
