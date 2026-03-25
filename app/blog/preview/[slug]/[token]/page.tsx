@@ -8,6 +8,14 @@ type Props = {
   params: { slug: string; token: string };
 };
 
+function bodyPlainPreview(body: string | undefined): string {
+  return (body ?? '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 160);
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await getBlogPostForPreview(params.slug, params.token);
 
@@ -23,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     ...generateSEOMetadata({
       title: `Preview: ${post.title} - The Principled Design Journal`,
-      description: post.excerpt || post.body.substring(0, 160),
+      description: post.excerpt || bodyPlainPreview(post.body),
       url: previewPath,
       image: post.featuredImage,
       type: 'article',

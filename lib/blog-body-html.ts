@@ -1,4 +1,4 @@
-import DOMPurify from 'isomorphic-dompurify';
+import sanitizeHtml from 'sanitize-html';
 
 const BLOCK_TAG_RE = /<\s*(p|h[1-6]|ul|ol|blockquote|div|pre)[\s>/]/i;
 
@@ -25,7 +25,15 @@ const ALLOWED_TAGS = [
   'pre',
 ];
 
-const ALLOWED_ATTR = ['href', 'target', 'rel', 'src', 'alt', 'width', 'height'];
+const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
+  allowedTags: ALLOWED_TAGS,
+  allowedAttributes: {
+    a: ['href', 'target', 'rel'],
+    img: ['src', 'alt', 'width', 'height'],
+  },
+  allowedSchemes: ['http', 'https', 'mailto'],
+  allowProtocolRelative: false,
+};
 
 function escapeHtml(text: string): string {
   return text
@@ -70,14 +78,11 @@ export function normalizeLegacyBlogBody(body: string): string {
 }
 
 export function sanitizeBlogBodyHtml(html: string): string {
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS,
-    ALLOWED_ATTR,
-    ALLOW_DATA_ATTR: false,
-  });
+  return sanitizeHtml(html, SANITIZE_OPTIONS);
 }
 
-export function prepareBlogBodyForDisplay(body: string): string {
-  const normalized = normalizeLegacyBlogBody(body);
+export function prepareBlogBodyForDisplay(body: string | null | undefined): string {
+  const raw = typeof body === 'string' ? body : '';
+  const normalized = normalizeLegacyBlogBody(raw);
   return sanitizeBlogBodyHtml(normalized);
 }

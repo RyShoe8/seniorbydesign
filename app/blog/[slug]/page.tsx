@@ -8,6 +8,14 @@ type Props = {
   params: { slug: string };
 };
 
+function bodyPlainPreview(body: string | undefined): string {
+  return (body ?? '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 160);
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await getPublishedBlogPost(params.slug);
 
@@ -19,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return generateSEOMetadata({
     title: `${post.title} - The Principled Design Journal`,
-    description: post.excerpt || post.body.substring(0, 160),
+    description: post.excerpt || bodyPlainPreview(post.body),
     url: `/blog/${post.slug}`,
     image: post.featuredImage,
     type: 'article',
@@ -45,7 +53,7 @@ export default async function BlogPostPage({ params }: Props) {
     <>
       <JSONLDSchema schema={ArticleSchema({
         title: post.title,
-        description: post.excerpt || post.body.substring(0, 200),
+        description: post.excerpt || bodyPlainPreview(post.body).slice(0, 200),
         url: `/blog/${post.slug}`,
         image: post.featuredImage,
         publishedTime: post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
