@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getBlogPostsCollection } from '@/lib/db';
+import { generateBlogPreviewToken } from '@/lib/blog-preview';
 import { ObjectId } from 'mongodb';
 
 export const dynamic = 'force-dynamic';
@@ -16,6 +17,13 @@ export async function GET() {
   try {
     const collection = await getBlogPostsCollection();
     const posts = await collection.find({}).sort({ publishedAt: -1, createdAt: -1 }).toArray();
+    for (const p of posts) {
+      if (!p.previewToken && p._id) {
+        const previewToken = generateBlogPreviewToken();
+        await collection.updateOne({ _id: p._id }, { $set: { previewToken } });
+        p.previewToken = previewToken;
+      }
+    }
     return NextResponse.json(posts);
   } catch (error) {
         return NextResponse.json(
@@ -50,6 +58,7 @@ export async function POST(request: Request) {
       featuredImage: body.featuredImage || '',
       author: body.author || session.user?.email || 'Admin',
       publishedAt: body.published ? new Date() : undefined,
+      previewToken: generateBlogPreviewToken(),
       createdAt: new Date(),
       updatedAt: new Date(),
     };

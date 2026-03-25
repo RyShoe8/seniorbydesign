@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getBlogPostsCollection, getMediaCollection } from '@/lib/db';
+import { generateBlogPreviewToken } from '@/lib/blog-preview';
 import { ObjectId } from 'mongodb';
 
 export const dynamic = 'force-dynamic';
@@ -94,6 +95,8 @@ export async function PUT(
       // If unpublishing, remove publishedAt
       update.publishedAt = undefined;
     }
+
+    update.previewToken = existingPost?.previewToken ?? generateBlogPreviewToken();
 
     await collection.updateOne(
       { _id: new ObjectId(params.id) },

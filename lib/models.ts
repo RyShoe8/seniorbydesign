@@ -80,6 +80,7 @@ export interface BlogPost {
   featuredImage?: string;
   author: string;
   publishedAt?: Date;
+  previewToken?: string;
   createdAt: Date;
   updatedAt: Date;
 }

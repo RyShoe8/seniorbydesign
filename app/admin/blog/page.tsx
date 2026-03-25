@@ -12,6 +12,7 @@ interface BlogPost {
   featuredImage?: string;
   author: string;
   publishedAt?: string;
+  previewToken?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -179,6 +180,15 @@ export default function BlogManagement() {
     setFeaturedImageUrl('');
   };
 
+  const copyPreviewLink = (post: BlogPost) => {
+    if (!post.previewToken?.trim() || !post.slug) return;
+    const url = `${window.location.origin}/blog/preview/${encodeURIComponent(post.slug)}/${post.previewToken}`;
+    navigator.clipboard.writeText(url).then(
+      () => alert('Preview link copied to clipboard'),
+      () => alert('Could not copy link')
+    );
+  };
+
   return (
     <div className="admin-page">
       <div className="admin-header">
@@ -317,6 +327,20 @@ export default function BlogManagement() {
                   Publish immediately
                 </label>
               </div>
+              {editingPost && !editingPost.publishedAt && editingPost.previewToken && (
+                <div className="form-group">
+                  <p style={{ marginBottom: '0.5rem', fontSize: '14px', color: 'var(--warm-grey-3)' }}>
+                    Share this draft with a secret preview link (not indexed by search engines).
+                  </p>
+                  <button
+                    type="button"
+                    className="btn-small"
+                    onClick={() => copyPreviewLink(editingPost)}
+                  >
+                    Copy preview link
+                  </button>
+                </div>
+              )}
               <div className="form-actions">
                 <button type="submit" className="btn">Save</button>
                 <button 
@@ -369,6 +393,15 @@ export default function BlogManagement() {
                       </td>
                       <td>
                         <button onClick={() => handleEdit(post)} className="btn-small">Edit</button>
+                        {!post.publishedAt && post.previewToken && (
+                          <button
+                            type="button"
+                            onClick={() => copyPreviewLink(post)}
+                            className="btn-small"
+                          >
+                            Copy preview link
+                          </button>
+                        )}
                         <button onClick={() => post._id && handleDelete(post._id)} className="btn-small btn-danger">
                           Delete
                         </button>
@@ -414,6 +447,15 @@ export default function BlogManagement() {
                   </div>
                   <div className="blog-card-actions">
                     <button onClick={() => handleEdit(post)} className="btn btn-small">Edit</button>
+                    {!post.publishedAt && post.previewToken && (
+                      <button
+                        type="button"
+                        onClick={() => copyPreviewLink(post)}
+                        className="btn btn-small"
+                      >
+                        Copy preview link
+                      </button>
+                    )}
                     <button onClick={() => post._id && handleDelete(post._id)} className="btn btn-small btn-danger">
                       Delete
                     </button>

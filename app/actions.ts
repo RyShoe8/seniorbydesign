@@ -11,7 +11,7 @@ import {
   getBlogPostsCollection,
   getResourcesCollection,
 } from '@/lib/db';
-import { ObjectId } from 'mongodb';
+import { blogPreviewTokensMatch } from '@/lib/blog-preview';
 
 // Homepage
 export async function getHomepageContent() {
@@ -117,9 +117,21 @@ export async function getBlogPosts() {
     .then(posts => posts.filter(post => post.publishedAt != null));
 }
 
-export async function getBlogPost(slug: string) {
+export async function getPublishedBlogPost(slug: string) {
   const collection = await getBlogPostsCollection();
-  return await collection.findOne({ slug });
+  return await collection.findOne({
+    slug,
+    publishedAt: { $exists: true, $ne: null },
+  });
+}
+
+export async function getBlogPostForPreview(slug: string, token: string) {
+  const collection = await getBlogPostsCollection();
+  const post = await collection.findOne({ slug });
+  if (!post || !blogPreviewTokensMatch(post.previewToken, token)) {
+    return null;
+  }
+  return post;
 }
 
 // Resources
