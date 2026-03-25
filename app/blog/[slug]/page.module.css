@@ -48,10 +48,19 @@
 }
 
 .shareLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 15px;
   font-weight: 500;
   color: var(--sbd-gold);
   text-decoration: none;
+}
+
+.shareIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 .shareLink:hover {
