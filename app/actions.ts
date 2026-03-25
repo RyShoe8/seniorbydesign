@@ -119,10 +119,14 @@ export async function getBlogPosts() {
 
 export async function getPublishedBlogPost(slug: string) {
   const collection = await getBlogPostsCollection();
-  return await collection.findOne({
+  const post = await collection.findOne({
     slug,
-    publishedAt: { $exists: true, $ne: null },
+    publishedAt: { $exists: true },
   });
+  if (!post?.publishedAt) {
+    return null;
+  }
+  return post;
 }
 
 export async function getBlogPostForPreview(slug: string, token: string) {
