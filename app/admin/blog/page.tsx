@@ -170,8 +170,8 @@ export default function BlogManagement() {
       </div>
 
       {showForm && (
-        <div className="admin-form-modal" onClick={handleCloseForm}>
-          <div className="admin-form-content" onClick={(e) => e.stopPropagation()}>
+        <div className="admin-form-modal">
+          <div className="admin-form-content">
             <h2>{editingPost ? 'Edit' : 'Add'} Blog Post</h2>
             <form onSubmit={handleFormSubmit}>
               <div className="form-group">
