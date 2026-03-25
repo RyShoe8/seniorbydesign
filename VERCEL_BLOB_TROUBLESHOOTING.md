@@ -4,6 +4,19 @@
 
 If portfolio images fail to load with 403 errors, follow these verification steps.
 
+### Domain/Project Switch (Common After Going Live)
+
+When you switch to a live domain (e.g., seniorbydesign.com), the production deployment may use a **different Vercel project** than the one that created the blob store. The `BLOB_READ_WRITE_TOKEN` in the production project might be for a different store or missing entirely.
+
+**Fix:**
+
+1. **Find the project that owns the blob store** – Go to Vercel Dashboard > Storage > Blob. Find the store with ID matching your blob URLs (e.g., `ojowr6s1wfyjdusl`).
+2. **Copy the token** – In that project: Settings > Environment Variables. Copy the value of `BLOB_READ_WRITE_TOKEN` (or get it from Storage > Blob store > Settings).
+3. **Set it in the production project** – In the project that deploys your live domain: Settings > Environment Variables. Add or update `BLOB_READ_WRITE_TOKEN` with the copied value. Ensure it is set for Production (and Preview/Development if needed).
+4. **Redeploy** – Trigger a new deployment so the env var is picked up.
+
+The token for store `ojowr6s1wfyjdusl` should look like: `vercel_blob_rw_ojowr6s1wfyjdusl_<rest>`. The store ID in the token must match the store ID in your blob URLs.
+
 ### 1. Verify Token Store ID
 
 The `BLOB_READ_WRITE_TOKEN` format is: `vercel_blob_rw_<storeId>_<rest>`
