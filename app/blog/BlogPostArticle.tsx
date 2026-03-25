@@ -24,6 +24,12 @@ export function BlogPostArticle({ post, showPreviewBanner }: Props) {
   const safeHtml = prepareBlogBodyForDisplay(post.body);
   const empty = isHtmlEffectivelyEmpty(safeHtml);
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
+  const pageUrl = `${siteUrl}/blog/${post.slug}`;
+  const encodedPageUrl = encodeURIComponent(pageUrl);
+  const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedPageUrl}`;
+  const linkedInShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedPageUrl}`;
+
   return (
     <article className="blog-post">
       <section className={styles.blogPostHero}>
@@ -63,18 +69,44 @@ export function BlogPostArticle({ post, showPreviewBanner }: Props) {
               </span>
             )}
           </div>
-          <h1 className={styles.blogPostTitle}>{post.title}</h1>
+          <h1 id="blog-article-title" className={styles.blogPostTitle}>
+            {post.title}
+          </h1>
+          {!showPreviewBanner && (
+            <div className={styles.shareRow}>
+              <span className={styles.shareLabel}>Share</span>
+              <a
+                href={facebookShareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.shareLink}
+                aria-label="Share on Facebook"
+              >
+                Facebook
+              </a>
+              <a
+                href={linkedInShareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.shareLink}
+                aria-label="Share on LinkedIn"
+              >
+                LinkedIn
+              </a>
+            </div>
+          )}
         </div>
       </div>
 
       <div className={styles.blogPostContent}>
         <div className="container">
           {empty ? (
-            <div className={styles.blogPostBody}>
+            <div id="blog-article-body" className={styles.blogPostBody}>
               <p>No content available.</p>
             </div>
           ) : (
             <div
+              id="blog-article-body"
               className={styles.blogPostBody}
               dangerouslySetInnerHTML={{ __html: safeHtml }}
             />

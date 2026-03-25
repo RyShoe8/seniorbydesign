@@ -3,18 +3,17 @@ import { notFound } from 'next/navigation';
 import { getPublishedBlogPost } from '../../actions';
 import { generateSEOMetadata, JSONLDSchema, ArticleSchema, BreadcrumbSchema } from '@/components/SEO';
 import { BlogPostArticle } from '../BlogPostArticle';
+import {
+  metaDescription,
+  articleBodyForSchema,
+  wordCountFromBody,
+  titleDerivedKeywords,
+  BASE_BLOG_KEYWORDS,
+} from '@/lib/blog-seo';
 
 type Props = {
   params: { slug: string };
 };
-
-function bodyPlainPreview(body: string | undefined): string {
-  return (body ?? '')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 160);
-}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await getPublishedBlogPost(params.slug);
@@ -25,20 +24,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
+  const derived = titleDerivedKeywords(post.title);
+  const keywords = Array.from(new Set([...BASE_BLOG_KEYWORDS, ...derived]));
+
   return generateSEOMetadata({
     title: `${post.title} - The Principled Design Journal`,
-    description: post.excerpt || bodyPlainPreview(post.body),
+    description: metaDescription(post),
     url: `/blog/${post.slug}`,
     image: post.featuredImage,
     type: 'article',
     publishedTime: post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
     modifiedTime: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
-    keywords: [
-      'interior design',
-      'senior living design',
-      'design principles',
-      'commercial design',
-    ],
+    author: post.author,
+    keywords,
   });
 }
 
@@ -49,21 +47,22 @@ export default async function BlogPostPage({ params }: Props) {
     notFound();
   }
 
+  const derived = titleDerivedKeywords(post.title);
+  const keywords = Array.from(new Set([...BASE_BLOG_KEYWORDS, ...derived]));
+
   return (
     <>
       <JSONLDSchema schema={ArticleSchema({
         title: post.title,
-        description: post.excerpt || bodyPlainPreview(post.body).slice(0, 200),
+        description: metaDescription(post),
         url: `/blog/${post.slug}`,
         image: post.featuredImage,
         publishedTime: post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
         modifiedTime: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
-        keywords: [
-          'interior design',
-          'senior living design',
-          'commercial design',
-          'design principles',
-        ],
+        authorName: post.author,
+        keywords,
+        articleBody: articleBodyForSchema(post),
+        wordCount: wordCountFromBody(post),
       })} />
       <JSONLDSchema schema={BreadcrumbSchema([
         { name: 'Home', url: '/' },

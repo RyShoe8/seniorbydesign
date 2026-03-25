@@ -50,7 +50,7 @@ export function generateSEOMetadata({
       type,
       ...(publishedTime && { publishedTime }),
       ...(modifiedTime && { modifiedTime }),
-      ...(author && { authors: [author] }),
+      ...(author && { authors: [{ name: author }] }),
     },
     twitter: {
       card: 'summary_large_image',
@@ -191,7 +191,7 @@ export function BreadcrumbSchema(items: Array<{ name: string; url: string }>) {
   };
 }
 
-// Article Schema (for blog posts)
+// BlogPosting JSON-LD (blog posts; exported as ArticleSchema for backward compatibility)
 export function ArticleSchema({
   title,
   description,
@@ -199,8 +199,10 @@ export function ArticleSchema({
   image,
   publishedTime,
   modifiedTime,
-  author,
+  authorName,
   keywords,
+  articleBody,
+  wordCount,
 }: {
   title: string;
   description: string;
@@ -208,10 +210,14 @@ export function ArticleSchema({
   image?: string;
   publishedTime?: string;
   modifiedTime?: string;
-  author?: string;
+  /** Display author (Person); falls back to organization if empty */
+  authorName?: string;
   keywords?: string[];
+  articleBody?: string;
+  wordCount?: number;
 }) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
+  const orgId = `${siteUrl}/#organization`;
   const fullUrl = url.startsWith('http') ? url : `${siteUrl}${url}`;
   const fullImage = image
     ? image.startsWith('http')
@@ -219,11 +225,25 @@ export function ArticleSchema({
       : `${siteUrl}${image}`
     : `${siteUrl}/images/SBD Logo.webp`;
 
-  const schema: any = {
+  const byline = authorName?.trim();
+  const authorNode = byline
+    ? {
+        '@type': 'Person',
+        name: byline,
+      }
+    : {
+        '@type': 'Organization',
+        name: 'Senior By Design',
+        url: siteUrl,
+      };
+
+  const schema: Record<string, unknown> = {
     '@context': 'https://schema.org',
-    '@type': 'Article',
+    '@type': 'BlogPosting',
+    '@id': `${fullUrl}#blogposting`,
     headline: title,
     description,
+    url: fullUrl,
     image: {
       '@type': 'ImageObject',
       url: fullImage,
@@ -232,13 +252,10 @@ export function ArticleSchema({
     },
     datePublished: publishedTime,
     dateModified: modifiedTime || publishedTime,
-    author: {
-      '@type': 'Organization',
-      name: author || 'Senior By Design',
-      url: siteUrl,
-    },
+    author: authorNode,
     publisher: {
       '@type': 'Organization',
+      '@id': orgId,
       name: 'Senior By Design',
       logo: {
         '@type': 'ImageObject',
@@ -253,10 +270,21 @@ export function ArticleSchema({
     },
     articleSection: 'Interior Design',
     inLanguage: 'en-US',
+    isAccessibleForFree: true,
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: ['#blog-article-title', '#blog-article-body'],
+    },
   };
 
   if (keywords && keywords.length > 0) {
     schema.keywords = keywords.join(', ');
+  }
+  if (articleBody) {
+    schema.articleBody = articleBody;
+  }
+  if (wordCount != null && wordCount > 0) {
+    schema.wordCount = wordCount;
   }
 
   return schema;

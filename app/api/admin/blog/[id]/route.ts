@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getBlogPostsCollection, getMediaCollection } from '@/lib/db';
 import { generateBlogPreviewToken } from '@/lib/blog-preview';
+import { revalidateBlogPublicRoutes } from '@/lib/blog-revalidate';
 import { ObjectId } from 'mongodb';
 
 export const dynamic = 'force-dynamic';
@@ -98,10 +99,14 @@ export async function PUT(
 
     update.previewToken = existingPost?.previewToken ?? generateBlogPreviewToken();
 
+    const previousSlug = existingPost?.slug;
+
     await collection.updateOne(
       { _id: new ObjectId(params.id) },
       { $set: update }
     );
+
+    revalidateBlogPublicRoutes({ slug, previousSlug });
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -142,7 +147,9 @@ export async function DELETE(
       }
     }
     
+    const slug = post?.slug;
     await collection.deleteOne({ _id: new ObjectId(params.id) });
+    revalidateBlogPublicRoutes({ slug });
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json(

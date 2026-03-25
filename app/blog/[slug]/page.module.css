@@ -27,11 +27,36 @@
   text-align: center;
   font-size: 48px;
   line-height: 1.2;
-  margin-bottom: var(--spacing-md);
-  padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--warm-grey-1);
+  margin-bottom: var(--spacing-sm);
   color: var(--sbd-brown);
   font-weight: 600;
+}
+
+.shareRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.shareLabel {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--sbd-brown);
+}
+
+.shareLink {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--sbd-gold);
+  text-decoration: none;
+}
+
+.shareLink:hover {
+  text-decoration: underline;
+  color: var(--sbd-brown);
 }
 
 .heroImage {

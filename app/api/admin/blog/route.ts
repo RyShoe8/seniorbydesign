@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getBlogPostsCollection } from '@/lib/db';
 import { generateBlogPreviewToken } from '@/lib/blog-preview';
+import { revalidateBlogPublicRoutes } from '@/lib/blog-revalidate';
 import { ObjectId } from 'mongodb';
 
 export const dynamic = 'force-dynamic';
@@ -64,6 +65,7 @@ export async function POST(request: Request) {
     };
 
     const result = await collection.insertOne(post);
+    revalidateBlogPublicRoutes({ slug: post.slug });
     return NextResponse.json({ _id: result.insertedId, ...post });
   } catch (error) {
         return NextResponse.json(

@@ -6,8 +6,8 @@ import {
   getBlogPosts,
 } from './actions';
 
-// Revalidate sitemap every hour
-export const revalidate = 3600;
+// Revalidate sitemap periodically; blog admin APIs also call revalidatePath('/sitemap.xml')
+export const revalidate = 300;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
