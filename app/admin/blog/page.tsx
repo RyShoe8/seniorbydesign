@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { BlogBodyEditor } from '@/components/admin/BlogBodyEditor';
 
 interface BlogPost {
   _id?: string;
@@ -23,9 +24,8 @@ export default function BlogManagement() {
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [uploadingBodyImage, setUploadingBodyImage] = useState(false);
   const [featuredImageUrl, setFeaturedImageUrl] = useState<string>('');
-  const [bodyTextareaRef, setBodyTextareaRef] = useState<HTMLTextAreaElement | null>(null);
+  const [bodyHtml, setBodyHtml] = useState('');
 
   useEffect(() => {
     fetchPosts();
@@ -60,6 +60,7 @@ export default function BlogManagement() {
   const handleEdit = (post: BlogPost) => {
     setEditingPost(post);
     setFeaturedImageUrl(post.featuredImage || '');
+    setBodyHtml(post.body || '');
     setShowForm(true);
   };
 
@@ -91,61 +92,21 @@ export default function BlogManagement() {
     }
   };
 
-  const handleBodyImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingBodyImage(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('folder', 'blog');
-
-    try {
-      const response = await fetch('/api/admin/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const imageUrl = data.url;
-        
-        // Insert image HTML into body textarea at cursor position
-        const textarea = document.getElementById('body') as HTMLTextAreaElement;
-        if (textarea) {
-          const start = textarea.selectionStart;
-          const end = textarea.selectionEnd;
-          const text = textarea.value;
-          const imageHtml = `\n\n<img src="${imageUrl}" alt="" />\n\n`;
-          
-          textarea.value = text.substring(0, start) + imageHtml + text.substring(end);
-          textarea.focus();
-          textarea.setSelectionRange(start + imageHtml.length, start + imageHtml.length);
-          
-          // Trigger input event to update React state if needed
-          textarea.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-      } else {
-        alert('Failed to upload image');
-      }
-    } catch (error) {
-            alert('Error uploading image');
-    } finally {
-      setUploadingBodyImage(false);
-      // Reset the input
-      e.target.value = '';
-    }
-  };
-
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    
+
+    const bodyText = bodyHtml.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+    if (!bodyText) {
+      alert('Body content is required.');
+      return;
+    }
+
     const data = {
       slug: formData.get('slug') as string,
       title: formData.get('title') as string,
       excerpt: formData.get('excerpt') as string,
-      body: formData.get('body') as string,
+      body: bodyHtml,
       featuredImage: featuredImageUrl || '',
       author: formData.get('author') as string,
       published: formData.get('published') === 'on',
@@ -167,6 +128,7 @@ export default function BlogManagement() {
         setShowForm(false);
         setEditingPost(null);
         setFeaturedImageUrl('');
+        setBodyHtml('');
         (e.target as HTMLFormElement).reset();
       }
     } catch (error) {
@@ -178,6 +140,7 @@ export default function BlogManagement() {
     setShowForm(false);
     setEditingPost(null);
     setFeaturedImageUrl('');
+    setBodyHtml('');
   };
 
   const copyPreviewLink = (post: BlogPost) => {
@@ -193,12 +156,13 @@ export default function BlogManagement() {
     <div className="admin-page">
       <div className="admin-header">
         <h1>Blog Management</h1>
-        <button 
-          onClick={() => { 
-            setShowForm(true); 
+        <button
+          onClick={() => {
+            setShowForm(true);
             setEditingPost(null);
             setFeaturedImageUrl('');
-          }} 
+            setBodyHtml('');
+          }}
           className="btn"
         >
           Add Post
@@ -246,33 +210,25 @@ export default function BlogManagement() {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="body">Body Content *</label>
-                <div style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-                  <label htmlFor="bodyImageUpload" style={{ cursor: 'pointer' }}>
-                    <input
-                      type="file"
-                      id="bodyImageUpload"
-                      accept="image/*"
-                      onChange={handleBodyImageUpload}
-                      disabled={uploadingBodyImage}
-                      style={{ display: 'none' }}
-                    />
-                    <span className="btn-small" style={{ display: 'inline-block', pointerEvents: 'none' }}>
-                      {uploadingBodyImage ? 'Uploading...' : 'Insert Image'}
-                    </span>
-                  </label>
-                  <small style={{ color: 'var(--warm-grey-3)', fontSize: '14px' }}>
-                    Click &quot;Insert Image&quot; to upload and add an image to your post content
-                  </small>
+                <label htmlFor="blog-body-editor">Body content *</label>
+                <small
+                  style={{
+                    display: 'block',
+                    color: 'var(--warm-grey-3)',
+                    fontSize: '14px',
+                    marginBottom: '0.5rem',
+                  }}
+                >
+                  Use the toolbar for bold, headings, lists, links, and images (uploads to your media library).
+                </small>
+                <div id="blog-body-editor">
+                  <BlogBodyEditor
+                    key={editingPost?._id ?? 'new'}
+                    documentKey={editingPost?._id ?? 'new'}
+                    initialHtml={bodyHtml}
+                    onChange={setBodyHtml}
+                  />
                 </div>
-                <textarea
-                  id="body"
-                  name="body"
-                  rows={15}
-                  required
-                  defaultValue={editingPost?.body || ''}
-                  placeholder="You can insert images using the 'Insert Image' button above. Images will be inserted as HTML img tags."
-                />
               </div>
               <div className="form-group">
                 <label htmlFor="author">Author *</label>

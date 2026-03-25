@@ -103,17 +103,103 @@
   margin-bottom: 0;
 }
 
-.blogPostImage {
-  margin: var(--spacing-xl) 0;
-  width: 100%;
-  contain: layout style paint;
-  aspect-ratio: 16 / 9;
+.blogPostBody h2 {
+  font-size: 2rem;
+  line-height: 1.25;
+  font-weight: 600;
+  color: var(--sbd-brown);
+  margin: var(--spacing-lg) 0 var(--spacing-md);
 }
 
-.blogPostImage img {
-  width: 100%;
-  height: auto;
+.blogPostBody h3 {
+  font-size: 1.5rem;
+  line-height: 1.3;
+  font-weight: 600;
+  color: var(--sbd-brown);
+  margin: var(--spacing-md) 0 var(--spacing-sm);
+}
+
+.blogPostBody h4 {
+  font-size: 1.25rem;
+  line-height: 1.35;
+  font-weight: 600;
+  color: var(--sbd-brown);
+  margin: var(--spacing-md) 0 var(--spacing-sm);
+}
+
+.blogPostBody a {
+  color: var(--sbd-gold);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.blogPostBody a:hover {
+  color: var(--sbd-brown);
+}
+
+.blogPostBody ul,
+.blogPostBody ol {
+  margin: 0 0 var(--spacing-md);
+  padding-left: 1.75rem;
+  font-size: 19px;
+  line-height: 1.8;
+  color: #333;
+}
+
+.blogPostBody li {
+  margin-bottom: 0.35rem;
+}
+
+.blogPostBody li:last-child {
+  margin-bottom: 0;
+}
+
+.blogPostBody blockquote {
+  margin: var(--spacing-md) 0;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-left: 4px solid var(--sbd-gold);
+  background: var(--warm-grey-1, #f5f5f5);
+  font-size: 18px;
+  line-height: 1.75;
+  color: #444;
+}
+
+.blogPostBody code {
+  font-size: 0.9em;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  background: var(--warm-grey-1, #f0f0f0);
+}
+
+.blogPostBody pre {
+  margin: var(--spacing-md) 0;
+  padding: var(--spacing-md);
+  overflow-x: auto;
   border-radius: 8px;
+  background: #2d2d2d;
+  color: #f8f8f2;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.blogPostBody pre code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.blogPostBody img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: var(--spacing-lg) auto;
+  border-radius: 8px;
+}
+
+.blogPostBody strong,
+.blogPostBody b {
+  font-weight: 600;
+  color: #222;
 }
 
 @media (max-width: 768px) {

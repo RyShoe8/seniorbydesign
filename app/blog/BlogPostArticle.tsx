@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { prepareBlogBodyForDisplay } from '@/lib/blog-body-html';
 import styles from './[slug]/page.module.css';
 
 export type BlogPostArticleData = {
@@ -10,52 +11,8 @@ export type BlogPostArticleData = {
   publishedAt?: Date;
 };
 
-function BlogPostContent({ body, title }: { body: string; title: string }) {
-  const parts: React.ReactNode[] = [];
-  let lastIndex = 0;
-  const imgRegex = /<img[^>]*src=["']([^"']+)["'][^>]*(?:alt=["']([^"']*)["'])?[^>]*>/g;
-  let match;
-  let partIndex = 0;
-
-  while ((match = imgRegex.exec(body)) !== null) {
-    const textBefore = body.substring(lastIndex, match.index);
-    if (textBefore.trim()) {
-      textBefore.split('\n\n').forEach((paragraph, j) => {
-        if (paragraph.trim()) {
-          parts.push(<p key={`text-${partIndex}-${j}`}>{paragraph.trim()}</p>);
-        }
-      });
-    }
-
-    const src = match[1];
-    const alt = match[2] || '';
-    parts.push(
-      <div key={`img-${partIndex}`} className={styles.blogPostImage}>
-        <Image
-          src={src}
-          alt={alt || title}
-          width={1200}
-          height={800}
-          style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
-          unoptimized={src.startsWith('http')}
-        />
-      </div>
-    );
-
-    lastIndex = imgRegex.lastIndex;
-    partIndex++;
-  }
-
-  const remainingText = body.substring(lastIndex);
-  if (remainingText.trim()) {
-    remainingText.split('\n\n').forEach((paragraph, j) => {
-      if (paragraph.trim()) {
-        parts.push(<p key={`text-final-${j}`}>{paragraph.trim()}</p>);
-      }
-    });
-  }
-
-  return <>{parts.length > 0 ? parts : <p>No content available.</p>}</>;
+function isHtmlEffectivelyEmpty(html: string): boolean {
+  return !html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
 }
 
 type Props = {
@@ -64,6 +21,9 @@ type Props = {
 };
 
 export function BlogPostArticle({ post, showPreviewBanner }: Props) {
+  const safeHtml = prepareBlogBodyForDisplay(post.body);
+  const empty = isHtmlEffectivelyEmpty(safeHtml);
+
   return (
     <article className="blog-post">
       <section className={styles.blogPostHero}>
@@ -109,9 +69,16 @@ export function BlogPostArticle({ post, showPreviewBanner }: Props) {
 
       <div className={styles.blogPostContent}>
         <div className="container">
-          <div className={styles.blogPostBody}>
-            <BlogPostContent body={post.body} title={post.title} />
-          </div>
+          {empty ? (
+            <div className={styles.blogPostBody}>
+              <p>No content available.</p>
+            </div>
+          ) : (
+            <div
+              className={styles.blogPostBody}
+              dangerouslySetInnerHTML={{ __html: safeHtml }}
+            />
+          )}
         </div>
       </div>
     </article>
