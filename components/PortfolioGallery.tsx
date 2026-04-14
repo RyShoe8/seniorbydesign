@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getPortfolioImageUrl } from '@/lib/image-utils';
@@ -16,33 +16,134 @@ interface Props {
   categoryName: string;
 }
 
+function portfolioImageUnoptimized(url: string): boolean {
+  const resolved = getPortfolioImageUrl(url);
+  return resolved.startsWith('http') || resolved.startsWith('/api/image-proxy');
+}
+
+const SWIPE_THRESHOLD_PX = 50;
+const SWIPE_HORIZONTAL_RATIO = 1.25;
+
 export default function PortfolioGallery({ images, categoryName }: Props) {
-  const imageUrls = images.map(img => img.url);
-  const imageAlts = images.map(img => img.altText || img.displayName);
+  const imageUrls = images.map((img) => img.url);
+  const imageAlts = images.map((img) => img.altText || img.displayName);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [failedImageIndices, setFailedImageIndices] = useState<Set<number>>(new Set());
+
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const touchLockHorizontalRef = useRef(false);
+  const swipeAreaRef = useRef<HTMLDivElement>(null);
 
   const openFullscreen = (index: number) => {
     setCurrentImageIndex(index);
     setIsFullscreen(true);
   };
 
-  const closeFullscreen = () => {
+  const closeFullscreen = useCallback(() => {
     setIsFullscreen(false);
-  };
+  }, []);
 
-  const nextImage = () => {
+  const nextImage = useCallback(() => {
     setCurrentImageIndex((prev) => (prev + 1) % imageUrls.length);
-  };
+  }, [imageUrls.length]);
 
-  const prevImage = () => {
+  const prevImage = useCallback(() => {
     setCurrentImageIndex((prev) => (prev - 1 + imageUrls.length) % imageUrls.length);
-  };
+  }, [imageUrls.length]);
+
+  useEffect(() => {
+    if (!isFullscreen) return;
+
+    document.body.style.overflow = 'hidden';
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeFullscreen();
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.body.style.overflow = 'unset';
+      window.removeEventListener('keydown', handleEscape);
+    };
+  }, [isFullscreen, closeFullscreen]);
+
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const el = swipeAreaRef.current;
+    if (!el) return;
+
+    const handleStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return;
+      const t = e.touches[0];
+      touchStartRef.current = { x: t.clientX, y: t.clientY };
+      touchLockHorizontalRef.current = false;
+    };
+
+    const handleMove = (e: TouchEvent) => {
+      if (!touchStartRef.current || e.touches.length !== 1) return;
+      const t = e.touches[0];
+      const dx = t.clientX - touchStartRef.current.x;
+      const dy = t.clientY - touchStartRef.current.y;
+
+      if (!touchLockHorizontalRef.current) {
+        const ax = Math.abs(dx);
+        const ay = Math.abs(dy);
+        if (ax > 10 && ax > ay * SWIPE_HORIZONTAL_RATIO) {
+          touchLockHorizontalRef.current = true;
+        } else if (ay > 10 && ay > ax) {
+          touchStartRef.current = null;
+          return;
+        }
+      }
+
+      if (touchLockHorizontalRef.current) {
+        e.preventDefault();
+      }
+    };
+
+    const handleEnd = (e: TouchEvent) => {
+      const start = touchStartRef.current;
+      touchStartRef.current = null;
+      touchLockHorizontalRef.current = false;
+      if (!start || e.changedTouches.length !== 1) return;
+
+      const t = e.changedTouches[0];
+      const dx = t.clientX - start.x;
+      const dy = t.clientY - start.y;
+
+      if (Math.abs(dx) < SWIPE_THRESHOLD_PX) return;
+      if (Math.abs(dx) < Math.abs(dy) * SWIPE_HORIZONTAL_RATIO) return;
+
+      if (dx < 0) {
+        nextImage();
+      } else {
+        prevImage();
+      }
+    };
+
+    el.addEventListener('touchstart', handleStart, { passive: true });
+    el.addEventListener('touchmove', handleMove, { passive: false });
+    el.addEventListener('touchend', handleEnd, { passive: true });
+    el.addEventListener('touchcancel', handleEnd, { passive: true });
+
+    return () => {
+      el.removeEventListener('touchstart', handleStart);
+      el.removeEventListener('touchmove', handleMove);
+      el.removeEventListener('touchend', handleEnd);
+      el.removeEventListener('touchcancel', handleEnd);
+    };
+  }, [isFullscreen, nextImage, prevImage]);
 
   return (
     <>
-      <section className="portfolio-detail section-padding">
+      <section
+        className="portfolio-detail section-padding"
+        aria-label={categoryName ? `${categoryName} photo gallery` : 'Portfolio photo gallery'}
+      >
         <div className="container">
           <div className="back-link-container">
             <Link href="/portfolio" className="back-link">
@@ -55,6 +156,7 @@ export default function PortfolioGallery({ images, categoryName }: Props) {
               <div className="gallery-thumbnails">
                 {imageUrls.map((imageUrl, index) => {
                   const hasError = failedImageIndices.has(index);
+                  const thumbSrc = getPortfolioImageUrl(imageUrl);
                   return (
                     <div
                       key={index}
@@ -68,12 +170,12 @@ export default function PortfolioGallery({ images, categoryName }: Props) {
                         </div>
                       ) : (
                         <Image
-                          src={imageUrl}
+                          src={thumbSrc}
                           alt={imageAlts[index] || `Portfolio image ${index + 1}`}
                           fill
                           style={{ objectFit: 'cover' }}
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-                          unoptimized={imageUrl.startsWith('http')}
+                          unoptimized={portfolioImageUnoptimized(imageUrl)}
                           onError={() => setFailedImageIndices((prev) => new Set(prev).add(index))}
                         />
                       )}
@@ -91,33 +193,65 @@ export default function PortfolioGallery({ images, categoryName }: Props) {
       </section>
 
       {isFullscreen && imageUrls.length > 0 && (
-        <div className="fullscreen-overlay" onClick={closeFullscreen}>
-          <button className="close-btn" onClick={closeFullscreen}>
-            ×
-          </button>
-          <button className="nav-btn prev-btn" onClick={(e) => { e.stopPropagation(); prevImage(); }}>
-            ‹
-          </button>
-          <div className="fullscreen-image" onClick={(e) => e.stopPropagation()}>
-            {failedImageIndices.has(currentImageIndex) ? (
-              <div className="fullscreen-placeholder">
-                <span className="placeholder-icon">📷</span>
-                <span>{imageAlts[currentImageIndex] || `Image ${currentImageIndex + 1}`}</span>
-              </div>
-            ) : (
-              <Image
-                src={getPortfolioImageUrl(imageUrls[currentImageIndex])}
-                alt={imageAlts[currentImageIndex] || `Portfolio image ${currentImageIndex + 1}`}
-                width={1200}
-                height={800}
-                unoptimized={imageUrls[currentImageIndex]?.startsWith('http') || getPortfolioImageUrl(imageUrls[currentImageIndex]).startsWith('/api/image-proxy')}
-                onError={() => setFailedImageIndices((prev) => new Set(prev).add(currentImageIndex))}
-              />
-            )}
+        <div className="fullscreen-overlay" onClick={closeFullscreen} role="presentation">
+          <div className="fullscreen-toolbar" onClick={(e) => e.stopPropagation()}>
+            <div className="fullscreen-toolbar-nav">
+              <button
+                type="button"
+                className="toolbar-nav-btn"
+                aria-label="Previous image"
+                onClick={prevImage}
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                className="toolbar-nav-btn"
+                aria-label="Next image"
+                onClick={nextImage}
+              >
+                ›
+              </button>
+            </div>
+            <button
+              type="button"
+              className="toolbar-close-btn"
+              aria-label="Close gallery"
+              onClick={closeFullscreen}
+            >
+              ×
+            </button>
           </div>
-          <button className="nav-btn next-btn" onClick={(e) => { e.stopPropagation(); nextImage(); }}>
-            ›
-          </button>
+
+          <div className="fullscreen-stage">
+            <div
+              ref={swipeAreaRef}
+              className="fullscreen-image"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {failedImageIndices.has(currentImageIndex) ? (
+                <div className="fullscreen-placeholder">
+                  <span className="placeholder-icon">📷</span>
+                  <span>{imageAlts[currentImageIndex] || `Image ${currentImageIndex + 1}`}</span>
+                </div>
+              ) : (
+                <div className="fullscreen-image-inner">
+                  <Image
+                    src={getPortfolioImageUrl(imageUrls[currentImageIndex])}
+                    alt={imageAlts[currentImageIndex] || `Portfolio image ${currentImageIndex + 1}`}
+                    fill
+                    className="fullscreen-img"
+                    sizes="100vw"
+                    unoptimized={portfolioImageUnoptimized(imageUrls[currentImageIndex])}
+                    onError={() =>
+                      setFailedImageIndices((prev) => new Set(prev).add(currentImageIndex))
+                    }
+                    priority
+                  />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
@@ -167,8 +301,9 @@ export default function PortfolioGallery({ images, categoryName }: Props) {
 
         .fullscreen-placeholder {
           position: relative;
-          min-width: 400px;
-          min-height: 300px;
+          width: 100%;
+          min-height: 40vh;
+          max-width: 100%;
         }
 
         .placeholder-icon {
@@ -194,76 +329,122 @@ export default function PortfolioGallery({ images, categoryName }: Props) {
 
         .fullscreen-overlay {
           position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
+          inset: 0;
           background: rgba(0, 0, 0, 0.95);
           z-index: 9999;
           display: flex;
-          align-items: center;
-          justify-content: center;
+          flex-direction: column;
           cursor: pointer;
+          overscroll-behavior: none;
+          touch-action: none;
+          padding-top: env(safe-area-inset-top, 0);
         }
 
-        .close-btn {
-          position: absolute;
-          top: 2rem;
-          right: 2rem;
-          background: none;
-          border: none;
-          color: #fff;
-          font-size: 48px;
-          cursor: pointer;
-          z-index: 10000;
-          width: 50px;
-          height: 50px;
+        .fullscreen-toolbar {
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: var(--spacing-md);
+          padding: 0.75rem 1rem;
+          padding-left: max(1rem, env(safe-area-inset-left, 0));
+          padding-right: max(1rem, env(safe-area-inset-right, 0));
+          z-index: 10001;
+        }
+
+        .fullscreen-toolbar-nav {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .toolbar-nav-btn {
+          min-width: 48px;
+          min-height: 48px;
+          padding: 0 0.75rem;
           display: flex;
           align-items: center;
           justify-content: center;
+          background: rgba(255, 255, 255, 0.92);
+          border: none;
+          border-radius: 10px;
+          color: var(--sbd-brown);
+          font-size: 1.75rem;
+          line-height: 1;
+          cursor: pointer;
+          transition: background 0.2s ease, transform 0.15s ease;
         }
 
-        .nav-btn {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          background: rgba(255, 255, 255, 0.2);
-          border: none;
-          color: #fff;
-          font-size: 48px;
-          cursor: pointer;
-          width: 60px;
-          height: 60px;
+        .toolbar-nav-btn:hover {
+          background: #fff;
+        }
+
+        .toolbar-nav-btn:active {
+          transform: scale(0.96);
+        }
+
+        .toolbar-close-btn {
+          min-width: 48px;
+          min-height: 48px;
           display: flex;
           align-items: center;
           justify-content: center;
+          background: rgba(255, 255, 255, 0.92);
+          border: none;
           border-radius: 50%;
-          transition: background 0.3s ease;
+          color: var(--sbd-brown);
+          font-size: 1.75rem;
+          line-height: 1;
+          cursor: pointer;
+          transition: background 0.2s ease, transform 0.15s ease;
         }
 
-        .nav-btn:hover {
-          background: rgba(255, 255, 255, 0.3);
+        .toolbar-close-btn:hover {
+          background: #fff;
         }
 
-        .prev-btn {
-          left: 2rem;
+        .toolbar-close-btn:active {
+          transform: scale(0.96);
         }
 
-        .next-btn {
-          right: 2rem;
+        .fullscreen-stage {
+          flex: 1;
+          min-height: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 1rem 1.5rem;
+          padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0));
         }
 
         .fullscreen-image {
-          max-width: 90%;
-          max-height: 90%;
+          position: relative;
+          max-width: 100%;
+          max-height: 100%;
+          width: min(100%, 1400px);
+          height: 100%;
           cursor: default;
+          touch-action: none;
         }
 
-        .fullscreen-image img {
+        .fullscreen-image-inner {
+          position: relative;
           width: 100%;
-          height: auto;
-          max-height: 90vh;
+          height: min(85vh, 100%);
+          min-height: 200px;
+        }
+
+        :global(.fullscreen-img) {
           object-fit: contain;
+        }
+
+        @media (min-width: 769px) {
+          .toolbar-nav-btn,
+          .toolbar-close-btn {
+            min-width: 52px;
+            min-height: 52px;
+            font-size: 2rem;
+          }
         }
 
         @media (max-width: 768px) {
@@ -272,18 +453,8 @@ export default function PortfolioGallery({ images, categoryName }: Props) {
             gap: var(--spacing-md);
           }
 
-          .nav-btn {
-            width: 40px;
-            height: 40px;
-            font-size: 32px;
-          }
-
-          .prev-btn {
-            left: 1rem;
-          }
-
-          .next-btn {
-            right: 1rem;
+          .fullscreen-image-inner {
+            height: min(calc(100vh - 8rem), 100%);
           }
         }
       `}</style>
