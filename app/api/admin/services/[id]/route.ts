@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getServicesCollection, getMediaCollection } from '@/lib/db';
+import { normalizeServiceSlug } from '@/lib/service-slug';
 import { ObjectId } from 'mongodb';
 
 export const dynamic = 'force-dynamic';
@@ -18,6 +19,11 @@ export async function PUT(
 
   try {
     const body = await request.json();
+    const slug = normalizeServiceSlug(String(body.slug ?? ''));
+    if (!slug) {
+      return NextResponse.json({ error: 'Invalid slug' }, { status: 400 });
+    }
+
     const collection = await getServicesCollection();
     
     // Get the existing service to check for old images
@@ -53,7 +59,7 @@ export async function PUT(
     }
     
     const update = {
-      slug: body.slug,
+      slug,
       title: body.title,
       heroImage: newHeroImage,
       body: body.body,

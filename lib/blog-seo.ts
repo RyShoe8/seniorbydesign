@@ -38,13 +38,23 @@ export function stripHtmlToPlainText(html: string | undefined | null, maxLength?
   return t;
 }
 
-function clampMetaDescription(text: string, max = META_MAX): string {
+export function clampMetaDescription(text: string, max = META_MAX): string {
   const s = text.trim();
   if (s.length <= max) return s;
   const slice = s.slice(0, max - 1);
   const lastSpace = slice.lastIndexOf(' ');
   const out = (lastSpace > max * 0.5 ? slice.slice(0, lastSpace) : slice).trimEnd();
   return `${out}…`;
+}
+
+/** Meta description for service pages (plain or HTML-ish body). */
+export function metaDescriptionForServiceBody(body: string | undefined | null): string {
+  return clampMetaDescription(stripHtmlToPlainText(body ?? ''));
+}
+
+/** Plain text for JSON-LD / snippets from service body. */
+export function serviceBodyPlainTextForSchema(body: string | undefined | null, max = 500): string {
+  return stripHtmlToPlainText(body ?? '', max);
 }
 
 export function metaDescription(post: Pick<BlogPost, 'excerpt' | 'body'>): string {

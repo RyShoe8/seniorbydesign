@@ -15,12 +15,20 @@ function isHtmlEffectivelyEmpty(html: string): boolean {
   return !html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
 }
 
+export type RelatedBlogPostSummary = {
+  slug: string;
+  title: string;
+  excerpt?: string;
+  featuredImage?: string;
+};
+
 type Props = {
   post: BlogPostArticleData;
   showPreviewBanner?: boolean;
+  relatedPosts?: RelatedBlogPostSummary[];
 };
 
-export function BlogPostArticle({ post, showPreviewBanner }: Props) {
+export function BlogPostArticle({ post, showPreviewBanner, relatedPosts }: Props) {
   const safeHtml = prepareBlogBodyForDisplay(post.body);
   const empty = isHtmlEffectivelyEmpty(safeHtml);
 
@@ -135,6 +143,40 @@ export function BlogPostArticle({ post, showPreviewBanner }: Props) {
           )}
         </div>
       </div>
+
+      {!showPreviewBanner && relatedPosts && relatedPosts.length > 0 && (
+        <aside className={styles.relatedSection} aria-label="Related articles">
+          <div className="container">
+            <h2 className={styles.relatedHeading}>More from the Journal</h2>
+            <ul className={styles.relatedList}>
+              {relatedPosts.map((rp) => (
+                <li key={rp.slug} className={styles.relatedItem}>
+                  <Link href={`/blog/${encodeURIComponent(rp.slug)}`} className={styles.relatedLink}>
+                    {rp.featuredImage ? (
+                      <div className={styles.relatedThumb}>
+                        <Image
+                          src={rp.featuredImage}
+                          alt={rp.title}
+                          fill
+                          sizes="120px"
+                          className={styles.relatedThumbImg}
+                          unoptimized={rp.featuredImage.startsWith('http')}
+                        />
+                      </div>
+                    ) : null}
+                    <span className={styles.relatedText}>
+                      <span className={styles.relatedTitle}>{rp.title}</span>
+                      {rp.excerpt ? (
+                        <span className={styles.relatedExcerpt}>{rp.excerpt}</span>
+                      ) : null}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </aside>
+      )}
     </article>
   );
 }

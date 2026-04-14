@@ -5,6 +5,7 @@ import {
   getTeamMembers,
   getBlogPosts,
 } from './actions';
+import { normalizeServiceSlug } from '@/lib/service-slug';
 
 // Revalidate sitemap periodically; blog admin APIs also call revalidatePath('/sitemap.xml')
 export const revalidate = 300;
@@ -90,7 +91,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const servicePages: MetadataRoute.Sitemap = services
       .filter((service) => service.slug) // Only include services with valid slugs
       .map((service) => ({
-        url: `${baseUrl}/services/${encodeURIComponent(service.slug)}`,
+        url: `${baseUrl}/services/${encodeURIComponent(normalizeServiceSlug(service.slug))}`,
         lastModified: service.updatedAt ? new Date(service.updatedAt) : new Date(),
         changeFrequency: 'monthly' as const,
         priority: 0.7,

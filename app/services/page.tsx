@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { getServices } from '../actions';
 import Image from 'next/image';
 import NewsletterCTA from '@/components/NewsletterCTA';
-import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
+import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema, IndexItemListSchema } from '@/components/SEO';
+import { normalizeServiceSlug } from '@/lib/service-slug';
 import styles from './page.module.css';
 
 export const metadata: Metadata = generateSEOMetadata({
@@ -73,7 +74,7 @@ export default async function Services() {
       images: 1,
     },
     {
-      slug: 'Overall-design-and-development',
+      slug: 'overall-design-and-development',
       title: 'Overall design & DEVELOPMENT',
       description: 'Our design and dedicated procurement teams re-imagine environments to create a better way of living. No two projects are alike. We have designed 175+ senior living communities and procured over $100M in acquisitions.',
       bullets: {
@@ -92,7 +93,7 @@ export default async function Services() {
       images: 1,
     },
     {
-      slug: 'FFE-Services',
+      slug: 'ffe-services',
       title: 'FF&E Services',
       description: 'At Senior by Design, FF&E is far more than sourcing furniture it is a highly curated, hands-on process rooted in performance, comfort, and design integrity. We source furniture, finishes, and equipment from around the world, focusing exclusively on commercial-grade products that are appropriate for senior living and multifamily environments. We rigorously vet not only our vendors, but their products as well. It is not uncommon for us to review a catalog of hundreds of seating options, travel directly to the factory, and determine that only a small percentage truly meet our standards for durability, comfort, scale, and long-term use.',
       bullets: {
@@ -109,12 +110,28 @@ export default async function Services() {
     },
   ];
 
+  const itemListEntries = services
+    .filter((s) => s.slug && s.title)
+    .map((s) => ({
+      name: s.title,
+      urlPath: `/services/${normalizeServiceSlug(s.slug)}`,
+    }));
+
   return (
     <>
       <JSONLDSchema schema={BreadcrumbSchema([
         { name: 'Home', url: '/' },
         { name: 'Services', url: '/services' },
       ])} />
+      {itemListEntries.length > 0 && (
+        <JSONLDSchema
+          schema={IndexItemListSchema({
+            name: 'Senior By Design services',
+            description: 'Interior design and delivery services for senior living and multifamily.',
+            items: itemListEntries,
+          })}
+        />
+      )}
       <div className="services-page">
       <section className={styles.servicesHero}>
         <div className={styles.servicesHeroImage}>
@@ -134,18 +151,11 @@ export default async function Services() {
           {servicePromotions
             .map((promo) => {
               // Find matching service from database - use database slug as source of truth
-              const service = services.find((s) => 
-                s.slug?.toLowerCase() === promo.slug.toLowerCase()
+              const service = services.find(
+                (s) => s.slug && normalizeServiceSlug(s.slug) === normalizeServiceSlug(promo.slug)
               );
-              
-              // Debug: Log if service not found
-              if (!service && (promo.slug === 'ff-e-services' || promo.slug === 'overall-design-and-development')) {
-                console.log(`[Services Page] Service not found for slug: "${promo.slug}"`);
-                console.log(`[Services Page] Available slugs:`, services.map(s => s.slug));
-              }
-              
-              // Use service slug if found, otherwise use promo slug
-              const displaySlug = service?.slug || promo.slug;
+
+              const displaySlug = normalizeServiceSlug(service?.slug || promo.slug);
             
             return (
               <div key={displaySlug} className={styles.servicePromo}>

@@ -12,6 +12,36 @@ import {
   getResourcesCollection,
 } from '@/lib/db';
 import { blogPreviewTokensMatch } from '@/lib/blog-preview';
+import { normalizeServiceSlug } from '@/lib/service-slug';
+
+/** One-time per process: persist lowercase canonical service slugs in MongoDB. */
+let serviceSlugMigration: Promise<void> | null = null;
+
+async function runServiceSlugCanonicalMigration() {
+  const collection = await getServicesCollection();
+  const docs = await collection.find({}).toArray();
+  for (const d of docs) {
+    if (!d.slug || typeof d.slug !== 'string') continue;
+    const canon = normalizeServiceSlug(d.slug);
+    if (canon && d.slug !== canon) {
+      await collection.updateOne(
+        { _id: d._id },
+        { $set: { slug: canon, updatedAt: new Date() } }
+      );
+    }
+  }
+}
+
+function ensureServiceSlugMigration(): Promise<void> {
+  if (!serviceSlugMigration) {
+    serviceSlugMigration = runServiceSlugCanonicalMigration().catch((err) => {
+      console.error('[services] Canonical slug migration failed:', err);
+      serviceSlugMigration = null;
+      return undefined;
+    });
+  }
+  return serviceSlugMigration;
+}
 
 // Homepage
 export async function getHomepageContent() {
@@ -92,13 +122,39 @@ export async function getTeamMember(slug: string) {
 
 // Services
 export async function getServices() {
+  await ensureServiceSlugMigration();
   const collection = await getServicesCollection();
   return await collection.find({}).sort({ title: 1 }).toArray();
 }
 
 export async function getService(slug: string) {
+  await ensureServiceSlugMigration();
   const collection = await getServicesCollection();
-  return await collection.findOne({ slug });
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(slug);
+  } catch {
+    decoded = slug;
+  }
+  const normalized = normalizeServiceSlug(decoded);
+
+  const exact = await collection.findOne({ slug: decoded });
+  if (exact) return exact;
+
+  if (normalized) {
+    const caseInsensitive = await collection.findOne({
+      $expr: { $eq: [{ $toLower: '$slug' }, normalized] },
+    });
+    if (caseInsensitive) return caseInsensitive;
+  }
+
+  return null;
+}
+
+/** Published posts excluding one slug, most recent first (for related links). */
+export async function getRelatedBlogPosts(currentSlug: string, limit = 3) {
+  const posts = await getBlogPosts();
+  return posts.filter((p) => p.slug && p.slug !== currentSlug).slice(0, limit);
 }
 
 // Projects

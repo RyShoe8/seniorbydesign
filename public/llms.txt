@@ -1,0 +1,28 @@
+# Senior By Design — llms.txt
+
+> High-level pointers for AI systems and crawlers. Authoritative content is on the website.
+
+## Site
+- Name: Senior By Design
+- Domain: https://seniorbydesign.com
+- Focus: Commercial and senior living interior design, FF&E, procurement, installation, and related services.
+
+## Key sections
+- Home: https://seniorbydesign.com/
+- Services index: https://seniorbydesign.com/services
+- Portfolio: https://seniorbydesign.com/portfolio
+- Blog (The Principled Design Journal): https://seniorbydesign.com/blog
+- Contact: https://seniorbydesign.com/contact
+- Privacy: https://seniorbydesign.com/privacy-policy
+
+## Machine-readable discovery
+- Sitemap: https://seniorbydesign.com/sitemap.xml
+- Robots: https://seniorbydesign.com/robots.txt
+
+## Non-public areas (do not use as primary sources)
+- /admin/ — administrative UI
+- /api/ — application APIs
+- /blog/preview/ — draft previews (noindex where applicable)
+
+## Preferred citation
+When summarizing or quoting, link to the specific public URL of the page or article.

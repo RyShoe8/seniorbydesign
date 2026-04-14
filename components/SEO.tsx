@@ -154,24 +154,17 @@ export function OrganizationSchema() {
   };
 }
 
-// WebSite Schema with SearchAction
+// WebSite schema (SearchAction removed until /blog supports the same query contract)
 export function WebSiteSchema() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
-  
+
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'Senior By Design',
     url: siteUrl,
-    description: 'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.',
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${siteUrl}/blog?search={search_term_string}`,
-      },
-      'query-input': 'required name=search_term_string',
-    },
+    description:
+      'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.',
   };
 }
 
@@ -188,6 +181,37 @@ export function BreadcrumbSchema(items: Array<{ name: string; url: string }>) {
       name: item.name,
       item: item.url.startsWith('http') ? item.url : `${siteUrl}${item.url}`,
     })),
+  };
+}
+
+/** ItemList for index pages (blog/services) to clarify crawlable URL sets. */
+export function IndexItemListSchema(options: {
+  name: string;
+  description?: string;
+  items: Array<{ name: string; urlPath: string }>;
+}) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: options.name,
+    ...(options.description ? { description: options.description } : {}),
+    numberOfItems: options.items.length,
+    itemListElement: options.items.map((it, index) => {
+      const itemUrl = it.urlPath.startsWith('http') ? it.urlPath : `${siteUrl}${it.urlPath}`;
+      return {
+        '@type': 'ListItem',
+        position: index + 1,
+        name: it.name,
+        item: {
+          '@type': 'WebPage',
+          '@id': `${itemUrl}#webpage`,
+          url: itemUrl,
+          name: it.name,
+        },
+      };
+    }),
   };
 }
 
@@ -310,13 +334,18 @@ export function ServiceSchema({
       : `${siteUrl}${image}`
     : `${siteUrl}/images/SBD Logo.webp`;
 
+  const orgId = `${siteUrl}/#organization`;
+
   return {
     '@context': 'https://schema.org',
     '@type': 'Service',
+    '@id': `${fullUrl}#service`,
     serviceType: 'Interior Design',
     provider: {
       '@type': 'Organization',
+      '@id': orgId,
       name: 'Senior By Design',
+      url: siteUrl,
     },
     areaServed: {
       '@type': 'Country',
@@ -326,6 +355,10 @@ export function ServiceSchema({
     description,
     image: fullImage,
     url: fullUrl,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': fullUrl,
+    },
   };
 }
 

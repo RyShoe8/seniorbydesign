@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getPublishedBlogPost } from '../../actions';
+import { getPublishedBlogPost, getRelatedBlogPosts } from '../../actions';
 import { generateSEOMetadata, JSONLDSchema, ArticleSchema, BreadcrumbSchema } from '@/components/SEO';
 import { BlogPostArticle } from '../BlogPostArticle';
 import {
@@ -47,6 +47,8 @@ export default async function BlogPostPage({ params }: Props) {
     notFound();
   }
 
+  const relatedPosts = await getRelatedBlogPosts(post.slug, 3);
+
   const derived = titleDerivedKeywords(post.title);
   const keywords = Array.from(new Set([...BASE_BLOG_KEYWORDS, ...derived]));
 
@@ -69,7 +71,15 @@ export default async function BlogPostPage({ params }: Props) {
         { name: 'Blog', url: '/blog' },
         { name: post.title, url: `/blog/${post.slug}` },
       ])} />
-      <BlogPostArticle post={post} />
+      <BlogPostArticle
+        post={post}
+        relatedPosts={relatedPosts.map((p) => ({
+          slug: p.slug,
+          title: p.title,
+          excerpt: p.excerpt,
+          featuredImage: p.featuredImage,
+        }))}
+      />
     </>
   );
 }

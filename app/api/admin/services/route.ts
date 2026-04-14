@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getServicesCollection } from '@/lib/db';
+import { normalizeServiceSlug } from '@/lib/service-slug';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,9 +35,14 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const collection = await getServicesCollection();
-    
+
+    const slug = normalizeServiceSlug(String(body.slug ?? ''));
+    if (!slug) {
+      return NextResponse.json({ error: 'Invalid slug' }, { status: 400 });
+    }
+
     const service = {
-      slug: body.slug,
+      slug,
       title: body.title,
       heroImage: body.heroImage || '',
       body: body.body,

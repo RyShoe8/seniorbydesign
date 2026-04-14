@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { getBlogPosts } from '../actions';
 import Image from 'next/image';
 import NewsletterCTA from '@/components/NewsletterCTA';
-import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
+import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema, IndexItemListSchema } from '@/components/SEO';
 import styles from './page.module.css';
 
 export const metadata: Metadata = generateSEOMetadata({
@@ -25,12 +25,28 @@ export const revalidate = 0; // Always fetch fresh data
 export default async function Blog() {
   const posts = await getBlogPosts();
 
+  const itemListEntries = posts
+    .filter((p) => p.slug && p.title)
+    .map((p) => ({
+      name: p.title,
+      urlPath: `/blog/${encodeURIComponent(p.slug)}`,
+    }));
+
   return (
     <>
       <JSONLDSchema schema={BreadcrumbSchema([
         { name: 'Home', url: '/' },
         { name: 'Blog', url: '/blog' },
       ])} />
+      {itemListEntries.length > 0 && (
+        <JSONLDSchema
+          schema={IndexItemListSchema({
+            name: 'The Principled Design Journal',
+            description: 'Articles on interior design, senior living, and commercial design from Senior By Design.',
+            items: itemListEntries,
+          })}
+        />
+      )}
       <section className={styles.blogHero}>
         <div className={styles.blogHeroImage}>
           <Image
