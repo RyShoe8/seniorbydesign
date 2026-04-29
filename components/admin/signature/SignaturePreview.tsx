@@ -1,22 +1,20 @@
 'use client';
 
+import styles from './SignaturePreview.module.css';
+
 type Props = {
   html: string;
+  /** Bumps a key to replay preview-only enter animation when HTML updates. */
+  animationKey?: string | number;
 };
 
-export function SignaturePreview({ html }: Props) {
+export function SignaturePreview({ html, animationKey = 0 }: Props) {
   return (
-    <div
-      style={{
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        padding: '1rem',
-        background: '#fff',
-        minHeight: '120px',
-        overflow: 'auto',
-      }}
-    >
-      <div dangerouslySetInnerHTML={{ __html: html }} />
+    <div className={styles.frame} key={animationKey}>
+      <div
+        className={styles.inner}
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
     </div>
   );
 }

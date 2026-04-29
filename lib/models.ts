@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb';
+import type { SignatureBrand, SignatureTemplate } from '@seniorbydesign/signature-engine';
 
 export interface User {
   _id?: ObjectId;
@@ -145,6 +146,14 @@ export interface BrochureRequest {
   _id?: ObjectId;
   brochureType: 'digital' | 'physical';
   createdAt: Date;
+}
+
+/** Single org-wide row for the email signature builder (brand + template). */
+export interface SignatureOrgSettings {
+  _id?: ObjectId;
+  brand: SignatureBrand;
+  template: SignatureTemplate;
+  updatedAt: Date;
 }
 
 

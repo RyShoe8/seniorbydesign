@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import {
   renderSignature,
@@ -50,6 +50,19 @@ function buildElements(t: ToggleState): SignatureElement[] {
   return out;
 }
 
+function normalizeBrand(brand: SignatureBrand): SignatureBrand {
+  return {
+    ...mockSignatureBrand,
+    ...brand,
+    socialLinks: { ...mockSignatureBrand.socialLinks, ...brand.socialLinks },
+    locations: { ...mockSignatureBrand.locations, ...brand.locations },
+    animation: {
+      enabled: brand.animation?.enabled ?? false,
+      gifUrl: brand.animation?.gifUrl ?? '',
+    },
+  };
+}
+
 const defaultProfile: SignatureProfile = {
   firstName: '',
   lastName: '',
@@ -65,9 +78,7 @@ export default function AdminSignaturePage() {
   const isAdmin = session?.user?.role === 'admin';
 
   const [profile, setProfile] = useState<SignatureProfile>(defaultProfile);
-  const [brand, setBrand] = useState<SignatureBrand>(() => ({
-    ...mockSignatureBrand,
-  }));
+  const [brand, setBrand] = useState<SignatureBrand>(() => ({ ...mockSignatureBrand }));
   const [layout, setLayout] = useState<Layout>('standard');
   const [toggles, setToggles] = useState<ToggleState>(() =>
     togglesFromElements(
@@ -80,15 +91,67 @@ export default function AdminSignaturePage() {
       })
     )
   );
+  const [templateMeta, setTemplateMeta] = useState({ id: 'org', name: 'Organization default' });
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+
+  const [isSettingsLoading, setIsSettingsLoading] = useState(true);
+  const [settingsError, setSettingsError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [previewKey, setPreviewKey] = useState(0);
+
+  const loadSettings = useCallback(async () => {
+    setSettingsError(null);
+    setIsSettingsLoading(true);
+    try {
+      const res = await fetch('/api/admin/signature');
+      if (!res.ok) {
+        throw new Error('Request failed');
+      }
+      const data = await res.json();
+      const nextToggles = togglesFromElements(data.template.elements);
+      setLayout(data.template.layout);
+      setToggles(nextToggles);
+      setTemplateMeta({ id: data.template.id, name: data.template.name });
+      setBrand(
+        normalizeBrand({
+          ...data.brand,
+          animation: {
+            enabled: nextToggles.useAnimation,
+            gifUrl: data.brand.animation?.gifUrl ?? '',
+          },
+        })
+      );
+      setLastUpdated(
+        typeof data.updatedAt === 'string' ? data.updatedAt : data.updatedAt ? String(data.updatedAt) : null
+      );
+      setPreviewKey((k) => k + 1);
+    } catch {
+      setSettingsError('Could not load organization settings. You can retry, or continue with defaults.');
+    } finally {
+      setIsSettingsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
+
+  useEffect(() => {
+    if (!saveMessage) return;
+    const t = window.setTimeout(() => setSaveMessage(null), 3500);
+    return () => window.clearTimeout(t);
+  }, [saveMessage]);
 
   const template = useMemo<SignatureTemplate>(
     () => ({
-      id: 'admin-live',
-      name: 'Live template',
+      id: templateMeta.id,
+      name: templateMeta.name,
       layout,
       elements: buildElements(toggles),
     }),
-    [layout, toggles]
+    [templateMeta, layout, toggles]
   );
 
   const html = useMemo(
@@ -97,6 +160,7 @@ export default function AdminSignaturePage() {
   );
 
   const canCopy =
+    !isSettingsLoading &&
     profile.firstName.trim() !== '' &&
     profile.lastName.trim() !== '' &&
     profile.email.trim() !== '';
@@ -121,22 +185,74 @@ export default function AdminSignaturePage() {
     }));
   };
 
+  const handleSaveOrg = async () => {
+    if (!isAdmin) return;
+    setIsSaving(true);
+    setSaveError(null);
+    setSaveMessage(null);
+    try {
+      const res = await fetch('/api/admin/signature', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brand, template }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setSaveError(
+          typeof data.error === 'string' ? data.error : 'Save failed. Check your fields and try again.'
+        );
+        return;
+      }
+      if (data.template) {
+        setTemplateMeta({ id: data.template.id, name: data.template.name });
+      }
+      if (data.updatedAt) {
+        setLastUpdated(data.updatedAt);
+      }
+      setSaveMessage('Organization signature saved.');
+      setPreviewKey((k) => k + 1);
+    } catch {
+      setSaveError('Save failed. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className={styles.page}>
       <h1>Email signature</h1>
       <p className={styles.lead}>
-        Admins set organization branding and which blocks appear. Everyone enters their own name,
-        title, and contact details, then copies the HTML for Gmail or Outlook.
+        Admins set organization branding once; it is stored for everyone. Each person only fills in
+        their name, title, and contact details, then copies the HTML for Gmail or Outlook.
       </p>
+
+      {settingsError && (
+        <div className={styles.loadError} role="alert">
+          <p>{settingsError}</p>
+          <button type="button" className={styles.retryBtn} onClick={loadSettings}>
+            Retry
+          </button>
+        </div>
+      )}
 
       <div className={styles.grid}>
         {isAdmin ? (
           <section className={styles.card}>
             <h2>Brand &amp; template</h2>
+            {isSettingsLoading && <p className={styles.muted}>Loading saved settings…</p>}
+            {lastUpdated && !isSettingsLoading && (
+              <p className={styles.muted}>
+                Last saved: {new Date(lastUpdated).toLocaleString()}
+              </p>
+            )}
+            {saveMessage && <p className={styles.saveOk}>{saveMessage}</p>}
+            {saveError && <p className={styles.error}>{saveError}</p>}
+
             <div className={styles.checkboxRow}>
               <label>
                 <input
                   type="checkbox"
+                  disabled={isSettingsLoading}
                   checked={toggles.showSocial}
                   onChange={(e) =>
                     setToggles((t) => ({ ...t, showSocial: e.target.checked }))
@@ -147,6 +263,7 @@ export default function AdminSignaturePage() {
               <label>
                 <input
                   type="checkbox"
+                  disabled={isSettingsLoading}
                   checked={toggles.showLocations}
                   onChange={(e) =>
                     setToggles((t) => ({ ...t, showLocations: e.target.checked }))
@@ -157,6 +274,7 @@ export default function AdminSignaturePage() {
               <label>
                 <input
                   type="checkbox"
+                  disabled={isSettingsLoading}
                   checked={toggles.showWarehouse}
                   onChange={(e) =>
                     setToggles((t) => ({ ...t, showWarehouse: e.target.checked }))
@@ -167,6 +285,7 @@ export default function AdminSignaturePage() {
               <label>
                 <input
                   type="checkbox"
+                  disabled={isSettingsLoading}
                   checked={toggles.showDivider}
                   onChange={(e) =>
                     setToggles((t) => ({ ...t, showDivider: e.target.checked }))
@@ -177,6 +296,7 @@ export default function AdminSignaturePage() {
               <label>
                 <input
                   type="checkbox"
+                  disabled={isSettingsLoading}
                   checked={toggles.useAnimation}
                   onChange={(e) => {
                     const on = e.target.checked;
@@ -197,6 +317,7 @@ export default function AdminSignaturePage() {
             <label style={{ display: 'block', marginBottom: '0.75rem', fontSize: '14px' }}>
               Layout
               <select
+                disabled={isSettingsLoading}
                 value={layout}
                 onChange={(e) => setLayout(e.target.value as Layout)}
                 style={{
@@ -215,6 +336,7 @@ export default function AdminSignaturePage() {
             <label style={{ display: 'block', marginBottom: '0.75rem', fontSize: '14px' }}>
               Font
               <select
+                disabled={isSettingsLoading}
                 value={brand.fontFamily}
                 onChange={(e) => setBrandField('fontFamily')(e.target.value)}
                 style={{
@@ -237,6 +359,7 @@ export default function AdminSignaturePage() {
               Primary color
               <input
                 type="text"
+                disabled={isSettingsLoading}
                 value={brand.primaryColor}
                 onChange={(e) => setBrandField('primaryColor')(e.target.value)}
                 style={{
@@ -253,6 +376,7 @@ export default function AdminSignaturePage() {
               Logo image URL
               <input
                 type="url"
+                disabled={isSettingsLoading}
                 value={brand.logoUrl}
                 onChange={(e) => setBrandField('logoUrl')(e.target.value)}
                 style={{
@@ -269,6 +393,7 @@ export default function AdminSignaturePage() {
               Logo link (click-through URL)
               <input
                 type="url"
+                disabled={isSettingsLoading}
                 value={brand.logoLink}
                 onChange={(e) => setBrandField('logoLink')(e.target.value)}
                 style={{
@@ -282,9 +407,10 @@ export default function AdminSignaturePage() {
             </label>
 
             <label style={{ display: 'block', marginBottom: '0.75rem', fontSize: '14px' }}>
-              Animated GIF URL (optional; first frame should look good in Outlook)
+              Animated GIF URL (optional; first frame should look good in Outlook; keep under ~200KB)
               <input
                 type="url"
+                disabled={isSettingsLoading}
                 value={brand.animation?.gifUrl ?? ''}
                 onChange={(e) =>
                   setBrand((b) => ({
@@ -309,6 +435,7 @@ export default function AdminSignaturePage() {
               Website
               <input
                 type="text"
+                disabled={isSettingsLoading}
                 value={brand.website}
                 onChange={(e) => setBrandField('website')(e.target.value)}
                 style={{
@@ -325,6 +452,7 @@ export default function AdminSignaturePage() {
               Company name (stored for future templates)
               <input
                 type="text"
+                disabled={isSettingsLoading}
                 value={brand.companyName}
                 onChange={(e) => setBrandField('companyName')(e.target.value)}
                 style={{
@@ -345,6 +473,7 @@ export default function AdminSignaturePage() {
                 LinkedIn
                 <input
                   type="url"
+                  disabled={isSettingsLoading}
                   value={brand.socialLinks.linkedin ?? ''}
                   onChange={(e) => setSocial('linkedin', e.target.value)}
                   style={{ display: 'block', marginTop: '0.25rem', padding: '0.45rem', width: '100%' }}
@@ -354,6 +483,7 @@ export default function AdminSignaturePage() {
                 Facebook
                 <input
                   type="url"
+                  disabled={isSettingsLoading}
                   value={brand.socialLinks.facebook ?? ''}
                   onChange={(e) => setSocial('facebook', e.target.value)}
                   style={{ display: 'block', marginTop: '0.25rem', padding: '0.45rem', width: '100%' }}
@@ -363,6 +493,7 @@ export default function AdminSignaturePage() {
                 Instagram
                 <input
                   type="url"
+                  disabled={isSettingsLoading}
                   value={brand.socialLinks.instagram ?? ''}
                   onChange={(e) => setSocial('instagram', e.target.value)}
                   style={{ display: 'block', marginTop: '0.25rem', padding: '0.45rem', width: '100%' }}
@@ -383,6 +514,7 @@ export default function AdminSignaturePage() {
                 Dallas
                 <input
                   type="text"
+                  disabled={isSettingsLoading}
                   value={brand.locations.dallas ?? ''}
                   onChange={(e) => setLocation('dallas', e.target.value)}
                   style={{ display: 'block', marginTop: '0.25rem', padding: '0.45rem', width: '100%' }}
@@ -392,6 +524,7 @@ export default function AdminSignaturePage() {
                 Boulder
                 <input
                   type="text"
+                  disabled={isSettingsLoading}
                   value={brand.locations.boulder ?? ''}
                   onChange={(e) => setLocation('boulder', e.target.value)}
                   style={{ display: 'block', marginTop: '0.25rem', padding: '0.45rem', width: '100%' }}
@@ -401,19 +534,32 @@ export default function AdminSignaturePage() {
                 Warehouse
                 <input
                   type="text"
+                  disabled={isSettingsLoading}
                   value={brand.warehouseAddress ?? ''}
                   onChange={(e) => setBrandField('warehouseAddress')(e.target.value || undefined)}
                   style={{ display: 'block', marginTop: '0.25rem', padding: '0.45rem', width: '100%' }}
                 />
               </label>
             </fieldset>
+
+            <div className={styles.saveRow}>
+              <button
+                type="button"
+                className={styles.saveBtn}
+                disabled={isSettingsLoading || isSaving}
+                onClick={handleSaveOrg}
+              >
+                {isSaving ? 'Saving…' : 'Save organization signature'}
+              </button>
+            </div>
           </section>
         ) : (
           <section className={styles.card}>
             <h2>Brand &amp; template</h2>
+            {isSettingsLoading && <p className={styles.muted}>Loading organization settings…</p>}
             <p className={styles.notice}>
-              Only administrators can change organization branding. Your preview uses the current
-              organization defaults.
+              Only administrators can change organization branding. The preview below uses the saved
+              organization settings.
             </p>
           </section>
         )}
@@ -421,14 +567,21 @@ export default function AdminSignaturePage() {
         <section className={styles.card}>
           <h2>Your signature</h2>
           <SignatureForm value={profile} onChange={setProfile} />
-          {!canCopy && (
+          {!canCopy && !isSettingsLoading && (
             <p className={styles.error}>Enter first name, last name, and email to enable copying.</p>
+          )}
+          {isSettingsLoading && (
+            <p className={styles.muted}>Enter your details after settings finish loading.</p>
           )}
         </section>
 
         <section className={`${styles.card} ${styles.previewSection}`}>
           <h2>Preview</h2>
-          <SignaturePreview html={html} />
+          {isSettingsLoading ? (
+            <p className={styles.muted}>Loading preview…</p>
+          ) : (
+            <SignaturePreview html={html} animationKey={previewKey} />
+          )}
           <div className={styles.row}>
             <CopyButton html={html} disabled={!canCopy} />
           </div>
@@ -437,7 +590,8 @@ export default function AdminSignaturePage() {
               <strong>How to paste:</strong> Use <strong>Copy signature</strong>, then open Gmail
               → Settings → General → Signature, or Outlook → File → Options → Mail → Signatures,
               and paste. Outlook may show only the first frame of an animated GIF; design that
-              frame to look good on its own.
+              frame to look good on its own. The light fade you see here is only in this admin
+              preview, not in the copied HTML.
             </p>
           </div>
         </section>

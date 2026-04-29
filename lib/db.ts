@@ -13,6 +13,7 @@ import {
   Media,
   BrochureSettings,
   BrochureRequest,
+  SignatureOrgSettings,
 } from './models';
 
 const DB_NAME = 'seniorbydesign';
@@ -86,6 +87,11 @@ export async function getBrochureSettingsCollection() {
 export async function getBrochureRequestsCollection() {
   const db = await getDb();
   return db.collection<BrochureRequest>('brochureRequests');
+}
+
+export async function getSignatureSettingsCollection() {
+  const db = await getDb();
+  return db.collection<SignatureOrgSettings>('signatureSettings');
 }
 
 
