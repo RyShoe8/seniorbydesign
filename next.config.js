@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ['@seniorbydesign/signature-engine'],
   reactStrictMode: true,
   // Optimize for production
   swcMinify: true,

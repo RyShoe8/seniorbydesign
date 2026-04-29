@@ -117,6 +117,9 @@ export default function AdminLayout({
           <Link href="/admin/media" className={`nav-item ${pathname === '/admin/media' ? 'active' : ''}`} onClick={closeMobileMenu}>
             Media Library
           </Link>
+          <Link href="/admin/signature" className={`nav-item ${pathname?.startsWith('/admin/signature') ? 'active' : ''}`} onClick={closeMobileMenu}>
+            Signature
+          </Link>
         </nav>
       </aside>
       <main className="admin-main">
