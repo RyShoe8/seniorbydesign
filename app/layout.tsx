@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import Script from 'next/script'
 import './globals.css'
 import Providers from '@/components/Providers'
 import ConditionalLayout from '@/components/ConditionalLayout'
@@ -43,6 +44,8 @@ export const metadata: Metadata = {
   },
 }
 
+const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+
 export default function RootLayout({
   children,
 }: {
@@ -51,6 +54,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        {recaptchaSiteKey ? (
+          <Script
+            src={`https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`}
+            strategy="afterInteractive"
+          />
+        ) : null}
         <JSONLDSchema schema={OrganizationSchema()} />
         <JSONLDSchema schema={WebSiteSchema()} />
         <Analytics />

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { getRecaptchaToken } from '@/lib/recaptcha-client';
 import styles from './page.module.css';
 
 export default function Contact() {
@@ -38,11 +39,20 @@ export default function Contact() {
     setSubmitStatus('idle');
 
     try {
+      let recaptchaToken: string;
+      try {
+        recaptchaToken = await getRecaptchaToken('contact');
+      } catch {
+        setSubmitStatus('error');
+        return;
+      }
+
       // Format phone number and website URL before submitting
       const formattedData = {
         ...formData,
         phone: formData.phone ? formatPhoneNumber(formData.phone) : formData.phone,
         website: formData.website ? formatWebsite(formData.website) : '',
+        recaptchaToken,
       };
 
       const response = await fetch('/api/contact', {

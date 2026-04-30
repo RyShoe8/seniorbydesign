@@ -19,7 +19,7 @@ export default function PrivacyPolicy() {
       <div className={styles.privacyPolicy}>
       <div className="container">
         <h1>Privacy Policy</h1>
-        <p className={styles.lastUpdated}>Last Updated: January 13, 2025</p>
+        <p className={styles.lastUpdated}>Last Updated: April 29, 2026</p>
 
         <section>
           <h2>1. Introduction</h2>
@@ -88,6 +88,15 @@ export default function PrivacyPolicy() {
             <li><strong>Brevo (formerly Sendinblue):</strong> For email marketing and contact management</li>
             <li><strong>Vercel:</strong> For website hosting and infrastructure</li>
             <li><strong>Google Analytics:</strong> For website analytics and performance monitoring</li>
+            <li>
+              <strong>Google reCAPTCHA v3:</strong> We use reCAPTCHA on our contact form and newsletter/brochure
+              sign-up flows to reduce spam and automated abuse. This service may process certain device and
+              interaction data and send it to Google for risk analysis. For more information, see Google&apos;s{' '}
+              <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+                Privacy Policy
+              </a>
+              .
+            </li>
             <li><strong>Ahrefs:</strong> For website analytics</li>
           </ul>
           <p>These service providers are contractually obligated to protect your information and use it only for the purposes we specify.</p>

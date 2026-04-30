@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
+import { getRecaptchaToken } from '@/lib/recaptcha-client';
 import styles from './page.module.css';
 
 interface BrochureSettings {
@@ -80,10 +81,19 @@ export default function NewsletterAndBrochure() {
     setSubmitStatus('idle');
 
     try {
+      let recaptchaToken: string;
+      try {
+        recaptchaToken = await getRecaptchaToken('newsletter');
+      } catch {
+        setSubmitStatus('error');
+        return;
+      }
+
       // Format website URL before submitting
       const formattedData = {
         ...formData,
         website: formData.website ? formatWebsite(formData.website) : '',
+        recaptchaToken,
       };
       
       const response = await fetch('/api/newsletter', {

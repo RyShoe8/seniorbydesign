@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
+import { getRecaptchaToken } from '@/lib/recaptcha-client';
 import styles from './NewsletterCTA.module.css';
 
 // Dynamically import PDF.js only on client side
@@ -397,11 +398,20 @@ export default function NewsletterCTA() {
     setSubmitStatus('idle');
 
     try {
+      let recaptchaToken: string;
+      try {
+        recaptchaToken = await getRecaptchaToken('newsletter');
+      } catch {
+        setSubmitStatus('error');
+        return;
+      }
+
       // Format website URL before submitting
       const formattedData = {
         ...formData,
         website: formData.website ? formatWebsite(formData.website) : '',
         brochureType,
+        recaptchaToken,
       };
       
       const response = await fetch('/api/newsletter', {

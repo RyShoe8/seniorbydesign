@@ -1,13 +1,26 @@
 import { NextResponse } from 'next/server';
 import { addContactToBrevo, sendTransactionalEmail, NewsletterSignupData } from '@/lib/brevo';
 import { getBrochureRequestsCollection } from '@/lib/db';
+import { verifyRecaptchaV3 } from '@/lib/recaptcha';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
-    const body: NewsletterSignupData = await request.json();
-    
+    const body: NewsletterSignupData & { recaptchaToken?: string } = await request.json();
+
+    const recaptchaOk = await verifyRecaptchaV3(
+      body.recaptchaToken,
+      'newsletter',
+      request
+    );
+    if (!recaptchaOk) {
+      return NextResponse.json(
+        { error: 'Unable to verify submission. Please try again.' },
+        { status: 403 }
+      );
+    }
+
     // Validate required fields
     if (!body.email) {
       return NextResponse.json(

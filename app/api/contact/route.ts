@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { addContactFormToBrevo, ContactFormData } from '@/lib/brevo';
+import { verifyRecaptchaV3 } from '@/lib/recaptcha';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,12 +13,25 @@ interface ContactFormRequestBody {
   zip?: string;
   website?: string;
   message: string;
+  recaptchaToken?: string;
 }
 
 export async function POST(request: Request) {
   try {
     const body: ContactFormRequestBody = await request.json();
-    
+
+    const recaptchaOk = await verifyRecaptchaV3(
+      body.recaptchaToken,
+      'contact',
+      request
+    );
+    if (!recaptchaOk) {
+      return NextResponse.json(
+        { error: 'Unable to verify submission. Please try again.' },
+        { status: 403 }
+      );
+    }
+
     // Validate required fields
     if (!body.firstName || !body.lastName || !body.email || !body.message) {
       return NextResponse.json(
