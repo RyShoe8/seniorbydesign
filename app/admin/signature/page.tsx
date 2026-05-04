@@ -68,7 +68,8 @@ const defaultProfile: SignatureProfile = {
   lastName: '',
   title: '',
   email: '',
-  phone: '',
+  officePhone: '',
+  mobilePhone: '',
 };
 
 const FONT_OPTIONS = ['Arial', 'Georgia', 'Tahoma', 'Verdana', 'Helvetica'] as const;

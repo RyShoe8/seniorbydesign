@@ -26,10 +26,19 @@ export const STACKED_SIGNATURE_TEMPLATE = `<table cellpadding="0" cellspacing="0
       <div style="height:10px;"></div>
 
       {{#if hasContact}}
-      {{#if hasPhone}}
-      <div>
-        <a href="{{phoneTelHref}}" style="color:#1a1a1a; text-decoration:none;">
-          {{phone}}
+      {{#if hasOfficePhone}}
+      <div style="margin-bottom:4px;">
+        <strong style="color:#000;">Office:</strong>
+        <a href="{{officePhoneTelHref}}" style="color:#1a1a1a; text-decoration:none; margin-left:4px;">
+          {{officePhone}}
+        </a>
+      </div>
+      {{/if}}
+      {{#if hasMobilePhone}}
+      <div style="margin-bottom:4px;">
+        <strong style="color:#000;">Mobile:</strong>
+        <a href="{{mobilePhoneTelHref}}" style="color:#1a1a1a; text-decoration:none; margin-left:4px;">
+          {{mobilePhone}}
         </a>
       </div>
       {{/if}}

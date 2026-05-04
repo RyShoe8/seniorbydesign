@@ -157,9 +157,12 @@ export function mergeRenderContext(
   const showWarehouseBlock = hasWarehouseEl && Boolean(warehouseAddress);
   const showLocationsRow = showLocationsLines || showWarehouseBlock;
 
-  const phoneRaw = profile.phone?.trim() ?? '';
-  const phone = hasContact && phoneRaw ? phoneRaw : '';
-  const phoneTelHref = phone ? telHref(phone) : '';
+  const officePhoneRaw = profile.officePhone?.trim() ?? '';
+  const mobilePhoneRaw = profile.mobilePhone?.trim() ?? '';
+  const officePhone = hasContact && officePhoneRaw ? officePhoneRaw : '';
+  const mobilePhone = hasContact && mobilePhoneRaw ? mobilePhoneRaw : '';
+  const officePhoneTelHref = officePhone ? telHref(officePhone) : '';
+  const mobilePhoneTelHref = mobilePhone ? telHref(mobilePhone) : '';
 
   const evalCtx: Record<string, string | boolean | undefined> = {
     hasLogo,
@@ -167,7 +170,8 @@ export function mergeRenderContext(
     hasTitle,
     hasContact,
     hasDivider,
-    hasPhone: Boolean(phone),
+    hasOfficePhone: Boolean(officePhone),
+    hasMobilePhone: Boolean(mobilePhone),
     showSocialBlock,
     showLocationsRow,
     showLocationsLines,
@@ -184,8 +188,10 @@ export function mergeRenderContext(
     lastName: escapeHtml(profile.lastName.trim()),
     title: escapeHtml(profile.title.trim()),
     email: escapeHtml(profile.email.trim()),
-    phone: escapeHtml(phone),
-    phoneTelHref: escapeHtml(phoneTelHref),
+    officePhone: escapeHtml(officePhone),
+    officePhoneTelHref: escapeHtml(officePhoneTelHref),
+    mobilePhone: escapeHtml(mobilePhone),
+    mobilePhoneTelHref: escapeHtml(mobilePhoneTelHref),
     logoUrl: escapeHtml(logoUrl),
     logoLink: escapeHtml(brand.logoLink.trim()),
     primaryColor: escapeHtml(brand.primaryColor.trim()),

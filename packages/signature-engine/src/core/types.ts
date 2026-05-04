@@ -3,7 +3,8 @@ export type SignatureProfile = {
   lastName: string;
   title: string;
   email: string;
-  phone?: string;
+  officePhone?: string;
+  mobilePhone?: string;
 };
 
 export type SignatureBrand = {

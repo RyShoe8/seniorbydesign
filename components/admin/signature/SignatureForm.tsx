@@ -71,12 +71,22 @@ export function SignatureForm({ value, onChange, disabled }: Props) {
         />
       </label>
       <label style={labelStyle}>
-        Phone (optional)
+        Office phone (optional)
         <input
           style={fieldStyle}
           type="tel"
-          value={value.phone ?? ''}
-          onChange={set('phone')}
+          value={value.officePhone ?? ''}
+          onChange={set('officePhone')}
+          autoComplete="tel"
+        />
+      </label>
+      <label style={labelStyle}>
+        Mobile phone (optional)
+        <input
+          style={fieldStyle}
+          type="tel"
+          value={value.mobilePhone ?? ''}
+          onChange={set('mobilePhone')}
           autoComplete="tel"
         />
       </label>
