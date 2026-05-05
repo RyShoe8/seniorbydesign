@@ -388,6 +388,9 @@ export default function AdminSignaturePage() {
                   maxWidth: '100%',
                 }}
               />
+              <div style={{ marginTop: '0.35rem', fontSize: '12px', color: '#666' }}>
+                For best iPhone/email compatibility, use a PNG URL on seniorbydesign.com and avoid spaces.
+              </div>
             </label>
 
             <label style={{ display: 'block', marginBottom: '0.75rem', fontSize: '14px' }}>

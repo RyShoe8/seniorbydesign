@@ -26,6 +26,31 @@ function normalizeWebsite(raw: string): string {
   return `https://${t}`;
 }
 
+function normalizeImageUrl(raw: string): string {
+  const t = raw.trim();
+  if (!t) return '';
+  if (!/^https?:\/\//i.test(t)) return t.replace(/ /g, '%20');
+
+  try {
+    const url = new URL(t);
+    const normalizedPath = url.pathname
+      .split('/')
+      .map((segment) => {
+        if (!segment) return segment;
+        try {
+          return encodeURIComponent(decodeURIComponent(segment));
+        } catch {
+          return encodeURIComponent(segment);
+        }
+      })
+      .join('/');
+    url.pathname = normalizedPath;
+    return url.toString();
+  } catch {
+    return t.replace(/ /g, '%20');
+  }
+}
+
 function telHref(phone: string): string {
   const digits = phone.replace(/[^\d+]/g, '');
   return digits ? `tel:${digits}` : `tel:${phone.trim()}`;
@@ -121,7 +146,8 @@ export function mergeRenderContext(
     Boolean(brand.animation?.enabled) &&
     Boolean(brand.animation?.gifUrl?.trim());
 
-  const logoUrl = useAnimation ? brand.animation!.gifUrl!.trim() : brand.logoUrl.trim();
+  const rawLogoUrl = useAnimation ? brand.animation!.gifUrl!.trim() : brand.logoUrl.trim();
+  const logoUrl = normalizeImageUrl(rawLogoUrl);
 
   const website = normalizeWebsite(brand.website);
 
@@ -203,9 +229,9 @@ export function mergeRenderContext(
     dallas: escapeHtml(dallas),
     boulder: escapeHtml(boulder),
     warehouseAddress: escapeHtml(warehouseAddress),
-    iconLinkedin: SOCIAL_ICON_LINKEDIN,
-    iconFacebook: SOCIAL_ICON_FACEBOOK,
-    iconInstagram: SOCIAL_ICON_INSTAGRAM,
+    iconLinkedin: normalizeImageUrl(SOCIAL_ICON_LINKEDIN),
+    iconFacebook: normalizeImageUrl(SOCIAL_ICON_FACEBOOK),
+    iconInstagram: normalizeImageUrl(SOCIAL_ICON_INSTAGRAM),
   };
 
   return { evalCtx, stringCtx };

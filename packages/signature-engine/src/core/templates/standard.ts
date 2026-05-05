@@ -31,34 +31,42 @@ export const STANDARD_SIGNATURE_TEMPLATE = `<table cellpadding="0" cellspacing="
       <div style="height:10px;"></div>
 
       {{#if hasContact}}
-      {{#if hasOfficePhone}}
-      <div style="margin-bottom:4px;">
-        <strong style="color:#000;">Office:</strong>
-        <a href="{{officePhoneTelHref}}" style="color:#1a1a1a; text-decoration:none; margin-left:4px;">
-          {{officePhone}}
-        </a>
-      </div>
-      {{/if}}
-      {{#if hasMobilePhone}}
-      <div style="margin-bottom:4px;">
-        <strong style="color:#000;">Mobile:</strong>
-        <a href="{{mobilePhoneTelHref}}" style="color:#1a1a1a; text-decoration:none; margin-left:4px;">
-          {{mobilePhone}}
-        </a>
-      </div>
-      {{/if}}
-
-      <div>
-        <a href="mailto:{{email}}" style="color:{{primaryColor}}; text-decoration:none;">
-          {{email}}
-        </a>
-      </div>
-
-      <div>
-        <a href="{{website}}" style="color:#1a1a1a; text-decoration:none;">
-          {{website}}
-        </a>
-      </div>
+      <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+        {{#if hasOfficePhone}}
+        <tr>
+          <td valign="top" style="padding:0 4px 4px 0; color:#000; font-weight:700;">Office:</td>
+          <td valign="top" style="padding:0 0 4px 0;">
+            <a href="{{officePhoneTelHref}}" style="color:#1a1a1a; text-decoration:none;">
+              {{officePhone}}
+            </a>
+          </td>
+        </tr>
+        {{/if}}
+        {{#if hasMobilePhone}}
+        <tr>
+          <td valign="top" style="padding:0 4px 4px 0; color:#000; font-weight:700;">Mobile:</td>
+          <td valign="top" style="padding:0 0 4px 0;">
+            <a href="{{mobilePhoneTelHref}}" style="color:#1a1a1a; text-decoration:none;">
+              {{mobilePhone}}
+            </a>
+          </td>
+        </tr>
+        {{/if}}
+        <tr>
+          <td colspan="2" valign="top" style="padding:0;">
+            <a href="mailto:{{email}}" style="color:{{primaryColor}}; text-decoration:none;">
+              {{email}}
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" valign="top" style="padding:0;">
+            <a href="{{website}}" style="color:#1a1a1a; text-decoration:none;">
+              {{website}}
+            </a>
+          </td>
+        </tr>
+      </table>
       {{/if}}
 
       {{#if showSocialBlock}}

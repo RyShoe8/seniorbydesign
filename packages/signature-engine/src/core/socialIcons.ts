@@ -1,7 +1,7 @@
-/** Inline icon URLs for email clients (fixed order: LinkedIn, Facebook, Instagram). Swap for self-hosted assets if needed. */
+/** Signature social icons served from first-party assets for mobile email reliability. */
 export const SOCIAL_ICON_LINKEDIN =
-  'https://cdn-icons-png.flaticon.com/512/174/174857.png';
+  'https://seniorbydesign.com/images/favicon.png';
 export const SOCIAL_ICON_FACEBOOK =
-  'https://cdn-icons-png.flaticon.com/512/124/124010.png';
+  'https://seniorbydesign.com/images/favicon.png';
 export const SOCIAL_ICON_INSTAGRAM =
-  'https://cdn-icons-png.flaticon.com/512/2111/2111463.png';
+  'https://seniorbydesign.com/images/favicon.png';
