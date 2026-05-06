@@ -7,6 +7,9 @@ import type { SignatureBrand, SignatureTemplate } from '@seniorbydesign/signatur
 
 export const dynamic = 'force-dynamic';
 
+/** Single canonical row; avoids ambiguous findOne({}) when legacy duplicates exist. */
+const SIGNATURE_SETTINGS_SCOPE = 'organization' as const;
+
 function defaultPayload(): { brand: SignatureBrand; template: SignatureTemplate; updatedAt: null } {
   return {
     brand: { ...mockSignatureBrand },
@@ -86,6 +89,20 @@ function parseBody(body: unknown): { brand: SignatureBrand; template: SignatureT
   return { brand, template };
 }
 
+/** Prefer scoped doc; if missing, tag one legacy row. Multiple legacy rows require manual cleanup in MongoDB. */
+async function getCanonicalSignatureDoc() {
+  const collection = await getSignatureSettingsCollection();
+  let doc = await collection.findOne({ scope: SIGNATURE_SETTINGS_SCOPE });
+  if (!doc) {
+    const legacy = await collection.findOne({});
+    if (legacy?.brand && legacy?.template) {
+      await collection.updateOne({ _id: legacy._id }, { $set: { scope: SIGNATURE_SETTINGS_SCOPE } });
+      doc = await collection.findOne({ scope: SIGNATURE_SETTINGS_SCOPE });
+    }
+  }
+  return doc;
+}
+
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -93,8 +110,7 @@ export async function GET() {
   }
 
   try {
-    const collection = await getSignatureSettingsCollection();
-    const doc = await collection.findOne({});
+    const doc = await getCanonicalSignatureDoc();
 
     if (!doc) {
       const d = defaultPayload();
@@ -136,17 +152,21 @@ export async function POST(request: Request) {
 
   const { brand, template } = parsed;
   const updatedAt = new Date();
-  const payload = { brand, template, updatedAt };
 
   try {
     const collection = await getSignatureSettingsCollection();
-    const existing = await collection.findOne({});
-
-    if (existing) {
-      await collection.updateOne({ _id: existing._id }, { $set: payload });
-    } else {
-      await collection.insertOne(payload);
-    }
+    await collection.updateOne(
+      { scope: SIGNATURE_SETTINGS_SCOPE },
+      {
+        $set: {
+          scope: SIGNATURE_SETTINGS_SCOPE,
+          brand,
+          template,
+          updatedAt,
+        },
+      },
+      { upsert: true }
+    );
 
     return NextResponse.json({
       success: true,

@@ -8,7 +8,6 @@ import {
   type SignatureBrand,
   type SignatureTemplate,
   type SignatureElement,
-  mockSignatureBrand,
 } from '@seniorbydesign/signature-engine';
 import { SignatureForm } from '@/components/admin/signature/SignatureForm';
 import { SignaturePreview } from '@/components/admin/signature/SignaturePreview';
@@ -50,15 +49,46 @@ function buildElements(t: ToggleState): SignatureElement[] {
   return out;
 }
 
-function normalizeBrand(brand: SignatureBrand): SignatureBrand {
+/** Neutral defaults for form state — does not inject mock/example URLs or addresses. */
+function emptyBrand(): SignatureBrand {
   return {
-    ...mockSignatureBrand,
-    ...brand,
-    socialLinks: { ...mockSignatureBrand.socialLinks, ...brand.socialLinks },
-    locations: { ...mockSignatureBrand.locations, ...brand.locations },
+    companyName: '',
+    website: '',
+    logoUrl: '',
+    logoLink: '',
+    primaryColor: '#CDAA7D',
+    fontFamily: 'Arial',
+    socialLinks: {},
+    locations: {},
+    warehouseAddress: undefined,
+    animation: { enabled: false, gifUrl: '' },
+  };
+}
+
+/** Shape API-loaded brand for the UI without merging fixture placeholders. */
+function coerceBrandFromApi(brand: SignatureBrand): SignatureBrand {
+  const sl = brand.socialLinks ?? {};
+  const loc = brand.locations ?? {};
+  return {
+    companyName: brand.companyName ?? '',
+    website: brand.website ?? '',
+    logoUrl: brand.logoUrl ?? '',
+    logoLink: brand.logoLink ?? '',
+    primaryColor: brand.primaryColor?.trim() ? brand.primaryColor.trim() : '#CDAA7D',
+    fontFamily: brand.fontFamily?.trim() ? brand.fontFamily.trim() : 'Arial',
+    socialLinks: {
+      linkedin: sl.linkedin?.trim() || undefined,
+      facebook: sl.facebook?.trim() || undefined,
+      instagram: sl.instagram?.trim() || undefined,
+    },
+    locations: {
+      dallas: loc.dallas?.trim() || undefined,
+      boulder: loc.boulder?.trim() || undefined,
+    },
+    warehouseAddress: brand.warehouseAddress?.trim() || undefined,
     animation: {
       enabled: brand.animation?.enabled ?? false,
-      gifUrl: brand.animation?.gifUrl ?? '',
+      gifUrl: brand.animation?.gifUrl?.trim() ?? '',
     },
   };
 }
@@ -79,7 +109,7 @@ export default function AdminSignaturePage() {
   const isAdmin = session?.user?.role === 'admin';
 
   const [profile, setProfile] = useState<SignatureProfile>(defaultProfile);
-  const [brand, setBrand] = useState<SignatureBrand>(() => ({ ...mockSignatureBrand }));
+  const [brand, setBrand] = useState<SignatureBrand>(() => emptyBrand());
   const [layout, setLayout] = useState<Layout>('standard');
   const [toggles, setToggles] = useState<ToggleState>(() =>
     togglesFromElements(
@@ -116,7 +146,7 @@ export default function AdminSignaturePage() {
       setToggles(nextToggles);
       setTemplateMeta({ id: data.template.id, name: data.template.name });
       setBrand(
-        normalizeBrand({
+        coerceBrandFromApi({
           ...data.brand,
           animation: {
             enabled: nextToggles.useAnimation,
@@ -223,8 +253,10 @@ export default function AdminSignaturePage() {
     <div className={styles.page}>
       <h1>Email signature</h1>
       <p className={styles.lead}>
-        Admins set organization branding once; it is stored for everyone. Each person only fills in
-        their name, title, and contact details, then copies the HTML for Gmail or Outlook.
+        Admins save organization branding (logo, studios, design center, social links, layout) once;
+        it loads from the server for every signed-in user. Name, title, email, and phones are filled in
+        locally in this browser only and are not stored—each person enters their own, then copies the HTML
+        for Gmail or Outlook.
       </p>
 
       {settingsError && (
@@ -270,7 +302,7 @@ export default function AdminSignaturePage() {
                     setToggles((t) => ({ ...t, showLocations: e.target.checked }))
                   }
                 />
-                Show locations
+                Show design studios
               </label>
               <label>
                 <input
@@ -281,7 +313,7 @@ export default function AdminSignaturePage() {
                     setToggles((t) => ({ ...t, showWarehouse: e.target.checked }))
                   }
                 />
-                Show warehouse
+                Show design center / warehouse
               </label>
               <label>
                 <input
@@ -513,7 +545,9 @@ export default function AdminSignaturePage() {
                 marginTop: '0.75rem',
               }}
             >
-              <legend style={{ fontSize: '13px', padding: '0 0.35rem' }}>Addresses</legend>
+              <legend style={{ fontSize: '13px', padding: '0 0.35rem' }}>
+                Design studios &amp; design center
+              </legend>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '13px' }}>
                 Dallas
                 <input
@@ -535,7 +569,7 @@ export default function AdminSignaturePage() {
                 />
               </label>
               <label style={{ display: 'block', fontSize: '13px' }}>
-                Warehouse
+                Design center / warehouse
                 <input
                   type="text"
                   disabled={isSettingsLoading}

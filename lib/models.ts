@@ -151,6 +151,8 @@ export interface BrochureRequest {
 /** Single org-wide row for the email signature builder (brand + template). */
 export interface SignatureOrgSettings {
   _id?: ObjectId;
+  /** Discriminator so only one document is canonical (see app/api/admin/signature). */
+  scope?: 'organization';
   brand: SignatureBrand;
   template: SignatureTemplate;
   updatedAt: Date;
