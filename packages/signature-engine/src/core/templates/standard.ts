@@ -72,20 +72,20 @@ export const STANDARD_SIGNATURE_TEMPLATE = `<table cellpadding="0" cellspacing="
       {{#if showSocialBlock}}
       <div style="margin-top:10px;">
         {{#if hasLinkedin}}
-        <a href="{{linkedin}}" style="text-decoration:none; margin-right:8px;">
-          <img src="{{iconLinkedin}}" width="16" style="display:inline-block; border:0;" />
+        <a href="{{linkedin}}" style="text-decoration:none; border:0; outline:none; display:inline-block; margin-right:8px;">
+          <img src="{{iconLinkedin}}" width="16" height="16" border="0" alt="" style="display:block; border:0; outline:none; text-decoration:none;" />
         </a>
         {{/if}}
 
         {{#if hasFacebook}}
-        <a href="{{facebook}}" style="text-decoration:none; margin-right:8px;">
-          <img src="{{iconFacebook}}" width="16" style="display:inline-block; border:0;" />
+        <a href="{{facebook}}" style="text-decoration:none; border:0; outline:none; display:inline-block; margin-right:8px;">
+          <img src="{{iconFacebook}}" width="16" height="16" border="0" alt="" style="display:block; border:0; outline:none; text-decoration:none;" />
         </a>
         {{/if}}
 
         {{#if hasInstagram}}
-        <a href="{{instagram}}" style="text-decoration:none;">
-          <img src="{{iconInstagram}}" width="16" style="display:inline-block; border:0;" />
+        <a href="{{instagram}}" style="text-decoration:none; border:0; outline:none; display:inline-block;">
+          <img src="{{iconInstagram}}" width="16" height="16" border="0" alt="" style="display:block; border:0; outline:none; text-decoration:none;" />
         </a>
         {{/if}}
       </div>
