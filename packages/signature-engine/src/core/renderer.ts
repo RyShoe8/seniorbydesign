@@ -21,6 +21,29 @@ function hasElement(elements: SignatureElement[], type: ElementType): boolean {
 
 const DEFAULT_PUBLIC_SITE_ORIGIN = 'https://seniorbydesign.com';
 
+/**
+ * Measured from public/images/sbd-logo-no-tagline.png (JPEG image data; .png filename).
+ * Update if the asset is replaced.
+ */
+const LOGO_SBD_NO_TAGLINE_NATURAL_WIDTH = 371;
+const LOGO_SBD_NO_TAGLINE_NATURAL_HEIGHT = 451;
+const LOGO_DISPLAY_WIDTH_PX = 110;
+const LOGO_SBD_NO_TAGLINE_HEIGHT_AT_110 = Math.round(
+  LOGO_DISPLAY_WIDTH_PX * (LOGO_SBD_NO_TAGLINE_NATURAL_HEIGHT / LOGO_SBD_NO_TAGLINE_NATURAL_WIDTH)
+);
+
+/**
+ * Static logo height at {@link LOGO_DISPLAY_WIDTH_PX}px width when admin does not set logoHeightPx.
+ * Canonical SBD asset uses measured aspect ratio; other URLs use the same ratio as a conservative
+ * fallback (custom logos: set Logo height in admin until natural dimensions are modeled).
+ */
+function staticLogoHeightAt110Px(absoluteLogoUrl: string): number {
+  if (/sbd-logo-no-tagline/i.test(absoluteLogoUrl)) {
+    return LOGO_SBD_NO_TAGLINE_HEIGHT_AT_110;
+  }
+  return LOGO_SBD_NO_TAGLINE_HEIGHT_AT_110;
+}
+
 function stripTrailingSlash(u: string): string {
   return u.replace(/\/+$/, '');
 }
@@ -207,12 +230,23 @@ export function mergeRenderContext(
     Number.isFinite(brand.logoHeightPx) &&
     brand.logoHeightPx > 0 &&
     brand.logoHeightPx <= 400;
-  const hasLogoExplicitHeight = hasLogo && explicitLogoH;
-  const hasLogoAutoHeight = hasLogo && !explicitLogoH;
   const logoHeightPxRounded =
     explicitLogoH && typeof brand.logoHeightPx === 'number'
       ? Math.round(brand.logoHeightPx)
       : 0;
+
+  let logoDisplayHeightStr = '';
+  if (hasLogo) {
+    if (explicitLogoH) {
+      logoDisplayHeightStr = String(logoHeightPxRounded);
+    } else if (useAnimation) {
+      logoDisplayHeightStr = '';
+    } else {
+      logoDisplayHeightStr = String(staticLogoHeightAt110Px(logoUrl));
+    }
+  }
+  const hasLogoSizedHeight = hasLogo && logoDisplayHeightStr !== '';
+  const hasLogoAutoHeight = hasLogo && logoDisplayHeightStr === '';
 
   const linkedin =
     hasSocial && brand.socialLinks.linkedin?.trim()
@@ -289,7 +323,7 @@ export function mergeRenderContext(
     hasInstagram: Boolean(instagram),
     hasDallas: Boolean(dallas),
     hasBoulder: Boolean(boulder),
-    hasLogoExplicitHeight,
+    hasLogoSizedHeight,
     hasLogoAutoHeight,
   };
 
@@ -305,7 +339,7 @@ export function mergeRenderContext(
     logoUrl: escapeHtml(logoUrl),
     logoLink: escapeHtml(logoLinkForHref),
     logoWidth: '110',
-    logoHeight: hasLogoExplicitHeight ? String(logoHeightPxRounded) : '',
+    logoDisplayHeight: logoDisplayHeightStr,
     primaryColor: escapeHtml(brand.primaryColor.trim()),
     fontFamily: escapeHtml(brand.fontFamily.trim()),
     website: escapeHtml(website),

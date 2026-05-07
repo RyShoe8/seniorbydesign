@@ -1,11 +1,11 @@
 /** Stacked layout: logo on top, full-width contact below (table-only, inline styles). */
 export const STACKED_SIGNATURE_TEMPLATE = `<table cellpadding="0" cellspacing="0" border="0" style="font-family: {{fontFamily}}, Arial, Helvetica, sans-serif; font-size:14px; color:#1a1a1a; line-height:1.4;">
   <tr>
-    <td colspan="2" style="vertical-align:top; padding-bottom:12px;">
+    <td colspan="2" style="vertical-align:top;line-height:0;font-size:0;padding-bottom:12px;">
       {{#if hasLogo}}
       <a href="{{logoLink}}" style="text-decoration:none; border:0; outline:none; display:inline-block;">
-{{#if hasLogoExplicitHeight}}
-        <img src="{{logoUrl}}" width="{{logoWidth}}" height="{{logoHeight}}" border="0" alt="" style="display:block;max-width:{{logoWidth}}px;width:{{logoWidth}}px;height:{{logoHeight}}px;border:0;outline:none;text-decoration:none;" />
+{{#if hasLogoSizedHeight}}
+        <img src="{{logoUrl}}" width="{{logoWidth}}" height="{{logoDisplayHeight}}" border="0" alt="" style="display:block;max-width:{{logoWidth}}px;width:{{logoWidth}}px;height:{{logoDisplayHeight}}px;border:0;outline:none;text-decoration:none;" />
 {{/if}}
 {{#if hasLogoAutoHeight}}
         <img src="{{logoUrl}}" width="{{logoWidth}}" border="0" alt="" style="display:block;max-width:{{logoWidth}}px;width:{{logoWidth}}px;height:auto;border:0;outline:none;text-decoration:none;" />

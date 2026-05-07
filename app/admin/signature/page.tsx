@@ -21,6 +21,15 @@ const SIGNATURE_PUBLIC_ORIGIN = (
     : 'https://seniorbydesign.com'
 );
 
+/** Org-wide main office line shown when the Office field is empty (not persisted per user). */
+const DEFAULT_OFFICE_PHONE = '833-779-3744';
+
+function withDefaultOfficePhone(p: SignatureProfile): SignatureProfile {
+  const t = p.officePhone?.trim();
+  if (t) return { ...p, officePhone: t };
+  return { ...p, officePhone: DEFAULT_OFFICE_PHONE };
+}
+
 type Layout = SignatureTemplate['layout'];
 
 type ToggleState = {
@@ -107,7 +116,7 @@ const defaultProfile: SignatureProfile = {
   lastName: '',
   title: '',
   email: '',
-  officePhone: '833-779-3744',
+  officePhone: DEFAULT_OFFICE_PHONE,
   mobilePhone: '',
 };
 
@@ -167,11 +176,16 @@ export default function AdminSignaturePage() {
         typeof data.updatedAt === 'string' ? data.updatedAt : data.updatedAt ? String(data.updatedAt) : null
       );
       setPreviewKey((k) => k + 1);
+      setProfile(withDefaultOfficePhone);
     } catch {
       setSettingsError('Could not load organization settings. You can retry, or continue with defaults.');
     } finally {
       setIsSettingsLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    setProfile(withDefaultOfficePhone);
   }, []);
 
   useEffect(() => {

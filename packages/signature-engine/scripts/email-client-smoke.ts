@@ -23,7 +23,16 @@ const htmlStandard = renderSignature({
   publicSiteOrigin: origin,
 });
 
-assert.match(htmlStandard, /height:auto/, 'standard: logo uses height:auto when logoHeightPx unset');
+assert.match(
+  htmlStandard,
+  /height="134"/,
+  'standard: static logo gets explicit height from measured SBD asset when logoHeightPx unset'
+);
+assert.doesNotMatch(
+  htmlStandard,
+  /height:auto/,
+  'standard: static logo avoids height:auto so Gmail keeps proportion'
+);
 assert.ok(
   htmlStandard.includes('border-collapse:collapse;margin-top:10px'),
   'standard: social row uses nested table'
@@ -47,6 +56,27 @@ const htmlStacked = renderSignature({
   template: mockSignatureTemplate('stacked'),
   publicSiteOrigin: origin,
 });
-assert.match(htmlStacked, /height:auto/, 'stacked: logo uses height:auto when logoHeightPx unset');
+assert.match(
+  htmlStacked,
+  /height="134"/,
+  'stacked: static logo gets explicit height when logoHeightPx unset'
+);
+assert.doesNotMatch(htmlStacked, /height:auto/, 'stacked: static logo avoids height:auto');
+
+const htmlAnimatedLogo = renderSignature({
+  profile,
+  brand: {
+    ...mockSignatureBrand,
+    logoHeightPx: undefined,
+    animation: { enabled: true, gifUrl: 'https://seniorbydesign.com/images/sample.gif' },
+  },
+  template: mockSignatureTemplate('standard'),
+  publicSiteOrigin: origin,
+});
+assert.match(
+  htmlAnimatedLogo,
+  /height:auto/,
+  'standard: animated GIF logo without logoHeightPx still uses height:auto'
+);
 
 process.stdout.write('email-client-smoke: all checks passed.\n');
