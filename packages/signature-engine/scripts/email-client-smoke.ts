@@ -3,8 +3,8 @@
  * Still paste-test in real clients after deploy (images load, compose quirks).
  */
 import assert from 'node:assert/strict';
-import { renderSignature } from '../src/index.ts';
-import { mockSignatureBrand, mockSignatureTemplate } from '../src/fixtures.ts';
+import { renderSignature } from '../src/index';
+import { mockSignatureBrand, mockSignatureTemplate } from '../src/fixtures';
 
 const profile = {
   firstName: 'Test',
