@@ -107,7 +107,7 @@ const defaultProfile: SignatureProfile = {
   lastName: '',
   title: '',
   email: '',
-  officePhone: '',
+  officePhone: '833-779-3744',
   mobilePhone: '',
 };
 
@@ -444,7 +444,7 @@ export default function AdminSignaturePage() {
                 type="number"
                 min={1}
                 max={400}
-                placeholder="45 (default)"
+                placeholder="Auto"
                 disabled={isSettingsLoading}
                 value={brand.logoHeightPx ?? ''}
                 onChange={(e) => {
@@ -465,9 +465,12 @@ export default function AdminSignaturePage() {
                   maxWidth: '160px',
                 }}
               />
-              <div style={{ marginTop: '0.35rem', fontSize: '12px', color: '#666' }}>
-                Optional. Outlook works best with an explicit height; leave blank for a default wide-logo
-                aspect.
+              <div style={{ marginTop: '0.35rem', fontSize: '12px', color: '#666', maxWidth: '560px' }}>
+                Optional. Leave blank so the logo keeps its natural proportions at 110px wide (best for Gmail
+                and Apple Mail). If{' '}
+                <strong style={{ fontWeight: 600 }}>Outlook for Windows</strong> shows a clipped or stretched
+                logo while other apps look fine, measure the image height at 110px width and enter that number
+                here, then copy the signature again.
               </div>
             </label>
 

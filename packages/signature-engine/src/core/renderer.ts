@@ -21,9 +21,6 @@ function hasElement(elements: SignatureElement[], type: ElementType): boolean {
 
 const DEFAULT_PUBLIC_SITE_ORIGIN = 'https://seniorbydesign.com';
 
-/** Default logo height at 110px width for Outlook when `logoHeightPx` is unset (wide horizontal mark). */
-const DEFAULT_LOGO_HEIGHT_PX = 45;
-
 function stripTrailingSlash(u: string): string {
   return u.replace(/\/+$/, '');
 }
@@ -205,10 +202,17 @@ export function mergeRenderContext(
   const logoLinkForHref =
     brand.logoLink.trim() || website || stripTrailingSlash(origin);
 
-  const logoHeightPx =
-    typeof brand.logoHeightPx === 'number' && brand.logoHeightPx > 0
+  const explicitLogoH =
+    typeof brand.logoHeightPx === 'number' &&
+    Number.isFinite(brand.logoHeightPx) &&
+    brand.logoHeightPx > 0 &&
+    brand.logoHeightPx <= 400;
+  const hasLogoExplicitHeight = hasLogo && explicitLogoH;
+  const hasLogoAutoHeight = hasLogo && !explicitLogoH;
+  const logoHeightPxRounded =
+    explicitLogoH && typeof brand.logoHeightPx === 'number'
       ? Math.round(brand.logoHeightPx)
-      : DEFAULT_LOGO_HEIGHT_PX;
+      : 0;
 
   const linkedin =
     hasSocial && brand.socialLinks.linkedin?.trim()
@@ -238,6 +242,25 @@ export function mergeRenderContext(
       : '';
 
   const showSocialBlock = hasSocial && Boolean(linkedin || facebook || instagram);
+
+  let socialTdLiStyle = '';
+  let socialTdFbStyle = '';
+  let socialTdIgStyle = '';
+  if (linkedin) {
+    socialTdLiStyle =
+      facebook || instagram
+        ? 'padding:0 8px 0 0;vertical-align:middle;'
+        : 'padding:0;vertical-align:middle;';
+  }
+  if (facebook) {
+    socialTdFbStyle = instagram
+      ? 'padding:0 8px 0 0;vertical-align:middle;'
+      : 'padding:0;vertical-align:middle;';
+  }
+  if (instagram) {
+    socialTdIgStyle = 'padding:0;vertical-align:middle;';
+  }
+
   const showLocationsLines = hasLocations && Boolean(dallas || boulder);
   const showWarehouseBlock = hasWarehouseEl && Boolean(warehouseAddress);
   const showLocationsRow = showLocationsLines || showWarehouseBlock;
@@ -266,6 +289,8 @@ export function mergeRenderContext(
     hasInstagram: Boolean(instagram),
     hasDallas: Boolean(dallas),
     hasBoulder: Boolean(boulder),
+    hasLogoExplicitHeight,
+    hasLogoAutoHeight,
   };
 
   const stringCtx: Record<string, string> = {
@@ -280,7 +305,7 @@ export function mergeRenderContext(
     logoUrl: escapeHtml(logoUrl),
     logoLink: escapeHtml(logoLinkForHref),
     logoWidth: '110',
-    logoHeight: String(logoHeightPx),
+    logoHeight: hasLogoExplicitHeight ? String(logoHeightPxRounded) : '',
     primaryColor: escapeHtml(brand.primaryColor.trim()),
     fontFamily: escapeHtml(brand.fontFamily.trim()),
     website: escapeHtml(website),
@@ -293,6 +318,9 @@ export function mergeRenderContext(
     iconLinkedin: normalizeImageUrl(SOCIAL_ICON_LINKEDIN),
     iconFacebook: normalizeImageUrl(SOCIAL_ICON_FACEBOOK),
     iconInstagram: normalizeImageUrl(SOCIAL_ICON_INSTAGRAM),
+    socialTdLiStyle,
+    socialTdFbStyle,
+    socialTdIgStyle,
   };
 
   return { evalCtx, stringCtx };
