@@ -22,6 +22,20 @@ function isNonEmptyString(v: unknown): v is string {
   return typeof v === 'string' && v.trim() !== '';
 }
 
+/** Reject values that work in the admin app but break in Outlook / Apple Mail when pasted. */
+function validateSignatureImageUrlForEmail(fieldLabel: string, url: string): string | null {
+  const t = url.trim();
+  if (!t) return null;
+  if (t.startsWith('/')) {
+    return `${fieldLabel} must be a full https:// URL, not a site-relative path (email clients cannot resolve it).`;
+  }
+  const lower = t.toLowerCase();
+  if (lower.includes('/api/image-proxy') || lower.includes('image-proxy?')) {
+    return `${fieldLabel} cannot use /api/image-proxy; paste the direct https image URL instead.`;
+  }
+  return null;
+}
+
 function coalesceBrandFixed(body: unknown): SignatureBrand | null {
   if (!body || typeof body !== 'object') return null;
   const b = body as Record<string, unknown>;
@@ -35,10 +49,20 @@ function coalesceBrandFixed(body: unknown): SignatureBrand | null {
       ? (b.animation as { enabled?: unknown; gifUrl?: unknown })
       : { enabled: false, gifUrl: '' };
 
+  const logoHeightRaw = (b as { logoHeightPx?: unknown }).logoHeightPx;
+  const logoHeightPx =
+    typeof logoHeightRaw === 'number' &&
+    Number.isFinite(logoHeightRaw) &&
+    logoHeightRaw > 0 &&
+    logoHeightRaw <= 400
+      ? Math.round(logoHeightRaw)
+      : undefined;
+
   return {
     companyName: (b.companyName as string).trim(),
     website: (b.website as string).trim(),
     logoUrl: (b.logoUrl as string).trim(),
+    ...(logoHeightPx !== undefined ? { logoHeightPx } : {}),
     logoLink: isNonEmptyString(b.logoLink) ? (b.logoLink as string).trim() : '',
     primaryColor: isNonEmptyString(b.primaryColor) ? (b.primaryColor as string).trim() : '#CDAA7D',
     fontFamily: isNonEmptyString(b.fontFamily) ? (b.fontFamily as string).trim() : 'Arial',
@@ -151,6 +175,17 @@ export async function POST(request: Request) {
   }
 
   const { brand, template } = parsed;
+  const logoUrlErr = validateSignatureImageUrlForEmail('Logo URL', brand.logoUrl);
+  if (logoUrlErr) {
+    return NextResponse.json({ error: logoUrlErr }, { status: 400 });
+  }
+  const gifUrl = brand.animation?.gifUrl?.trim() ?? '';
+  if (gifUrl) {
+    const gifErr = validateSignatureImageUrlForEmail('Animated GIF URL', gifUrl);
+    if (gifErr) {
+      return NextResponse.json({ error: gifErr }, { status: 400 });
+    }
+  }
   const updatedAt = new Date();
 
   try {

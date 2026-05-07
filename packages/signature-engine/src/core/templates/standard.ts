@@ -7,8 +7,8 @@ export const STANDARD_SIGNATURE_TEMPLATE = `<table cellpadding="0" cellspacing="
     <!-- LEFT: LOGO -->
     <td style="vertical-align:top; padding-right:16px;">
       {{#if hasLogo}}
-      <a href="{{logoLink}}" style="text-decoration:none;">
-        <img src="{{logoUrl}}" width="110" style="display:block; border:0;" />
+      <a href="{{logoLink}}" style="text-decoration:none; border:0; outline:none; display:inline-block;">
+        <img src="{{logoUrl}}" width="{{logoWidth}}" height="{{logoHeight}}" border="0" alt="" style="display:block; border:0; outline:none; text-decoration:none;" />
       </a>
       {{/if}}
     </td>

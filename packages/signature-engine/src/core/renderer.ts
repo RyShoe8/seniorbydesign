@@ -19,6 +19,56 @@ function hasElement(elements: SignatureElement[], type: ElementType): boolean {
   return elements.some((e) => e.type === type);
 }
 
+const DEFAULT_PUBLIC_SITE_ORIGIN = 'https://seniorbydesign.com';
+
+/** Default logo height at 110px width for Outlook when `logoHeightPx` is unset (wide horizontal mark). */
+const DEFAULT_LOGO_HEIGHT_PX = 45;
+
+function stripTrailingSlash(u: string): string {
+  return u.replace(/\/+$/, '');
+}
+
+/**
+ * Unwraps Next.js portfolio image proxy URLs so pasted email HTML loads images directly.
+ */
+export function unwrapImageProxyUrl(raw: string): string {
+  const t = raw.trim();
+  if (!t) return t;
+  try {
+    if (/^https?:\/\//i.test(t)) {
+      const u = new URL(t);
+      if (u.pathname.includes('/api/image-proxy')) {
+        const inner = u.searchParams.get('url');
+        if (inner) return decodeURIComponent(inner);
+      }
+      return t;
+    }
+    if (t.startsWith('/api/image-proxy')) {
+      const q = t.indexOf('?');
+      if (q === -1) return t;
+      const params = new URLSearchParams(t.slice(q + 1));
+      const inner = params.get('url');
+      if (inner) return decodeURIComponent(inner);
+    }
+    return t;
+  } catch {
+    return t;
+  }
+}
+
+/**
+ * Resolves relative and protocol-relative URLs to absolute https for email clients.
+ */
+export function ensureAbsolutePublicUrl(raw: string, origin: string): string {
+  const base = stripTrailingSlash(origin.trim() || DEFAULT_PUBLIC_SITE_ORIGIN);
+  const t = unwrapImageProxyUrl(raw).trim();
+  if (!t) return t;
+  if (/^https?:\/\//i.test(t)) return t;
+  if (t.startsWith('//')) return `https:${t}`;
+  if (t.startsWith('/')) return `${base}${t}`;
+  return t;
+}
+
 function normalizeWebsite(raw: string): string {
   const t = raw.trim();
   if (!t) return '';
@@ -125,11 +175,13 @@ function substituteVariables(html: string, strings: Record<string, string>): str
 export function mergeRenderContext(
   profile: SignatureProfile,
   brand: SignatureBrand,
-  template: SignatureTemplate
+  template: SignatureTemplate,
+  siteOrigin: string = DEFAULT_PUBLIC_SITE_ORIGIN
 ): {
   evalCtx: Record<string, string | boolean | undefined>;
   stringCtx: Record<string, string>;
 } {
+  const origin = stripTrailingSlash(siteOrigin.trim() || DEFAULT_PUBLIC_SITE_ORIGIN);
   const { elements } = template;
   const hasLogo = hasElement(elements, 'logo');
   const hasName = hasElement(elements, 'name');
@@ -147,9 +199,16 @@ export function mergeRenderContext(
     Boolean(brand.animation?.gifUrl?.trim());
 
   const rawLogoUrl = useAnimation ? brand.animation!.gifUrl!.trim() : brand.logoUrl.trim();
-  const logoUrl = normalizeImageUrl(rawLogoUrl);
+  const logoUrl = normalizeImageUrl(ensureAbsolutePublicUrl(rawLogoUrl, origin));
 
   const website = normalizeWebsite(brand.website);
+  const logoLinkForHref =
+    brand.logoLink.trim() || website || stripTrailingSlash(origin);
+
+  const logoHeightPx =
+    typeof brand.logoHeightPx === 'number' && brand.logoHeightPx > 0
+      ? Math.round(brand.logoHeightPx)
+      : DEFAULT_LOGO_HEIGHT_PX;
 
   const linkedin =
     hasSocial && brand.socialLinks.linkedin?.trim()
@@ -219,7 +278,9 @@ export function mergeRenderContext(
     mobilePhone: escapeHtml(mobilePhone),
     mobilePhoneTelHref: escapeHtml(mobilePhoneTelHref),
     logoUrl: escapeHtml(logoUrl),
-    logoLink: escapeHtml(brand.logoLink.trim()),
+    logoLink: escapeHtml(logoLinkForHref),
+    logoWidth: '110',
+    logoHeight: String(logoHeightPx),
     primaryColor: escapeHtml(brand.primaryColor.trim()),
     fontFamily: escapeHtml(brand.fontFamily.trim()),
     website: escapeHtml(website),
@@ -242,9 +303,12 @@ function pickTemplate(layout: SignatureTemplate['layout']): string {
 }
 
 export function renderSignature(input: RenderSignatureInput): string {
-  const { profile, brand, template } = input;
+  const { profile, brand, template, publicSiteOrigin } = input;
+  const origin = stripTrailingSlash(
+    (publicSiteOrigin ?? DEFAULT_PUBLIC_SITE_ORIGIN).trim() || DEFAULT_PUBLIC_SITE_ORIGIN
+  );
   const tmpl = pickTemplate(template.layout);
-  const { evalCtx, stringCtx } = mergeRenderContext(profile, brand, template);
+  const { evalCtx, stringCtx } = mergeRenderContext(profile, brand, template, origin);
   const afterIf = processConditionals(tmpl, evalCtx);
   return substituteVariables(afterIf, stringCtx);
 }

@@ -14,6 +14,13 @@ import { SignaturePreview } from '@/components/admin/signature/SignaturePreview'
 import { CopyButton } from '@/components/admin/signature/CopyButton';
 import styles from './page.module.css';
 
+/** Matches signature-engine default; used to resolve relative logo URLs in preview and copy output. */
+const SIGNATURE_PUBLIC_ORIGIN = (
+  typeof process.env.NEXT_PUBLIC_SITE_URL === 'string' && process.env.NEXT_PUBLIC_SITE_URL.trim()
+    ? process.env.NEXT_PUBLIC_SITE_URL.trim().replace(/\/+$/, '')
+    : 'https://seniorbydesign.com'
+);
+
 type Layout = SignatureTemplate['layout'];
 
 type ToggleState = {
@@ -73,6 +80,8 @@ function coerceBrandFromApi(brand: SignatureBrand): SignatureBrand {
     companyName: brand.companyName ?? '',
     website: brand.website ?? '',
     logoUrl: brand.logoUrl ?? '',
+    logoHeightPx:
+      typeof brand.logoHeightPx === 'number' && brand.logoHeightPx > 0 ? brand.logoHeightPx : undefined,
     logoLink: brand.logoLink ?? '',
     primaryColor: brand.primaryColor?.trim() ? brand.primaryColor.trim() : '#CDAA7D',
     fontFamily: brand.fontFamily?.trim() ? brand.fontFamily.trim() : 'Arial',
@@ -186,7 +195,7 @@ export default function AdminSignaturePage() {
   );
 
   const html = useMemo(
-    () => renderSignature({ profile, brand, template }),
+    () => renderSignature({ profile, brand, template, publicSiteOrigin: SIGNATURE_PUBLIC_ORIGIN }),
     [profile, brand, template]
   );
 
@@ -420,8 +429,45 @@ export default function AdminSignaturePage() {
                   maxWidth: '100%',
                 }}
               />
+              <div style={{ marginTop: '0.35rem', fontSize: '12px', color: '#666', maxWidth: '560px' }}>
+                Use a full <code style={{ fontSize: '11px' }}>https://…</code> URL that opens in a private
+                window (Outlook and Mail cannot use site-relative paths like{' '}
+                <code style={{ fontSize: '11px' }}>/images/…</code>). Do not use{' '}
+                <code style={{ fontSize: '11px' }}>/api/image-proxy</code> URLs—paste the direct image URL
+                instead. PNG or GIF; avoid spaces in the path.
+              </div>
+            </label>
+
+            <label style={{ display: 'block', marginBottom: '0.75rem', fontSize: '14px' }}>
+              Logo height (px at 110px width)
+              <input
+                type="number"
+                min={1}
+                max={400}
+                placeholder="45 (default)"
+                disabled={isSettingsLoading}
+                value={brand.logoHeightPx ?? ''}
+                onChange={(e) => {
+                  const v = e.target.value.trim();
+                  if (v === '') {
+                    setBrand((b) => ({ ...b, logoHeightPx: undefined }));
+                    return;
+                  }
+                  const n = Math.round(Number(v));
+                  if (!Number.isFinite(n) || n < 1) return;
+                  setBrand((b) => ({ ...b, logoHeightPx: Math.min(400, n) }));
+                }}
+                style={{
+                  display: 'block',
+                  marginTop: '0.35rem',
+                  padding: '0.5rem',
+                  width: '100%',
+                  maxWidth: '160px',
+                }}
+              />
               <div style={{ marginTop: '0.35rem', fontSize: '12px', color: '#666' }}>
-                For best iPhone/email compatibility, use a PNG URL on seniorbydesign.com and avoid spaces.
+                Optional. Outlook works best with an explicit height; leave blank for a default wide-logo
+                aspect.
               </div>
             </label>
 
@@ -465,6 +511,10 @@ export default function AdminSignaturePage() {
                   maxWidth: '100%',
                 }}
               />
+              <div style={{ marginTop: '0.35rem', fontSize: '12px', color: '#666', maxWidth: '560px' }}>
+                Same rules as the logo URL: full <code style={{ fontSize: '11px' }}>https://…</code>, no
+                image-proxy or relative paths.
+              </div>
             </label>
 
             <label style={{ display: 'block', marginBottom: '0.75rem', fontSize: '14px' }}>
