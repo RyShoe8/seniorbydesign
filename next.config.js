@@ -22,6 +22,17 @@ const nextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        source: '/email-assets/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+        ],
+      },
+    ];
+  },
   webpack: (config, { isServer }) => {
     // Exclude canvas from client-side bundle (PDF.js tries to import it but we use browser canvas)
     if (!isServer) {

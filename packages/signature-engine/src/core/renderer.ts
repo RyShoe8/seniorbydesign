@@ -23,7 +23,7 @@ const DEFAULT_PUBLIC_SITE_ORIGIN = 'https://seniorbydesign.com';
 const SIGNATURE_ASSET_ORIGIN = 'https://seniorbydesign.com';
 
 /**
- * Measured from public/images/sbd-logo-no-tagline.png (JPEG image data; .png filename).
+ * Measured from public/email-assets/sbd-logo.png (true PNG; same pixel dims as legacy asset).
  * Update if the asset is replaced.
  */
 const LOGO_SBD_NO_TAGLINE_NATURAL_WIDTH = 371;
@@ -39,7 +39,7 @@ const LOGO_SBD_NO_TAGLINE_HEIGHT_AT_110 = Math.round(
  * fallback (custom logos: set Logo height in admin until natural dimensions are modeled).
  */
 function staticLogoHeightAt110Px(absoluteLogoUrl: string): number {
-  if (/sbd-logo-no-tagline/i.test(absoluteLogoUrl)) {
+  if (/(?:email-assets\/sbd-logo|sbd-logo-no-tagline)/i.test(absoluteLogoUrl)) {
     return LOGO_SBD_NO_TAGLINE_HEIGHT_AT_110;
   }
   return LOGO_SBD_NO_TAGLINE_HEIGHT_AT_110;
@@ -242,7 +242,7 @@ export function mergeRenderContext(
 
   const rawLogoUrl = useAnimation ? brand.animation!.gifUrl!.trim() : brand.logoUrl.trim();
   const logoUrlRaw = normalizeImageUrl(ensureAbsolutePublicUrl(rawLogoUrl, origin));
-  const logoUrl = /sbd-logo-no-tagline/i.test(logoUrlRaw)
+  const logoUrl = /(?:email-assets\/sbd-logo|sbd-logo-no-tagline)/i.test(logoUrlRaw)
     ? normalizeImageUrl(canonicalizeSignatureAssetUrl(logoUrlRaw))
     : logoUrlRaw;
 

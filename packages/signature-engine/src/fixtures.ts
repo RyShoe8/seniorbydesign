@@ -15,7 +15,7 @@ export const defaultSignatureElements: SignatureElement[] = [
 export const mockSignatureBrand: SignatureBrand = {
   companyName: 'Senior By Design',
   website: 'www.seniorbydesign.com',
-  logoUrl: 'https://seniorbydesign.com/images/sbd-logo-no-tagline.png',
+  logoUrl: 'https://seniorbydesign.com/email-assets/sbd-logo.png',
   logoLink: 'https://www.seniorbydesign.com',
   primaryColor: '#CDAA7D',
   fontFamily: 'Arial',

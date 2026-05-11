@@ -446,10 +446,15 @@ export default function AdminSignaturePage() {
               <div style={{ marginTop: '0.35rem', fontSize: '12px', color: '#666', maxWidth: '560px' }}>
                 Use a full <code style={{ fontSize: '11px' }}>https://…</code> URL that opens in a private
                 window (Outlook and Mail cannot use site-relative paths like{' '}
-                <code style={{ fontSize: '11px' }}>/images/…</code>). Do not use{' '}
-                <code style={{ fontSize: '11px' }}>/api/image-proxy</code> URLs—paste the direct image URL
-                instead. Avoid short links or redirect URLs (for example <code style={{ fontSize: '11px' }}>bit.ly</code>);
-                use the final image file URL on your site domain when possible. PNG or GIF; avoid spaces in the path.
+                <code style={{ fontSize: '11px' }}>/images/…</code>). For best Outlook reliability, host the
+                file under{' '}
+                <code style={{ fontSize: '11px' }}>
+                  https://seniorbydesign.com/email-assets/…
+                </code>
+                {' '}— that path is served with long-lived immutable caching and matched MIME headers. Avoid{' '}
+                <code style={{ fontSize: '11px' }}>/api/image-proxy</code> URLs, short links, and redirect
+                URLs (for example <code style={{ fontSize: '11px' }}>bit.ly</code>). PNG or GIF only — no
+                SVG/WebP, and avoid spaces or query strings in the path.
               </div>
             </label>
 
