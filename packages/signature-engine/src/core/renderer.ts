@@ -20,6 +20,7 @@ function hasElement(elements: SignatureElement[], type: ElementType): boolean {
 }
 
 const DEFAULT_PUBLIC_SITE_ORIGIN = 'https://seniorbydesign.com';
+const SIGNATURE_ASSET_ORIGIN = 'https://seniorbydesign.com';
 
 /**
  * Measured from public/images/sbd-logo-no-tagline.png (JPEG image data; .png filename).
@@ -46,6 +47,27 @@ function staticLogoHeightAt110Px(absoluteLogoUrl: string): number {
 
 function stripTrailingSlash(u: string): string {
   return u.replace(/\/+$/, '');
+}
+
+function canonicalizeSignatureAssetUrl(raw: string): string {
+  const absolute = ensureAbsolutePublicUrl(raw, SIGNATURE_ASSET_ORIGIN);
+  if (!absolute) return absolute;
+  try {
+    const u = new URL(absolute);
+    const canonical = new URL(SIGNATURE_ASSET_ORIGIN);
+    const sameBrandHost =
+      u.hostname === canonical.hostname ||
+      u.hostname === `www.${canonical.hostname}` ||
+      canonical.hostname === `www.${u.hostname}`;
+    if (sameBrandHost) {
+      u.protocol = canonical.protocol;
+      u.host = canonical.host;
+      u.hash = '';
+    }
+    return u.toString();
+  } catch {
+    return absolute;
+  }
 }
 
 /**
@@ -219,7 +241,10 @@ export function mergeRenderContext(
     Boolean(brand.animation?.gifUrl?.trim());
 
   const rawLogoUrl = useAnimation ? brand.animation!.gifUrl!.trim() : brand.logoUrl.trim();
-  const logoUrl = normalizeImageUrl(ensureAbsolutePublicUrl(rawLogoUrl, origin));
+  const logoUrlRaw = normalizeImageUrl(ensureAbsolutePublicUrl(rawLogoUrl, origin));
+  const logoUrl = /sbd-logo-no-tagline/i.test(logoUrlRaw)
+    ? normalizeImageUrl(canonicalizeSignatureAssetUrl(logoUrlRaw))
+    : logoUrlRaw;
 
   const website = normalizeWebsite(brand.website);
   const logoLinkForHref =
@@ -349,9 +374,9 @@ export function mergeRenderContext(
     dallas: escapeHtml(dallas),
     boulder: escapeHtml(boulder),
     warehouseAddress: escapeHtml(warehouseAddress),
-    iconLinkedin: normalizeImageUrl(SOCIAL_ICON_LINKEDIN),
-    iconFacebook: normalizeImageUrl(SOCIAL_ICON_FACEBOOK),
-    iconInstagram: normalizeImageUrl(SOCIAL_ICON_INSTAGRAM),
+    iconLinkedin: normalizeImageUrl(canonicalizeSignatureAssetUrl(SOCIAL_ICON_LINKEDIN)),
+    iconFacebook: normalizeImageUrl(canonicalizeSignatureAssetUrl(SOCIAL_ICON_FACEBOOK)),
+    iconInstagram: normalizeImageUrl(canonicalizeSignatureAssetUrl(SOCIAL_ICON_INSTAGRAM)),
     socialTdLiStyle,
     socialTdFbStyle,
     socialTdIgStyle,

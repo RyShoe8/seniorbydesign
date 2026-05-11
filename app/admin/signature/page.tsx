@@ -448,7 +448,8 @@ export default function AdminSignaturePage() {
                 window (Outlook and Mail cannot use site-relative paths like{' '}
                 <code style={{ fontSize: '11px' }}>/images/…</code>). Do not use{' '}
                 <code style={{ fontSize: '11px' }}>/api/image-proxy</code> URLs—paste the direct image URL
-                instead. PNG or GIF; avoid spaces in the path.
+                instead. Avoid short links or redirect URLs (for example <code style={{ fontSize: '11px' }}>bit.ly</code>);
+                use the final image file URL on your site domain when possible. PNG or GIF; avoid spaces in the path.
               </div>
             </label>
 
@@ -530,7 +531,7 @@ export default function AdminSignaturePage() {
               />
               <div style={{ marginTop: '0.35rem', fontSize: '12px', color: '#666', maxWidth: '560px' }}>
                 Same rules as the logo URL: full <code style={{ fontSize: '11px' }}>https://…</code>, no
-                image-proxy or relative paths.
+                image-proxy, relative paths, or redirect links.
               </div>
             </label>
 

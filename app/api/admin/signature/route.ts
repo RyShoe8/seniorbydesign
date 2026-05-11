@@ -29,9 +29,42 @@ function validateSignatureImageUrlForEmail(fieldLabel: string, url: string): str
   if (t.startsWith('/')) {
     return `${fieldLabel} must be a full https:// URL, not a site-relative path (email clients cannot resolve it).`;
   }
+  let parsed: URL;
+  try {
+    parsed = new URL(t);
+  } catch {
+    return `${fieldLabel} must be a valid URL.`;
+  }
+  if (parsed.protocol !== 'https:') {
+    return `${fieldLabel} must use https:// (Outlook blocks or downgrades non-HTTPS image URLs).`;
+  }
   const lower = t.toLowerCase();
   if (lower.includes('/api/image-proxy') || lower.includes('image-proxy?')) {
     return `${fieldLabel} cannot use /api/image-proxy; paste the direct https image URL instead.`;
+  }
+  const host = parsed.hostname.toLowerCase();
+  if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local')) {
+    return `${fieldLabel} cannot point to localhost/private addresses; use a public https:// image URL.`;
+  }
+  const knownRedirectHosts = new Set([
+    'bit.ly',
+    'tinyurl.com',
+    't.co',
+    'lnkd.in',
+    'l.facebook.com',
+    'outlook.office.com',
+  ]);
+  if (knownRedirectHosts.has(host)) {
+    return `${fieldLabel} must be a direct image URL, not a redirect or short-link domain.`;
+  }
+  const hasRedirectPattern =
+    parsed.searchParams.has('url') ||
+    parsed.searchParams.has('u') ||
+    parsed.pathname.includes('/redirect') ||
+    parsed.pathname.includes('/out') ||
+    parsed.pathname.includes('/r/');
+  if (hasRedirectPattern) {
+    return `${fieldLabel} appears to be a redirect URL. Paste the final image file URL instead.`;
   }
   return null;
 }

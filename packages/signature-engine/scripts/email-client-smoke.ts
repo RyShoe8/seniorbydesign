@@ -33,6 +33,28 @@ assert.doesNotMatch(
   /height:auto/,
   'standard: static logo avoids height:auto so Gmail keeps proportion'
 );
+assert.match(
+  htmlStandard,
+  /src="https:\/\/seniorbydesign\.com\/images\/sbd-logo-no-tagline\.png"/,
+  'standard: default SBD logo uses canonical direct host (no redirect-prone alias)'
+);
+assert.match(
+  htmlStandard,
+  /src="https:\/\/seniorbydesign\.com\/images\/signature\/icon-linkedin\.png\?v=20260510"/,
+  'standard: LinkedIn icon uses versioned canonical URL'
+);
+assert.match(
+  htmlStandard,
+  /src="https:\/\/seniorbydesign\.com\/images\/signature\/icon-facebook\.png\?v=20260510"/,
+  'standard: Facebook icon uses versioned canonical URL'
+);
+assert.match(
+  htmlStandard,
+  /src="https:\/\/seniorbydesign\.com\/images\/signature\/icon-instagram\.png\?v=20260510"/,
+  'standard: Instagram icon uses versioned canonical URL'
+);
+assert.doesNotMatch(htmlStandard, /\/api\/image-proxy/i, 'standard: no image proxy URLs in img src');
+assert.doesNotMatch(htmlStandard, /src="http:\/\//i, 'standard: no non-HTTPS image URLs');
 assert.ok(
   htmlStandard.includes('border-collapse:collapse;margin-top:10px'),
   'standard: social row uses nested table'
@@ -62,6 +84,11 @@ assert.match(
   'stacked: static logo gets explicit height when logoHeightPx unset'
 );
 assert.doesNotMatch(htmlStacked, /height:auto/, 'stacked: static logo avoids height:auto');
+assert.match(
+  htmlStacked,
+  /src="https:\/\/seniorbydesign\.com\/images\/sbd-logo-no-tagline\.png"/,
+  'stacked: default SBD logo keeps canonical host'
+);
 
 const htmlAnimatedLogo = renderSignature({
   profile,
