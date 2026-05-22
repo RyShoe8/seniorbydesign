@@ -22,7 +22,7 @@ const SIGNATURE_PUBLIC_ORIGIN = (
 );
 
 /** Org-wide main office line shown when the Office field is empty (not persisted per user). */
-const DEFAULT_OFFICE_PHONE = '833-779-3744';
+const DEFAULT_OFFICE_PHONE = '833-773-3744';
 
 function withDefaultOfficePhone(p: SignatureProfile): SignatureProfile {
   const t = p.officePhone?.trim();
