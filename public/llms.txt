@@ -15,6 +15,15 @@
 - Contact: https://seniorbydesign.com/contact
 - Privacy: https://seniorbydesign.com/privacy-policy
 
+## Portfolio categories
+- Senior Living: https://seniorbydesign.com/portfolio/senior-living
+- Memory Support: https://seniorbydesign.com/portfolio/memory-support
+- Active Adult: https://seniorbydesign.com/portfolio/active-adult
+- Multi Family: https://seniorbydesign.com/portfolio/multi-family
+- Remodels: https://seniorbydesign.com/portfolio/remodels
+- Office Remodels: https://seniorbydesign.com/portfolio/office-remodels
+- Model Units: https://seniorbydesign.com/portfolio/model-units
+
 ## Machine-readable discovery
 - Sitemap: https://seniorbydesign.com/sitemap.xml
 - Robots: https://seniorbydesign.com/robots.txt

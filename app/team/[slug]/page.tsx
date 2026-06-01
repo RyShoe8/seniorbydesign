@@ -4,6 +4,7 @@ import { getTeamMember } from '../../actions';
 import Image from 'next/image';
 import Link from 'next/link';
 import { generateSEOMetadata, JSONLDSchema, PersonSchema, BreadcrumbSchema } from '@/components/SEO';
+import { metaDescriptionForTeamMember } from '@/lib/team-seo';
 import styles from './page.module.css';
 
 type Props = {
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return generateSEOMetadata({
     title: `${member.name} - ${member.title} - Senior By Design`,
-    description: member.bio.substring(0, 160),
+    description: metaDescriptionForTeamMember(member),
     url: `/team/${member.slug}`,
     image: member.profileImage,
     type: 'profile',
@@ -48,7 +49,7 @@ export default async function TeamMemberPage({ params }: Props) {
       <JSONLDSchema schema={PersonSchema({
         name: member.name,
         jobTitle: member.title,
-        description: member.bio.substring(0, 200),
+        description: metaDescriptionForTeamMember(member, 200),
         url: `/team/${member.slug}`,
         image: member.profileImage,
       })} />

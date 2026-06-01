@@ -440,21 +440,43 @@ export function CollectionPageSchema({
   description,
   url,
   images,
+  speakableSelectors,
 }: {
   name: string;
   description?: string;
   url: string;
   images?: Array<{ url: string; altText?: string }>;
+  speakableSelectors?: string[];
 }) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
   const fullUrl = url.startsWith('http') ? url : `${siteUrl}${url}`;
-  
-  const schema: any = {
+  const orgId = `${siteUrl}/#organization`;
+
+  const schema: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
+    '@id': `${fullUrl}#collectionpage`,
     name,
     description: description || `Explore our ${name} portfolio showcasing our interior design work.`,
     url: fullUrl,
+    inLanguage: 'en-US',
+    isAccessibleForFree: true,
+    publisher: {
+      '@type': 'Organization',
+      '@id': orgId,
+      name: 'Senior By Design',
+      url: siteUrl,
+    },
+    isPartOf: {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}/#website`,
+      name: 'Senior By Design',
+      url: siteUrl,
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': fullUrl,
+    },
     mainEntity: {
       '@type': 'ItemList',
       itemListElement: images?.map((img, index) => ({
@@ -465,7 +487,14 @@ export function CollectionPageSchema({
       })) || [],
     },
   };
-  
+
+  if (speakableSelectors && speakableSelectors.length > 0) {
+    schema.speakable = {
+      '@type': 'SpeakableSpecification',
+      cssSelector: speakableSelectors,
+    };
+  }
+
   return schema;
 }
 
