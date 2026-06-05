@@ -72,6 +72,7 @@ export default function BlogManagement() {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('folder', 'blog');
+    formData.append('spaceType', 'blog-featured');
 
     try {
       const response = await fetch('/api/admin/upload', {

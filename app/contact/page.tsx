@@ -1,8 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
+import SeoImage from '@/components/SeoImage';
+import EntityContactBlock from '@/components/EntityContactBlock';
 import { getRecaptchaToken } from '@/lib/recaptcha-client';
+import { heroAlt, STATIC_IMAGES } from '@/lib/image-seo';
+import { CONTACT_INTRO } from '@/lib/geo-entity';
 import styles from './page.module.css';
 
 export default function Contact() {
@@ -124,9 +127,9 @@ export default function Contact() {
     <>
       <section className={styles.contactHero}>
         <div className={styles.contactHeroImage}>
-          <Image
-            src="/images/The Team/The Team Hero.jpg"
-            alt="Contact Us"
+          <SeoImage
+            src={STATIC_IMAGES.teamHero}
+            alt={heroAlt('contact')}
             fill
             className={styles.heroImage}
             priority
@@ -137,6 +140,7 @@ export default function Contact() {
 
       <section className="contact-content section-padding">
         <div className="container">
+          <p className={styles.contactIntro}>{CONTACT_INTRO}</p>
           <div className={styles.contactGrid}>
             <div className={styles.contactFormWrapper}>
               <h2>Drop us a Note</h2>
@@ -258,10 +262,8 @@ export default function Contact() {
             </div>
 
             <div className={styles.contactInfo}>
-              <h2>Or give us a call</h2>
-              <p className={styles.phoneNumber}>
-                <a href="tel:8337733744">(833) 773-3744</a>
-              </p>
+              <h2>Contact Senior By Design</h2>
+              <EntityContactBlock variant="full" />
             </div>
           </div>
         </div>

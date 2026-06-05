@@ -140,6 +140,23 @@
   }
 }
 
+.blogSubtitle {
+  text-align: center;
+  font-size: 1.75rem;
+  color: var(--sbd-brown);
+  font-weight: 500;
+  margin: 0 0 var(--spacing-md);
+}
+
+.blogIntro {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: var(--sbd-brown);
+}
+
 
 
 

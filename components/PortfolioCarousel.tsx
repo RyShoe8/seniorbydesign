@@ -2,8 +2,9 @@
 
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import SeoImage from '@/components/SeoImage';
 import { getPortfolioImageUrl } from '@/lib/image-utils';
+import { ensureImageAlt, portfolioAltText } from '@/lib/image-seo';
 import styles from './PortfolioCarousel.module.css';
 
 interface PortfolioImage {
@@ -86,7 +87,13 @@ export default function PortfolioCarousel({ categories }: PortfolioCarouselProps
             // Handle both old format (string[]) and new format (PortfolioImage[])
             const firstImage = category.images?.[0];
             const imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url;
-            const imageAlt = typeof firstImage === 'string' ? category.name : (firstImage?.altText || category.name);
+            const imageAlt =
+              typeof firstImage === 'string'
+                ? portfolioAltText({ slug: category.slug, displayName: category.name })
+                : ensureImageAlt(
+                    firstImage?.altText,
+                    portfolioAltText({ slug: category.slug, displayName: category.name })
+                  );
             const cardKey = category._id?.toString() || category.slug;
             const imageFailed = failedImages.has(cardKey);
 
@@ -97,13 +104,16 @@ export default function PortfolioCarousel({ categories }: PortfolioCarouselProps
                 className={styles.portfolioCard}
               >
                 {imageUrl && !imageFailed ? (
-                  <Image
+                  <SeoImage
                     src={getPortfolioImageUrl(imageUrl)}
                     alt={imageAlt}
                     width={400}
                     height={300}
                     className={styles.portfolioImage}
-                    unoptimized={imageUrl.startsWith('http') || getPortfolioImageUrl(imageUrl).startsWith('/api/image-proxy')}
+                    unoptimized={
+                      imageUrl.startsWith('http') ||
+                      getPortfolioImageUrl(imageUrl).startsWith('/api/image-proxy')
+                    }
                     onError={() => setFailedImages((prev) => new Set(prev).add(cardKey))}
                   />
                 ) : (

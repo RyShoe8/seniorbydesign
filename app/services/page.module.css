@@ -155,6 +155,37 @@
   text-align: center;
 }
 
+.servicesIntro {
+  max-width: 900px;
+  margin: 0 auto;
+  font-size: 1.125rem;
+  line-height: 1.85;
+  color: var(--sbd-brown);
+  text-align: center;
+}
+
+.whoWeDesignForHeading {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.whoWeDesignForList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--spacing-sm) var(--spacing-lg);
+  max-width: 900px;
+  margin: 0 auto;
+  list-style: none;
+  padding: 0;
+}
+
+.whoWeDesignForList li {
+  padding: var(--spacing-sm) 0;
+  font-size: 1.1rem;
+  color: var(--sbd-brown);
+  border-bottom: 1px solid rgba(89, 56, 37, 0.15);
+}
+
 @media (max-width: 768px) {
   .serviceBullets {
     grid-template-columns: 1fr;

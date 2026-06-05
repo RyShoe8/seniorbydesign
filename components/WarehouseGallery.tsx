@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
+import SeoImage from '@/components/SeoImage';
 import ImageLightbox from './ImageLightbox';
-import styles from '../app/the-firm/page.module.css';
+import { STATIC_IMAGES, warehouseAlt } from '@/lib/image-seo';
+import styles from '../app/senior-living-design-firm/page.module.css';
 
 const warehouseImages = [2, 3, 4, 5, 6].map((i) => ({
-  src: `/images/The Firm/The Firm Warehouse ${i}.webp`,
-  alt: `Warehouse ${i}`,
+  src: STATIC_IMAGES.warehouse(i),
+  alt: warehouseAlt(i),
 }));
 
 export default function WarehouseGallery() {
@@ -28,13 +29,13 @@ export default function WarehouseGallery() {
     <>
       <div className={styles.galleryGrid}>
         {warehouseImages.map((image, index) => (
-          <div 
-            key={index} 
+          <div
+            key={index}
             className={styles.galleryItem}
             onClick={() => openLightbox(image.src, image.alt)}
             style={{ cursor: 'pointer' }}
           >
-            <Image
+            <SeoImage
               src={image.src}
               alt={image.alt}
               fill
@@ -56,5 +57,3 @@ export default function WarehouseGallery() {
     </>
   );
 }
-
-

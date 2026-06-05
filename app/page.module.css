@@ -136,11 +136,14 @@
 }
 
 .heroSubheadline {
-  font-size: 24px;
+  font-size: 18px;
   margin-bottom: var(--spacing-lg);
-  line-height: 1.6;
+  line-height: 1.65;
   text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 255, 255, 0.2);
   animation: heroSubheadlineFadeIn 1s ease-out 0.6s both, heroSubheadlineGlow 4s ease-in-out infinite 1s;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 @keyframes heroSubheadlineFadeIn {
@@ -438,6 +441,63 @@
   max-width: 100%;
 }
 
+.servicesTeaserSection {
+  background: #fff;
+}
+
+.servicesTeaserGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+}
+
+.serviceTeaserCard {
+  display: block;
+  padding: var(--spacing-lg);
+  background: var(--warm-grey-1);
+  border: 1px solid rgba(89, 56, 37, 0.12);
+  border-radius: 4px;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.serviceTeaserCard:hover {
+  box-shadow: 0 4px 16px rgba(89, 56, 37, 0.12);
+  transform: translateY(-2px);
+}
+
+.serviceTeaserTitle {
+  font-size: 1.25rem;
+  color: var(--sbd-brown);
+  margin-bottom: var(--spacing-sm);
+}
+
+.serviceTeaserDescription {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--warm-grey-3);
+  margin-bottom: var(--spacing-md);
+}
+
+.serviceTeaserLink {
+  font-weight: 600;
+  color: var(--sbd-gold);
+  font-size: 0.95rem;
+}
+
+.servicesTeaserCta {
+  text-align: center;
+  margin-top: var(--spacing-xl);
+}
+
+.portfolioCta {
+  text-align: center;
+  margin-top: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+}
+
 @media (max-width: 768px) {
   .heroSection {
     height: 80vh;
@@ -458,12 +518,16 @@
   }
 
   .heroSubheadline {
-    font-size: 20px;
+    font-size: 16px;
   }
 
   .heroButton {
     padding: 0.875rem 2rem;
     font-size: 16px;
+  }
+
+  .servicesTeaserGrid {
+    grid-template-columns: 1fr;
   }
 }
 

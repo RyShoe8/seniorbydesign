@@ -4,7 +4,8 @@ import './globals.css'
 import Providers from '@/components/Providers'
 import ConditionalLayout from '@/components/ConditionalLayout'
 import Analytics from '@/components/Analytics'
-import { generateSEOMetadata, JSONLDSchema, OrganizationSchema, WebSiteSchema } from '@/components/SEO'
+import SchemaMarkup from '@/components/SchemaMarkup'
+import { generateSEOMetadata } from '@/components/SEO'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -13,10 +14,13 @@ export const viewport: Viewport = {
   themeColor: '#CBB86D',
 }
 
+import { HOME_TITLE, HOME_META_DESCRIPTION } from '@/lib/home-seo'
+
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com'),
   ...generateSEOMetadata({
-    title: 'Senior By Design - Soul Warming Interiors',
-    description: 'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.',
+    title: HOME_TITLE,
+    description: HOME_META_DESCRIPTION,
     url: '/',
     type: 'website',
   }),
@@ -60,8 +64,7 @@ export default function RootLayout({
             strategy="afterInteractive"
           />
         ) : null}
-        <JSONLDSchema schema={OrganizationSchema()} />
-        <JSONLDSchema schema={WebSiteSchema()} />
+        <SchemaMarkup />
         <Analytics />
         <Providers>
           <ConditionalLayout>{children}</ConditionalLayout>

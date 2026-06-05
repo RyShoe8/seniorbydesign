@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
-import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
+import PageSchema from '@/components/PageSchema';
+import { generateSEOMetadata, BreadcrumbSchema } from '@/components/SEO';
 
 export const metadata: Metadata = generateSEOMetadata({
   title: 'Newsletter & Brochure - Senior By Design',
@@ -20,10 +21,10 @@ export default function NewsletterLayout({
 }) {
   return (
     <>
-      <JSONLDSchema schema={BreadcrumbSchema([
+      <PageSchema schemas={[BreadcrumbSchema([
         { name: 'Home', url: '/' },
         { name: 'Newsletter & Brochure', url: '/newsletter-and-brochure' },
-      ])} />
+      ])]} />
       {children}
     </>
   );

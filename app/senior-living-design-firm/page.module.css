@@ -39,6 +39,54 @@
   max-width: 90%;
 }
 
+.introParagraph {
+  max-width: 900px;
+  margin: 0 auto;
+  font-size: 1.125rem;
+  line-height: 1.85;
+  color: var(--sbd-brown);
+  text-align: center;
+}
+
+.entityLead {
+  max-width: 900px;
+  margin: 0 auto var(--spacing-md);
+  font-size: 1.125rem;
+  line-height: 1.85;
+  color: var(--sbd-brown);
+  text-align: center;
+  font-weight: 500;
+}
+
+.entityContact {
+  max-width: 900px;
+  margin: var(--spacing-lg) auto 0;
+  text-align: center;
+  color: var(--sbd-brown);
+}
+
+.entityContact a {
+  color: var(--sbd-gold);
+}
+
+.communitiesList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--spacing-sm);
+  max-width: 800px;
+  margin: 0 auto var(--spacing-xl);
+  list-style: none;
+  padding: 0;
+  text-align: center;
+}
+
+.communitiesList li {
+  padding: var(--spacing-sm);
+  font-size: 1.1rem;
+  color: var(--sbd-brown);
+  font-weight: 500;
+}
+
 .heroImage {
   object-fit: cover;
   aspect-ratio: 16 / 9;

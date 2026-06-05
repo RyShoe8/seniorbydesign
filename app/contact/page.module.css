@@ -65,6 +65,15 @@
   gap: var(--spacing-xl);
 }
 
+.contactIntro {
+  max-width: 720px;
+  margin: 0 auto var(--spacing-xl);
+  text-align: center;
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: var(--sbd-brown);
+}
+
 .contactFormWrapper h2,
 .contactInfo h2 {
   margin-bottom: var(--spacing-md);

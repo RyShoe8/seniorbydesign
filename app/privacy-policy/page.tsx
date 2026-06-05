@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
-import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
+import PageSchema from '@/components/PageSchema';
+import { generateSEOMetadata, BreadcrumbSchema } from '@/components/SEO';
 import styles from './page.module.css';
 
 export const metadata: Metadata = generateSEOMetadata({
@@ -12,10 +13,10 @@ export const metadata: Metadata = generateSEOMetadata({
 export default function PrivacyPolicy() {
   return (
     <>
-      <JSONLDSchema schema={BreadcrumbSchema([
+      <PageSchema schemas={[BreadcrumbSchema([
         { name: 'Home', url: '/' },
         { name: 'Privacy Policy', url: '/privacy-policy' },
-      ])} />
+      ])]} />
       <div className={styles.privacyPolicy}>
       <div className="container">
         <h1>Privacy Policy</h1>

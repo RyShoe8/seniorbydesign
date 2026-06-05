@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getBlogPostForPreview } from '../../../../actions';
-import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
+import PageSchema from '@/components/PageSchema';
+import { generateSEOMetadata, BreadcrumbSchema } from '@/components/SEO';
 import { BlogPostArticle } from '../../../BlogPostArticle';
 import { metaDescription, titleDerivedKeywords, BASE_BLOG_KEYWORDS } from '@/lib/blog-seo';
 
@@ -50,11 +51,15 @@ export default async function BlogPreviewPage({ params }: Props) {
 
   return (
     <>
-      <JSONLDSchema schema={BreadcrumbSchema([
-        { name: 'Home', url: '/' },
-        { name: 'Blog', url: '/blog' },
-        { name: post.title, url: previewPath },
-      ])} />
+      <PageSchema
+        schemas={[
+          BreadcrumbSchema([
+            { name: 'Home', url: '/' },
+            { name: 'Blog', url: '/blog' },
+            { name: post.title, url: previewPath },
+          ]),
+        ]}
+      />
       <BlogPostArticle post={post} showPreviewBanner />
     </>
   );

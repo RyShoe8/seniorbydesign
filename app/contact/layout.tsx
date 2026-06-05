@@ -1,9 +1,11 @@
 import { Metadata } from 'next';
-import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema, LocalBusinessSchema } from '@/components/SEO';
+import { generateSEOMetadata, BreadcrumbSchema } from '@/components/SEO';
+import PageSchema from '@/components/PageSchema';
 
 export const metadata: Metadata = generateSEOMetadata({
   title: 'Contact Us - Senior By Design',
-  description: 'Get in touch with Senior By Design. Call us at (833) 773-3744 or send us a message.',
+  description:
+    'Contact Senior By Design at 5015 Catron Dr, Dallas, TX 75220 or (833) 773-3744. Senior living interior design, FF&E, and turnkey services nationwide.',
   url: '/contact',
   type: 'website',
   keywords: [
@@ -21,11 +23,14 @@ export default function ContactLayout({
 }) {
   return (
     <>
-      <JSONLDSchema schema={BreadcrumbSchema([
-        { name: 'Home', url: '/' },
-        { name: 'Contact', url: '/contact' },
-      ])} />
-      <JSONLDSchema schema={LocalBusinessSchema()} />
+      <PageSchema
+        schemas={[
+          BreadcrumbSchema([
+            { name: 'Home', url: '/' },
+            { name: 'Contact', url: '/contact' },
+          ]),
+        ]}
+      />
       {children}
     </>
   );

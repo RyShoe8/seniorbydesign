@@ -117,10 +117,39 @@
   color: var(--sbd-brown);
 }
 
+.portfolioIntro {
+  max-width: 900px;
+  margin: 0 auto;
+  font-size: 1.125rem;
+  line-height: 1.85;
+  color: var(--sbd-brown);
+  text-align: center;
+}
+
+.categoryLabel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-md);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, transparent 100%);
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+  z-index: 2;
+}
+
 @media (max-width: 768px) {
   .portfolioGrid {
     grid-template-columns: 1fr;
   }
+}
+
+.servicesCta {
+  text-align: center;
+  margin-top: var(--spacing-xl);
 }
 
 

@@ -6,6 +6,7 @@ import {
   getBlogPosts,
 } from './actions';
 import { normalizeServiceSlug } from '@/lib/service-slug';
+import { teamMemberBioWordCount } from '@/lib/team-bio-fallbacks';
 
 // Revalidate sitemap periodically; blog admin APIs also call revalidatePath('/sitemap.xml')
 export const revalidate = 300;
@@ -26,7 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
-      url: `${baseUrl}/the-firm`,
+      url: `${baseUrl}/senior-living-design-firm`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.9,
@@ -97,10 +98,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
       }));
 
-    // Dynamic team members
+    // Dynamic team members — omit thin bios (< 100 words) from sitemap
     const teamMembers = await getTeamMembers().catch(() => []);
     const teamPages: MetadataRoute.Sitemap = teamMembers
-      .filter((member) => member.slug) // Only include members with valid slugs
+      .filter(
+        (member) => member.slug && teamMemberBioWordCount(member.slug, member.bio) >= 100
+      )
       .map((member) => ({
         url: `${baseUrl}/team/${encodeURIComponent(member.slug)}`,
         lastModified: member.updatedAt ? new Date(member.updatedAt) : new Date(),

@@ -169,6 +169,7 @@ export function BlogBodyEditor({
     const formData = new FormData();
     formData.append('file', file);
     formData.append('folder', 'blog');
+    formData.append('spaceType', 'blog-inline');
 
     try {
       const response = await fetch('/api/admin/upload', {
@@ -179,7 +180,8 @@ export function BlogBodyEditor({
       if (response.ok) {
         const data = await response.json();
         const url = data.url as string;
-        editor.chain().focus().setImage({ src: url, alt: '' }).run();
+        const alt = (data.altText as string) || '';
+        editor.chain().focus().setImage({ src: url, alt }).run();
         onChange(editor.getHTML());
       } else {
         alert('Failed to upload image');

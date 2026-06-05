@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getTeamMembersCollection } from '@/lib/db';
+import { normalizeSlug, slugFromTitle } from '@/lib/slug';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,8 +55,10 @@ export async function POST(request: Request) {
       { $inc: { order: 1 } }
     );
     
+    const slug = normalizeSlug(body.slug || slugFromTitle(body.name || ''));
+    
     const member = {
-      slug: body.slug,
+      slug,
       name: body.name,
       title: body.title,
       bio: body.bio,

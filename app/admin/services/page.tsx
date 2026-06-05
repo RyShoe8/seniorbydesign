@@ -66,6 +66,9 @@ export default function ServicesManagement() {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('folder', 'services');
+    formData.append('spaceType', 'service-hero');
+    const slugInput = document.getElementById('slug') as HTMLInputElement | null;
+    if (slugInput?.value) formData.append('projectSlug', slugInput.value);
 
     try {
       const response = await fetch('/api/admin/upload', {
@@ -99,6 +102,9 @@ export default function ServicesManagement() {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('folder', 'services');
+    formData.append('spaceType', 'service-hero');
+    const slugInput = document.getElementById('slug') as HTMLInputElement | null;
+    if (slugInput?.value) formData.append('projectSlug', slugInput.value);
 
         const response = await fetch('/api/admin/upload', {
           method: 'POST',

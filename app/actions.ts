@@ -13,9 +13,14 @@ import {
 } from '@/lib/db';
 import { blogPreviewTokensMatch } from '@/lib/blog-preview';
 import { normalizeServiceSlug } from '@/lib/service-slug';
+import { normalizeSlug } from '@/lib/slug';
+import { runSeoSlugMigration } from '@/lib/seo-slug-migrations';
 
 /** One-time per process: persist lowercase canonical service slugs in MongoDB. */
 let serviceSlugMigration: Promise<void> | null = null;
+
+/** One-time per process: rename legacy team/blog slugs in MongoDB. */
+let seoSlugMigration: Promise<void> | null = null;
 
 async function runServiceSlugCanonicalMigration() {
   const collection = await getServicesCollection();
@@ -41,6 +46,25 @@ function ensureServiceSlugMigration(): Promise<void> {
     });
   }
   return serviceSlugMigration;
+}
+
+function ensureSeoSlugMigration(): Promise<void> {
+  if (!seoSlugMigration) {
+    seoSlugMigration = runSeoSlugMigration().catch((err) => {
+      console.error('[seo] Slug migration failed:', err);
+      seoSlugMigration = null;
+      return undefined;
+    });
+  }
+  return seoSlugMigration;
+}
+
+function decodeSlugParam(slug: string): string {
+  try {
+    return decodeURIComponent(slug);
+  } catch {
+    return slug;
+  }
 }
 
 // Homepage
@@ -95,6 +119,7 @@ export async function getPartners() {
 
 // Team
 export async function getTeamMembers() {
+  await ensureSeoSlugMigration();
   const collection = await getTeamMembersCollection();
   
   // Handle migration for existing records without order field
@@ -116,8 +141,22 @@ export async function getTeamMembers() {
 }
 
 export async function getTeamMember(slug: string) {
+  await ensureSeoSlugMigration();
   const collection = await getTeamMembersCollection();
-  return await collection.findOne({ slug });
+  const decoded = decodeSlugParam(slug);
+  const normalized = normalizeSlug(decoded);
+
+  const exact = await collection.findOne({ slug: decoded });
+  if (exact) return exact;
+
+  if (normalized) {
+    const caseInsensitive = await collection.findOne({
+      $expr: { $eq: [{ $toLower: '$slug' }, normalized] },
+    });
+    if (caseInsensitive) return caseInsensitive;
+  }
+
+  return null;
 }
 
 // Services
@@ -165,6 +204,7 @@ export async function getProjects() {
 
 // Blog
 export async function getBlogPosts() {
+  await ensureSeoSlugMigration();
   const collection = await getBlogPostsCollection();
   return await collection
     .find({ publishedAt: { $exists: true } })
@@ -174,11 +214,23 @@ export async function getBlogPosts() {
 }
 
 export async function getPublishedBlogPost(slug: string) {
+  await ensureSeoSlugMigration();
   const collection = await getBlogPostsCollection();
-  const post = await collection.findOne({
-    slug,
+  const decoded = decodeSlugParam(slug);
+  const normalized = normalizeSlug(decoded);
+
+  let post = await collection.findOne({
+    slug: decoded,
     publishedAt: { $exists: true },
   });
+
+  if (!post && normalized) {
+    post = await collection.findOne({
+      $expr: { $eq: [{ $toLower: '$slug' }, normalized] },
+      publishedAt: { $exists: true },
+    });
+  }
+
   if (!post?.publishedAt) {
     return null;
   }

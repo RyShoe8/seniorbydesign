@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
+import SeoImage from '@/components/SeoImage';
 import Link from 'next/link';
 import { getPortfolioImageUrl } from '@/lib/image-utils';
 
@@ -169,7 +169,7 @@ export default function PortfolioGallery({ images, categoryName }: Props) {
                           <span>{imageAlts[index] || `Image ${index + 1}`}</span>
                         </div>
                       ) : (
-                        <Image
+                        <SeoImage
                           src={thumbSrc}
                           alt={imageAlts[index] || `Portfolio image ${index + 1}`}
                           fill
@@ -236,7 +236,7 @@ export default function PortfolioGallery({ images, categoryName }: Props) {
                 </div>
               ) : (
                 <div className="fullscreen-image-inner">
-                  <Image
+                  <SeoImage
                     src={getPortfolioImageUrl(imageUrls[currentImageIndex])}
                     alt={imageAlts[currentImageIndex] || `Portfolio image ${currentImageIndex + 1}`}
                     fill

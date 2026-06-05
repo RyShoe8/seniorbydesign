@@ -11,6 +11,15 @@
   text-align: center;
 }
 
+.serviceCrossLink {
+  max-width: 720px;
+  margin: var(--spacing-md) auto 0;
+  color: var(--sbd-brown);
+  font-size: 17px;
+  line-height: 1.6;
+  text-align: center;
+}
+
 .heroPlaceholder {
   position: absolute;
   inset: 0;

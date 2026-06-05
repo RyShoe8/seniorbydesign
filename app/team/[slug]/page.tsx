@@ -1,10 +1,17 @@
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { getTeamMember } from '../../actions';
-import Image from 'next/image';
+import SeoImage from '@/components/SeoImage';
 import Link from 'next/link';
-import { generateSEOMetadata, JSONLDSchema, PersonSchema, BreadcrumbSchema } from '@/components/SEO';
+import PageSchema from '@/components/PageSchema';
+import { generateSEOMetadata, PersonSchema, BreadcrumbSchema } from '@/components/SEO';
 import { metaDescriptionForTeamMember } from '@/lib/team-seo';
+import { normalizeSlug } from '@/lib/slug';
+import {
+  resolveTeamMemberBio,
+  teamMemberShouldNoindex,
+} from '@/lib/team-bio-fallbacks';
+import { heroAlt, STATIC_IMAGES, teamMemberAlt } from '@/lib/image-seo';
 import styles from './page.module.css';
 
 type Props = {
@@ -12,18 +19,21 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const member = await getTeamMember(params.slug);
-  
+  const decodedSlug = decodeURIComponent(params.slug);
+  const member = await getTeamMember(decodedSlug);
+
   if (!member) {
     return {
       title: 'Team Member Not Found',
     };
   }
 
-  return generateSEOMetadata({
+  const pathSlug = normalizeSlug(member.slug);
+  const memberWithSlug = { ...member, slug: pathSlug };
+  const seoMeta = generateSEOMetadata({
     title: `${member.name} - ${member.title} - Senior By Design`,
-    description: metaDescriptionForTeamMember(member),
-    url: `/team/${member.slug}`,
+    description: metaDescriptionForTeamMember(memberWithSlug),
+    url: `/team/${pathSlug}`,
     image: member.profileImage,
     type: 'profile',
     keywords: [
@@ -33,36 +43,65 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       'senior living design',
     ],
   });
+
+  if (teamMemberShouldNoindex(pathSlug, member.bio)) {
+    return {
+      ...seoMeta,
+      robots: { index: false, follow: true },
+    };
+  }
+
+  return seoMeta;
 }
 
-export const revalidate = 0; // Always fetch fresh data
+export const revalidate = 0;
 
 export default async function TeamMemberPage({ params }: Props) {
-  const member = await getTeamMember(params.slug);
+  const decodedSlug = decodeURIComponent(params.slug);
+  const member = await getTeamMember(decodedSlug);
 
   if (!member) {
     notFound();
   }
 
+  const pathSlug = normalizeSlug(member.slug);
+  if (decodedSlug !== pathSlug) {
+    redirect(`/team/${encodeURIComponent(pathSlug)}`);
+  }
+
+  const bioText = resolveTeamMemberBio(pathSlug, member.bio);
+  const bioParagraphs = bioText.split('\n\n').filter(Boolean);
+
+  const sameAs = [member.linkedin, member.facebook, member.instagram].filter(
+    (url): url is string => Boolean(url?.trim())
+  );
+
+  const memberWithSlug = { ...member, slug: pathSlug };
+
   return (
     <div className="team-member-page">
-      <JSONLDSchema schema={PersonSchema({
-        name: member.name,
-        jobTitle: member.title,
-        description: metaDescriptionForTeamMember(member, 200),
-        url: `/team/${member.slug}`,
-        image: member.profileImage,
-      })} />
-      <JSONLDSchema schema={BreadcrumbSchema([
-        { name: 'Home', url: '/' },
-        { name: 'The Team', url: '/team' },
-        { name: member.name, url: `/team/${member.slug}` },
-      ])} />
+      <PageSchema
+        schemas={[
+          PersonSchema({
+            name: member.name,
+            jobTitle: member.title,
+            description: metaDescriptionForTeamMember(memberWithSlug, 200),
+            url: `/team/${pathSlug}`,
+            image: member.profileImage,
+            sameAs,
+          }),
+          BreadcrumbSchema([
+            { name: 'Home', url: '/' },
+            { name: 'The Team', url: '/team' },
+            { name: member.name, url: `/team/${pathSlug}` },
+          ]),
+        ]}
+      />
       <section className={styles.memberHero}>
         <div className={styles.memberHeroImage}>
-          <Image
-            src="/images/The Team/The Team Hero.jpg"
-            alt="The Team"
+          <SeoImage
+            src={STATIC_IMAGES.teamHero}
+            alt={heroAlt('team-member')}
             fill
             className={styles.heroImage}
             priority
@@ -76,9 +115,9 @@ export default async function TeamMemberPage({ params }: Props) {
           <div className={styles.memberContentWrapper}>
             {member.profileImage && member.profileImage.trim() !== '' && (
               <div className={styles.memberImageContainer}>
-                <Image
+                <SeoImage
                   src={member.profileImage}
-                  alt={member.name}
+                  alt={teamMemberAlt(member.name, member.title)}
                   width={400}
                   height={500}
                   className={styles.memberProfileImage}
@@ -89,9 +128,9 @@ export default async function TeamMemberPage({ params }: Props) {
             <div className={styles.memberDetails}>
               <h2 className={styles.memberName}>{member.name}</h2>
               <h3 className={styles.memberTitle}>{member.title}</h3>
-              
+
               <div className={styles.bioContent}>
-                {member.bio.split('\n\n').map((paragraph, i) => (
+                {bioParagraphs.map((paragraph, i) => (
                   <p key={i}>{paragraph}</p>
                 ))}
               </div>
@@ -99,17 +138,32 @@ export default async function TeamMemberPage({ params }: Props) {
               {(member.linkedin || member.facebook || member.instagram) && (
                 <div className={styles.memberSocial}>
                   {member.linkedin && (
-                    <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                    <a
+                      href={member.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.socialLink}
+                    >
                       LinkedIn
                     </a>
                   )}
                   {member.facebook && (
-                    <a href={member.facebook} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                    <a
+                      href={member.facebook}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.socialLink}
+                    >
                       Facebook
                     </a>
                   )}
                   {member.instagram && (
-                    <a href={member.instagram} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                    <a
+                      href={member.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.socialLink}
+                    >
                       Instagram
                     </a>
                   )}
@@ -130,4 +184,3 @@ export default async function TeamMemberPage({ params }: Props) {
     </div>
   );
 }
-

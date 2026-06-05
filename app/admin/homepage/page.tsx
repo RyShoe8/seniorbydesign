@@ -147,6 +147,7 @@ export default function HomepageManagement() {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('folder', 'partners');
+    formData.append('spaceType', 'partner-logo');
 
     try {
       const response = await fetch('/api/admin/upload', {

@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { ORG_ID, SITE_URL, absoluteUrl } from '@/lib/schema/constants';
 
 interface SEOProps {
   title: string;
@@ -17,7 +18,7 @@ export function generateSEOMetadata({
   title,
   description,
   url,
-  image = '/images/SBD Logo.webp',
+  image = '/images/senior-living-logo-design-sbd.webp',
   type = 'website',
   publishedTime,
   modifiedTime,
@@ -96,75 +97,40 @@ export function JSONLDSchema({ schema }: JSONLDSchemaProps) {
   );
 }
 
-// Organization Schema
+// Organization Schema (legacy export; global graph is canonical via SchemaMarkup)
 export function OrganizationSchema() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
-  
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    '@id': `${siteUrl}/#organization`,
+    '@id': ORG_ID,
     name: 'Senior By Design',
-    url: siteUrl,
-    logo: {
-      '@type': 'ImageObject',
-      url: `${siteUrl}/images/SBD Logo.webp`,
-      width: 1200,
-      height: 630,
-    },
-    description: 'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve. Specializing in senior living communities, multifamily, and commercial interior design.',
+    url: SITE_URL,
+    logo: absoluteUrl('/images/senior-living-logo-design-sbd.webp'),
+    description:
+      'Boutique senior living interior design firm specializing in FF&E, space planning, and turnkey design for senior living communities nationwide.',
     foundingDate: '2000',
-    numberOfEmployees: {
-      '@type': 'QuantitativeValue',
-      value: '50-100',
-    },
-    address: {
-      '@type': 'PostalAddress',
-      addressCountry: 'US',
-    },
-    contactPoint: [
-      {
-        '@type': 'ContactPoint',
-        telephone: '+1-833-773-3744',
-        contactType: 'Customer Service',
-        areaServed: 'US',
-        availableLanguage: 'English',
-        email: 'info@seniorbydesign.com',
-      },
-    ],
+    numberOfEmployees: { '@type': 'QuantitativeValue', value: '50-100' },
     email: 'info@seniorbydesign.com',
+    telephone: '+18337733744',
     sameAs: [
       'https://www.facebook.com/Seniorbydesign',
       'https://www.linkedin.com/company/senior-by-design/',
       'https://www.youtube.com/@SeniorByDesign',
+      'https://www.instagram.com/seniorbydesign',
     ],
-    knowsAbout: [
-      'Interior Design',
-      'Senior Living Design',
-      'Multifamily Design',
-      'Commercial Interior Design',
-      'FF&E Services',
-      'Space Planning',
-      'Furniture Procurement',
-    ],
-    areaServed: {
-      '@type': 'Country',
-      name: 'United States',
-    },
+    areaServed: { '@type': 'Country', name: 'United States' },
   };
 }
 
-// WebSite schema (SearchAction removed until /blog supports the same query contract)
+// WebSite schema (legacy export; global graph is canonical via SchemaMarkup)
 export function WebSiteSchema() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
-
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
+    '@id': `${SITE_URL}/#website`,
     name: 'Senior By Design',
-    url: siteUrl,
-    description:
-      'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.',
+    url: SITE_URL,
+    publisher: { '@id': ORG_ID },
   };
 }
 
@@ -215,7 +181,7 @@ export function IndexItemListSchema(options: {
   };
 }
 
-// BlogPosting JSON-LD (blog posts; exported as ArticleSchema for backward compatibility)
+// Article JSON-LD for blog posts
 export function ArticleSchema({
   title,
   description,
@@ -223,7 +189,7 @@ export function ArticleSchema({
   image,
   publishedTime,
   modifiedTime,
-  authorName,
+  authorName: _authorName,
   keywords,
   articleBody,
   wordCount,
@@ -234,65 +200,34 @@ export function ArticleSchema({
   image?: string;
   publishedTime?: string;
   modifiedTime?: string;
-  /** Display author (Person); falls back to organization if empty */
   authorName?: string;
   keywords?: string[];
   articleBody?: string;
   wordCount?: number;
 }) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
-  const orgId = `${siteUrl}/#organization`;
-  const fullUrl = url.startsWith('http') ? url : `${siteUrl}${url}`;
+  const fullUrl = url.startsWith('http') ? url : `${SITE_URL}${url}`;
   const fullImage = image
     ? image.startsWith('http')
       ? image
-      : `${siteUrl}${image}`
-    : `${siteUrl}/images/SBD Logo.webp`;
-
-  const byline = authorName?.trim();
-  const authorNode = byline
-    ? {
-        '@type': 'Person',
-        name: byline,
-      }
-    : {
-        '@type': 'Organization',
-        name: 'Senior By Design',
-        url: siteUrl,
-      };
+      : absoluteUrl(image)
+    : absoluteUrl('/images/senior-living-logo-design-sbd.webp');
 
   const schema: Record<string, unknown> = {
     '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    '@id': `${fullUrl}#blogposting`,
+    '@type': 'Article',
+    '@id': `${fullUrl}#article`,
     headline: title,
     description,
     url: fullUrl,
-    image: {
-      '@type': 'ImageObject',
-      url: fullImage,
-      width: 1200,
-      height: 630,
-    },
+    image: fullImage,
     datePublished: publishedTime,
     dateModified: modifiedTime || publishedTime,
-    author: authorNode,
-    publisher: {
-      '@type': 'Organization',
-      '@id': orgId,
-      name: 'Senior By Design',
-      logo: {
-        '@type': 'ImageObject',
-        url: `${siteUrl}/images/SBD Logo.webp`,
-        width: 1200,
-        height: 630,
-      },
-    },
+    author: { '@id': ORG_ID },
+    publisher: { '@id': ORG_ID },
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': fullUrl,
     },
-    articleSection: 'Interior Design',
     inLanguage: 'en-US',
     isAccessibleForFree: true,
     speakable: {
@@ -332,24 +267,22 @@ export function ServiceSchema({
     ? image.startsWith('http')
       ? image
       : `${siteUrl}${image}`
-    : `${siteUrl}/images/SBD Logo.webp`;
-
-  const orgId = `${siteUrl}/#organization`;
+    : `${siteUrl}/images/senior-living-logo-design-sbd.webp`;
 
   return {
     '@context': 'https://schema.org',
     '@type': 'Service',
     '@id': `${fullUrl}#service`,
     serviceType: 'Interior Design',
-    provider: {
-      '@type': 'Organization',
-      '@id': orgId,
-      name: 'Senior By Design',
-      url: siteUrl,
-    },
+    provider: { '@id': ORG_ID },
     areaServed: {
       '@type': 'Country',
       name: 'United States',
+    },
+    audience: {
+      '@type': 'Audience',
+      audienceType:
+        'Senior Living Operators, Senior Housing Developers, Senior Living Communities',
     },
     name,
     description,
@@ -369,22 +302,23 @@ export function PersonSchema({
   description,
   url,
   image,
+  sameAs,
 }: {
   name: string;
   jobTitle?: string;
   description?: string;
   url: string;
   image?: string;
+  sameAs?: string[];
 }) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
-  const fullUrl = url.startsWith('http') ? url : `${siteUrl}${url}`;
+  const fullUrl = url.startsWith('http') ? url : `${SITE_URL}${url}`;
   const fullImage = image
     ? image.startsWith('http')
       ? image
-      : `${siteUrl}${image}`
-    : `${siteUrl}/images/SBD Logo.webp`;
+      : absoluteUrl(image)
+    : absoluteUrl('/images/senior-living-logo-design-sbd.webp');
 
-  return {
+  const schema: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name,
@@ -392,45 +326,57 @@ export function PersonSchema({
     description,
     image: fullImage,
     url: fullUrl,
-    worksFor: {
-      '@type': 'Organization',
-      name: 'Senior By Design',
-    },
+    worksFor: { '@id': ORG_ID },
+  };
+
+  if (sameAs && sameAs.length > 0) {
+    schema.sameAs = sameAs;
+  }
+
+  return schema;
+}
+
+// CreativeWork Schema (portfolio category pages)
+export function CreativeWorkSchema({
+  name,
+  description,
+  url,
+  images,
+  keywords,
+}: {
+  name: string;
+  description: string;
+  url: string;
+  images: string[];
+  keywords?: string;
+}) {
+  const fullUrl = url.startsWith('http') ? url : `${SITE_URL}${url}`;
+  const imageUrls = images.map((img) => (img.startsWith('http') ? img : absoluteUrl(img)));
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    '@id': `${fullUrl}#creativework`,
+    name,
+    description,
+    url: fullUrl,
+    creator: { '@id': ORG_ID },
+    image: imageUrls,
+    keywords: keywords || 'senior living interior design',
+    genre: 'Interior Design Portfolio',
   };
 }
 
-// LocalBusiness Schema (for contact page)
+// LocalBusiness Schema (legacy; use global graph via SchemaMarkup)
 export function LocalBusinessSchema() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
-  
   return {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
-    '@id': `${siteUrl}/#organization`,
+    '@id': `${SITE_URL}/#localbusiness`,
     name: 'Senior By Design',
-    image: `${siteUrl}/images/SBD Logo.webp`,
-    url: siteUrl,
-    telephone: '+1-833-773-3744',
+    url: SITE_URL,
+    telephone: '+18337733744',
     email: 'info@seniorbydesign.com',
-    priceRange: '$$',
-    description: 'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve. Specializing in senior living communities, multifamily, and commercial interior design.',
-    address: {
-      '@type': 'PostalAddress',
-      addressCountry: 'US',
-    },
-    geo: {
-      '@type': 'GeoCoordinates',
-      addressCountry: 'US',
-    },
-    sameAs: [
-      'https://www.facebook.com/Seniorbydesign',
-      'https://www.linkedin.com/company/senior-by-design/',
-      'https://www.youtube.com/@SeniorByDesign',
-    ],
-    areaServed: {
-      '@type': 'Country',
-      name: 'United States',
-    },
   };
 }
 
@@ -556,12 +502,10 @@ export function VideoObjectSchema({
 
 // FAQPage Schema
 export function FAQPageSchema(faqs: Array<{ question: string; answer: string }>) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
-  
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: faqs.map(faq => ({
+    mainEntity: faqs.map((faq) => ({
       '@type': 'Question',
       name: faq.question,
       acceptedAnswer: {

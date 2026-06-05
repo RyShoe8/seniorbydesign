@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
+import SeoImage from '@/components/SeoImage';
 import { getRecaptchaToken } from '@/lib/recaptcha-client';
+import { heroAlt, STATIC_IMAGES } from '@/lib/image-seo';
 import styles from './page.module.css';
 
 interface BrochureSettings {
@@ -149,9 +150,9 @@ export default function NewsletterAndBrochure() {
     <>
       <section className={styles.newsletterHero}>
         <div className={styles.newsletterHeroImage}>
-          <Image
-            src="/images/Newsletter and Brochure Hero Image.jpg"
-            alt="Newsletter & Brochure"
+          <SeoImage
+            src={STATIC_IMAGES.newsletterHero}
+            alt={heroAlt('newsletter')}
             fill
             className={styles.heroImage}
             priority

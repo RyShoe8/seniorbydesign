@@ -37,3 +37,11 @@ For each URL, confirm a unique `<title>`, `<meta name="description">`, `<link re
 ## 5. Environment
 
 - Confirm production `NEXT_PUBLIC_SITE_URL` is `https://seniorbydesign.com` so canonicals and JSON-LD `@id` values match the live host.
+
+## 6. GEO / AI citation (on-site)
+
+- Homepage and firm page HTML include **Reid Bonner** and **Senior By Design** in early body copy.
+- Footer, contact, and firm page show the same address and phone: 5015 Catron Dr, Dallas, TX 75220 · (833) 773-3744.
+- Blog posts include an **About Senior By Design** box at the bottom.
+- Service detail pages lead with a direct-answer entity paragraph (`#service-entity-lead`).
+- Off-site actions for marketing: see [GEO_OFFSITE_RECOMMENDATIONS.md](GEO_OFFSITE_RECOMMENDATIONS.md).

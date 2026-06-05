@@ -67,10 +67,8 @@ export async function POST(request: Request) {
         // Ensure baseUrl doesn't have trailing slash and is HTTPS
         baseUrl = baseUrl.replace(/\/$/, '').replace(/^http:/, 'https:');
         
-        // Construct logo URL - encode spaces properly for email clients
-        // Email clients prefer %20 over + for spaces
-        const logoFileName = 'SBD Logo.webp';
-        const logoUrl = `${baseUrl}/images/${logoFileName.replace(/ /g, '%20')}`;
+        const logoFileName = 'senior-living-logo-design-sbd.webp';
+        const logoUrl = `${baseUrl}/images/${logoFileName}`;
         
         // Log for debugging (remove in production if needed)
         console.log('Email logo URL:', logoUrl);

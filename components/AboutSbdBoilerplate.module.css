@@ -1,0 +1,36 @@
+.boilerplate {
+  padding: var(--spacing-xl) 0;
+  background: var(--warm-grey-1, #f5f3ef);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.heading {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--sbd-brown);
+  margin: 0 0 var(--spacing-sm);
+}
+
+.text {
+  max-width: 720px;
+  margin: 0 0 var(--spacing-md);
+  color: var(--sbd-brown);
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.links {
+  margin: 0;
+  font-size: 16px;
+}
+
+.links a {
+  color: var(--sbd-gold);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.links a:hover {
+  text-decoration: underline;
+  color: var(--sbd-brown);
+}

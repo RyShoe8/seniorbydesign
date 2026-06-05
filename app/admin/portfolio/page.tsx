@@ -101,6 +101,15 @@ export default function PortfolioManagement() {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('folder', 'portfolio');
+    const slugField = document.getElementById('slug') as HTMLInputElement | null;
+    const projectSlug = editingCategory?.slug || slugField?.value || '';
+    if (projectSlug) {
+      formData.append('projectSlug', projectSlug);
+      formData.append('spaceType', projectSlug);
+    }
+    if (currentImageAltText.trim()) {
+      formData.append('altDescription', currentImageAltText.trim());
+    }
 
     try {
       const response = await fetch('/api/admin/upload', {
@@ -113,7 +122,7 @@ export default function PortfolioManagement() {
         const newImage: PortfolioImage = {
           url: data.url,
           displayName: currentImageDisplayName.trim(),
-          altText: currentImageAltText.trim(),
+          altText: (data.altText as string) || currentImageAltText.trim() || '',
         };
         setPortfolioImages([newImage, ...portfolioImages]);
         setCurrentImageDisplayName('');

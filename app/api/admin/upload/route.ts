@@ -2,13 +2,18 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getMediaCollection } from '@/lib/db';
+import {
+  altFromUploadFields,
+  buildSeoImageFilename,
+  defaultSpaceTypeForFolder,
+} from '@/lib/image-seo';
+import crypto from 'crypto';
 
-// Import Vercel Blob Storage
-let putBlob: any = null;
+let putBlob: ((path: string, body: Buffer, options: { access: string; contentType: string }) => Promise<{ url: string }>) | null = null;
 try {
   const blobModule = require('@vercel/blob');
   putBlob = blobModule.put;
-} catch (e) {
+} catch {
   // @vercel/blob not installed
 }
 
@@ -21,13 +26,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // Check if Vercel Blob Storage is configured
   if (!putBlob) {
     return NextResponse.json(
-      { 
+      {
         error: 'Vercel Blob Storage is not configured. Please install @vercel/blob package.',
         code: 'BLOB_NOT_CONFIGURED',
-        instructions: 'Run: npm install @vercel/blob'
+        instructions: 'Run: npm install @vercel/blob',
       },
       { status: 500 }
     );
@@ -35,10 +39,12 @@ export async function POST(request: Request) {
 
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
     return NextResponse.json(
-      { 
-        error: 'BLOB_READ_WRITE_TOKEN environment variable is not set. Please configure Vercel Blob Storage in your Vercel dashboard.',
+      {
+        error:
+          'BLOB_READ_WRITE_TOKEN environment variable is not set. Please configure Vercel Blob Storage in your Vercel dashboard.',
         code: 'BLOB_TOKEN_MISSING',
-        instructions: '1. Go to Vercel dashboard → Storage → Create Blob store\n2. Add BLOB_READ_WRITE_TOKEN to environment variables'
+        instructions:
+          '1. Go to Vercel dashboard → Storage → Create Blob store\n2. Add BLOB_READ_WRITE_TOKEN to environment variables',
       },
       { status: 500 }
     );
@@ -47,71 +53,77 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const folder = formData.get('folder') as string || 'services';
+    const folder = (formData.get('folder') as string) || 'services';
+    const spaceTypeField = formData.get('spaceType') as string | null;
+    const projectSlug = (formData.get('projectSlug') as string) || undefined;
+    const altDescription = (formData.get('altDescription') as string) || undefined;
+    const altTextField = (formData.get('altText') as string) || undefined;
 
     if (!file) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Generate unique filename
-    const timestamp = Date.now();
-    const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const filename = `${timestamp}-${originalName}`;
+    const ext = file.name.includes('.') ? file.name.split('.').pop()! : 'jpg';
+    const spaceType = defaultSpaceTypeForFolder(folder, spaceTypeField ?? undefined);
+    const uniqueToken = crypto.randomBytes(2).toString('hex');
+    const filename = buildSeoImageFilename({
+      spaceType,
+      projectSlug,
+      ext,
+      uniqueToken,
+    });
 
-    // Upload to Vercel Blob Storage
     const blobPath = `images/${folder}/${filename}`;
     const blob = await putBlob(blobPath, buffer, {
       access: 'public',
       contentType: file.type,
     });
-    
+
     const publicUrl = blob.url;
-    
-    // Add to media collection
+    const altText =
+      (altTextField ?? '').trim() ||
+      altFromUploadFields(altDescription, spaceType, projectSlug);
+
     try {
       const mediaCollection = await getMediaCollection();
-      const displayName = originalName.replace(/\.[^/.]+$/, '');
+      const displayName = filename.replace(/\.[^/.]+$/, '');
       await mediaCollection.insertOne({
         filePath: publicUrl,
-        displayName: displayName,
-        altText: '',
+        displayName,
+        altText,
         folder: `images/${folder}`,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
-    } catch (error) {
-            // Don't fail the upload if media collection update fails
+    } catch {
+      // Don't fail the upload if media collection update fails
     }
-    
-    return NextResponse.json({ url: publicUrl });
-  } catch (error: any) {
-        // Provide more specific error messages
+
+    return NextResponse.json({ url: publicUrl, altText, filename });
+  } catch (error: unknown) {
+    const err = error as { message?: string; code?: string };
     let errorMessage = 'Failed to upload file';
-    let errorDetails = error.message || 'Unknown error';
-    
-    if (error.message?.includes('BLOB_READ_WRITE_TOKEN')) {
+    let errorDetails = err.message || 'Unknown error';
+
+    if (err.message?.includes('BLOB_READ_WRITE_TOKEN')) {
       errorMessage = 'Vercel Blob Storage token is missing or invalid';
-      errorDetails = 'Please configure BLOB_READ_WRITE_TOKEN in your Vercel environment variables';
-    } else if (error.message?.includes('Cannot find module')) {
+      errorDetails =
+        'Please configure BLOB_READ_WRITE_TOKEN in your Vercel environment variables';
+    } else if (err.message?.includes('Cannot find module')) {
       errorMessage = 'Vercel Blob Storage package not installed';
       errorDetails = 'Please install @vercel/blob package: npm install @vercel/blob';
     }
-    
+
     return NextResponse.json(
-      { 
+      {
         error: errorMessage,
         details: errorDetails,
-        code: error.code || 'UPLOAD_ERROR'
+        code: err.code || 'UPLOAD_ERROR',
       },
       { status: 500 }
     );
   }
 }
-
-

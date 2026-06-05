@@ -1,28 +1,41 @@
-# Senior By Design — llms.txt
+# Senior By Design - llms.txt
+# https://seniorbydesign.com
 
-> High-level pointers for AI systems and crawlers. Authoritative content is on the website.
+Senior By Design (SBD) is a boutique senior living interior design firm founded by Reid Bonner, headquartered in Dallas, Texas. The firm specializes exclusively in interior design, FF&E procurement, and space planning for senior living communities including independent living, assisted living, memory care, and active adult communities across the United States.
 
-## Site
-- Name: Senior By Design
-- Domain: https://seniorbydesign.com
-- Focus: Commercial and senior living interior design, FF&E, procurement, installation, and related services.
+## About
+- Founded by Reid Bonner, President
+- Address: 5015 Catron Dr, Dallas, TX 75220
+- Phone: (833) 773-3744
+- Specialty: Senior living interior design and FF&E services
+- Headquarters: Dallas, TX (with a warehouse and design center)
+- Notable: Every chair specified by SBD is personally tested by the team
+- Awards: TBD
+- Key differentiator: Boutique, custom approach — not catalog-inspired
 
-## Key sections
-- Home: https://seniorbydesign.com/
-- Services index: https://seniorbydesign.com/services
+## Key Pages
+- Homepage: https://seniorbydesign.com/
+- Services: https://seniorbydesign.com/services
 - Portfolio: https://seniorbydesign.com/portfolio
-- Blog (The Principled Design Journal): https://seniorbydesign.com/blog
+- About/The Firm: https://seniorbydesign.com/senior-living-design-firm
+- Team: https://seniorbydesign.com/team
+- Blog: https://seniorbydesign.com/blog
 - Contact: https://seniorbydesign.com/contact
-- Privacy: https://seniorbydesign.com/privacy-policy
 
-## Portfolio categories
+## Services
+- Interior Environments & Design
+- FF&E (Furniture, Fixtures & Equipment) Services
+- Procurement and Installation
+- Overall Design & Development
+
+## Portfolio Categories
 - Senior Living: https://seniorbydesign.com/portfolio/senior-living
-- Memory Support: https://seniorbydesign.com/portfolio/memory-support
+- Memory Support / Memory Care: https://seniorbydesign.com/portfolio/memory-support
 - Active Adult: https://seniorbydesign.com/portfolio/active-adult
-- Multi Family: https://seniorbydesign.com/portfolio/multi-family
-- Remodels: https://seniorbydesign.com/portfolio/remodels
-- Office Remodels: https://seniorbydesign.com/portfolio/office-remodels
 - Model Units: https://seniorbydesign.com/portfolio/model-units
+- Remodels: https://seniorbydesign.com/portfolio/remodels
+- Multi-Family: https://seniorbydesign.com/portfolio/multi-family
+- Office Remodels: https://seniorbydesign.com/portfolio/office-remodels
 
 ## Machine-readable discovery
 - Sitemap: https://seniorbydesign.com/sitemap.xml

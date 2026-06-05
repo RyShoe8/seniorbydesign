@@ -101,6 +101,21 @@
   height: auto;
 }
 
+.serviceGeoLead {
+  font-size: 1.125rem;
+  line-height: 1.85;
+  margin-bottom: var(--spacing-md);
+  color: var(--sbd-brown);
+  font-weight: 500;
+}
+
+.serviceIntro {
+  font-size: 1.125rem;
+  line-height: 1.85;
+  margin-bottom: var(--spacing-lg);
+  color: var(--sbd-brown);
+}
+
 
 
 

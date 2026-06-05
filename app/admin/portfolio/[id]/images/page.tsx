@@ -68,6 +68,11 @@ export default function PortfolioImageManagement() {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('folder', 'portfolio');
+    formData.append('projectSlug', category.slug);
+    formData.append('spaceType', category.slug);
+    if (currentImageAltText.trim()) {
+      formData.append('altDescription', currentImageAltText.trim());
+    }
 
     try {
       const response = await fetch('/api/admin/upload', {
@@ -80,7 +85,7 @@ export default function PortfolioImageManagement() {
         const newImage: PortfolioImage = {
           url: data.url,
           displayName: currentImageDisplayName.trim() || file.name.replace(/\.[^/.]+$/, ''),
-          altText: currentImageAltText.trim(),
+          altText: (data.altText as string) || currentImageAltText.trim() || '',
         };
         
         const updatedImages = [newImage, ...category.images];
@@ -190,7 +195,7 @@ export default function PortfolioImageManagement() {
                 id="imageAltText"
                 value={currentImageAltText}
                 onChange={(e) => setCurrentImageAltText(e.target.value)}
-                placeholder="Image description for accessibility"
+                placeholder="e.g. luxury senior living lobby with warm lighting (auto-appends design type + by Senior By Design)"
               />
             </div>
             <div className="form-group">

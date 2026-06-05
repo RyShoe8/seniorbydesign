@@ -1,7 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Image from 'next/image';
+import SeoImage from '@/components/SeoImage';
+import { partnerLogoAlt, ensureImageAlt } from '@/lib/image-seo';
 import styles from '@/app/page.module.css';
 
 type Partner = {
@@ -57,33 +58,42 @@ export default function PartnersTabs({ partners }: { partners: Partner[] }) {
           {filteredPartners.map((partner) => {
             if (!partner || !partner.logo) return null;
             const logoUrl = partner.logo;
-            const altText = partner.altText || partner.displayName || partner.name || 'Partner logo';
+            const partnerName = partner.displayName || partner.name || 'Partner';
+            const altText = ensureImageAlt(partner.altText, partnerLogoAlt(partnerName));
 
             return (
               <div key={partner._id || partner.logo} className={styles.partnerLogo}>
                 {partner.url ? (
                   <a href={partner.url} target="_blank" rel="noopener noreferrer">
-                    <Image
+                    <SeoImage
                       src={logoUrl}
                       alt={altText}
                       width={320}
                       height={180}
-                      style={{ maxWidth: '100%', maxHeight: '180px', width: 'auto', height: 'auto', objectFit: 'contain' }}
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '180px',
+                        width: 'auto',
+                        height: 'auto',
+                        objectFit: 'contain',
+                      }}
                       unoptimized={logoUrl.startsWith('http')}
-                      loading="lazy"
-                      decoding="async"
                     />
                   </a>
                 ) : (
-                  <Image
+                  <SeoImage
                     src={logoUrl}
                     alt={altText}
                     width={320}
                     height={180}
-                    style={{ maxWidth: '100%', maxHeight: '180px', width: 'auto', height: 'auto', objectFit: 'contain' }}
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '180px',
+                      width: 'auto',
+                      height: 'auto',
+                      objectFit: 'contain',
+                    }}
                     unoptimized={logoUrl.startsWith('http')}
-                    loading="lazy"
-                    decoding="async"
                   />
                 )}
               </div>

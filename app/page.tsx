@@ -1,32 +1,48 @@
 import { Metadata } from 'next';
-import Image from 'next/image';
+import SeoImage from '@/components/SeoImage';
 import Link from 'next/link';
 import NewsletterCTA from '@/components/NewsletterCTA';
 import TestimonialsCarousel from '@/components/TestimonialsCarousel';
 import PortfolioCarousel from '@/components/PortfolioCarousel';
 import PartnersTabs from '@/components/PartnersTabs';
+import FaqSection from '@/components/FaqSection';
+import PageSchema from '@/components/PageSchema';
+import HubLinksSection from '@/components/HubLinksSection';
 import { getHomepageContent, getPortfolioCategories, getPartners } from './actions';
-import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema } from '@/components/SEO';
+import { generateSEOMetadata, BreadcrumbSchema, FAQPageSchema } from '@/components/SEO';
+import { SENIOR_LIVING_FAQS } from '@/lib/schema/faq-content';
+import {
+  HOME_TITLE,
+  HOME_META_DESCRIPTION,
+  HOME_H1,
+  HOME_HERO_INTRO,
+  HOME_WHO_WE_ARE,
+  HOME_WHAT_MAKES_DIFFERENT,
+  HOME_FAQ_HEADING,
+  HOME_SERVICE_TEASERS,
+  HOME_HUB_SECTION_HEADING,
+} from '@/lib/home-seo';
+import { HUB_LINKS } from '@/lib/internal-links';
+import { heroAlt, STATIC_IMAGES } from '@/lib/image-seo';
 import styles from './page.module.css';
 
 export const metadata: Metadata = generateSEOMetadata({
-  title: 'Senior By Design - Soul Warming Interiors',
-  description: 'From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.',
+  title: HOME_TITLE,
+  description: HOME_META_DESCRIPTION,
   url: '/',
   type: 'website',
   keywords: [
     'senior living interior design',
-    'commercial interior design',
-    'multifamily design',
-    'interior design services',
-    'senior living communities',
+    'senior living design firm',
     'FF&E services',
-    'space planning',
-    'furniture procurement',
+    'independent living',
+    'assisted living',
+    'memory care',
+    'boutique interior design firm',
   ],
 });
 
-export const revalidate = 0; // Always fetch fresh data
+export const revalidate = 0;
 
 export default async function Home() {
   const homepageContent = await getHomepageContent();
@@ -35,15 +51,17 @@ export default async function Home() {
 
   return (
     <>
-      <JSONLDSchema schema={BreadcrumbSchema([
-        { name: 'Home', url: '/' },
-      ])} />
-      {/* Hero Section */}
+      <PageSchema
+        schemas={[
+          BreadcrumbSchema([{ name: 'Home', url: '/' }]),
+          FAQPageSchema(SENIOR_LIVING_FAQS),
+        ]}
+      />
       <section className={styles.heroSection}>
         <div className={styles.heroImageContainer}>
-          <Image
-            src="/images/The Team/The Team Hero.jpg"
-            alt="Soul Warming Interiors"
+          <SeoImage
+            src={STATIC_IMAGES.teamHero}
+            alt={heroAlt('home')}
             fill
             className={styles.heroImage}
             priority
@@ -52,52 +70,88 @@ export default async function Home() {
           />
           <div className={styles.heroOverlay}>
             <div className={styles.heroContent}>
-              <h1 className={styles.heroHeadline}>
-                Soul Warming Interiors
-              </h1>
-              <p className={styles.heroSubheadline}>
-                From concept to realization we take great pride in designing luxurious, soul-warming interiors distinctly tailored to the unique characteristics of each community we serve.
-              </p>
-              <Link href="/portfolio" className={styles.heroButton}>Explore Our Portfolio</Link>
+              <h1 className={styles.heroHeadline}>{HOME_H1}</h1>
+              <p className={styles.heroSubheadline}>{HOME_HERO_INTRO}</p>
+              <Link href="/portfolio" className={styles.heroButton}>
+                Explore Our Portfolio
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Who We Are Section */}
       <section className="who-we-are-section section-padding bg-warm-grey">
         <div className="container">
           <h2 className={styles.sectionHeading}>Who We Are</h2>
           <div className={styles.whoWeAreContent}>
-            <p>
-              Our team scours markets around the world to hand-select collectible found items, antiques, customized art, and furniture from local craftsmen and multi-national manufacturers that fulfill our stringent senior living requirements. We are not a catalog-inspired design firm. These items are stored in our 35,000 square foot warehouse allowing us to offer these high-quality furnishings at a minimal cost.
-            </p>
+            <p>{HOME_WHO_WE_ARE}</p>
           </div>
         </div>
       </section>
 
-      {/* Our Portfolio Section */}
+      <section className={`${styles.servicesTeaserSection} section-padding`}>
+        <div className="container">
+          <h2 className={styles.sectionHeading}>Our Senior Living Design Services</h2>
+          <div className={styles.servicesTeaserGrid}>
+            {HOME_SERVICE_TEASERS.map((service) => (
+              <Link
+                key={service.slug}
+                href={`/services/${service.slug}`}
+                className={styles.serviceTeaserCard}
+              >
+                <h3 className={styles.serviceTeaserTitle}>{service.title}</h3>
+                <p className={styles.serviceTeaserDescription}>{service.description}</p>
+                <span className={styles.serviceTeaserLink}>Learn more</span>
+              </Link>
+            ))}
+          </div>
+          <div className={styles.servicesTeaserCta}>
+            <Link href="/services" className="btn">
+              View All Services
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <section id="our-portfolio" className={`${styles.ourWorkSection} section-padding`}>
         <div className="container">
-          <h2 className={styles.sectionHeading}>Our Portfolio</h2>
+          <h2 className={styles.sectionHeading}>Senior Living Portfolio</h2>
         </div>
-        <PortfolioCarousel categories={portfolioCategories.map(cat => ({
-          ...cat,
-          _id: cat._id?.toString()
-        }))} />
+        <PortfolioCarousel
+          categories={portfolioCategories.map((cat) => ({
+            ...cat,
+            _id: cat._id?.toString(),
+          }))}
+        />
+        <div className={`container ${styles.portfolioCta}`}>
+          <Link href="/portfolio" className="btn">
+            View All Portfolio
+          </Link>
+        </div>
       </section>
 
-      {/* Words From Our Clients Section */}
-      {homepageContent?.testimonials && Array.isArray(homepageContent.testimonials) && homepageContent.testimonials.length > 0 && (
-        <section className="testimonials-section section-padding bg-warm-grey">
-          <div className="container">
-            <h2 className={`${styles.sectionHeading} text-center`}>Words From Our Clients</h2>
-          </div>
-          <TestimonialsCarousel testimonials={homepageContent.testimonials} />
-        </section>
-      )}
+      <HubLinksSection links={HUB_LINKS} heading={HOME_HUB_SECTION_HEADING} />
 
-      {/* You're In Good Hands Section */}
+      <section className="section-padding bg-warm-grey">
+        <div className="container">
+          <h2 className={styles.sectionHeading}>What Makes SBD Different</h2>
+          <div className={styles.whoWeAreContent}>
+            <p>{HOME_WHAT_MAKES_DIFFERENT}</p>
+          </div>
+        </div>
+      </section>
+
+      {homepageContent?.testimonials &&
+        Array.isArray(homepageContent.testimonials) &&
+        homepageContent.testimonials.length > 0 && (
+          <section className="testimonials-section section-padding bg-warm-grey">
+            <div className="container">
+              <h2 className={`${styles.sectionHeading} text-center`}>Words From Our Clients</h2>
+            </div>
+            <TestimonialsCarousel testimonials={homepageContent.testimonials} />
+          </section>
+        )}
+
       <section className="partners-section section-padding">
         <div className="container">
           <h2 className={`${styles.sectionHeading} text-center`}>You&apos;re In Good Hands</h2>
@@ -109,14 +163,18 @@ export default async function Home() {
               }))}
             />
           ) : (
-            <p className="text-center" style={{ color: 'var(--warm-grey-3)', padding: 'var(--spacing-lg)' }}>
+            <p
+              className="text-center"
+              style={{ color: 'var(--warm-grey-3)', padding: 'var(--spacing-lg)' }}
+            >
               No partners added yet. Add partner logos in the admin panel.
             </p>
           )}
         </div>
       </section>
 
-      {/* Newsletter CTA */}
+      <FaqSection faqs={SENIOR_LIVING_FAQS} heading={HOME_FAQ_HEADING} />
+
       <NewsletterCTA />
     </>
   );

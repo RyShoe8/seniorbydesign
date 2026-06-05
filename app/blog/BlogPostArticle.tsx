@@ -1,4 +1,6 @@
-import Image from 'next/image';
+import AboutSbdBoilerplate from '@/components/AboutSbdBoilerplate';
+import SeoImage from '@/components/SeoImage';
+import { blogFeaturedAlt } from '@/lib/image-seo';
 import Link from 'next/link';
 import { prepareBlogBodyForDisplay } from '@/lib/blog-body-html';
 import styles from './[slug]/page.module.css';
@@ -26,9 +28,10 @@ type Props = {
   post: BlogPostArticleData;
   showPreviewBanner?: boolean;
   relatedPosts?: RelatedBlogPostSummary[];
+  contextualLinks?: { href: string; label: string }[];
 };
 
-export function BlogPostArticle({ post, showPreviewBanner, relatedPosts }: Props) {
+export function BlogPostArticle({ post, showPreviewBanner, relatedPosts, contextualLinks }: Props) {
   const safeHtml = prepareBlogBodyForDisplay(post.body);
   const empty = isHtmlEffectivelyEmpty(safeHtml);
 
@@ -43,12 +46,13 @@ export function BlogPostArticle({ post, showPreviewBanner, relatedPosts }: Props
       <section className={styles.blogPostHero}>
         <div className={styles.blogPostHeroImage}>
           {post.featuredImage ? (
-            <Image
+            <SeoImage
               src={post.featuredImage}
-              alt={post.title}
+              alt={blogFeaturedAlt(post.title)}
               fill
               className={styles.heroImage}
               priority
+              unoptimized={post.featuredImage.startsWith('http')}
             />
           ) : (
             <div className={styles.heroPlaceholder} />
@@ -144,6 +148,27 @@ export function BlogPostArticle({ post, showPreviewBanner, relatedPosts }: Props
         </div>
       </div>
 
+      {!showPreviewBanner && contextualLinks && contextualLinks.length > 0 && (
+        <aside className={styles.relatedSection} aria-label="Related services and portfolio">
+          <div className="container">
+            <h2 className={styles.relatedHeading}>Explore Related Work</h2>
+            <ul className={styles.relatedList}>
+              {contextualLinks.map((link) => (
+                <li key={link.href} className={styles.relatedItem}>
+                  <Link href={link.href} className={styles.relatedLink}>
+                    <span className={styles.relatedText}>
+                      <span className={styles.relatedTitle}>{link.label}</span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </aside>
+      )}
+
+      {!showPreviewBanner && <AboutSbdBoilerplate />}
+
       {!showPreviewBanner && relatedPosts && relatedPosts.length > 0 && (
         <aside className={styles.relatedSection} aria-label="Related articles">
           <div className="container">
@@ -154,9 +179,9 @@ export function BlogPostArticle({ post, showPreviewBanner, relatedPosts }: Props
                   <Link href={`/blog/${encodeURIComponent(rp.slug)}`} className={styles.relatedLink}>
                     {rp.featuredImage ? (
                       <div className={styles.relatedThumb}>
-                        <Image
+                        <SeoImage
                           src={rp.featuredImage}
-                          alt={rp.title}
+                          alt={blogFeaturedAlt(rp.title)}
                           fill
                           sizes="120px"
                           className={styles.relatedThumbImg}

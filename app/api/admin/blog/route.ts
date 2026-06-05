@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { getBlogPostsCollection } from '@/lib/db';
 import { generateBlogPreviewToken } from '@/lib/blog-preview';
 import { revalidateBlogPublicRoutes } from '@/lib/blog-revalidate';
+import { normalizeSlug, slugFromTitle } from '@/lib/slug';
 import { ObjectId } from 'mongodb';
 
 export const dynamic = 'force-dynamic';
@@ -45,11 +46,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const collection = await getBlogPostsCollection();
     
-    // Generate slug from title if not provided
-    const slug = body.slug || body.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+    const slug = normalizeSlug(body.slug || slugFromTitle(body.title || ''));
     
     const post = {
       slug,

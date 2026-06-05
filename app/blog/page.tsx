@@ -1,26 +1,28 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { getBlogPosts } from '../actions';
-import Image from 'next/image';
 import NewsletterCTA from '@/components/NewsletterCTA';
-import { generateSEOMetadata, JSONLDSchema, BreadcrumbSchema, IndexItemListSchema } from '@/components/SEO';
+import PageSchema from '@/components/PageSchema';
+import SeoImage from '@/components/SeoImage';
+import { generateSEOMetadata, BreadcrumbSchema, IndexItemListSchema } from '@/components/SEO';
+import { BLOG_INDEX_TITLE, BLOG_INDEX_META, BLOG_INDEX_SUBTITLE, BLOG_INDEX_INTRO } from '@/lib/team-seo';
+import { blogFeaturedAlt, heroAlt, STATIC_IMAGES } from '@/lib/image-seo';
 import styles from './page.module.css';
 
 export const metadata: Metadata = generateSEOMetadata({
-  title: 'The Principled Design Journal - Senior By Design',
-  description: 'Latest insights and principles from Senior By Design about interior design, senior living communities, and design trends.',
+  title: BLOG_INDEX_TITLE,
+  description: BLOG_INDEX_META,
   url: '/blog',
   type: 'website',
   keywords: [
-    'interior design blog',
-    'senior living design insights',
+    'senior living design journal',
+    'senior living interior design trends',
+    'FF&E insights',
     'design principles',
-    'commercial design trends',
-    'interior design articles',
   ],
 });
 
-export const revalidate = 0; // Always fetch fresh data
+export const revalidate = 0;
 
 export default async function Blog() {
   const posts = await getBlogPosts();
@@ -34,30 +36,42 @@ export default async function Blog() {
 
   return (
     <>
-      <JSONLDSchema schema={BreadcrumbSchema([
-        { name: 'Home', url: '/' },
-        { name: 'Blog', url: '/blog' },
-      ])} />
-      {itemListEntries.length > 0 && (
-        <JSONLDSchema
-          schema={IndexItemListSchema({
-            name: 'The Principled Design Journal',
-            description: 'Articles on interior design, senior living, and commercial design from Senior By Design.',
-            items: itemListEntries,
-          })}
-        />
-      )}
+      <PageSchema
+        schemas={[
+          BreadcrumbSchema([
+            { name: 'Home', url: '/' },
+            { name: 'Blog', url: '/blog' },
+          ]),
+          ...(itemListEntries.length > 0
+            ? [
+                IndexItemListSchema({
+                  name: 'The Principled Design Journal',
+                  description:
+                    'Articles on interior design, senior living, and commercial design from Senior By Design.',
+                  items: itemListEntries,
+                }),
+              ]
+            : []),
+        ]}
+      />
       <section className={styles.blogHero}>
         <div className={styles.blogHeroImage}>
-          <Image
-            src="/images/Blog/principled%20design%20hero.jpg"
-            alt="The Principled Design Journal"
+          <SeoImage
+            src={STATIC_IMAGES.blogHero}
+            alt={heroAlt('blog-index')}
             fill
             className={styles.heroImage}
             priority
             unoptimized
           />
           <h1>The Principled Design Journal</h1>
+        </div>
+      </section>
+
+      <section className="blog-subtitle section-padding">
+        <div className="container">
+          <h2 className={styles.blogSubtitle}>{BLOG_INDEX_SUBTITLE}</h2>
+          <p className={styles.blogIntro}>{BLOG_INDEX_INTRO}</p>
         </div>
       </section>
 
@@ -70,9 +84,9 @@ export default async function Blog() {
                   <Link href={`/blog/${post.slug}`}>
                     {post.featuredImage && (
                       <div className={styles.blogImage}>
-                        <Image
+                        <SeoImage
                           src={post.featuredImage}
-                          alt={post.title}
+                          alt={blogFeaturedAlt(post.title)}
                           fill
                           style={{ objectFit: 'cover' }}
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
@@ -105,4 +119,3 @@ export default async function Blog() {
     </>
   );
 }
-

@@ -1,8 +1,9 @@
 import Link from 'next/link';
+import EntityContactBlock from '@/components/EntityContactBlock';
 
 export default function Footer() {
   const companyLinks = [
-    { href: '/the-firm', label: 'The Firm' },
+    { href: '/senior-living-design-firm', label: 'The Firm' },
     { href: '/team', label: 'The Team' },
     { href: '/contact', label: 'Contact' },
     { href: '/privacy-policy', label: 'Privacy Policy' },
@@ -56,9 +57,7 @@ export default function Footer() {
 
           <div className="footer-column">
             <h4 className="footer-heading">Contact</h4>
-            <p className="footer-contact">
-              <a href="tel:8337733744">(833) 773-3744</a>
-            </p>
+            <EntityContactBlock variant="compact" className="footer-nap" />
             <Link href="/newsletter-and-brochure" className="footer-newsletter-link">
               Newsletter & Brochure
             </Link>
@@ -139,9 +138,21 @@ export default function Footer() {
           margin-bottom: var(--spacing-sm);
         }
 
-        .footer-contact a {
+        .footer-nap {
+          margin-bottom: var(--spacing-sm);
           color: var(--warm-grey-1);
-          font-size: 19px;
+        }
+
+        .footer-nap a {
+          color: var(--warm-grey-1);
+        }
+
+        .footer-nap a:hover {
+          color: var(--sbd-gold);
+        }
+
+        .footer-nap strong {
+          color: var(--warm-grey-1);
         }
 
         .footer-newsletter-link {

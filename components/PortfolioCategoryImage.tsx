@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
+import SeoImage from '@/components/SeoImage';
 import { getPortfolioImageUrl } from '@/lib/image-utils';
 import styles from './PortfolioCategoryImage.module.css';
 
@@ -31,7 +31,7 @@ export default function PortfolioCategoryImage({ src, alt, displayName }: Portfo
 
   return (
     <>
-      <Image
+      <SeoImage
         src={imageSrc}
         alt={alt}
         fill

@@ -67,6 +67,9 @@ export default function TeamManagement() {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('folder', 'team');
+    formData.append('spaceType', 'team-portrait');
+    const slugInput = document.getElementById('slug') as HTMLInputElement | null;
+    if (slugInput?.value) formData.append('projectSlug', slugInput.value);
 
     try {
       const response = await fetch('/api/admin/upload', {
