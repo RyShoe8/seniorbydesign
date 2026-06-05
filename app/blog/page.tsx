@@ -9,18 +9,26 @@ import { BLOG_INDEX_TITLE, BLOG_INDEX_META, BLOG_INDEX_SUBTITLE, BLOG_INDEX_INTR
 import { blogFeaturedAlt, heroAlt, STATIC_IMAGES } from '@/lib/image-seo';
 import styles from './page.module.css';
 
-export const metadata: Metadata = generateSEOMetadata({
-  title: BLOG_INDEX_TITLE,
-  description: BLOG_INDEX_META,
-  url: '/blog',
-  type: 'website',
-  keywords: [
-    'senior living design journal',
-    'senior living interior design trends',
-    'FF&E insights',
-    'design principles',
-  ],
-});
+export const metadata: Metadata = {
+  ...generateSEOMetadata({
+    title: BLOG_INDEX_TITLE,
+    description: BLOG_INDEX_META,
+    url: '/blog',
+    type: 'website',
+    keywords: [
+      'senior living design journal',
+      'senior living interior design trends',
+      'FF&E insights',
+      'design principles',
+    ],
+  }),
+  alternates: {
+    canonical: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com'}/blog`,
+    types: {
+      'application/rss+xml': [{ url: '/feed.xml', title: 'The Principled Design Journal' }],
+    },
+  },
+};
 
 export const revalidate = 0;
 
