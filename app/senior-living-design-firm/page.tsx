@@ -158,16 +158,14 @@ export default function SeniorLivingDesignFirmPage() {
           <div className={styles.multifamilyGroup}>
             <h3 className={styles.multifamilyHeading}>Multifamily &amp; Mixed-Use</h3>
             <div className={styles.multifamilyGrid}>
-              <div className={styles.communityPill}><span>Single Family for Rent</span></div>
-              <div className={styles.communityPill}><span>High-Rise</span></div>
-              <div className={styles.communityPill}><span>Mid-Rise</span></div>
-              <div className={styles.communityPill}><span>Mixed-Use</span></div>
-              <div className={styles.communityPill}><span>Transit-Oriented</span></div>
-              <div className={styles.communityPill}><span>Garden-Style</span></div>
-              <div className={styles.communityPill}><span>Student Housing</span></div>
-              <div className={styles.communityPill}><span>Affordable Housing</span></div>
-              <div className={styles.communityPill}><span>Model Units</span></div>
-              <div className={styles.communityPill}><span>Redevelopment</span></div>
+              <div className={styles.staticPill}><span>High-Rise</span></div>
+              <div className={styles.staticPill}><span>Mid-Rise</span></div>
+              <div className={styles.staticPill}><span>Mixed-Use</span></div>
+              <div className={styles.staticPill}><span>Transit-Oriented</span></div>
+              <div className={styles.staticPill}><span>Garden-Style</span></div>
+              <div className={styles.staticPill}><span>Affordable Housing</span></div>
+              <div className={styles.staticPill}><span>Model Units</span></div>
+              <div className={styles.staticPill}><span>Redevelopment</span></div>
             </div>
           </div>
         </div>

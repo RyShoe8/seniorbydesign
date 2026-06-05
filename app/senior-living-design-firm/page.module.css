@@ -109,6 +109,20 @@
   text-align: center;
 }
 
+.staticPill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: transparent;
+  border: 1px solid rgba(89, 56, 37, 0.12);
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--sbd-brown);
+  font-weight: 400;
+}
+
 .multifamilyGroup {
   max-width: 860px;
   margin: 0 auto;
