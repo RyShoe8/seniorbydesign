@@ -20,7 +20,11 @@ export default function FaqSection({
           {faqs.map((faq) => (
             <details key={faq.question} className={styles.faqItem}>
               <summary className={styles.faqQuestion}>{faq.question}</summary>
-              <p className={styles.faqAnswer}>{faq.answer}</p>
+              <div className={styles.faqAnswerWrapper}>
+                <div className={styles.faqAnswerInner}>
+                  <p className={styles.faqAnswer}>{faq.answer}</p>
+                </div>
+              </div>
             </details>
           ))}
         </div>

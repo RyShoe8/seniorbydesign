@@ -5,20 +5,30 @@
 }
 
 .heading {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-family: var(--font-heading);
+  font-size: 56px;
+  font-weight: 500;
   color: var(--sbd-brown);
   margin: 0 0 var(--spacing-lg);
   text-align: center;
+  line-height: 1.2;
 }
+
+@media (max-width: 768px) {
+  .heading {
+    font-size: 40px;
+  }
+}
+
+/* ---- Related Services (list layout) ---- */
 
 .list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: var(--spacing-md);
-  max-width: 720px;
+  gap: var(--spacing-sm);
+  max-width: 820px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -29,60 +39,116 @@
 
 .link {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  align-items: flex-start;
+  gap: var(--spacing-md);
   text-decoration: none;
   color: inherit;
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
   border-radius: 8px;
-  transition: background 0.2s ease;
+  background: #fff;
+  border: 1px solid rgba(89, 56, 37, 0.1);
+  border-left: 3px solid var(--sbd-gold);
+  transition: box-shadow 0.25s ease, transform 0.25s ease, border-left-color 0.25s ease;
+  will-change: transform;
 }
 
 .link:hover {
-  background: rgba(255, 255, 255, 0.85);
+  background: #fff;
+  box-shadow: 0 6px 24px rgba(89, 56, 37, 0.12);
+  transform: translateX(4px);
+  border-left-color: var(--sbd-brown);
+  opacity: 1;
+}
+
+.linkBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
 }
 
 .linkLabel {
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-family: var(--font-heading);
+  font-size: 1.45rem;
+  font-weight: 500;
+  color: var(--sbd-brown);
+  line-height: 1.2;
+}
+
+.linkArrow {
   color: var(--sbd-gold);
+  font-size: 1.2rem;
+  margin-top: 0.25rem;
+  transition: transform 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.link:hover .linkArrow {
+  transform: translateX(4px);
+  color: var(--sbd-brown);
 }
 
 .linkDescription {
-  font-size: 0.95rem;
-  color: var(--sbd-brown);
-  line-height: 1.5;
+  font-size: 0.975rem;
+  color: #4a3728;
+  line-height: 1.55;
 }
+
+/* ---- See Our Work (card grid layout) ---- */
 
 .cardGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--spacing-md);
   max-width: 960px;
   margin: 0 auto;
 }
 
 .card {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   text-decoration: none;
   color: inherit;
-  padding: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  transition: background 0.2s ease, border-color 0.2s ease;
+  background: #fff;
+  border: 1px solid rgba(89, 56, 37, 0.1);
+  border-top: 3px solid var(--sbd-gold);
+  transition: box-shadow 0.25s ease, transform 0.25s ease, border-top-color 0.25s ease;
+  will-change: transform;
+  gap: var(--spacing-sm);
 }
 
 .card:hover {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: var(--sbd-gold);
+  background: #fff;
+  box-shadow: 0 8px 28px rgba(89, 56, 37, 0.13);
+  transform: translateY(-4px);
+  border-top-color: var(--sbd-brown);
+  opacity: 1;
 }
 
 .cardLabel {
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: var(--sbd-brown);
+  line-height: 1.25;
+}
+
+.cardArrow {
+  color: var(--sbd-gold);
+  font-size: 1.1rem;
+  transition: transform 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.card:hover .cardArrow {
+  transform: translateY(-2px);
   color: var(--sbd-brown);
 }
+
+/* ---- Hub grid (Explore SBD section) ---- */
 
 .hubGrid {
   display: grid;
@@ -98,27 +164,34 @@
   color: inherit;
   padding: var(--spacing-md);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  transition: background 0.2s ease, border-color 0.2s ease;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(89, 56, 37, 0.1);
+  border-left: 3px solid var(--sbd-gold);
+  transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  will-change: transform;
 }
 
 .hubCard:hover {
   background: #fff;
-  border-color: var(--sbd-gold);
+  box-shadow: 0 6px 20px rgba(89, 56, 37, 0.1);
+  transform: translateY(-3px);
+  opacity: 1;
 }
 
 .hubLabel {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--sbd-gold);
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--sbd-brown);
 }
 
 .hubDescription {
   font-size: 0.95rem;
-  color: var(--sbd-brown);
-  line-height: 1.5;
+  color: #4a3728;
+  line-height: 1.55;
 }
+
+/* ---- Inline service link ---- */
 
 .inlineServiceLink {
   color: var(--sbd-gold);

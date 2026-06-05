@@ -132,7 +132,7 @@ export default async function Home() {
 
       <HubLinksSection links={HUB_LINKS} heading={HOME_HUB_SECTION_HEADING} />
 
-      <section className="section-padding bg-warm-grey">
+      <section className="section-padding">
         <div className="container">
           <h2 className={styles.sectionHeading}>What Makes SBD Different</h2>
           <div className={styles.whoWeAreContent}>

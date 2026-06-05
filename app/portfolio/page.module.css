@@ -66,13 +66,16 @@
   display: block;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   height: 400px;
+  will-change: transform;
 }
 
 .portfolioCategoryCard:hover {
-  transform: translateY(-5px);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 36px rgba(89, 56, 37, 0.18);
+  opacity: 1;
 }
 
 .categoryImageWrapper {
@@ -88,6 +91,11 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.4s ease;
+}
+
+.portfolioCategoryCard:hover .categoryImage {
+  transform: scale(1.04);
 }
 
 .categoryOverlay {
@@ -126,19 +134,9 @@
   text-align: center;
 }
 
-.categoryLabel {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: var(--spacing-md);
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, transparent 100%);
-  color: #fff;
-  font-family: var(--font-heading);
-  font-size: 1.25rem;
-  font-weight: 600;
+.sectionHeading {
   text-align: center;
-  z-index: 2;
+  margin-bottom: var(--spacing-lg);
 }
 
 @media (max-width: 768px) {

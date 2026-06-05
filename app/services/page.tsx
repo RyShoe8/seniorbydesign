@@ -89,7 +89,7 @@ export default async function Services() {
     },
     {
       slug: 'overall-design-and-development',
-      title: 'Overall design & DEVELOPMENT',
+      title: 'Overall Design & Development',
       description:
         'Our design and dedicated procurement teams re-imagine environments to create a better way of living. No two projects are alike. We have designed 175+ senior living communities and procured over $100M in acquisitions.',
       bullets: {

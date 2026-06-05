@@ -100,6 +100,9 @@ export default function SeniorLivingDesignFirmPage() {
               <p>
                 Having designed 300 senior living communities and procured over $30,000,000 in acquisitions, Senior By Design has built a niche in management-, owner-, and resident-focused senior living interiors through flexible, collaborative, and responsive project delivery.
               </p>
+              <blockquote className={styles.culturePullQuote}>
+                Senior By Design incorporates elegant details that fuse the familiar with the unexpected—from renowned local artists to antiques sourced worldwide.
+              </blockquote>
             </div>
             <div className={styles.columnImage}>
               <SeoImage
@@ -116,13 +119,6 @@ export default function SeniorLivingDesignFirmPage() {
         </div>
       </section>
 
-      <section className="firm-section section-padding bg-warm-grey">
-        <div className="container">
-          <p className={styles.largeText}>
-            Senior By Design incorporates elegant details that fuse the familiar with the unexpected—from renowned local artists to antiques sourced worldwide.
-          </p>
-        </div>
-      </section>
 
       <section className="firm-video-section section-padding">
         <div className="container">
@@ -145,35 +141,33 @@ export default function SeniorLivingDesignFirmPage() {
       <section className="firm-section section-padding">
         <div className="container">
           <h2 className={styles.centeredHeading}>Communities We Serve</h2>
-          <ul className={styles.communitiesList}>
+          <div className={styles.communitiesGrid}>
             {FIRM_COMMUNITIES_SENIOR_LIVING.map((community) => {
               const link = communityLabelLink(community);
               return (
-                <li key={community}>
+                <div key={community} className={styles.communityPill}>
                   {link ? (
-                    <Link href={link.href}>{community}</Link>
+                    <Link href={link.href} className={styles.communityPillLink}>{community}</Link>
                   ) : (
-                    community
+                    <span>{community}</span>
                   )}
-                </li>
+                </div>
               );
             })}
-          </ul>
-          <div className={styles.twoColumnListCentered}>
-            <div className={styles.columnList}>
-              <h4>Multifamily &amp; Mixed-Use</h4>
-              <ul>
-                <li>Single Family for Rent</li>
-                <li>High-Rise</li>
-                <li>Mid-Rise</li>
-                <li>Mixed-Use</li>
-                <li>Transit-Oriented</li>
-                <li>Garden-Style</li>
-                <li>Student Housing</li>
-                <li>Affordable Housing</li>
-                <li>Model Units</li>
-                <li>Redevelopment</li>
-              </ul>
+          </div>
+          <div className={styles.multifamilyGroup}>
+            <h3 className={styles.multifamilyHeading}>Multifamily &amp; Mixed-Use</h3>
+            <div className={styles.multifamilyGrid}>
+              <div className={styles.communityPill}><span>Single Family for Rent</span></div>
+              <div className={styles.communityPill}><span>High-Rise</span></div>
+              <div className={styles.communityPill}><span>Mid-Rise</span></div>
+              <div className={styles.communityPill}><span>Mixed-Use</span></div>
+              <div className={styles.communityPill}><span>Transit-Oriented</span></div>
+              <div className={styles.communityPill}><span>Garden-Style</span></div>
+              <div className={styles.communityPill}><span>Student Housing</span></div>
+              <div className={styles.communityPill}><span>Affordable Housing</span></div>
+              <div className={styles.communityPill}><span>Model Units</span></div>
+              <div className={styles.communityPill}><span>Redevelopment</span></div>
             </div>
           </div>
         </div>
@@ -223,7 +217,7 @@ export default function SeniorLivingDesignFirmPage() {
 
       <FaqSection faqs={SENIOR_LIVING_FAQS} heading={HOME_FAQ_HEADING} />
 
-      <HubLinksSection links={FIRM_HUB_LINKS} heading={FIRM_HUB_SECTION_HEADING} />
+      <HubLinksSection links={FIRM_HUB_LINKS} heading={FIRM_HUB_SECTION_HEADING} bgClass="bg-white" />
 
       <NewsletterCTA />
     </>

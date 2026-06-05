@@ -18,6 +18,7 @@ export default function SeeOurWork({ links, heading = 'See Our Work' }: Props) {
           {links.map((link) => (
             <Link key={link.href} href={link.href} className={styles.card}>
               <span className={styles.cardLabel}>{link.label}</span>
+              <span className={styles.cardArrow} aria-hidden="true">→</span>
             </Link>
           ))}
         </div>

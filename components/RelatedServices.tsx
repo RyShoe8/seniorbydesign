@@ -21,10 +21,13 @@ export default function RelatedServices({
           {links.map((link) => (
             <li key={link.href} className={styles.item}>
               <Link href={link.href} className={styles.link}>
-                <span className={styles.linkLabel}>{link.label}</span>
-                {link.description ? (
-                  <span className={styles.linkDescription}>{link.description}</span>
-                ) : null}
+                <span className={styles.linkBody}>
+                  <span className={styles.linkLabel}>{link.label}</span>
+                  {link.description ? (
+                    <span className={styles.linkDescription}>{link.description}</span>
+                  ) : null}
+                </span>
+                <span className={styles.linkArrow} aria-hidden="true">→</span>
               </Link>
             </li>
           ))}

@@ -106,7 +106,6 @@ export default async function Portfolio() {
                   {imageUrl ? (
                     <div className={styles.categoryImageWrapper}>
                       <PortfolioCategoryImage src={imageUrl} alt={imageAlt} displayName={label} />
-                      <span className={styles.categoryLabel}>{label}</span>
                     </div>
                   ) : (
                     <div className={styles.categoryPlaceholder}>

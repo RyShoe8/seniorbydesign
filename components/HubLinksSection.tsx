@@ -6,13 +6,14 @@ type Props = {
   links: HubLink[];
   heading: string;
   className?: string;
+  bgClass?: string;
 };
 
-export default function HubLinksSection({ links, heading, className }: Props) {
+export default function HubLinksSection({ links, heading, className, bgClass = 'bg-warm-grey' }: Props) {
   if (links.length === 0) return null;
 
   return (
-    <section className={`section-padding bg-warm-grey ${className ?? ''}`.trim()}>
+    <section className={`section-padding ${bgClass} ${className ?? ''}`.trim()}>
       <div className="container">
         <h2 className={styles.heading}>{heading}</h2>
         <div className={styles.hubGrid}>

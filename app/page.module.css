@@ -455,36 +455,56 @@
 .serviceTeaserCard {
   display: block;
   padding: var(--spacing-lg);
-  background: var(--warm-grey-1);
+  background: #faf9f7;
   border: 1px solid rgba(89, 56, 37, 0.12);
+  border-left: 3px solid var(--sbd-gold);
   border-radius: 4px;
   text-decoration: none;
   color: inherit;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, border-left-color 0.3s ease;
+  will-change: transform;
 }
 
 .serviceTeaserCard:hover {
-  box-shadow: 0 4px 16px rgba(89, 56, 37, 0.12);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(89, 56, 37, 0.14);
+  transform: translateY(-4px);
+  border-left-color: var(--sbd-brown);
+  opacity: 1;
 }
 
 .serviceTeaserTitle {
-  font-size: 1.25rem;
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 500;
   color: var(--sbd-brown);
   margin-bottom: var(--spacing-sm);
+  line-height: 1.2;
 }
 
 .serviceTeaserDescription {
   font-size: 1rem;
-  line-height: 1.7;
-  color: var(--warm-grey-3);
+  line-height: 1.75;
+  color: #4a3728;
   margin-bottom: var(--spacing-md);
 }
 
 .serviceTeaserLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-weight: 600;
   color: var(--sbd-gold);
   font-size: 0.95rem;
+  transition: gap 0.2s ease, color 0.2s ease;
+}
+
+.serviceTeaserCard:hover .serviceTeaserLink {
+  gap: 0.6rem;
+  color: var(--sbd-brown);
+}
+
+.serviceTeaserLink::after {
+  content: '→';
 }
 
 .servicesTeaserCta {

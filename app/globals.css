@@ -300,3 +300,29 @@ picture img {
   opacity: 0.6;
   pointer-events: none;
 }
+
+/* White section utility (for overriding bg-warm-grey when needed) */
+.bg-white {
+  background-color: #fff;
+}
+
+/* Scroll-reveal animation utility */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+/* Section border rhythm for white sections */
+.section-border-top {
+  border-top: 1px solid rgba(89, 56, 37, 0.08);
+}
