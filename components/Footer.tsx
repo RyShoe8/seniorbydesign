@@ -80,6 +80,17 @@ export default function Footer() {
 
         <div className="footer-bottom">
           <p>&copy; {new Date().getFullYear()} Senior By Design. All rights reserved.</p>
+          <p className="recaptcha-disclosure">
+            This site is protected by reCAPTCHA and the Google{' '}
+            <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+              Privacy Policy
+            </a>{' '}
+            and{' '}
+            <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">
+              Terms of Service
+            </a>{' '}
+            apply.
+          </p>
         </div>
       </div>
 
@@ -216,6 +227,24 @@ export default function Footer() {
         .footer-bottom p {
           color: var(--warm-grey-1);
           font-size: 16px;
+        }
+
+        .recaptcha-disclosure {
+          font-size: 13px;
+          color: var(--warm-grey-1);
+          margin-top: 0.75rem;
+          line-height: 1.5;
+        }
+
+        .recaptcha-disclosure a {
+          color: var(--sbd-gold);
+          text-decoration: none;
+          transition: color 0.3s ease;
+        }
+
+        .recaptcha-disclosure a:hover {
+          color: #fff;
+          text-decoration: underline;
         }
 
         @media (max-width: 968px) {

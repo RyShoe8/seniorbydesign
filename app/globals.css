@@ -363,3 +363,8 @@ picture img {
     opacity: 1 !important;
   }
 }
+
+/* Google reCAPTCHA v3: hide badge when disclosure is shown elsewhere (Google-supported approach) */
+.grecaptcha-badge {
+  visibility: hidden !important;
+}
