@@ -138,7 +138,7 @@ export default function Contact() {
         </div>
       </section>
 
-      <section className="contact-content section-padding">
+      <section className="contact-content section-padding reveal-on-scroll">
         <div className="container">
           <p className={styles.contactIntro}>{CONTACT_INTRO}</p>
           <div className={styles.contactGrid}>

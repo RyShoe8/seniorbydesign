@@ -149,7 +149,7 @@
 }
 
 .downloadCard p {
-  color: var(--warm-grey-3);
+  color: var(--text-muted);
   margin-bottom: var(--spacing-md);
   line-height: 1.5;
 }

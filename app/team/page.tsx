@@ -49,7 +49,7 @@ export default async function Team() {
         </div>
       </section>
 
-      <section className="team-intro section-padding">
+      <section className="team-intro section-padding reveal-on-scroll">
         <div className="container">
           <h2 className={styles.centeredHeading}>We Love What We Do</h2>
           <div className={styles.introContent}>
@@ -71,7 +71,7 @@ export default async function Team() {
         </div>
       </section>
 
-      <section className="team-quote section-padding bg-warm-grey">
+      <section className="team-quote section-padding bg-warm-grey reveal-on-scroll">
         <div className="container">
           <blockquote className={styles.quote}>
             &ldquo;We want our choices to create environments that hug and embrace those who live
@@ -81,7 +81,7 @@ export default async function Team() {
         </div>
       </section>
 
-      <section className="team-members section-padding">
+      <section className="team-members section-padding reveal-on-scroll">
         <div className="container">
           <h2 className={styles.centeredHeading}>Meet the experts</h2>
           <div className={styles.teamGrid}>

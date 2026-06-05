@@ -1,25 +1,42 @@
 .newsletterCta {
-  background-color: var(--warm-grey-1);
+  background: linear-gradient(135deg, #4a3728 0%, #2a1f16 100%);
   padding: var(--spacing-xl) 0;
   text-align: center;
-  border-top: 1px solid #000;
+  border-top: 1px solid rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle decorative overlay */
+.newsletterCta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, rgba(203, 172, 109, 0.08) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .newsletterCtaContainer {
   max-width: var(--container-max-width);
   margin: 0 auto;
   padding: 0 var(--container-padding);
+  position: relative;
+  z-index: 2;
 }
 
 .newsletterCtaHeading {
   font-size: 42px;
-  color: var(--sbd-brown);
+  color: #fff;
   margin-bottom: var(--spacing-sm);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
 }
 
 .newsletterCtaText {
   font-size: 19px;
-  color: var(--sbd-brown);
+  color: var(--warm-grey-1);
   margin-bottom: var(--spacing-md);
 }
 
@@ -445,6 +462,16 @@
   outline: none;
   -webkit-user-select: none;
   user-select: none;
+  border: 1px solid rgba(203, 172, 109, 0.3);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(203, 172, 109, 0.15);
+  border-radius: 12px;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
+  will-change: transform;
+}
+
+.brochureButton:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5), 0 0 24px rgba(203, 172, 109, 0.2), 0 0 0 1px rgba(203, 172, 109, 0.4);
 }
 
 .brochureButton::before {
@@ -453,8 +480,8 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.3) 0%,
-    rgba(0, 0, 0, 0.5) 100%
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.75) 100%
   );
   z-index: 1;
 }
@@ -463,14 +490,15 @@
   position: relative;
   z-index: 2;
   color: #fff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  font-weight: 600;
-  font-size: 20px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.02em;
 }
 
 .brochureButton:hover .brochureButtonText {
   transform: translateY(-2px);
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.9);
 }
 
 .brochureButton:active,

@@ -110,7 +110,7 @@ export default async function TeamMemberPage({ params }: Props) {
         </div>
       </section>
 
-      <section className="member-content section-padding">
+      <section className="member-content section-padding reveal-on-scroll">
         <div className="container">
           <div className={styles.memberContentWrapper}>
             {member.profileImage && member.profileImage.trim() !== '' && (

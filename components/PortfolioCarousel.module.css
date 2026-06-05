@@ -78,7 +78,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--spacing-xs);
-  color: var(--warm-grey-3);
+  color: var(--text-muted);
   font-size: 14px;
 }
 

@@ -111,7 +111,7 @@
 }
 
 .blogExcerpt {
-  color: var(--warm-grey-3);
+  color: var(--text-muted);
   margin-bottom: var(--spacing-sm);
   flex: 1;
   line-height: 1.6;
@@ -127,7 +127,7 @@
 .noPosts {
   text-align: center;
   padding: var(--spacing-xl);
-  color: var(--warm-grey-3);
+  color: var(--text-muted);
 }
 
 @media (max-width: 768px) {

@@ -63,13 +63,13 @@ export default async function Portfolio() {
         </div>
       </section>
 
-      <section className="portfolio-intro section-padding bg-warm-grey">
+      <section className="portfolio-intro section-padding bg-warm-grey reveal-on-scroll">
         <div className="container">
           <p className={styles.portfolioIntro}>{PORTFOLIO_INDEX_INTRO}</p>
         </div>
       </section>
 
-      <section className="portfolio-map-section section-padding bg-warm-grey">
+      <section className="portfolio-map-section section-padding bg-warm-grey reveal-on-scroll">
         <div className="container">
           <h2>Project Locations</h2>
           <PortfolioMap projects={projects.map((p) => ({ ...p, _id: p._id?.toString() }))} />
@@ -78,7 +78,7 @@ export default async function Portfolio() {
 
       <NewsletterCTA />
 
-      <section className="portfolio-categories section-padding">
+      <section className="portfolio-categories section-padding reveal-on-scroll">
         <div className="container">
           <h2 className={styles.sectionHeading}>Project Categories</h2>
           <div className={styles.portfolioGrid}>

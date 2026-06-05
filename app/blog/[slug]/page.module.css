@@ -333,7 +333,7 @@
 
 .relatedExcerpt {
   font-size: 0.9rem;
-  color: var(--warm-grey-3, #666);
+  color: var(--text-muted, #666);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;

@@ -86,8 +86,10 @@ export default function Footer() {
       <style jsx>{`
         .footer {
           background-color: var(--sbd-brown);
+          background: linear-gradient(180deg, #3d2619 0%, #2a1f16 100%);
           color: var(--warm-grey-1);
           padding: var(--spacing-xl) 0 var(--spacing-md);
+          box-shadow: inset 0 24px 48px -24px rgba(0, 0, 0, 0.4);
         }
 
         .footer-container {
@@ -115,6 +117,8 @@ export default function Footer() {
           color: var(--sbd-gold);
           font-size: 24px;
           margin-bottom: var(--spacing-sm);
+          text-shadow: 0 0 12px rgba(203, 172, 109, 0.2);
+          letter-spacing: 0.02em;
         }
 
         .footer-links {
@@ -127,11 +131,14 @@ export default function Footer() {
 
         .footer-links a {
           color: var(--warm-grey-1);
-          transition: color 0.3s ease;
+          transition: all 0.3s ease;
+          display: inline-block;
         }
 
         .footer-links a:hover {
-          color: var(--sbd-gold);
+          color: #fff;
+          transform: translateX(4px);
+          text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
         }
 
         .footer-contact {
@@ -158,8 +165,15 @@ export default function Footer() {
         .footer-newsletter-link {
           display: inline-block;
           color: var(--sbd-gold);
-          text-decoration: underline;
+          text-decoration: none;
           margin-bottom: var(--spacing-md);
+          font-weight: 600;
+          transition: all 0.3s ease;
+        }
+        
+        .footer-newsletter-link:hover {
+          color: #fff;
+          text-shadow: 0 0 12px rgba(203, 172, 109, 0.6);
         }
 
         .footer-social {
@@ -182,12 +196,15 @@ export default function Footer() {
         .social-link {
           color: var(--warm-grey-1);
           text-decoration: none;
-          transition: color 0.3s ease;
+          transition: all 0.3s ease;
           font-size: 16px;
+          display: inline-block;
         }
 
         .social-link:hover {
-          color: var(--sbd-gold);
+          color: #fff;
+          transform: translateX(4px);
+          text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
         }
 
         .footer-bottom {

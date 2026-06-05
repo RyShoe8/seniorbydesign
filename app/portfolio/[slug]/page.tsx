@@ -170,7 +170,7 @@ export default async function PortfolioDetailPage({ params }: Props) {
         </div>
       </section>
 
-      <section className={styles.introSection}>
+      <section className={`${styles.introSection} reveal-on-scroll`}>
         <div className="container">
           <p id="portfolio-category-intro" className={styles.introText}>
             {intro}

@@ -80,7 +80,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="who-we-are-section section-padding bg-warm-grey">
+      <section className="who-we-are-section section-padding bg-warm-grey reveal-on-scroll">
         <div className="container">
           <h2 className={styles.sectionHeading}>Who We Are</h2>
           <div className={styles.whoWeAreContent}>
@@ -89,7 +89,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className={`${styles.servicesTeaserSection} section-padding`}>
+      <section className={`${styles.servicesTeaserSection} section-padding reveal-on-scroll`}>
         <div className="container">
           <h2 className={styles.sectionHeading}>Our Senior Living Design Services</h2>
           <div className={styles.servicesTeaserGrid}>
@@ -113,7 +113,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section id="our-portfolio" className={`${styles.ourWorkSection} section-padding`}>
+      <section id="our-portfolio" className={`${styles.ourWorkSection} section-padding reveal-on-scroll`}>
         <div className="container">
           <h2 className={styles.sectionHeading}>Senior Living Portfolio</h2>
         </div>
@@ -132,7 +132,7 @@ export default async function Home() {
 
       <HubLinksSection links={HUB_LINKS} heading={HOME_HUB_SECTION_HEADING} />
 
-      <section className="section-padding">
+      <section className="section-padding reveal-on-scroll">
         <div className="container">
           <h2 className={styles.sectionHeading}>What Makes SBD Different</h2>
           <div className={styles.whoWeAreContent}>

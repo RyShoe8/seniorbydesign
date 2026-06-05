@@ -132,7 +132,7 @@ export function BlogPostArticle({ post, showPreviewBanner, relatedPosts, context
         </div>
       </div>
 
-      <div className={styles.blogPostContent}>
+      <div className={`${styles.blogPostContent} reveal-on-scroll`}>
         <div className="container">
           {empty ? (
             <div id="blog-article-body" className={styles.blogPostBody}>

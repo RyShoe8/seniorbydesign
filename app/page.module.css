@@ -305,7 +305,7 @@
 
 .partnersEmptyState {
   text-align: center;
-  color: var(--warm-grey-3);
+  color: var(--text-muted);
   padding: var(--spacing-lg) 0;
 }
 

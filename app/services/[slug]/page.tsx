@@ -107,7 +107,7 @@ export default async function ServicePage({ params }: Props) {
         </div>
       </section>
 
-      <section className="service-content section-padding">
+      <section className="service-content section-padding reveal-on-scroll">
         <div className="container">
           <div className={styles.serviceBody}>
             <p id="service-entity-lead" className={styles.serviceGeoLead}>

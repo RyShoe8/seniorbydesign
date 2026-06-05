@@ -86,7 +86,7 @@ export default function SeniorLivingDesignFirmPage() {
         </div>
       </section>
 
-      <section className="firm-section section-padding bg-warm-grey">
+      <section className="firm-section section-padding bg-warm-grey reveal-on-scroll">
         <div className="container">
           <div className={styles.twoColumn}>
             <div className={styles.columnContent}>
@@ -138,7 +138,7 @@ export default function SeniorLivingDesignFirmPage() {
         </div>
       </section>
 
-      <section className="firm-section section-padding">
+      <section className="firm-section section-padding reveal-on-scroll">
         <div className="container">
           <h2 className={styles.centeredHeading}>Communities We Serve</h2>
           <div className={styles.communitiesGrid}>

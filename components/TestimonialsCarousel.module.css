@@ -39,7 +39,7 @@
   background: #fff;
   padding: var(--spacing-md);
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   flex: 0 0 auto;
   width: calc((100vw - 56px - 56px - 2rem - 2rem - 2rem - 1.5rem - 1.5rem) / 2) !important;
   max-width: 700px !important;
@@ -48,6 +48,13 @@
   scroll-snap-stop: always;
   box-sizing: border-box;
   flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+  will-change: transform;
+}
+
+.testimonialCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(89, 56, 37, 0.12);
 }
 
 .testimonialText {
@@ -69,7 +76,7 @@
 
 .testimonialPosition {
   font-size: 16px;
-  color: var(--warm-grey-3);
+  color: #4a3728;
 }
 
 .navButton {

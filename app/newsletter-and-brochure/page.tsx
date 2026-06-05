@@ -161,7 +161,7 @@ export default function NewsletterAndBrochure() {
         </div>
       </section>
 
-      <section className="newsletter-content section-padding">
+      <section className="newsletter-content section-padding reveal-on-scroll">
         <div className="container">
           <div className={styles.newsletterFormWrapper}>
             <h2>Download Our Brochure</h2>

@@ -162,13 +162,13 @@ export default async function Services() {
           </div>
         </section>
 
-        <section className="services-intro section-padding bg-warm-grey">
+        <section className="services-intro section-padding bg-warm-grey reveal-on-scroll">
           <div className="container">
             <p className={styles.servicesIntro}>{SERVICES_INDEX_INTRO}</p>
           </div>
         </section>
 
-        <section className="services-content section-padding">
+        <section className="services-content section-padding reveal-on-scroll">
           <div className="container">
             {servicePromotions.map((promo) => {
               const service = services.find(
@@ -232,7 +232,7 @@ export default async function Services() {
           </div>
         </section>
 
-        <section className={`${styles.whoWeDesignFor} section-padding bg-warm-grey`}>
+        <section className={`${styles.whoWeDesignFor} section-padding bg-warm-grey reveal-on-scroll`}>
           <div className="container">
             <h2 className={styles.whoWeDesignForHeading}>Who We Design For</h2>
             <ul className={styles.whoWeDesignForList}>
