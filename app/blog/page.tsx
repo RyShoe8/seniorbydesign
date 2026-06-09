@@ -76,14 +76,14 @@ export default async function Blog() {
         </div>
       </section>
 
-      <section className="blog-subtitle section-padding reveal-on-scroll">
+      <section className="blog-subtitle section-padding">
         <div className="container">
           <h2 className={styles.blogSubtitle}>{BLOG_INDEX_SUBTITLE}</h2>
           <p className={styles.blogIntro}>{BLOG_INDEX_INTRO}</p>
         </div>
       </section>
 
-      <section className="blog-content section-padding reveal-on-scroll">
+      <section className="blog-content section-padding">
         <div className="container">
           {posts.length > 0 ? (
             <div className={styles.blogGrid}>
