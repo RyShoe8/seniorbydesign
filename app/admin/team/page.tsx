@@ -64,14 +64,17 @@ export default function TeamManagement() {
     if (!file) return;
 
     setUploadingProfileImage(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('folder', 'team');
-    formData.append('spaceType', 'team-portrait');
-    const slugInput = document.getElementById('slug') as HTMLInputElement | null;
-    if (slugInput?.value) formData.append('projectSlug', slugInput.value);
-
     try {
+      const { compressImageFile } = await import('@/lib/client-image-compressor');
+      const compressed = await compressImageFile(file, 500, 2400);
+
+      const formData = new FormData();
+      formData.append('file', compressed.file);
+      formData.append('folder', 'team');
+      formData.append('spaceType', 'team-portrait');
+      const slugInput = document.getElementById('slug') as HTMLInputElement | null;
+      if (slugInput?.value) formData.append('projectSlug', slugInput.value);
+
       const response = await fetch('/api/admin/upload', {
         method: 'POST',
         body: formData,
@@ -84,7 +87,7 @@ export default function TeamManagement() {
         alert('Failed to upload profile image');
       }
     } catch (error) {
-            alert('Error uploading profile image');
+      alert('Error uploading profile image');
     } finally {
       setUploadingProfileImage(false);
     }

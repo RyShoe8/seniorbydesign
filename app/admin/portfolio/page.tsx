@@ -98,20 +98,23 @@ export default function PortfolioManagement() {
     if (!file) return;
 
     setUploadingImage(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('folder', 'portfolio');
-    const slugField = document.getElementById('slug') as HTMLInputElement | null;
-    const projectSlug = editingCategory?.slug || slugField?.value || '';
-    if (projectSlug) {
-      formData.append('projectSlug', projectSlug);
-      formData.append('spaceType', projectSlug);
-    }
-    if (currentImageAltText.trim()) {
-      formData.append('altDescription', currentImageAltText.trim());
-    }
-
     try {
+      const { compressImageFile } = await import('@/lib/client-image-compressor');
+      const compressed = await compressImageFile(file, 500, 2400);
+
+      const formData = new FormData();
+      formData.append('file', compressed.file);
+      formData.append('folder', 'portfolio');
+      const slugField = document.getElementById('slug') as HTMLInputElement | null;
+      const projectSlug = editingCategory?.slug || slugField?.value || '';
+      if (projectSlug) {
+        formData.append('projectSlug', projectSlug);
+        formData.append('spaceType', projectSlug);
+      }
+      if (currentImageAltText.trim()) {
+        formData.append('altDescription', currentImageAltText.trim());
+      }
+
       const response = await fetch('/api/admin/upload', {
         method: 'POST',
         body: formData,

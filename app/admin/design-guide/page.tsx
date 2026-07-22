@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { DesignGuideContent } from '@/lib/design-guide-models';
+import ImageUploadField from '@/components/admin/ImageUploadField';
 
 type TabKey = 'hero' | 'intro' | 'whyUs' | 'services' | 'aging' | 'process' | 'testimonials' | 'portfolio' | 'financing' | 'faq' | 'cta';
 
@@ -178,13 +179,15 @@ export default function DesignGuideAdmin() {
             <FieldGroup label="Subheadline">
               <textarea rows={3} value={content.hero.subheadline} onChange={(e) => updateField('hero.subheadline', e.target.value)} />
             </FieldGroup>
-            <FieldGroup label="Background Image URL">
-              <input type="text" value={content.hero.backgroundImage.src} onChange={(e) => updateField('hero.backgroundImage.src', e.target.value)} />
-            </FieldGroup>
-            <FieldGroup label="Background Image Alt Text">
-              <input type="text" value={content.hero.backgroundImage.alt} onChange={(e) => updateField('hero.backgroundImage.alt', e.target.value)} />
-            </FieldGroup>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <ImageUploadField
+              label="Background Image"
+              value={content.hero.backgroundImage.src}
+              onChange={(url) => updateField('hero.backgroundImage.src', url)}
+              altValue={content.hero.backgroundImage.alt}
+              onAltChange={(alt) => updateField('hero.backgroundImage.alt', alt)}
+              folder="brochure/hero"
+            />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
               <FieldGroup label="Primary CTA Label">
                 <input type="text" value={content.hero.ctaPrimary.label} onChange={(e) => updateField('hero.ctaPrimary.label', e.target.value)} />
               </FieldGroup>
@@ -290,12 +293,22 @@ export default function DesignGuideAdmin() {
                 <FieldGroup label="Expanded Details">
                   <textarea rows={3} value={svc.details} onChange={(e) => { const items = [...content.services.items]; items[i] = { ...items[i], details: e.target.value }; updateField('services.items', items); }} />
                 </FieldGroup>
-                <FieldGroup label="Image URL">
-                  <input type="text" value={svc.image.src} onChange={(e) => { const items = [...content.services.items]; items[i] = { ...items[i], image: { ...items[i].image, src: e.target.value } }; updateField('services.items', items); }} />
-                </FieldGroup>
-                <FieldGroup label="Image Alt Text">
-                  <input type="text" value={svc.image.alt} onChange={(e) => { const items = [...content.services.items]; items[i] = { ...items[i], image: { ...items[i].image, alt: e.target.value } }; updateField('services.items', items); }} />
-                </FieldGroup>
+                <ImageUploadField
+                  label="Service Image"
+                  value={svc.image.src}
+                  onChange={(url) => {
+                    const items = [...content.services.items];
+                    items[i] = { ...items[i], image: { ...items[i].image, src: url } };
+                    updateField('services.items', items);
+                  }}
+                  altValue={svc.image.alt}
+                  onAltChange={(alt) => {
+                    const items = [...content.services.items];
+                    items[i] = { ...items[i], image: { ...items[i].image, alt } };
+                    updateField('services.items', items);
+                  }}
+                  folder="brochure/services"
+                />
               </div>
             ))}
             <button onClick={() => updateField('services.items', [...content.services.items, { title: '', description: '', details: '', image: { src: '', alt: '' }, order: content.services.items.length + 1 }])} style={{ padding: '0.5rem 1rem', border: '1px dashed var(--warm-grey-3)', background: 'transparent', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>
@@ -314,12 +327,14 @@ export default function DesignGuideAdmin() {
             <FieldGroup label="Body">
               <textarea rows={5} value={content.agingInPlace.body} onChange={(e) => updateField('agingInPlace.body', e.target.value)} />
             </FieldGroup>
-            <FieldGroup label="Section Image URL">
-              <input type="text" value={content.agingInPlace.image?.src || ''} onChange={(e) => updateField('agingInPlace.image', { src: e.target.value, alt: content.agingInPlace.image?.alt || '' })} />
-            </FieldGroup>
-            <FieldGroup label="Section Image Alt">
-              <input type="text" value={content.agingInPlace.image?.alt || ''} onChange={(e) => updateField('agingInPlace.image', { src: content.agingInPlace.image?.src || '', alt: e.target.value })} />
-            </FieldGroup>
+            <ImageUploadField
+              label="Section Featured Image"
+              value={content.agingInPlace.image?.src || ''}
+              onChange={(url) => updateField('agingInPlace.image', { src: url, alt: content.agingInPlace.image?.alt || '' })}
+              altValue={content.agingInPlace.image?.alt || ''}
+              onAltChange={(alt) => updateField('agingInPlace.image', { src: content.agingInPlace.image?.src || '', alt })}
+              folder="brochure/aging-in-place"
+            />
           </div>
         )}
 
@@ -495,9 +510,14 @@ export default function DesignGuideAdmin() {
                 <input type="text" value={content.cta.email} onChange={(e) => updateField('cta.email', e.target.value)} />
               </FieldGroup>
             </div>
-            <FieldGroup label="Background Image URL">
-              <input type="text" value={content.cta.backgroundImage?.src || ''} onChange={(e) => updateField('cta.backgroundImage', { src: e.target.value, alt: content.cta.backgroundImage?.alt || '' })} />
-            </FieldGroup>
+            <ImageUploadField
+              label="CTA Background Image"
+              value={content.cta.backgroundImage?.src || ''}
+              onChange={(url) => updateField('cta.backgroundImage', { src: url, alt: content.cta.backgroundImage?.alt || '' })}
+              altValue={content.cta.backgroundImage?.alt || ''}
+              onAltChange={(alt) => updateField('cta.backgroundImage', { src: content.cta.backgroundImage?.src || '', alt })}
+              folder="brochure/cta"
+            />
             <div style={{ marginTop: '0.5rem' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                 <input type="checkbox" checked={content.cta.showConsultationForm} onChange={(e) => updateField('cta.showConsultationForm', e.target.checked)} style={{ width: '20px', height: '20px' }} />

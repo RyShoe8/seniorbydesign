@@ -91,24 +91,85 @@ export default function MediaManagement() {
     ? mediaItems 
     : mediaItems.filter(item => (item.folder || 'root') === filterFolder);
 
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const { compressImageFile } = await import('@/lib/client-image-compressor');
+      const compressed = await compressImageFile(file, 500, 2400);
+
+      const formData = new FormData();
+      formData.append('file', compressed.file);
+      formData.append('folder', 'media');
+
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        fetchMedia();
+      } else {
+        alert('Upload failed');
+      }
+    } catch {
+      alert('Error uploading file');
+    } finally {
+      setIsUploading(false);
+      e.target.value = '';
+    }
+  };
+
   return (
     <div className="admin-page">
       <div className="admin-header">
-        <h1>Media Management</h1>
-        <div className="filter-controls">
-          <label htmlFor="folderFilter">Filter by folder:</label>
-          <select
-            id="folderFilter"
-            value={filterFolder}
-            onChange={(e) => setFilterFolder(e.target.value)}
-            className="filter-select"
-          >
-            {folders.map(folder => (
-              <option key={folder} value={folder}>
-                {folder === 'all' ? 'All Folders' : folder.replace('/images/', '')}
-              </option>
-            ))}
-          </select>
+        <div>
+          <h1>Media Management</h1>
+          <p style={{ margin: '0.25rem 0 0', fontSize: '14px', color: 'var(--text-muted)' }}>
+            Upload, view, and manage media assets. Large images are automatically compressed to &le; 500KB.
+          </p>
+        </div>
+        <div className="filter-controls" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <label style={{
+            padding: '0.6rem 1.25rem',
+            background: 'var(--sbd-gold)',
+            color: '#fff',
+            borderRadius: '4px',
+            cursor: isUploading ? 'not-allowed' : 'pointer',
+            fontWeight: 600,
+            fontSize: '14px',
+            opacity: isUploading ? 0.7 : 1,
+            margin: 0,
+          }}>
+            {isUploading ? 'Compressing & Uploading...' : '+ Upload New Media'}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleMediaUpload}
+              disabled={isUploading}
+              style={{ display: 'none' }}
+            />
+          </label>
+
+          <div>
+            <label htmlFor="folderFilter" style={{ marginRight: '0.5rem' }}>Folder:</label>
+            <select
+              id="folderFilter"
+              value={filterFolder}
+              onChange={(e) => setFilterFolder(e.target.value)}
+              className="filter-select"
+            >
+              {folders.map(folder => (
+                <option key={folder} value={folder}>
+                  {folder === 'all' ? 'All Folders' : folder.replace('/images/', '')}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 

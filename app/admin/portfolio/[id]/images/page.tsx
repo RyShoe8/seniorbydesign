@@ -65,16 +65,19 @@ export default function PortfolioImageManagement() {
     if (!file || !category) return;
 
     setUploadingImage(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('folder', 'portfolio');
-    formData.append('projectSlug', category.slug);
-    formData.append('spaceType', category.slug);
-    if (currentImageAltText.trim()) {
-      formData.append('altDescription', currentImageAltText.trim());
-    }
-
     try {
+      const { compressImageFile } = await import('@/lib/client-image-compressor');
+      const compressed = await compressImageFile(file, 500, 2400);
+
+      const formData = new FormData();
+      formData.append('file', compressed.file);
+      formData.append('folder', 'portfolio');
+      formData.append('projectSlug', category.slug);
+      formData.append('spaceType', category.slug);
+      if (currentImageAltText.trim()) {
+        formData.append('altDescription', currentImageAltText.trim());
+      }
+
       const response = await fetch('/api/admin/upload', {
         method: 'POST',
         body: formData,

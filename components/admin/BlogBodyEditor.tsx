@@ -166,12 +166,15 @@ export function BlogBodyEditor({
     setUploadingImage(true);
     onUploadingChange?.(true);
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('folder', 'blog');
-    formData.append('spaceType', 'blog-inline');
-
     try {
+      const { compressImageFile } = await import('@/lib/client-image-compressor');
+      const compressedResult = await compressImageFile(file, 500, 2400);
+
+      const formData = new FormData();
+      formData.append('file', compressedResult.file);
+      formData.append('folder', 'blog');
+      formData.append('spaceType', 'blog-inline');
+
       const response = await fetch('/api/admin/upload', {
         method: 'POST',
         body: formData,

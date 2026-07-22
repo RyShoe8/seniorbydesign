@@ -63,14 +63,17 @@ export default function ServicesManagement() {
     if (!file) return;
 
     setUploadingHero(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('folder', 'services');
-    formData.append('spaceType', 'service-hero');
-    const slugInput = document.getElementById('slug') as HTMLInputElement | null;
-    if (slugInput?.value) formData.append('projectSlug', slugInput.value);
-
     try {
+      const { compressImageFile } = await import('@/lib/client-image-compressor');
+      const compressed = await compressImageFile(file, 500, 2400);
+
+      const formData = new FormData();
+      formData.append('file', compressed.file);
+      formData.append('folder', 'services');
+      formData.append('spaceType', 'service-hero');
+      const slugInput = document.getElementById('slug') as HTMLInputElement | null;
+      if (slugInput?.value) formData.append('projectSlug', slugInput.value);
+
       const response = await fetch('/api/admin/upload', {
         method: 'POST',
         body: formData,
@@ -83,7 +86,7 @@ export default function ServicesManagement() {
         alert('Failed to upload hero image');
       }
     } catch (error) {
-            alert('Error uploading hero image');
+      alert('Error uploading hero image');
     } finally {
       setUploadingHero(false);
     }
@@ -97,14 +100,17 @@ export default function ServicesManagement() {
     const uploadedUrls: string[] = [];
 
     try {
+      const { compressImageFile } = await import('@/lib/client-image-compressor');
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        const compressed = await compressImageFile(file, 500, 2400);
+
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', compressed.file);
         formData.append('folder', 'services');
-    formData.append('spaceType', 'service-hero');
-    const slugInput = document.getElementById('slug') as HTMLInputElement | null;
-    if (slugInput?.value) formData.append('projectSlug', slugInput.value);
+        formData.append('spaceType', 'service-hero');
+        const slugInput = document.getElementById('slug') as HTMLInputElement | null;
+        if (slugInput?.value) formData.append('projectSlug', slugInput.value);
 
         const response = await fetch('/api/admin/upload', {
           method: 'POST',

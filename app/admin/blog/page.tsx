@@ -69,12 +69,15 @@ export default function BlogManagement() {
     if (!file) return;
 
     setUploadingImage(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('folder', 'blog');
-    formData.append('spaceType', 'blog-featured');
-
     try {
+      const { compressImageFile } = await import('@/lib/client-image-compressor');
+      const compressed = await compressImageFile(file, 500, 2400);
+
+      const formData = new FormData();
+      formData.append('file', compressed.file);
+      formData.append('folder', 'blog');
+      formData.append('spaceType', 'blog-featured');
+
       const response = await fetch('/api/admin/upload', {
         method: 'POST',
         body: formData,

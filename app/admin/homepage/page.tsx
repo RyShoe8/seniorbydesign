@@ -144,12 +144,15 @@ export default function HomepageManagement() {
     if (!file) return;
 
     setUploadingLogo(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('folder', 'partners');
-    formData.append('spaceType', 'partner-logo');
-
     try {
+      const { compressImageFile } = await import('@/lib/client-image-compressor');
+      const compressed = await compressImageFile(file, 500, 2400);
+
+      const formData = new FormData();
+      formData.append('file', compressed.file);
+      formData.append('folder', 'partners');
+      formData.append('spaceType', 'partner-logo');
+
       const response = await fetch('/api/admin/upload', {
         method: 'POST',
         body: formData,
