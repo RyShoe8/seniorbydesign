@@ -158,6 +158,8 @@ export interface SignatureOrgSettings {
   updatedAt: Date;
 }
 
+export type { DesignGuideContent } from './design-guide-models';
+
 
 
 

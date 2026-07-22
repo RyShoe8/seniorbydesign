@@ -15,6 +15,7 @@ import {
   BrochureRequest,
   SignatureOrgSettings,
 } from './models';
+import type { DesignGuideContent } from './design-guide-models';
 
 const DB_NAME = 'seniorbydesign';
 
@@ -92,6 +93,11 @@ export async function getBrochureRequestsCollection() {
 export async function getSignatureSettingsCollection() {
   const db = await getDb();
   return db.collection<SignatureOrgSettings>('signatureSettings');
+}
+
+export async function getDesignGuideContentCollection() {
+  const db = await getDb();
+  return db.collection<DesignGuideContent>('designGuideContent');
 }
 
 

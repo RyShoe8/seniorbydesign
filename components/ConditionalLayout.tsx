@@ -12,8 +12,9 @@ export default function ConditionalLayout({
 }) {
   const pathname = usePathname();
   const isAdminRoute = pathname?.startsWith('/admin');
+  const isImmersiveRoute = pathname === '/experience' || pathname?.startsWith('/brochure/view');
 
-  if (isAdminRoute) {
+  if (isAdminRoute || isImmersiveRoute) {
     return <>{children}</>;
   }
 

@@ -42,6 +42,16 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: '/design-guide',
+        destination: '/experience',
+        permanent: true,
+      },
+      {
+        source: '/our-design-guide',
+        destination: '/experience',
+        permanent: true,
+      },
+      {
         source: '/team/Cynthia',
         destination: '/team/cynthia-vrba',
         permanent: true,

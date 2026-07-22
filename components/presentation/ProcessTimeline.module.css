@@ -1,0 +1,125 @@
+.timeline {
+  position: relative;
+  max-width: 720px;
+  margin: 0 auto;
+  padding-left: 60px;
+}
+
+/* Progress track */
+.progressTrack {
+  position: absolute;
+  left: 24px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(203, 172, 109, 0.15);
+  border-radius: 2px;
+}
+
+.progressFill {
+  width: 100%;
+  background: linear-gradient(to bottom, var(--sbd-gold, #cbac6d), var(--sbd-brown, #593825));
+  border-radius: 2px;
+  transition: height 800ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Step */
+.step {
+  position: relative;
+  display: flex;
+  gap: 1.5rem;
+  padding-bottom: clamp(2rem, 4vw, 3.5rem);
+  opacity: 0.35;
+  transform: translateX(20px);
+  transition: opacity 600ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step.active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Marker */
+.marker {
+  position: absolute;
+  left: -60px;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.markerDot {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(203, 172, 109, 0.2);
+  transition: border-color 400ms ease, box-shadow 400ms ease, transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.step.active .markerDot {
+  border-color: var(--sbd-gold, #cbac6d);
+  box-shadow: 0 0 0 6px rgba(203, 172, 109, 0.12);
+  transform: scale(1.05);
+}
+
+.markerIcon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* Content */
+.content {
+  flex: 1;
+}
+
+.phase {
+  font-family: var(--font-body, 'Mulish', sans-serif);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--sbd-gold, #cbac6d);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.title {
+  font-family: var(--font-heading, 'Cormorant', serif);
+  font-size: clamp(1.25rem, 2vw, 1.6rem);
+  font-weight: 600;
+  color: var(--sbd-brown, #593825);
+  margin: 0 0 0.5rem;
+  line-height: 1.25;
+}
+
+.description {
+  font-size: clamp(0.875rem, 1.1vw, 1rem);
+  color: var(--text-muted, #6b5d4f);
+  line-height: 1.65;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .timeline {
+    padding-left: 48px;
+  }
+
+  .marker {
+    left: -48px;
+  }
+
+  .markerDot {
+    width: 40px;
+    height: 40px;
+  }
+
+  .progressTrack {
+    left: 19px;
+  }
+}
