@@ -2,6 +2,8 @@ import {
   formatAddressLines,
   formatPhoneDisplay,
   formatPhoneTel,
+  formatStudioLines,
+  getWarehouseLabel,
   ORG_EMAIL,
   ORG_NAME,
 } from '@/lib/geo-entity';
@@ -13,7 +15,8 @@ type Props = {
 };
 
 export default function EntityContactBlock({ variant = 'full', className }: Props) {
-  const addressLines = formatAddressLines();
+  const studioLines = formatStudioLines();
+  const warehouseLines = formatAddressLines();
   const phone = formatPhoneDisplay();
 
   return (
@@ -22,11 +25,21 @@ export default function EntityContactBlock({ variant = 'full', className }: Prop
       aria-label="Senior By Design contact information"
     >
       <strong className={styles.name}>{ORG_NAME}</strong>
-      {addressLines.map((line) => (
+
+      <span className={styles.sectionLabel}>Design Studios</span>
+      {studioLines.map((line) => (
         <span key={line} className={styles.line}>
           {line}
         </span>
       ))}
+
+      <span className={styles.sectionLabel}>{getWarehouseLabel()}</span>
+      {warehouseLines.map((line) => (
+        <span key={line} className={styles.line}>
+          {line}
+        </span>
+      ))}
+
       <span className={styles.line}>
         <a href={`tel:${formatPhoneTel()}`}>{phone}</a>
       </span>

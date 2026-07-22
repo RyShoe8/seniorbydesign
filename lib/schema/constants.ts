@@ -26,12 +26,31 @@ export const FOUNDER = {
 };
 
 export const POSTAL_ADDRESS = {
-  streetAddress: '5015 Catron Dr',
+  streetAddress: '5015 Catron Dr, Suite 200',
   addressLocality: 'Dallas',
   addressRegion: 'TX',
-  postalCode: '75220',
+  postalCode: '75227',
   addressCountry: 'US',
 };
+
+export const WAREHOUSE_LABEL = 'Design Center / Warehouse';
+
+export const DESIGN_STUDIOS = {
+  dallas: {
+    label: 'Dallas',
+    streetAddress: '2050 N. Stemmons Fwy, Suite 555/Mail 172',
+    addressLocality: 'Dallas',
+    addressRegion: 'TX',
+    postalCode: '75207',
+  },
+  boulder: {
+    label: 'Boulder',
+    streetAddress: '1045 Pearl St',
+    addressLocality: 'Boulder',
+    addressRegion: 'CO',
+    postalCode: '80403',
+  },
+} as const;
 
 export const GEO_COORDINATES = {
   latitude: 32.8234,

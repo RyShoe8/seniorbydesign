@@ -22,7 +22,7 @@ const SLUG_DISPLAY_LABELS: Record<string, string> = {
   'senior-living': 'Senior Living',
   'memory-support': 'Memory Care',
   'active-adult': 'Active Adult Living',
-  'remodels': 'Assisted Living Remodels',
+  'remodels': 'Senior Living Remodels',
   'model-units': 'Model Units',
 };
 
@@ -31,6 +31,7 @@ const SLUG_TITLES: Record<string, string> = {
   'memory-support': 'Memory Care Interior Design Portfolio | Senior By Design',
   'active-adult': 'Active Adult Community Interior Design | Portfolio | Senior By Design',
   'model-units': 'Senior Living Model Unit Design & Staging | Senior By Design',
+  'remodels': 'Senior Living Remodels | Portfolio | Senior By Design',
 };
 
 const SLUG_H1S: Record<string, string> = {
@@ -38,6 +39,7 @@ const SLUG_H1S: Record<string, string> = {
   'memory-support': 'Memory Care Interior Design',
   'active-adult': 'Active Adult Community Interior Design',
   'model-units': 'Senior Living Model Unit Design & Staging',
+  'remodels': 'Senior Living Remodels',
 };
 
 const SLUG_DESCRIPTIONS: Record<string, string> = {

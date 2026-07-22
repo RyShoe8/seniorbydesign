@@ -1,11 +1,11 @@
 import { Metadata } from 'next';
 import { generateSEOMetadata, BreadcrumbSchema } from '@/components/SEO';
 import PageSchema from '@/components/PageSchema';
+import { formatAddressSingleLine, formatPhoneDisplay } from '@/lib/geo-entity';
 
 export const metadata: Metadata = generateSEOMetadata({
   title: 'Contact Us - Senior By Design',
-  description:
-    'Contact Senior By Design at 5015 Catron Dr, Dallas, TX 75220 or (833) 773-3744. Senior living interior design, FF&E, and turnkey services nationwide.',
+  description: `Contact Senior By Design at ${formatAddressSingleLine()} or ${formatPhoneDisplay()}. Senior living interior design, FF&E, and turnkey services nationwide. Design studios in Dallas and Boulder.`,
   url: '/contact',
   type: 'website',
   keywords: [

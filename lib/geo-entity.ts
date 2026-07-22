@@ -1,10 +1,12 @@
 import { normalizeServiceSlug } from '@/lib/service-slug';
 import {
+  DESIGN_STUDIOS,
   FOUNDER,
   ORG_EMAIL,
   ORG_NAME,
   ORG_TELEPHONE,
   POSTAL_ADDRESS,
+  WAREHOUSE_LABEL,
 } from '@/lib/schema/constants';
 
 export const SBD_ABOUT_BOILERPLATE =
@@ -37,7 +39,22 @@ export function formatAddressLines(): string[] {
   return [streetAddress, `${addressLocality}, ${addressRegion} ${postalCode}`];
 }
 
-export { ORG_NAME, ORG_EMAIL };
+export type StudioLocationKey = keyof typeof DESIGN_STUDIOS;
+
+export function formatStudioLine(key: StudioLocationKey): string {
+  const studio = DESIGN_STUDIOS[key];
+  return `${studio.label}: ${studio.streetAddress}, ${studio.addressLocality} ${studio.addressRegion} ${studio.postalCode}`;
+}
+
+export function formatStudioLines(): string[] {
+  return (Object.keys(DESIGN_STUDIOS) as StudioLocationKey[]).map(formatStudioLine);
+}
+
+export function getWarehouseLabel(): string {
+  return WAREHOUSE_LABEL;
+}
+
+export { ORG_NAME, ORG_EMAIL, DESIGN_STUDIOS, WAREHOUSE_LABEL };
 
 const SERVICE_GEO_LEADS: Record<string, string> = {
   'interior-environments-and-design':

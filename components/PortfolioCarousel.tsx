@@ -5,6 +5,7 @@ import Link from 'next/link';
 import SeoImage from '@/components/SeoImage';
 import { getPortfolioImageUrl } from '@/lib/image-utils';
 import { ensureImageAlt, portfolioAltText } from '@/lib/image-seo';
+import { portfolioCategoryDisplayLabel } from '@/lib/portfolio-seo';
 import styles from './PortfolioCarousel.module.css';
 
 interface PortfolioImage {
@@ -86,13 +87,14 @@ export default function PortfolioCarousel({ categories }: PortfolioCarouselProps
           {categories.map((category) => {
             // Handle both old format (string[]) and new format (PortfolioImage[])
             const firstImage = category.images?.[0];
+            const displayName = portfolioCategoryDisplayLabel(category.slug, category.name);
             const imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url;
             const imageAlt =
               typeof firstImage === 'string'
-                ? portfolioAltText({ slug: category.slug, displayName: category.name })
+                ? portfolioAltText({ slug: category.slug, displayName })
                 : ensureImageAlt(
                     firstImage?.altText,
-                    portfolioAltText({ slug: category.slug, displayName: category.name })
+                    portfolioAltText({ slug: category.slug, displayName })
                   );
             const cardKey = category._id?.toString() || category.slug;
             const imageFailed = failedImages.has(cardKey);
@@ -119,10 +121,10 @@ export default function PortfolioCarousel({ categories }: PortfolioCarouselProps
                 ) : (
                   <div className={styles.imagePlaceholder}>
                     <span className={styles.placeholderIcon}>📷</span>
-                    <span>{category.name}</span>
+                    <span>{displayName}</span>
                   </div>
                 )}
-                <h3>{category.name}</h3>
+                <h3>{displayName}</h3>
               </Link>
             );
           })}
