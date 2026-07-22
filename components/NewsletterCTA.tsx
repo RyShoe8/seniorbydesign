@@ -683,6 +683,7 @@ export default function NewsletterCTA() {
               <div className={styles.modalStep}>
                 <h4>Your Brochure is Ready</h4>
                 {brochureType === 'digital' ? (
+                  // PDF viewer + download after lead capture — not /experience (admin-email only)
                   <div className={styles.brochureActions}>
                     <Link
                       href="/brochure/view"

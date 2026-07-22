@@ -325,7 +325,7 @@ export default function NewsletterAndBrochure() {
               </form>
             )}
 
-            {/* Download Section - Appears after successful form submission */}
+            {/* PDF access after lead capture — website path only; interactive /experience is admin-email only */}
             {requestSubmitted && (
               <section className={`${styles.downloadSection} section-padding`}>
                 <div className="container">

@@ -9,10 +9,14 @@ export interface BrochureEmailData {
 }
 
 /**
- * Generate HTML email template for brochure email
+ * Generate HTML email template for brochure email (admin send).
+ * Primary CTA: interactive Design Experience at /experience.
+ * Secondary: PDF download; PDF is also attached by the send API.
  */
 export function generateBrochureEmailTemplate(data: BrochureEmailData): string {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
+  const experienceUrl = `${siteUrl}/experience`;
+  const pdfUrl = `${siteUrl}/files/SBD%20Interactive%20Brochure.pdf`;
   const recipientName = data.recipientName ? ` ${data.recipientName}` : '';
   const senderName = data.senderName || 'Senior By Design';
   const customMessage = data.customMessage ? `<p style="margin: 20px 0; padding: 15px; background-color: #faf7f2; border-left: 4px solid #CBB86D; border-radius: 4px; color: #593825; font-style: italic;">${data.customMessage.replace(/\n/g, '<br>')}</p>` : '';
@@ -46,29 +50,33 @@ export function generateBrochureEmailTemplate(data: BrochureEmailData): string {
               </p>
               
               <p style="margin: 0 0 20px; color: #333333; font-size: 16px; line-height: 1.6;">
-                Thank you for your interest in Senior By Design. We're delighted to share our interactive brochure with you.
+                Thank you for your interest in Senior By Design. We're delighted to share our interactive Design Experience with you.
               </p>
               
               ${customMessage}
               
               <p style="margin: 20px 0; color: #333333; font-size: 16px; line-height: 1.6;">
-                Our brochure showcases our approach to designing luxurious, soul-warming interiors for senior living communities. You'll find detailed information about our services, portfolio, and design philosophy.
+                Open it in your browser to explore our approach to designing luxurious, soul-warming interiors for senior living communities—our services, portfolio, and design philosophy.
               </p>
               
-              <!-- Download Button -->
+              <!-- Primary CTA: Interactive brochure -->
               <table role="presentation" style="width: 100%; margin: 30px 0;">
                 <tr>
                   <td align="center" style="padding: 20px;">
-                    <a href="${siteUrl}/files/SBD Interactive Brochure.pdf" 
+                    <a href="${experienceUrl}" 
                        style="display: inline-block; padding: 16px 32px; background-color: #CBB86D; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(203, 172, 109, 0.3);">
-                      Download Brochure
+                      View Interactive Brochure
                     </a>
                   </td>
                 </tr>
               </table>
+
+              <p style="margin: 0 0 20px; color: #666666; font-size: 14px; line-height: 1.6; text-align: center;">
+                Prefer a PDF? <a href="${pdfUrl}" style="color: #CBB86D; text-decoration: underline;">Download the brochure</a> (also attached to this email).
+              </p>
               
               <p style="margin: 20px 0 0; color: #666666; font-size: 14px; line-height: 1.6;">
-                The brochure is also attached to this email for your convenience. If you have any questions or would like to discuss your project, please don't hesitate to reach out.
+                If you have any questions or would like to discuss your project, please don't hesitate to reach out.
               </p>
               
               <p style="margin: 30px 0 0; color: #333333; font-size: 16px; line-height: 1.6;">
@@ -102,10 +110,13 @@ export function generateBrochureEmailTemplate(data: BrochureEmailData): string {
 }
 
 /**
- * Generate plain text version of brochure email
+ * Generate plain text version of brochure email (admin send).
+ * Primary link: /experience; PDF optional for offline use.
  */
 export function generateBrochureEmailText(data: BrochureEmailData): string {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
+  const experienceUrl = `${siteUrl}/experience`;
+  const pdfUrl = `${siteUrl}/files/SBD Interactive Brochure.pdf`;
   const recipientName = data.recipientName ? ` ${data.recipientName}` : '';
   const senderName = data.senderName || 'Senior By Design';
   const customMessage = data.customMessage ? `\n\n${data.customMessage}\n` : '';
@@ -113,13 +124,15 @@ export function generateBrochureEmailText(data: BrochureEmailData): string {
   return `
 Dear${recipientName},
 
-Thank you for your interest in Senior By Design. We're delighted to share our interactive brochure with you.${customMessage}
+Thank you for your interest in Senior By Design. We're delighted to share our interactive Design Experience with you.${customMessage}
 
-Our brochure showcases our approach to designing luxurious, soul-warming interiors for senior living communities. You'll find detailed information about our services, portfolio, and design philosophy.
+Open it in your browser to explore our approach to designing luxurious, soul-warming interiors for senior living communities—our services, portfolio, and design philosophy.
 
-Download the brochure here: ${siteUrl}/files/SBD Interactive Brochure.pdf
+View the interactive brochure: ${experienceUrl}
 
-The brochure is also attached to this email for your convenience. If you have any questions or would like to discuss your project, please don't hesitate to reach out.
+Prefer a PDF? Download it here: ${pdfUrl} (also attached to this email).
+
+If you have any questions or would like to discuss your project, please don't hesitate to reach out.
 
 Best regards,
 ${senderName}

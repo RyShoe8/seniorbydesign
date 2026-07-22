@@ -485,7 +485,8 @@ export default function BrochureManagement() {
         <div className="form-section">
           <h2>Email Brochure</h2>
           <p style={{ marginBottom: 'var(--spacing-md)', color: 'var(--warm-grey-3)', fontSize: '14px' }}>
-            Send the brochure directly to someone via email. The PDF will be attached and a download link will be included in the email.
+            Send the interactive brochure (Design Experience) to someone via email. The email includes a link to
+            /experience; a PDF is still attached for offline use.
           </p>
           
           <div className="form-group">

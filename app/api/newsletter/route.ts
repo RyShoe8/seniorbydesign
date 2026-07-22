@@ -73,6 +73,7 @@ export async function POST(request: Request) {
         // Log for debugging (remove in production if needed)
         console.log('Email logo URL:', logoUrl);
         
+        // Website lead-capture grants PDF access only (not /experience — that is admin-email only).
         // Construct brochure download URL - encode spaces in filename
         const brochureFileName = 'SBD Interactive Brochure.pdf';
         let brochureUrl = process.env.NEXT_PUBLIC_BROCHURE_DOWNLOAD_URL;
