@@ -38,6 +38,16 @@ export default function PresentationGallery({ images, className }: PresentationG
     [lightboxIndex, filtered.length]
   );
 
+  const INITIAL_LIMIT = 8;
+  const [displayCount, setDisplayCount] = useState<number>(INITIAL_LIMIT);
+
+  const displayedItems = filtered.slice(0, displayCount);
+  const hasMore = filtered.length > displayCount;
+
+  const handleLoadMore = () => {
+    setDisplayCount((prev) => Math.min(prev + 8, filtered.length));
+  };
+
   return (
     <>
       {/* Category filter */}
@@ -47,7 +57,10 @@ export default function PresentationGallery({ images, className }: PresentationG
             <button
               key={cat}
               className={`${styles.filterBtn} ${selectedCategory === cat ? styles.filterActive : ''}`}
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => {
+                setSelectedCategory(cat);
+                setDisplayCount(INITIAL_LIMIT);
+              }}
             >
               {cat}
             </button>
@@ -57,7 +70,7 @@ export default function PresentationGallery({ images, className }: PresentationG
 
       {/* Masonry grid */}
       <div className={`${styles.grid} ${className || ''}`}>
-        {filtered.map((img, i) => (
+        {displayedItems.map((img, i) => (
           <button
             key={`${img.src}-${i}`}
             className={styles.item}
@@ -78,6 +91,17 @@ export default function PresentationGallery({ images, className }: PresentationG
           </button>
         ))}
       </div>
+
+      {hasMore && (
+        <div className={styles.loadMoreWrap}>
+          <button className={styles.loadMoreBtn} onClick={handleLoadMore} type="button">
+            <span>Load More Projects ({filtered.length - displayCount} remaining)</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {/* Lightbox */}
       {lightboxIndex !== null && filtered[lightboxIndex] && (

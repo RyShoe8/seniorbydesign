@@ -19,7 +19,7 @@
 
 .bgImage {
   object-fit: cover;
-  object-position: center 30%;
+  object-position: center center;
 }
 
 .bgOverlay {
@@ -27,9 +27,9 @@
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(26, 20, 16, 0.55) 0%,
-    rgba(26, 20, 16, 0.4) 40%,
-    rgba(26, 20, 16, 0.65) 100%
+    rgba(26, 20, 16, 0.65) 0%,
+    rgba(26, 20, 16, 0.45) 40%,
+    rgba(26, 20, 16, 0.75) 100%
   );
 }
 
@@ -60,8 +60,8 @@
   display: inline-block;
   width: auto;
   height: auto;
-  max-height: 60px;
-  filter: brightness(10);
+  max-height: 70px;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
 }
 
 /* Headline */

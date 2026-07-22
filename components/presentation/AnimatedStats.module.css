@@ -32,6 +32,10 @@
   color: var(--sbd-gold, #cbac6d);
   line-height: 1.1;
   letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .statLabel {

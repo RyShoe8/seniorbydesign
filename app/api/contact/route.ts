@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { addContactFormToBrevo, ContactFormData } from '@/lib/brevo';
+import { addContactFormToBrevo, sendContactFormNotification, ContactFormData } from '@/lib/brevo';
 import { verifyRecaptchaV3 } from '@/lib/recaptcha';
 
 export const dynamic = 'force-dynamic';
@@ -50,12 +50,19 @@ export async function POST(request: Request) {
       message: body.message,
     };
     
-    // Add contact form submission to Brevo inbox
-    await addContactFormToBrevo(contactData);
+    // 1. Add contact form submission & attributes to Brevo contacts database
+    await addContactFormToBrevo(contactData).catch((err) =>
+      console.error('Brevo add contact warning:', err)
+    );
+
+    // 2. Send instant email notification to Senior By Design team
+    await sendContactFormNotification(contactData).catch((err) =>
+      console.error('Brevo notification email warning:', err)
+    );
     
     return NextResponse.json({ success: true });
   } catch (error: any) {
-        const errorMessage = error?.message || 'Failed to submit contact form';
+    const errorMessage = error?.message || 'Failed to submit contact form';
     return NextResponse.json(
       { error: errorMessage },
       { status: 500 }

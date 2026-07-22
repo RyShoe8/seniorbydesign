@@ -15,13 +15,7 @@ export default function PDFExportButton({
   const [downloading, setDownloading] = useState(false);
 
   const handleDownload = () => {
-    setDownloading(true);
-    // Use the existing PDF file as the download source
-    const link = document.createElement('a');
-    link.href = '/files/SBD Interactive Brochure.pdf';
-    link.download = 'Senior By Design - Design Guide.pdf';
-    link.click();
-    setTimeout(() => setDownloading(false), 1500);
+    window.print();
   };
 
   return (

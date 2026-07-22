@@ -112,10 +112,10 @@ export default function AdminLayout({
             Blog
           </Link>
           <Link href="/admin/brochure" className={`nav-item ${pathname === '/admin/brochure' ? 'active' : ''}`} onClick={closeMobileMenu}>
-            Brochure
+            Brochure Requests
           </Link>
           <Link href="/admin/design-guide" className={`nav-item ${pathname === '/admin/design-guide' ? 'active' : ''}`} onClick={closeMobileMenu}>
-            Design Guide
+            Design Brochure
           </Link>
           <Link href="/admin/media" className={`nav-item ${pathname === '/admin/media' ? 'active' : ''}`} onClick={closeMobileMenu}>
             Media Library

@@ -116,11 +116,20 @@ export default function DesignGuideAdmin() {
 
   return (
     <div className="admin-page">
+      {/* Top Header & Cross links */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
-        <h1 style={{ margin: 0 }}>Design Guide</h1>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+        <div>
+          <h1 style={{ margin: 0 }}>Design Brochure Editor</h1>
+          <p style={{ margin: '0.25rem 0 0', fontSize: '14px', color: 'var(--text-muted)' }}>
+            Manage the content, imagery, and text for the interactive digital brochure.
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <a href="/admin/brochure" className="btn" style={{ textDecoration: 'none', background: 'var(--warm-grey-1)', color: 'var(--sbd-brown)' }}>
+            Brochure Requests & Settings
+          </a>
           <a href="/experience" target="_blank" rel="noopener noreferrer" className="btn" style={{ textDecoration: 'none', background: 'var(--sbd-brown)' }}>
-            Preview
+            Preview Digital Brochure
           </a>
           <button className="btn" onClick={handleSave} disabled={isSaving}>
             {isSaving ? 'Saving...' : 'Save All Changes'}
@@ -163,7 +172,7 @@ export default function DesignGuideAdmin() {
         {activeTab === 'hero' && (
           <div>
             <h2 style={{ color: 'var(--sbd-brown)', marginBottom: '1rem' }}>Hero Section</h2>
-            <FieldGroup label="Headline (use \\n for line break)">
+            <FieldGroup label="Headline">
               <textarea rows={3} value={content.hero.headline} onChange={(e) => updateField('hero.headline', e.target.value)} />
             </FieldGroup>
             <FieldGroup label="Subheadline">

@@ -366,11 +366,16 @@ export default function BrochureManagement() {
 
   return (
     <div className="admin-page">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-md)' }}>
-        <h1>Brochure Settings</h1>
-        <a href="/brochure/view" target="_blank" rel="noopener noreferrer" className="btn" style={{ textDecoration: 'none' }}>
-          View Brochure
-        </a>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-md)', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <h1>Brochure Requests & Settings</h1>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <a href="/admin/design-guide" className="btn" style={{ textDecoration: 'none' }}>
+            Edit Design Brochure Content
+          </a>
+          <a href="/experience" target="_blank" rel="noopener noreferrer" className="btn" style={{ textDecoration: 'none', background: 'var(--sbd-brown)' }}>
+            View Digital Brochure
+          </a>
+        </div>
       </div>
       
       <div className="admin-form">

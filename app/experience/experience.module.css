@@ -112,6 +112,7 @@
   color: var(--exp-text-secondary);
   line-height: 1.75;
   margin: 0;
+  white-space: pre-line;
 }
 
 .introImageWrap {
@@ -187,6 +188,7 @@
   color: var(--exp-text-secondary);
   line-height: 1.75;
   margin: 0 0 2rem;
+  white-space: pre-line;
 }
 
 .agingImageWrap {
@@ -248,6 +250,7 @@
   color: var(--exp-text-secondary);
   line-height: 1.75;
   margin: 0 0 2.5rem;
+  white-space: pre-line;
 }
 
 .financingExamples {
@@ -346,6 +349,7 @@
   color: var(--exp-text-secondary);
   line-height: 1.7;
   margin: 0;
+  white-space: pre-line;
 }
 
 /* ----------------------------------------------------------------
@@ -460,17 +464,27 @@
    ---------------------------------------------------------------- */
 @media print {
   .experience {
-    background: #fff;
+    background: #fff !important;
+    color: #000 !important;
   }
 
   .section {
     page-break-inside: avoid;
-    padding: 2rem 0;
+    padding: 2rem 0 !important;
   }
 
   .floatingActions,
-  .floatingBtn {
+  .floatingBtn,
+  .loadMoreWrap,
+  .expandBtn {
     display: none !important;
+  }
+
+  .faqAnswer,
+  .details {
+    max-height: none !important;
+    opacity: 1 !important;
+    display: block !important;
   }
 }
 

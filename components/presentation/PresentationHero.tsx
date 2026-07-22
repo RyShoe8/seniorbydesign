@@ -70,8 +70,8 @@ export default function PresentationHero({ hero }: PresentationHeroProps) {
           <Image
             src="/images/senior-living-logo-design-sbd.webp"
             alt="Senior By Design logo"
-            width={180}
-            height={60}
+            width={220}
+            height={70}
             className={styles.logo}
             priority
           />
@@ -79,7 +79,7 @@ export default function PresentationHero({ hero }: PresentationHeroProps) {
 
         {/* Headline */}
         <h1 className={`${styles.headline} ${revealed ? styles.revealed : ''}`}>
-          {hero.headline.split('\n').map((line, i) => (
+          {(hero.headline || '').split(/\r?\n/).map((line, i) => (
             <span
               key={i}
               className={styles.headlineLine}
@@ -100,9 +100,13 @@ export default function PresentationHero({ hero }: PresentationHeroProps) {
           <a href={hero.ctaPrimary.href} className={styles.ctaPrimary}>
             {hero.ctaPrimary.label}
           </a>
-          <a href={hero.ctaSecondary.href} className={styles.ctaSecondary} download>
+          <button
+            onClick={() => window.print()}
+            className={styles.ctaSecondary}
+            type="button"
+          >
             {hero.ctaSecondary.label}
-          </a>
+          </button>
         </div>
 
         {/* Scroll indicator */}
