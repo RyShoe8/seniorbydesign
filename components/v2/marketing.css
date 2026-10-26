@@ -423,3 +423,19 @@
 .sbd-marketing :is(input, select, textarea) { max-width: 100%; }
 .sbd-marketing .btn-secondary:hover { color: #fffaf1; }
 @media(max-width: 760px) { .sbd-marketing .container { padding-left: 22px; padding-right: 22px; } }
+
+
+/* Mobile reading, input zoom prevention and comfortable touch targets. */
+@media (max-width: 820px) {
+ .sbd-marketing input:not([type=checkbox]):not([type=radio]), .sbd-marketing select, .sbd-marketing textarea { font-size: 16px; }
+ .sbd-marketing :is(button, .btn, .sbd-text-link) { min-height: 44px; }
+ .sbd-marketing .sbd-home-hero-copy h1 { font-size: clamp(42px, 13vw, 58px); }
+ .sbd-marketing .sbd-page-hero h1 { font-size: clamp(32px, 9vw, 42px); overflow-wrap: break-word; }
+ .sbd-marketing footer.footer .footer-links a { display: inline-flex; align-items: center; min-height: 44px; }
+ .sbd-marketing .sbd-footer-intro h2 { font-size: clamp(30px, 9vw, 38px); }
+ .sbd-marketing :is(h1,h2,h3,p,a) { overflow-wrap: break-word; }
+}
+@media (max-width: 360px) {
+ .sbd-marketing footer.footer .footer-grid { grid-template-columns: 1fr; }
+ .sbd-marketing .sbd-home-hero-copy { padding-left: 22px; padding-right: 22px; }
+}

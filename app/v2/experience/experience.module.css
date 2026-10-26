@@ -501,3 +501,11 @@
 .experience{background:#fcfbf7;color:#665640}.container{max-width:1200px}.section{padding:90px 0}.sectionAlt{background:#f2eee5}.sectionDark{background:#382d24}.sectionHeading{font-size:clamp(34px,4vw,52px);font-weight:500;letter-spacing:-.7px;line-height:1.14}.sectionEyebrow{font-size:10px;letter-spacing:2px;color:#9b7a46}.sectionSubheading,.introBody,.agingBody,.financingBody{font-size:16px;line-height:1.9}.introImageWrap,.agingImageWrap{border-radius:4px;box-shadow:none}.introCard,.financingCard{border:1px solid #e2d6c3;border-radius:4px;box-shadow:none;background:#fffdf8;padding:28px}.introCard:hover,.financingCard:hover{transform:none;box-shadow:none}.introCardTitle{font-size:27px;font-weight:500;font-style:normal}.introCardDesc,.agingFeatureDesc{font-size:13px;line-height:1.8}.introCardIcon,.agingFeatureIcon{font-size:22px}.faqItem{border-bottom:1px solid #ded3c0}.faqQuestion{font-family:var(--font-body);font-size:14px;line-height:1.6;padding:23px 0}.faqAnswerText{font-size:14px;line-height:1.85}.floatingActions{background:#fcfaf4ed;border:1px solid #ded2be;padding:7px;border-radius:5px;box-shadow:0 4px 20px #3024190a}.floatingBtn{border-radius:3px;font-size:11px;box-shadow:none}.floatingBtn:hover{transform:none;box-shadow:none}.divider{width:50px;height:1px;background:#bca173;margin-top:25px;margin-bottom:35px}.experience button:focus-visible,.experience a:focus-visible{outline:2px solid #b28c50;outline-offset:4px}
 @media(max-width:760px){.section{padding:55px 0}.container{padding:0 24px}.sectionHeading{font-size:36px}.introCardsGrid{gap:16px}.floatingActions{max-width:calc(100vw - 32px)}}
 @media print{.floatingActions{display:none}.section{padding:30px 0}.introCard,.financingCard{break-inside:avoid}.faqAnswer{max-height:none!important;opacity:1!important}}
+
+
+@media(max-width:760px) {
+ .experience input, .experience select, .experience textarea { font-size: 16px; }
+ .experience button, .floatingBtn { min-height: 44px; }
+ .floatingActions { bottom: calc(78px + env(safe-area-inset-bottom)); }
+ .sectionHeading { font-size: clamp(30px, 8.5vw, 36px); }
+}

@@ -99,7 +99,7 @@ export default async function Team() {
                       fill
                       className={styles.memberImage}
                       sizes="(max-width: 768px) 250px, 300px"
-                      loading={index < 6 ? 'eager' : 'lazy'}
+                      loading="lazy"
                       unoptimized={true}
                     />
                   </div>

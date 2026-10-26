@@ -124,6 +124,7 @@ export default function SeniorLivingDesignFirmPage() {
         <div className="container">
           <div className={styles.videoWrapper}>
             <iframe
+              loading="lazy"
               width="560"
               height="315"
               src="https://www.youtube.com/embed/eRI9GKC_VmA?si=2JRGGP4UxMDYF2ci"
@@ -193,6 +194,7 @@ export default function SeniorLivingDesignFirmPage() {
         <div className="container">
           <div className={styles.videoWrapper}>
             <iframe
+              loading="lazy"
               width="560"
               height="315"
               src="https://www.youtube.com/embed/au7HLQnwb6I?si=WFrKFX6ek1TodzJl"

@@ -89,3 +89,12 @@
   .dot { width: 10px; height: 10px; }
 }
 .nav{background:#fcfaf5ed;border:1px solid #e2d4bc;padding:14px 10px;border-radius:5px;gap:14px}.dot{border-width:1px;width:12px;height:12px}.dot:hover,.active{transform:none}.tooltip{border-radius:3px;font-size:10px;box-shadow:none}@media(max-width:1024px){.nav{padding:12px 16px}}
+
+
+@media(max-width: 1024px) {
+ .nav { max-width: calc(100vw - 32px); overflow-x: auto; gap: 0; padding: 4px; bottom: max(12px, env(safe-area-inset-bottom)); }
+ .dot { width: 44px; height: 44px; flex: 0 0 44px; border: 0; border-radius: 3px; background: transparent; }
+ .dot::before { content: ''; position: absolute; width: 10px; height: 10px; border: 1px solid #9d8056; border-radius: 50%; inset: 17px; }
+ .active::before { background: #80613c; }
+ .dot .tooltip { display: none; }
+}

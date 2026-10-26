@@ -613,3 +613,11 @@
 
 .formTitle { font-family: var(--font-heading); font-size: 32px; font-weight: 500; text-align: left; padding-right: 30px; margin: 0 0 8px; }
 .formGroup { text-align: left; }
+
+
+@media (max-width: 820px) {
+ .formGroup input, .formGroup select, .stateDropdown { font-size: 16px; min-height: 48px; }
+ .modal { max-height: calc(100dvh - 24px); }
+ .stateDropdownItem { min-height: 44px; }
+ .formActions { padding-bottom: env(safe-area-inset-bottom, 0px); }
+}
