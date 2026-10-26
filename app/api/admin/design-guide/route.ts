@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getStaffSession } from '@/lib/portal/server';
 import { getDesignGuideContentCollection } from '@/lib/db';
 
 /**
@@ -25,7 +25,7 @@ export async function GET() {
  * Upserts the entire design guide content (admin-only).
  */
 export async function POST(request: NextRequest) {
-  const session = await getServerSession();
+  const session = await getStaffSession();
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

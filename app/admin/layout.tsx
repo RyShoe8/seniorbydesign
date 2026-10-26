@@ -82,12 +82,13 @@ export default function AdminLayout({
           </button>
         </div>
         <nav className="admin-nav">
+          <Link href="/admin/portal" className="nav-item" onClick={closeMobileMenu}>Client Portal</Link>
           <Link href="/admin" className={`nav-item ${pathname === '/admin' ? 'active' : ''}`} onClick={closeMobileMenu}>
             Dashboard
           </Link>
           {session.user?.role === 'admin' && (
             <Link href="/admin/users" className={`nav-item ${pathname === '/admin/users' ? 'active' : ''}`} onClick={closeMobileMenu}>
-              User
+              Staff Access
             </Link>
           )}
           <Link href="/admin/portfolio" className={`nav-item ${pathname?.startsWith('/admin/portfolio') ? 'active' : ''}`} onClick={closeMobileMenu}>

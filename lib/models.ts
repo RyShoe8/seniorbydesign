@@ -5,7 +5,10 @@ export interface User {
   _id?: ObjectId;
   email: string;
   password: string;
-  role: 'admin' | 'user';
+  role: 'admin' | 'user' | 'team' | 'external';
+  disabled?: boolean;
+  emailVerifiedAt?: Date;
+  sessionVersion?: number;
   createdAt: Date;
   updatedAt: Date;
 }

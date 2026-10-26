@@ -41,3 +41,7 @@ next-env.d.ts
 
 
 
+
+/.next-validation/
+
+/.next-integration/

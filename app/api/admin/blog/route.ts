@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getStaffSession } from '@/lib/portal/server';
 import { getBlogPostsCollection } from '@/lib/db';
 import { generateBlogPreviewToken } from '@/lib/blog-preview';
 import { revalidateBlogPublicRoutes } from '@/lib/blog-revalidate';
@@ -10,7 +9,7 @@ import { ObjectId } from 'mongodb';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
+  const session = await getStaffSession();
 
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -36,7 +35,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await getStaffSession();
 
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

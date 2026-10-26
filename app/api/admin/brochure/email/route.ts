@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getStaffSession } from '@/lib/portal/server';
 import { sendTransactionalEmail, EmailAttachment } from '@/lib/brevo';
 import { generateBrochureEmailTemplate, generateBrochureEmailText } from '@/lib/email-templates';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await getStaffSession();
 
   if (!session || session.user?.role !== 'admin') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

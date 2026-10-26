@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getStaffSession } from '@/lib/portal/server';
 import { getSignatureSettingsCollection } from '@/lib/db';
 import { mockSignatureBrand, mockSignatureTemplate } from '@seniorbydesign/signature-engine';
 import type { SignatureBrand, SignatureTemplate } from '@seniorbydesign/signature-engine';
@@ -161,7 +160,7 @@ async function getCanonicalSignatureDoc() {
 }
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
+  const session = await getStaffSession();
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -187,7 +186,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await getStaffSession();
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

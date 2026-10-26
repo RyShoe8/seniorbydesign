@@ -10,7 +10,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "verify:signature": "npm run email-client-smoke --workspace=@seniorbydesign/signature-engine"
+    "verify:signature": "npm run email-client-smoke --workspace=@seniorbydesign/signature-engine",
+    "test:portal": "node --test tests/portal.test.cjs",
+    "test:portal:integration": "node scripts/test-portal-integration.cjs"
   },
   "dependencies": {
     "@seniorbydesign/signature-engine": "workspace:*",

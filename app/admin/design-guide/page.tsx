@@ -129,7 +129,7 @@ export default function DesignGuideAdmin() {
           <a href="/admin/brochure" className="btn" style={{ textDecoration: 'none', background: 'var(--warm-grey-1)', color: 'var(--sbd-brown)' }}>
             Brochure Requests & Settings
           </a>
-          <a href="/experience" target="_blank" rel="noopener noreferrer" className="btn" style={{ textDecoration: 'none', background: 'var(--sbd-brown)' }}>
+          <a href="/v2/experience" target="_blank" rel="noopener noreferrer" className="btn" style={{ textDecoration: 'none', background: 'var(--sbd-brown)' }}>
             Preview Digital Brochure
           </a>
           <button className="btn" onClick={handleSave} disabled={isSaving}>

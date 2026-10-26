@@ -1,0 +1,167 @@
+.contactHero {
+  position: relative;
+  height: 500px;
+  overflow: hidden;
+  contain: layout style paint;
+}
+
+@media (max-width: 768px) {
+  .contactHero {
+    height: 350px;
+  }
+}
+
+.contactHeroImage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 100px;
+}
+
+.contactHeroImage h1 {
+  position: relative;
+  z-index: 2;
+  color: #fff;
+  font-size: 75px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  max-width: 90%;
+}
+
+.heroImage {
+  object-fit: cover;
+  object-position: center top;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 768px) {
+  .contactHeroImage {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .contactHeroImage h1 {
+    font-size: 36px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+  }
+}
+
+.contactGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-xl);
+}
+
+.contactIntro {
+  max-width: 720px;
+  margin: 0 auto var(--spacing-xl);
+  text-align: center;
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: var(--sbd-brown);
+}
+
+.contactFormWrapper h2,
+.contactInfo h2 {
+  margin-bottom: var(--spacing-md);
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.formGroup {
+  margin-bottom: var(--spacing-md);
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.formMessage {
+  padding: var(--spacing-sm);
+  border-radius: 4px;
+  margin-bottom: var(--spacing-md);
+}
+
+.formMessage.success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.formMessage.error {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.phoneNumber {
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.phoneNumber a {
+  color: var(--sbd-gold);
+}
+
+@media (max-width: 968px) {
+  .contactGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.contactFormWrapper {
+  padding: 36px;
+  background: #fff;
+  border: 1px solid #e5ddcf;
+  border-radius: 4px;
+}
+.contactInfo {
+  padding: 30px;
+  background: #f1ede4;
+  border-radius: 4px;
+  align-self: start;
+}
+.contactFormWrapper h2,
+.contactInfo h2 {
+  font-size: 34px;
+}
+.formGroup {
+  margin-bottom: 22px;
+}
+.formRow {
+  gap: 20px;
+}
+.contactIntro {
+  text-align: left;
+  margin: 0 0 40px;
+  max-width: 850px;
+  font-size: 17px;
+}
+@media (max-width: 760px) {
+  .contactFormWrapper,
+  .contactInfo {
+    padding: 24px;
+  }
+  .contactGrid {
+    gap: 25px;
+  }
+}

@@ -1,0 +1,476 @@
+'use client';
+
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import styles from './page.module.css';
+
+// Dynamically import PDF.js only on client side
+let pdfjsLib: any = null;
+
+const loadPDFJS = async () => {
+  if (typeof window !== 'undefined' && !pdfjsLib) {
+    pdfjsLib = await import('pdfjs-dist');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+  }
+  return pdfjsLib;
+};
+
+interface PageSize {
+  width: number;
+  height: number;
+  scale: number;
+}
+
+// Type for PDF document (using any since pdfjs-dist types aren't available at compile time)
+type PDFDocument = any;
+
+export default function BrochureViewer() {
+  const router = useRouter();
+  const [pdfDoc, setPdfDoc] = useState<PDFDocument | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [pageSize, setPageSize] = useState<PageSize>({ width: 0, height: 0, scale: 1 });
+  const [isMobile, setIsMobile] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [isZooming, setIsZooming] = useState(false);
+
+  const leftCanvasRef = useRef<HTMLCanvasElement>(null);
+  const rightCanvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const initialDistance = useRef<number | null>(null);
+  const initialZoom = useRef<number>(1);
+
+  // Check if mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 769);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Calculate page size based on viewport
+  const calculatePageSize = useCallback(async () => {
+    if (!pdfDoc || !containerRef.current) return;
+
+    const container = containerRef.current;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const isMobileView = viewportWidth < 769;
+
+    try {
+      const page = await pdfDoc.getPage(1);
+      const viewport = page.getViewport({ scale: 1 });
+
+      if (isMobileView) {
+        // Mobile: Fill full viewport width like Android native viewer
+        // Pages scale to fit width, height scales proportionally
+        const baseScale = viewportWidth / viewport.width;
+
+        // Apply zoom level
+        const finalScale = baseScale * zoomLevel;
+        setPageSize({
+          width: viewportWidth * zoomLevel,
+          height: viewport.height * finalScale,
+          scale: finalScale,
+        });
+      } else {
+        // Desktop: Two pages side-by-side
+        const padding = 40;
+        const gap = 20;
+        const containerWidth = viewportWidth - padding * 2;
+        const containerHeight = viewportHeight - padding * 2;
+        const pageWidth = (containerWidth - gap) / 2;
+        const pageHeight = containerHeight;
+
+        const scale = Math.min(
+          pageWidth / viewport.width,
+          pageHeight / viewport.height
+        );
+        setPageSize({
+          width: viewport.width * scale,
+          height: viewport.height * scale,
+          scale,
+        });
+      }
+    } catch (err) {
+      console.error('Error calculating page size:', err);
+    }
+  }, [pdfDoc, zoomLevel]);
+
+  // Load PDF
+  useEffect(() => {
+    const loadPDF = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Load PDF.js library first
+        const pdfjs = await loadPDFJS();
+        if (!pdfjs) {
+          throw new Error('Failed to load PDF.js library');
+        }
+
+        const loadingTask = pdfjs.getDocument('/files/SBD Interactive Brochure.pdf');
+        const pdf = await loadingTask.promise;
+        setPdfDoc(pdf);
+        setTotalPages(pdf.numPages);
+      } catch (err) {
+        console.error('Error loading PDF:', err);
+        setError('Failed to load PDF. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPDF();
+  }, []);
+
+  // Recalculate page size when PDF loads, window resizes, or zoom changes
+  useEffect(() => {
+    if (pdfDoc) {
+      calculatePageSize();
+      window.addEventListener('resize', calculatePageSize);
+      return () => window.removeEventListener('resize', calculatePageSize);
+    }
+  }, [pdfDoc, calculatePageSize, zoomLevel]);
+
+  // Render page to canvas
+  const renderPage = useCallback(async (pageNum: number, canvas: HTMLCanvasElement) => {
+    if (!pdfDoc || !canvas || pageSize.scale === 0) return;
+
+    try {
+      const page = await pdfDoc.getPage(pageNum);
+      const viewport = page.getViewport({ scale: pageSize.scale });
+
+      // Set canvas dimensions for high DPI displays (Android native quality)
+      const dpr = window.devicePixelRatio || 2; // Default to 2x for better quality
+      const displayWidth = Math.floor(pageSize.width);
+      const displayHeight = Math.floor(pageSize.height);
+
+      canvas.width = displayWidth * dpr;
+      canvas.height = displayHeight * dpr;
+
+      // Set CSS size to match display size
+      canvas.style.width = `${displayWidth}px`;
+      canvas.style.height = `${displayHeight}px`;
+
+      const context = canvas.getContext('2d', { alpha: false }); // Disable alpha for better performance
+      if (!context) return;
+
+      // Scale context for high DPI displays
+      context.scale(dpr, dpr);
+
+      // Improve rendering quality
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = 'high';
+
+      const renderContext = {
+        canvasContext: context,
+        viewport: viewport,
+      };
+
+      await page.render(renderContext).promise;
+    } catch (err) {
+      console.error('Error rendering page:', err);
+    }
+  }, [pdfDoc, pageSize]);
+
+  // Render pages when current page or page size changes
+  useEffect(() => {
+    if (!pdfDoc || pageSize.width === 0) return;
+
+    if (isMobile) {
+      // Mobile: Render single page
+      if (leftCanvasRef.current) {
+        renderPage(currentPage, leftCanvasRef.current);
+      }
+    } else {
+      // Desktop: Render two pages side-by-side
+      if (leftCanvasRef.current) {
+        renderPage(currentPage, leftCanvasRef.current);
+      }
+      if (rightCanvasRef.current && currentPage < totalPages) {
+        renderPage(currentPage + 1, rightCanvasRef.current);
+      }
+    }
+  }, [pdfDoc, currentPage, pageSize, isMobile, totalPages, renderPage]);
+
+  // Navigation handlers
+  const goToPage = useCallback((pageNum: number) => {
+    if (pageNum >= 1 && pageNum <= totalPages) {
+      setCurrentPage(pageNum);
+    }
+  }, [totalPages]);
+
+  const nextPage = useCallback(() => {
+    if (isMobile) {
+      goToPage(currentPage + 1);
+    } else {
+      // Desktop: Move forward by 2 pages (show next pair)
+      const nextStartPage = currentPage + 2;
+      goToPage(Math.min(nextStartPage, totalPages));
+    }
+  }, [currentPage, totalPages, isMobile, goToPage]);
+
+  const prevPage = useCallback(() => {
+    if (isMobile) {
+      goToPage(currentPage - 1);
+    } else {
+      // Desktop: Move back by 2 pages (show previous pair)
+      const prevStartPage = Math.max(currentPage - 2, 1);
+      goToPage(prevStartPage);
+    }
+  }, [currentPage, isMobile, goToPage]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        router.back();
+      } else if (e.key === 'ArrowLeft') {
+        prevPage();
+      } else if (e.key === 'ArrowRight') {
+        nextPage();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [router, prevPage, nextPage]);
+
+  // Calculate distance between two touch points
+  const getDistance = (touch1: React.Touch, touch2: React.Touch) => {
+    const dx = touch1.clientX - touch2.clientX;
+    const dy = touch1.clientY - touch2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  // Swipe and pinch gesture handling for mobile (Android native style)
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      // Single touch - track for swipe
+      touchStartX.current = e.touches[0].clientX;
+      touchStartY.current = e.touches[0].clientY;
+      setIsZooming(false);
+    } else if (e.touches.length === 2) {
+      // Two touches - pinch to zoom
+      e.preventDefault();
+      setIsZooming(true);
+      initialDistance.current = getDistance(e.touches[0], e.touches[1]);
+      initialZoom.current = zoomLevel;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2 && initialDistance.current !== null) {
+      // Pinch zoom - smooth and responsive like Android
+      e.preventDefault();
+      e.stopPropagation();
+      const currentDistance = getDistance(e.touches[0], e.touches[1]);
+      const scale = currentDistance / initialDistance.current;
+      const newZoom = Math.max(0.5, Math.min(5, initialZoom.current * scale)); // Increased max zoom
+      setZoomLevel(newZoom);
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (e.touches.length === 0) {
+      // All touches ended
+      if (!isZooming && touchStartX.current !== null && touchStartY.current !== null) {
+        // Handle swipe
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        const deltaX = touchStartX.current - touchEndX;
+        const deltaY = touchStartY.current - touchEndY;
+
+        // Only handle horizontal swipes (ignore vertical scrolling)
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+          if (deltaX > 0) {
+            // Swipe left - next page
+            nextPage();
+          } else {
+            // Swipe right - previous page
+            prevPage();
+          }
+        }
+      }
+
+      touchStartX.current = null;
+      touchStartY.current = null;
+      initialDistance.current = null;
+      setIsZooming(false);
+    }
+  };
+
+  // Zoom controls (Android native style - smoother increments)
+  const handleZoomIn = () => {
+    setZoomLevel(prev => Math.min(5, prev * 1.2)); // Multiplicative for smoother feel
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel(prev => Math.max(0.5, prev / 1.2));
+  };
+
+  const handleZoomReset = () => {
+    setZoomLevel(1);
+  };
+
+  // Prevent body scroll
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
+  const handleClose = (e?: React.MouseEvent | React.TouchEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    router.back();
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.viewerContainer}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loader}></div>
+          <p className={styles.loadingText}>Loading brochure...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.viewerContainer}>
+        <div className={styles.errorContainer}>
+          <p className={styles.errorText}>{error}</p>
+          <button className={styles.retryButton} onClick={() => window.location.reload()}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const canGoPrev = currentPage > 1;
+  const canGoNext = isMobile
+    ? currentPage < totalPages
+    : currentPage + 1 < totalPages;
+
+  return (
+    <div className={styles.viewerContainer} ref={containerRef}>
+      <button
+        className={styles.closeButton}
+        onClick={handleClose}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleClose(e);
+        }}
+        aria-label="Close PDF viewer"
+      >
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+
+      <div
+        className={styles.pagesContainer}
+        onTouchStart={isMobile ? handleTouchStart : undefined}
+        onTouchMove={isMobile ? handleTouchMove : undefined}
+        onTouchEnd={isMobile ? handleTouchEnd : undefined}
+      >
+        {isMobile ? (
+          <div className={styles.pageWrapper}>
+            <canvas ref={leftCanvasRef} className={styles.pageCanvas} />
+          </div>
+        ) : (
+          <>
+            <div className={styles.pageWrapper}>
+              <canvas ref={leftCanvasRef} className={styles.pageCanvas} />
+            </div>
+            {currentPage < totalPages && (
+              <div className={styles.pageWrapper}>
+                <canvas ref={rightCanvasRef} className={styles.pageCanvas} />
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {isMobile ? (
+        <>
+          <div className={styles.mobilePageIndicator}>
+            <span>{currentPage} / {totalPages}</span>
+          </div>
+          <div className={styles.mobileZoomControls}>
+            <button
+              className={styles.zoomButton}
+              onClick={handleZoomOut}
+              aria-label="Zoom out"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <button
+              className={styles.zoomButton}
+              onClick={handleZoomReset}
+              aria-label="Reset zoom"
+            >
+              <span>{Math.round(zoomLevel * 100)}%</span>
+            </button>
+            <button
+              className={styles.zoomButton}
+              onClick={handleZoomIn}
+              aria-label="Zoom in"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className={styles.navigation}>
+          <button
+            className={`${styles.navButton} ${styles.navButtonPrev}`}
+            onClick={prevPage}
+            disabled={!canGoPrev}
+            aria-label="Previous page"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+
+          <div className={styles.pageIndicator}>
+            <span>
+              {currentPage}-{Math.min(currentPage + 1, totalPages)} / {totalPages}
+            </span>
+          </div>
+
+          <button
+            className={`${styles.navButton} ${styles.navButtonNext}`}
+            onClick={nextPage}
+            disabled={!canGoNext}
+            aria-label="Next page"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 
-const PRIVATE_DISALLOW = ['/admin/', '/api/', '/brochure/view'];
+const PRIVATE_DISALLOW = ['/admin/', '/api/', '/brochure/view', '/v2', '/portal', '/account'];
 
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';

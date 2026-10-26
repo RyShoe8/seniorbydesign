@@ -1,6 +1,10 @@
+'use client';
+import { usePathname } from 'next/navigation';
 import Script from 'next/script';
 
 export default function Analytics() {
+ const pathname = usePathname();
+ if (['/portal','/account','/admin'].some(p => pathname?.startsWith(p))) return null;
   return (
     <>
       {/* Analytics Tracking Codes */}

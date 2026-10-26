@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getStaffSession } from '@/lib/portal/server';
 import { getMediaCollection } from '@/lib/db';
 import {
   altFromUploadFields,
@@ -20,7 +19,7 @@ try {
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await getStaffSession();
 
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

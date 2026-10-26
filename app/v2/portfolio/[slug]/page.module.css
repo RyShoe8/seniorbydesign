@@ -1,0 +1,34 @@
+.introSection {
+  padding: var(--spacing-md) 0 0;
+}
+
+.introText {
+  max-width: 720px;
+  margin: 0 auto;
+  color: var(--sbd-brown);
+  font-size: 19px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.serviceCrossLink {
+  max-width: 720px;
+  margin: var(--spacing-md) auto 0;
+  color: var(--sbd-brown);
+  font-size: 17px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.heroPlaceholder {
+  position: absolute;
+  inset: 0;
+  background: var(--warm-grey-1);
+}
+
+@media (max-width: 768px) {
+  .introText {
+    font-size: 17px;
+    text-align: left;
+  }
+}

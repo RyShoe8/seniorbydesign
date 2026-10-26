@@ -1,0 +1,122 @@
+.serviceHero {
+  position: relative;
+  height: 500px;
+  overflow: hidden;
+  contain: layout style paint;
+}
+
+@media (max-width: 768px) {
+  .serviceHero {
+    height: 350px;
+  }
+}
+
+.serviceHeroImage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 100px;
+}
+
+
+.serviceHeroImage h1 {
+  position: relative;
+  z-index: 2;
+  color: #fff;
+  font-size: 75px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  max-width: 90%;
+}
+
+.heroImage {
+  object-fit: cover;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: 100%;
+}
+
+.heroPlaceholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--warm-grey-1) 0%, var(--warm-grey-3) 100%);
+}
+
+@media (max-width: 768px) {
+  .serviceHeroImage {
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 60px;
+  }
+
+  .serviceHeroImage h1 {
+    font-size: 36px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+  }
+}
+
+.serviceBody {
+  max-width: 800px;
+  margin: 0 auto var(--spacing-xl);
+}
+
+.serviceBody p {
+  margin-bottom: var(--spacing-md);
+  font-size: 19px;
+  line-height: 1.8;
+}
+
+.serviceGallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: var(--spacing-md);
+}
+
+@media (min-width: 769px) {
+  .serviceGallery {
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  }
+}
+
+.galleryItem {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.galleryItem img {
+  width: 100%;
+  height: auto;
+}
+
+.serviceGeoLead {
+  font-size: 1.125rem;
+  line-height: 1.85;
+  margin-bottom: var(--spacing-md);
+  color: var(--sbd-brown);
+  font-weight: 500;
+}
+
+.serviceIntro {
+  font-size: 1.125rem;
+  line-height: 1.85;
+  margin-bottom: var(--spacing-lg);
+  color: var(--sbd-brown);
+}
+
+
+
+
+.serviceBody{max-width:850px}.serviceBody p,.serviceBody li{font-size:16px;line-height:1.9}.serviceBody h2{font-size:38px}.serviceBody h3{font-size:28px;font-style:normal}

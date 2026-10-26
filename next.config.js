@@ -2,6 +2,7 @@
 const nextConfig = {
   transpilePackages: ['@seniorbydesign/signature-engine'],
   reactStrictMode: true,
+  distDir: process.env.SBD_BUILD_DIR || '.next',
   // Optimize for production
   swcMinify: true,
   images: {
@@ -24,6 +25,7 @@ const nextConfig = {
   },
   async headers() {
     return [
+      ...['/v2', '/v2/:path*', '/portal/:path*', '/account/:path*'].map(source => ({ source, headers: [{key:'X-Robots-Tag',value:'noindex, nofollow, noarchive'}] })),
       {
         source: '/email-assets/:path*',
         headers: [

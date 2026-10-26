@@ -1,125 +1,100 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { getUsersCollection } from '@/lib/db';
-import bcrypt from 'bcryptjs';
-import { ObjectId } from 'mongodb';
-
-export const dynamic = 'force-dynamic';
-
+import { ObjectId } from "mongodb";
+import { getUsersCollection } from "@/lib/db";
+import { body, failure, json, requireActor } from "@/lib/portal/server";
+import { issueToken, validEmail } from "@/lib/portal/accounts";
+import {
+  adminEmails,
+  emailKey,
+  PortalError,
+  staffRole,
+} from "@/lib/portal/policy";
+import { collections } from "@/lib/portal/db";
+import { rateLimit } from "@/lib/portal/rate-limit";
+export const dynamic = "force-dynamic";
 export async function GET() {
-  const session = await getServerSession(authOptions);
-
-  if (!session || session.user?.role !== 'admin') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
-    const usersCollection = await getUsersCollection();
-    const users = await usersCollection
-      .find({})
+    const actor = await requireActor(true);
+    if (actor.role !== "admin")
+      throw new PortalError("Administrator required", 403);
+    const users = await (
+      await getUsersCollection()
+    )
+      .find({ role: { $in: ["admin", "user", "team"] } })
       .project({ password: 0 })
       .toArray();
-    
-    return NextResponse.json(users);
-  } catch (error) {
-        return NextResponse.json(
-      { error: 'Failed to fetch users' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-
-  if (!session || session.user?.role !== 'admin') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  try {
-    const body = await request.json();
-    const { email, role, password } = body;
-
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
-    }
-
-    const usersCollection = await getUsersCollection();
-    
-    // Check if user already exists
-    const existingUser = await usersCollection.findOne({ email });
-    if (existingUser) {
-      return NextResponse.json({ error: 'User with this email already exists' }, { status: 400 });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const now = new Date();
-
-    const result = await usersCollection.insertOne({
-      email,
-      password: hashedPassword,
-      role: role || 'user',
-      createdAt: now,
-      updatedAt: now,
+    const { db } = await collections();
+    const invitations = await db
+      .collection("accountTokens")
+      .find({ kind: "invite", staff: true, usedAt: { $exists: false } })
+      .project({ _id: 0, email: 1, delivery: 1, expiresAt: 1, revoked: 1 })
+      .toArray();
+    return json({
+      users: users.map((u) => ({
+        ...u,
+        role: staffRole(u as { email: string; role: string }),
+      })),
+      invitations,
     });
-
-    return NextResponse.json({ success: true, _id: result.insertedId });
   } catch (error) {
-    console.error('Error creating user:', error);
-    return NextResponse.json(
-      { error: 'Failed to create user' },
-      { status: 500 }
-    );
+    return failure(error);
   }
 }
-
-export async function PUT(request: Request) {
-  const session = await getServerSession(authOptions);
-
-  if (!session || session.user?.role !== 'admin') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { _id, email, role, password } = body;
-
-    if (!_id) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
-    }
-
-    const usersCollection = await getUsersCollection();
-    const updateData: any = {
-      email,
-      role,
-      updatedAt: new Date(),
-    };
-
-    // Only update password if provided
-    if (password && password.trim() !== '') {
-      updateData.password = await bcrypt.hash(password, 10);
-    }
-
-    const result = await usersCollection.updateOne(
-      { _id: new ObjectId(_id) },
-      { $set: updateData }
-    );
-
-    if (result.matchedCount === 0) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({ success: true });
+    const actor = await requireActor(true);
+    if (actor.role !== "admin")
+      throw new PortalError("Administrator required", 403);
+    const data = await body(request, 10000),
+      email = validEmail(data.email);
+    await rateLimit(`staff-invite:${actor.id}`, 20);
+    if (data.action === "revoke") {
+      const { db } = await collections();
+      await db
+        .collection("accountTokens")
+        .updateMany(
+          { email, kind: "invite", staff: true, usedAt: { $exists: false } },
+          { $set: { revoked: true } },
+        );
+    } else
+      await issueToken(email, {
+        kind: "invite",
+        staff: true,
+        createdBy: actor.id,
+      });
+    return json({ success: true });
   } catch (error) {
-    console.error('Error updating user:', error);
-    return NextResponse.json(
-      { error: 'Failed to update user' },
-      { status: 500 }
-    );
+    return failure(error);
   }
 }
-
-
-
-
+export async function PUT(request: Request) {
+  try {
+    const actor = await requireActor(true);
+    if (actor.role !== "admin")
+      throw new PortalError("Administrator required", 403);
+    const data = await body(request, 10000);
+    if (
+      typeof data.id !== "string" ||
+      !ObjectId.isValid(data.id) ||
+      typeof data.disabled !== "boolean"
+    )
+      throw new PortalError("Invalid account update");
+    const users = await getUsersCollection(),
+      user = await users.findOne({ _id: new ObjectId(data.id) });
+    if (!user || !staffRole(user))
+      throw new PortalError("Staff account not found", 404);
+    if (adminEmails.includes(emailKey(user.email)))
+      throw new PortalError(
+        "The two Administrator accounts cannot be disabled here",
+      );
+    await users.updateOne(
+      { _id: user._id },
+      {
+        $set: { disabled: data.disabled, role: "team", updatedAt: new Date() },
+        $inc: { sessionVersion: 1 },
+      },
+    );
+    return json({ success: true });
+  } catch (error) {
+    return failure(error);
+  }
+}

@@ -1,27 +1,21 @@
-import 'next-auth';
-
-declare module 'next-auth' {
+import "next-auth";
+declare module "next-auth" {
   interface User {
     role?: string;
+    sessionVersion?: number;
   }
-
   interface Session {
     user?: {
+      id: string;
       email?: string | null;
       role?: string | null;
+      sessionVersion: number;
     };
   }
 }
-
-declare module 'next-auth/jwt' {
+declare module "next-auth/jwt" {
   interface JWT {
     role?: string;
+    sessionVersion?: number;
   }
 }
-
-
-
-
-
-
-

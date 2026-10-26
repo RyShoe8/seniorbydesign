@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getStaffSession } from '@/lib/portal/server';
 import { getDesignGuideContentCollection } from '@/lib/db';
 import type { DesignGuideContent } from '@/lib/design-guide-models';
 
@@ -9,7 +9,7 @@ import type { DesignGuideContent } from '@/lib/design-guide-models';
  * Only runs if no document exists yet. Admin-only.
  */
 export async function POST() {
-  const session = await getServerSession();
+  const session = await getStaffSession();
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
