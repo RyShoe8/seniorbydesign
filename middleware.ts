@@ -2,6 +2,17 @@ import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
+  // Portal launch is on hold. Keep staff authentication available for /admin.
+  if (
+    path === "/portal" || path.startsWith("/portal/") ||
+    path === "/api/portal" || path.startsWith("/api/portal/") ||
+    req.nextUrl.hostname === "clients.seniorbydesign.com"
+  ) {
+    return new NextResponse("Not found", {
+      status: 404,
+      headers: { "X-Robots-Tag": "noindex, nofollow, noarchive", "Cache-Control": "no-store" },
+    });
+  }
   if (path === "/admin/login" || path.startsWith("/account"))
     return NextResponse.next();
   const token = await getToken({ req });
@@ -38,6 +49,7 @@ export const config = {
     "/admin/:path*",
     "/api/admin/:path*",
     "/portal/:path*",
+    "/api/portal/:path*",
     "/account/:path*",
   ],
 };
