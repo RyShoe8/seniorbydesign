@@ -80,3 +80,12 @@
   }
 }
 .privacyPolicy{max-width:950px;margin:auto;padding:65px 0}.privacyPolicy h1{font-size:clamp(40px,5vw,60px);font-weight:500}.privacyPolicy h2{font-size:32px;margin-bottom:20px}.privacyPolicy p,.privacyPolicy li{font-size:15px;line-height:1.9}.lastUpdated{font-size:12px;border-bottom:1px solid #e0d5c4;padding-bottom:25px}
+
+/* V2 detail and interaction polish */
+
+.privacyPolicy { max-width: 900px; margin: auto; padding-top: 64px; padding-bottom: 64px; }
+.privacyPolicy h1 { font-size: clamp(42px, 5vw, 64px); margin-bottom: 20px; }
+.privacyPolicy h2 { font-size: 32px; margin: 40px 0 20px; }
+.privacyPolicy h3 { font-size: 25px; margin: 28px 0 16px; }
+.privacyPolicy p, .privacyPolicy li { color: #62574b; font-size: 15px; line-height: 1.9; }
+.lastUpdated { padding-bottom: 28px; border-bottom: 1px solid #ddd2c1; font-size: 12px; color: #806a4d; }

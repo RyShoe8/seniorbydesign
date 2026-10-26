@@ -194,7 +194,7 @@ export default function PrivacyPolicy() {
           <ul>
             <li><strong>Email:</strong> <a href="mailto:info@seniorbydesign.com">info@seniorbydesign.com</a></li>
             <li><strong>Phone:</strong> <a href="tel:8337733744">(833) 773-3744</a></li>
-            <li><strong>Website:</strong> <a href="/contact">Contact Form</a></li>
+            <li><strong>Website:</strong> <a href="/v2/contact">Contact Form</a></li>
           </ul>
           <p>
             <strong>Data Controller:</strong><br />

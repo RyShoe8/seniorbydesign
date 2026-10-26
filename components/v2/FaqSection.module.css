@@ -133,3 +133,10 @@ details[open] .faqAnswerWrapper {
 .faqItem {
   background: #fffefa;
 }
+
+/* V2 detail and interaction polish */
+
+.faqList { max-width: 900px; margin: auto; }
+.faqItem { background: transparent; border: 0; border-bottom: 1px solid #ded3c1; border-radius: 0; box-shadow: none; }
+.faqQuestion { padding: 24px 0; font-size: 17px; font-weight: 500; color: #593825; }
+.faqAnswer { font-size: 15px; line-height: 1.85; color: #766752; padding: 0 0 24px; }

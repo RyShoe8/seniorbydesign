@@ -367,7 +367,7 @@ export default function PortfolioGallery({ images, categoryName }: Props) {
           justify-content: center;
           background: rgba(255, 255, 255, 0.92);
           border: none;
-          border-radius: 10px;
+          border-radius: 3px;
           color: var(--sbd-brown);
           font-size: 1.75rem;
           line-height: 1;
@@ -391,7 +391,7 @@ export default function PortfolioGallery({ images, categoryName }: Props) {
           justify-content: center;
           background: rgba(255, 255, 255, 0.92);
           border: none;
-          border-radius: 50%;
+          border-radius: 3px;
           color: var(--sbd-brown);
           font-size: 1.75rem;
           line-height: 1;
@@ -449,7 +449,7 @@ export default function PortfolioGallery({ images, categoryName }: Props) {
 
         @media (max-width: 768px) {
           .gallery-thumbnails {
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
             gap: var(--spacing-md);
           }
 

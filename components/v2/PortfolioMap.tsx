@@ -685,6 +685,7 @@ export default function PortfolioMap({ projects }: Props) {
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by ZIP code or state (e.g., 75219 or Texas)"
             className="map-search-input"
+            aria-label="Search project locations"
             disabled={isSearching}
           />
           <button type="submit" className="map-search-button" disabled={isSearching}>
@@ -714,9 +715,11 @@ export default function PortfolioMap({ projects }: Props) {
       <style jsx>{`
         .portfolio-map-container {
           width: 100%;
-          border-radius: 8px;
+          position: relative;
+          border: 1px solid #ded3c1;
+          border-radius: 3px;
           overflow: hidden;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          box-shadow: none;
           background: var(--warm-grey-1);
         }
 
@@ -787,7 +790,7 @@ export default function PortfolioMap({ projects }: Props) {
         }
 
         .map-search-button {
-          background-color: var(--sbd-gold);
+          background-color: #593825;
           color: #fff;
         }
 
@@ -825,10 +828,10 @@ export default function PortfolioMap({ projects }: Props) {
 
         .map-placeholder {
           position: absolute;
-          top: 0;
+          top: 85px;
           left: 0;
           width: 100%;
-          height: 100%;
+          height: calc(100% - 85px);
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -879,6 +882,10 @@ export default function PortfolioMap({ projects }: Props) {
           flex-shrink: 0 !important;
           margin-left: 8px !important;
         }
+
+        .map-search-container { padding: 20px; background: #fcfbf8; }
+        .map-search-button, .map-clear-button { font-size: 13px; min-height: 46px; border-radius: 3px; }
+        @media(max-width: 500px) { .map-search-form { flex-wrap: wrap; } .map-search-input { flex-basis: 100%; } }
       `}</style>
     </div>
   );

@@ -415,3 +415,12 @@
   padding-left: 25px;
   background: none;
 }
+
+/* V2 detail and interaction polish */
+
+.twoColumn { gap: clamp(28px, 5vw, 72px); align-items: center; }
+.cultureImage, .videoWrapper { border-radius: 3px; box-shadow: none; overflow: hidden; }
+.columnList li, .featureList li { font-size: 15px; line-height: 1.85; padding-top: 10px; padding-bottom: 10px; }
+.communityPill { border: 1px solid #ded3c1; padding: 18px 22px; }
+.communitiesGrid, .multifamilyGrid { gap: 16px; }
+.entityContact { border-top: 1px solid #ded3c1; padding-top: 24px; margin-top: 28px; }

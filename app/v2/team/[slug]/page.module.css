@@ -173,3 +173,11 @@
 
 
 .memberContentWrapper{gap:55px}.memberImageContainer{border-radius:4px;box-shadow:none}.memberName{font-size:48px;font-weight:500}.memberTitle{font-family:var(--font-body);font-size:13px;font-style:normal;letter-spacing:1px;color:#8f744c}.bioContent p{font-size:16px;line-height:1.9}.socialLink{border-radius:3px;box-shadow:none;font-size:12px}.socialLink:hover{box-shadow:none;transform:none}@media(max-width:760px){.memberContentWrapper{gap:28px}.memberName{font-size:38px}}
+
+/* V2 detail and interaction polish */
+
+.memberContentWrapper { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); align-items: start; }
+.memberDetails { min-width: 0; }
+.memberSocial { gap: 24px; padding-top: 24px; margin-top: 28px; border-color: #ddd2c1; }
+.backLink { display: inline-block; padding-bottom: 8px; border-bottom: 1px solid #baa079; font-size: 13px; }
+@media(max-width: 800px) { .memberContentWrapper { grid-template-columns: 1fr; } .memberImageContainer { max-width: 440px; } }

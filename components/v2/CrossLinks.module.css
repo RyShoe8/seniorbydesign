@@ -239,3 +239,11 @@
   color: #84735d;
 }
 .link{padding:24px 28px;border-radius:4px;border:1px solid #e1d5c3;background:#fffdf8;box-shadow:none}.link:hover{transform:none;box-shadow:none;border-color:#b59c73}.linkDescription{font-size:13px;line-height:1.8;color:#7d6b54}.card{border-radius:4px;border:1px solid #e1d5c3;box-shadow:none}.card:hover{transform:none;box-shadow:none}.link:hover .linkArrow{transform:none}
+
+/* V2 detail and interaction polish */
+
+.section { padding: 64px 0; background: #f2eee6; border-color: #ded3c1; }
+.heading { font-size: clamp(32px, 4vw, 44px); margin-bottom: 32px; }
+.cardGrid, .hubGrid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 20px; }
+.card { padding: 28px; background: #fcfbf8; }
+.cardLabel { font-size: 26px; }

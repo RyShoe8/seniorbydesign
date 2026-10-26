@@ -347,3 +347,11 @@
   background: var(--sbd-brown);
   transform: translateY(-2px);
 }
+
+/* V2 detail and interaction polish */
+
+.viewerContainer, .loadingContainer, .errorContainer { background: #29231e; }
+.closeButton, .navButton, .zoomButton { border-radius: 3px; background: #fcfbf8; color: #593825; border: 1px solid #d9cbb5; box-shadow: none; min-width: 44px; min-height: 44px; }
+.closeButton:hover, .navButton:hover, .zoomButton:hover { transform: none; background: #e9dfcf; color: #593825; }
+.pageIndicator, .mobilePageIndicator { font-family: var(--font-body); font-size: 13px; letter-spacing: .5px; color: #f3eadb; }
+.retryButton { background: #cbb48a; color: #29231e; border: 0; border-radius: 3px; padding: 14px 24px; }

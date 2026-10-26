@@ -644,3 +644,14 @@
   background: #f5f2ec;
 }
 .partnersTab{border-radius:3px;box-shadow:none;font-size:12px;padding:10px 18px;border:1px solid #ded3c1;background:transparent;color:#796447}.partnersTabActive{background:#593825;border-color:#593825;color:#fff9ed}.partnersTab:hover{box-shadow:none;transform:none;background:#eee5d7;color:#593825}.partnersGrid{gap:25px}.partnerLogo{box-shadow:none;border:1px solid #e8e0d4;border-radius:3px;background:white}.partnerLogo:hover{transform:none;box-shadow:none}
+
+/* V2 detail and interaction polish */
+
+.partnersTabs { gap: 8px; flex-wrap: wrap; margin-bottom: 32px; }
+.partnersTab { min-height: 44px; }
+.partnersTabActive:hover { background: #593825; color: #fffaf1; }
+.partnersGrid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+.partnerLogo { min-height: 140px; padding: 22px; }
+.partnerLogo img { max-height: 100px !important; }
+@media(max-width: 1000px) { .partnersGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media(max-width: 550px) { .partnersGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .partnerLogo { min-height: 100px; padding: 16px; } }

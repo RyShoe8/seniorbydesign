@@ -490,10 +490,10 @@ export default function NewsletterCTA() {
                 <h4>How would you like the brochure?</h4>
                 <div className={styles.choiceButtons}>
                   <button type="button" className="btn" onClick={() => handleChoice('digital')}>
-                    📄 Download instantly
+                    View the digital brochure
                   </button>
                   <button type="button" className={styles.secondaryBtn} onClick={() => handleChoice('physical')}>
-                    📬 Mail me a printed copy
+                    Mail me a printed copy
                   </button>
                 </div>
               </div>
@@ -501,6 +501,7 @@ export default function NewsletterCTA() {
 
             {step === 'form' && (
               <form onSubmit={handleSubmit} className={styles.modalForm}>
+                <h4 className={styles.formTitle}>Your brochure request</h4>
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
                     <label htmlFor="ctaFirstName">First Name *</label>
@@ -686,7 +687,7 @@ export default function NewsletterCTA() {
                   // PDF viewer + download after lead capture — not /experience (admin-email only)
                   <div className={styles.brochureActions}>
                     <Link
-                      href="/brochure/view"
+                      href="/v2/experience"
                       className={`btn ${styles.viewBtn}`}
                       onClick={closeModal}
                     >

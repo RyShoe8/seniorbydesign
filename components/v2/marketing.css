@@ -414,3 +414,12 @@
 }
 .sbd-marketing .who-we-are-section .container p{font-size:16px;line-height:1.85}.sbd-marketing .who-we-are-section .container .sbd-supporting-copy{font-size:14px;line-height:1.85}.sbd-marketing main>section{border-bottom-color:#e2d8c8}.sbd-marketing .footer-nap{font-size:12px;line-height:1.8}
 .sbd-marketing .btn:disabled{opacity:.55;cursor:wait}.sbd-marketing input::placeholder,.sbd-marketing textarea::placeholder{color:#9b8f7e}.sbd-marketing input[type=checkbox],.sbd-marketing input[type=radio]{accent-color:#80613c}.sbd-marketing textarea{resize:vertical;min-height:140px}.sbd-marketing .portfolio-gallery .back-link{display:inline-flex;align-items:center;font-size:12px;border-bottom:1px solid #b59a70;padding-bottom:7px}.sbd-marketing .thumbnail{border:1px solid #e2d8c9}.sbd-marketing .thumbnail:focus-visible{outline:2px solid #a17f45;outline-offset:5px}.sbd-marketing .fullscreen-toolbar{background:#241d18;border-bottom:1px solid #ffffff20}.sbd-marketing .toolbar-nav-btn,.sbd-marketing .toolbar-close-btn{border:1px solid #ffffff38;border-radius:4px;min-width:44px;min-height:44px}
+
+/* Shared rhythm across all public preview sections. */
+.sbd-marketing h3 { font-style: normal; font-weight: 500; }
+.sbd-marketing main { min-width: 0; }
+.sbd-marketing .container { max-width: 1280px; }
+.sbd-marketing button { font-family: var(--font-body); }
+.sbd-marketing :is(input, select, textarea) { max-width: 100%; }
+.sbd-marketing .btn-secondary:hover { color: #fffaf1; }
+@media(max-width: 760px) { .sbd-marketing .container { padding-left: 22px; padding-right: 22px; } }

@@ -238,3 +238,16 @@
   border-radius: 4px;
   box-shadow: none;
 }
+
+/* V2 detail and interaction polish */
+
+.teamGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px 28px; }
+.teamMemberCard { aspect-ratio: auto; overflow: visible; }
+.memberImageWrapper, .memberPlaceholder { height: auto; aspect-ratio: 4 / 5; border-radius: 3px; }
+.memberInfoOverlay { position: relative; padding: 20px 0; background: none; border-bottom: 1px solid #ddd2c1; }
+.memberInfoOverlay h3 { color: #593825; font-size: 30px; }
+.memberInfoOverlay p { color: #806a4d; font-size: 13px; }
+.quote { max-width: 900px; margin: 0 auto 24px; font-family: var(--font-heading); font-size: clamp(28px, 3vw, 40px); }
+.quoteAuthor { font-size: 12px; letter-spacing: 1px; color: #806a4d; }
+@media(max-width: 900px) { .teamGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media(max-width: 520px) { .teamGrid { grid-template-columns: 1fr; } }
