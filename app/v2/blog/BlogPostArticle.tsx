@@ -1,7 +1,7 @@
 import AboutSbdBoilerplate from '@/components/v2/AboutSbdBoilerplate';
 import SeoImage from '@/components/v2/SeoImage';
 import { blogFeaturedAlt } from '@/lib/image-seo';
-import Link from '@/components/v2/PreviewLink';
+import Link, { previewHref } from '@/components/v2/PreviewLink';
 import { prepareBlogBodyForDisplay } from '@/lib/blog-body-html';
 import styles from './[slug]/page.module.css';
 
@@ -32,7 +32,14 @@ type Props = {
 };
 
 export function BlogPostArticle({ post, showPreviewBanner, relatedPosts, contextualLinks }: Props) {
-  const safeHtml = prepareBlogBodyForDisplay(post.body);
+  // Keep links in already-sanitized editorial content inside the preview too.
+  const safeHtml = prepareBlogBodyForDisplay(post.body).replace(
+    /(<a\b[^>]*\bhref=")([^"]*)(")/gi,
+    (_match, before: string, href: string, after: string) => {
+      const local = href.replace(/^https?:\/\/(www\.)?seniorbydesign\.com(?=\/|$)/i, '') || '/';
+      return `${before}${previewHref(local)}${after}`;
+    },
+  );
   const empty = isHtmlEffectivelyEmpty(safeHtml);
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';

@@ -102,19 +102,15 @@ export default async function Team() {
                       loading={index < 6 ? 'eager' : 'lazy'}
                       unoptimized={true}
                     />
-                    <div className={styles.memberInfoOverlay}>
-                      <h3>{member.name}</h3>
-                      <p>{member.title}</p>
-                    </div>
                   </div>
                 ) : (
                   <div className={styles.memberPlaceholder}>
-                    <div className={styles.memberInfoOverlay}>
-                      <h3>{member.name}</h3>
-                      <p>{member.title}</p>
-                    </div>
                   </div>
                 )}
+                <div className={styles.memberInfoOverlay}>
+                  <h3>{member.name}</h3>
+                  <p>{member.title}</p>
+                </div>
               </Link>
             ))}
           </div>
