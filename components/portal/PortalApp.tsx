@@ -6,6 +6,7 @@ import {
   displayDate,
 } from "./PortalWorkspace";
 import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import type {
   Actor,
@@ -49,17 +50,29 @@ export default function PortalApp({
 }: {
   management?: boolean;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const route = pathname.split("/").slice(2).map(decodeURIComponent);
+  const createKind = route[1] || "project";
+  const createMethod = route[2] || "";
   const [projects, setProjects] = useState<ViewProject[]>([]),
     [organizations, setOrganizations] = useState<Organization[]>([]),
     [actor, setActor] = useState<Actor | null>(null),
     [members, setMembers] = useState<Membership[]>([]);
-  const [tab, setTab] = useState("overview"),
-    [selected, setSelected] = useState(""),
+  const [tab, setTab] = useState(route[0] || "overview"),
+    [selected, setSelected] = useState(route[0] === "projects" ? route[1] || "" : ""),
     [search, setSearch] = useState(""),
     [org, setOrg] = useState(""),
     [message, setMessage] = useState(""),
     [loading, setLoading] = useState(true),
     [busy, setBusy] = useState(false);
+  const importing = tab === "create" && createMethod === "import" && createKind !== "company";
+  useEffect(() => {
+    const parts = pathname.split("/").slice(2).map(decodeURIComponent);
+    setTab(parts[0] === "imports" ? "create" : parts[0] || "overview");
+    setSelected(parts[0] === "projects" ? parts[1] || "" : "");
+    setOrg(new URLSearchParams(window.location.search).get("organization") || "");
+  }, [pathname]);
   const [jobs, setJobs] = useState<
     { _id: string; projectId: string; action: string; state: string }[]
   >([]);
@@ -73,6 +86,10 @@ export default function PortalApp({
   >([]);
   const [preview, setPreview] = useState<Preview | null>(null),
     [source, setSource] = useState("");
+  useEffect(() => {
+    setSource("");
+    setPreview(null);
+  }, [pathname]);
   const [events, setEvents] = useState<
     {
       _id: string;
@@ -120,11 +137,11 @@ export default function PortalApp({
         .catch((e) => setMessage(e.message));
   }, [staff, projects]);
   useEffect(() => {
-    if (tab === "imports")
+    if (importing)
       api("imports")
         .then(setHistory)
         .catch((e) => setMessage(e.message));
-  }, [tab, projects]);
+  }, [importing, projects]);
   useEffect(() => {
     if (selected)
       api(`workflow?project=${encodeURIComponent(selected)}`)
@@ -245,14 +262,13 @@ export default function PortalApp({
     ...(staff
       ? [
           ["organizations", "Companies & operators"],
-          ["imports", "JSON imports"],
+          ["create", "Create"],
         ]
       : []),
     ...(manageable.length ? [["members", "Account team"]] : []),
   ];
   const navigate = (key: string) => {
-    setTab(key);
-    setSelected("");
+    router.push(`/portal/${key}`);
     setSearch("");
   };
   return (
@@ -274,20 +290,92 @@ export default function PortalApp({
       signOut={() => signOut({ callbackUrl: "/account/login" })}
       staff={staff}
     >
-      {["imports", "organizations", "members"].includes(tab) && (
+      {["create", "organizations", "members"].includes(tab) && (
         <div className="portal-page-heading">
           <div>
             <span className="portal-eyebrow">WORKSPACE MANAGEMENT</span>
             <h1>{navigation.find((n) => n[0] === tab)?.[1]}</h1>
             <p>
-              {tab === "imports"
-                ? "Review and validate project updates before publishing."
+              {tab === "create"
+                ? "Create a project or company from scratch, or import JSON."
                 : tab === "members"
                   ? "The right people, connected to the right projects."
-                  : "Manage the companies and operators behind each project."}
+                  : "Browse the companies and operators connected to your projects."}
             </p>
           </div>
         </div>
+      )}
+      {staff && !selected && tab === "projects" && (
+        <div className="portal-actions"><button onClick={() => router.push("/portal/create/project")}>Create project</button></div>
+      )}
+      {staff && tab === "create" && (
+        <section className="portal-panel">
+          <div className="portal-actions">
+            <button className={createKind === "project" ? "" : "secondary"} onClick={() => router.push("/portal/create/project")}>New project</button>
+            <button className={createKind === "company" ? "" : "secondary"} onClick={() => router.push("/portal/create/company")}>New company</button>
+          </div>
+          <h2>How would you like to create your {createKind === "company" ? "company" : "project"}?</h2>
+          <div className="portal-actions">
+            <button onClick={() => router.push(`/portal/create/${createKind}/scratch`)}>Create from scratch</button>
+            <button className="secondary" onClick={() => router.push(`/portal/create/${createKind}/import`)}>Import JSON</button>
+          </div>
+        </section>
+      )}
+      {staff && tab === "create" && createKind === "project" && createMethod === "scratch" && (
+        <section className="portal-panel">
+          <h2>New project</h2>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.currentTarget));
+            run(async () => {
+              const result = await api("manage-project", { action: "create", ...data });
+              router.push(`/portal/projects/${encodeURIComponent(result.id)}`);
+            });
+          }}>
+            <label>Project name<input name="name" required /></label>
+            <label>Company<select name="companyId" required defaultValue=""><option value="" disabled>Select a company</option>{organizations.filter(o => o.type === "company" && o.active).map(o => <option key={o._id} value={o._id}>{o.name}</option>)}</select></label>
+            <label>Operator<select name="operatorId" required defaultValue=""><option value="" disabled>Select an operator</option>{organizations.filter(o => o.type === "operator" && o.active).map(o => <option key={o._id} value={o._id}>{o.name}</option>)}</select></label>
+            <label>Location<input name="location" required /></label>
+            <label>Address<input name="address" required /></label>
+            <label>Summary<textarea name="summary" /></label>
+            <button disabled={busy}>Create project</button>
+          </form>
+        </section>
+      )}
+      {staff && tab === "create" && createKind === "company" && createMethod === "import" && (
+        <section className="portal-panel">
+          <h2>Import a company</h2>
+          <p>Upload a JSON object with name and slug fields. You can review and edit them before creating the company.</p>
+          <input type="file" aria-label="Company JSON file" accept=".json,application/json" onChange={async e => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            try {
+              if (file.size > 1_500_000) throw new Error("Choose a file smaller than 1.5 MB");
+              const value = JSON.parse(await file.text());
+              const company = value.companies?.[0] || value;
+              if (value.companies?.length > 1) throw new Error("Import one company at a time.");
+              const name = company.name || company.companyname;
+              const slug = company.slug || company.companyid;
+              if (typeof name !== "string" || typeof slug !== "string") throw new Error("The company JSON needs name and slug fields.");
+              setSource(JSON.stringify({ name, slug }));
+              setMessage("");
+            } catch (error) { setSource(""); setMessage(error instanceof Error ? error.message : "Invalid company JSON"); }
+          }} />
+          {source && (() => {
+            let company: { name: string; slug: string };
+            try { company = JSON.parse(source); } catch { return null; }
+            if (!company.name || !company.slug) return null;
+            return <form key={source} onSubmit={e => {
+              e.preventDefault();
+              const fields = Object.fromEntries(new FormData(e.currentTarget));
+              run(async () => { await api("organizations", { action: "create", type: "company", ...fields }); setSource(""); router.push("/portal/organizations"); });
+            }}>
+              <label>Company name<input name="name" defaultValue={company.name} required /></label>
+              <label>Permanent slug<input name="slug" defaultValue={company.slug} pattern="[a-z0-9]+(-[a-z0-9]+)*" required /></label>
+              <button disabled={busy}>Confirm and create company</button>
+            </form>;
+          })()}
+        </section>
       )}
       {message && (
         <div className="portal-alert" role="status">
@@ -299,7 +387,7 @@ export default function PortalApp({
       )}
       {loading && <p>Loading your workspace…</p>}
       {!loading &&
-        !project &&
+        !project && !selected &&
         ["overview", "projects", "approvals", "orders", "documents"].includes(
           tab,
         ) && (
@@ -315,15 +403,15 @@ export default function PortalApp({
             setOrg={setOrg}
             name={name}
             open={(id) => {
-              setTab("projects");
-              setSelected(id);
+              router.push(`/portal/projects/${encodeURIComponent(id)}`);
             }}
             navigate={navigate}
           />
         )}
+      {!loading && selected && !project && <div className="portal-panel"><h2>Project unavailable</h2><p>This project could not be found or you do not have access.</p><button onClick={() => navigate("projects")}>Back to projects</button></div>}
       {project && tab === "projects" && (
         <>
-          <button className="secondary" onClick={() => setSelected("")}>
+          <button className="secondary" onClick={() => navigate("projects")}>
             Back to projects
           </button>
           <div className="portal-page-heading portal-detail-heading">
@@ -753,7 +841,7 @@ export default function PortalApp({
           </section>
         </>
       )}
-      {tab === "imports" && staff && (
+      {importing && staff && (
         <section className="portal-panel">
           <p>
             Upload the original SBD project JSON or the company-based format.
@@ -954,7 +1042,7 @@ export default function PortalApp({
           ))}
         </details>
       )}
-      {tab === "imports" && staff && (
+      {importing && staff && (
         <section className="portal-panel">
           <h2>Import history</h2>
           {history.map((h) => (
@@ -987,22 +1075,19 @@ export default function PortalApp({
           ))}
         </section>
       )}
-      {tab === "organizations" && staff && (
-        <>
+      {tab === "create" && staff && createKind === "company" && createMethod === "scratch" && (
           <section className="portal-panel">
             <h2>Create an organization</h2>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 const f = new FormData(e.currentTarget);
-                run(() =>
-                  api("organizations", {
-                    action: "create",
-                    type: f.get("type"),
-                    name: f.get("name"),
-                    slug: f.get("slug"),
-                  }),
-                );
+                run(async () => {
+                  await api("organizations", {
+                    action: "create", type: f.get("type"), name: f.get("name"), slug: f.get("slug"),
+                  });
+                  router.push("/portal/organizations");
+                });
               }}
             >
               <label>
@@ -1028,12 +1113,17 @@ export default function PortalApp({
               <button disabled={busy}>Create organization</button>
             </form>
           </section>
+      )}
+      {tab === "organizations" && staff && (
+        <>
+          {!organizations.length && <div className="portal-panel"><h2>No companies or operators yet</h2><p>Companies and operators will appear here after they are added through Create.</p></div>}
           {organizations.map((o) => (
             <div className="portal-panel" key={o._id}>
               <h2>{o.name}</h2>
               <p>
                 {o.type} · {o.slug}
               </p>
+              <div className="portal-actions">
               <button
                 disabled={busy}
                 className="secondary"
@@ -1055,11 +1145,12 @@ export default function PortalApp({
                 className="secondary"
                 onClick={() => {
                   setOrg(o._id);
-                  setTab("projects");
+                  router.push(`/portal/projects?organization=${encodeURIComponent(o._id)}`);
                 }}
               >
                 View projects
               </button>
+              </div>
             </div>
           ))}
         </>

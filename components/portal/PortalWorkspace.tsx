@@ -1,6 +1,7 @@
 "use client";
+import Link from "next/link";
 import Image from "next/image";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { Project, Organization } from "@/lib/portal/types";
 
 export type DisplayProject = Omit<Project, "documents"> & {
@@ -142,9 +143,20 @@ export function PortalShell({
   staff: boolean;
 }) {
   const [menu, setMenu] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!menu) return;
+    const dismiss = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setMenu(false); menuButton.current?.focus(); }
+    };
+    document.addEventListener("keydown", dismiss);
+    return () => document.removeEventListener("keydown", dismiss);
+  }, [menu]);
+  useEffect(() => { setMenu(false); }, [tab, title]);
   return (
     <div className="portal-app portal-workspace">
-      <aside className={`portal-sidebar ${menu ? "is-open" : ""}`}>
+      {menu && <button className="portal-menu-backdrop" aria-label="Close navigation" onClick={() => setMenu(false)} />}
+      <aside id="portal-navigation" className={`portal-sidebar ${menu ? "is-open" : ""}`}>
         <button
           className="portal-brand"
           onClick={() => navigate("overview")}
@@ -161,19 +173,19 @@ export function PortalShell({
         <div className="portal-workspace-label">CLIENT EXPERIENCE</div>
         <nav aria-label="Portal navigation">
           {navigation.map(([key, label]) => (
-            <button
+            <Link
+              href={`/portal/${key}`}
               key={key}
               className={`portal-nav-item ${tab === key ? "active" : ""}`}
               aria-current={tab === key ? "page" : undefined}
               onClick={() => {
-                navigate(key);
                 setMenu(false);
               }}
             >
               <PortalIcon name={key} />
               <span>{label}</span>
               {key === "overview" && <span className="portal-nav-dot" />}
-            </button>
+            </Link>
           ))}
         </nav>
         <div className="portal-sidebar-bottom">
@@ -201,7 +213,9 @@ export function PortalShell({
         <header className="portal-topbar">
           <div className="portal-breadcrumb">
             <button
+              ref={menuButton}
               className="portal-mobile-menu"
+              aria-controls="portal-navigation"
               onClick={() => setMenu(!menu)}
               aria-label="Toggle navigation"
               aria-expanded={menu}
@@ -586,12 +600,12 @@ export function PortalPortfolio({
                     <strong>{displayDate(p.install)}</strong>
                   </div>
                 </div>
-                <button
+                <Link
                   className="portal-project-open"
-                  onClick={() => open(p._id)}
+                  href={`/portal/projects/${encodeURIComponent(p._id)}`}
                 >
                   View project <PortalIcon name="arrow" size={18} />
-                </button>
+                </Link>
               </article>
             ))}
           </div>

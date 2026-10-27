@@ -1194,3 +1194,68 @@
 .portal-workspace .portal-editorial h2 {
   color: #fff8eb;
 }
+
+/* Keep the project search usable beside the status selector. */
+.portal-workspace .portal-filter-bar .portal-search { flex: 1 1 420px; min-width: 0; margin: 0; min-height: 48px; }
+.portal-workspace .portal-search input { width: 100%; flex: 1; font-size: 14px; }
+.portal-search > svg { flex-shrink: 0; }
+.portal-filter-bar > select { flex: 0 0 190px; width: 190px; }
+@media (max-width: 700px) {
+  .portal-filter-bar { flex-direction: column; }
+  .portal-workspace .portal-filter-bar .portal-search { flex-basis: auto; width: 100%; }
+  .portal-filter-bar > select { flex-basis: auto; width: 100%; }
+}
+
+.portal-nav-item, a.portal-project-open { text-decoration: none; }
+a.portal-project-open { display: flex; align-items: center; justify-content: space-between; }
+
+/* Responsive portal controls, content, and navigation. */
+.portal-menu-backdrop { display: none !important; }
+.portal-workspace .portal-content, .portal-panel, .portal-section-card { min-width: 0; }
+.portal-panel { overflow-wrap: anywhere; }
+.portal-panel form label { display: block; }
+.portal-panel form input:not([type="checkbox"]):not([type="radio"]),
+.portal-panel form select, .portal-panel form textarea { display: block; width: 100%; }
+@media (min-width: 761px) and (max-width: 1050px) {
+  .portal-project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .portal-overview-columns { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .portal-workspace { padding: 0; }
+  .portal-topbar { position: sticky; top: 0; z-index: 41; padding-inline: 12px; gap: 12px; }
+  .portal-workspace .portal-mobile-menu { flex-shrink: 0; width: 44px; min-height: 44px; align-items: center; justify-content: center; }
+  .portal-workspace .portal-menu-backdrop { display: block !important; position: fixed; inset: 65px 0 0; z-index: 39; margin: 0; padding: 0; border: 0; border-radius: 0; background: #0006; }
+  .portal-sidebar { z-index: 40; width: min(300px, 85vw); overflow-y: auto; overscroll-behavior: contain; padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+  .portal-sidebar-bottom { margin-top: 24px; }
+  .portal-avatar { min-width: 44px; min-height: 44px; }
+  .portal-workspace .portal-content { padding: 20px 16px max(24px, env(safe-area-inset-bottom)); }
+  .portal-workspace h1 { font-size: clamp(26px, 7vw, 34px); overflow-wrap: anywhere; }
+  .portal-workspace .portal-panel { padding: 18px; }
+  .portal-workspace .portal-panel h2 { font-size: 25px; }
+  .portal-workspace button, .portal-workspace .portal-nav-item, .portal-detail-nav a, .portal-workspace .portal-project-open { min-height: 44px; }
+  .portal-workspace input, .portal-workspace select, .portal-workspace textarea,
+  .portal-workspace .portal-panel input, .portal-workspace .portal-panel select,
+  .portal-workspace .portal-panel textarea, .portal-workspace .portal-search input { font-size: 16px; min-height: 48px; }
+  .portal-workspace input[type="checkbox"], .portal-workspace input[type="radio"] { min-height: auto; }
+  .portal-workspace .portal-panel label { font-size: 14px; }
+  .portal-workspace .portal-panel p, .portal-workspace .portal-panel small { font-size: 14px; }
+  .portal-workspace .portal-row { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .portal-row > *, .portal-actions, .portal-row-main { min-width: 0; max-width: 100%; }
+  .portal-actions { width: 100%; gap: 10px; }
+  .portal-actions button { flex: 1 1 140px; white-space: normal; }
+  .portal-filter-bar { flex-direction: column; }
+  .portal-workspace .portal-filter-bar .portal-search { flex-basis: auto; width: 100%; }
+  .portal-filter-bar > select { flex-basis: auto; width: 100%; }
+  .portal-detail-nav { flex-wrap: wrap; gap: 0 20px; }
+  .portal-footer { flex-wrap: wrap; gap: 10px; font-size: 10px; }
+  .portal-workspace .portal-metric-label { font-size: 11px; }
+  .portal-workspace .portal-status { font-size: 11px; white-space: normal; }
+  .portal-workspace .portal-project-open { font-size: 14px; }
+  .portal-workspace .portal-editorial p { font-size: 14px; }
+}
+@media (max-width: 380px) {
+  .portal-workspace .portal-content { padding-inline: 12px; }
+  .portal-project-card { padding: 18px 16px 0; }
+  .portal-project-card-details { flex-direction: column; }
+  .portal-workspace .portal-metric { padding: 12px !important; }
+}

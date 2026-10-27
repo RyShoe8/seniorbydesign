@@ -8,6 +8,31 @@ export async function POST(request: Request) {
     const actor = await requirePortalActor(true),
       data = await body(request, 20000),
       c = await collections();
+    if (data.action === "create") {
+      const id = randomUUID();
+      const name = text(data.name, "Project name");
+      const companyId = text(data.companyId, "Company");
+      const operatorId = text(data.operatorId, "Operator");
+      const location = text(data.location, "Location");
+      const address = text(data.address, "Address", 500);
+      const summary = text(data.summary, "Summary", 4000, true);
+      await transaction(async (session) => {
+        for (const [organizationId, type] of [[companyId, "company"], [operatorId, "operator"]]) {
+          if (!(await c.organizations.findOne({ _id: organizationId, type: type as "company" | "operator", active: true }, { session })))
+            throw new PortalError(`Choose an active ${type}`);
+        }
+        const project = {
+          _id: id, sourceId: id, name, companyId, operatorId, location, address, summary,
+          scopes: [], documents: [], payment: "Awaiting Confirmation" as const,
+          order: "Awaiting Confirmation" as const, install: null, version: 1,
+          archived: false, operatorApproval: false, workflowTouched: false, updatedAt: new Date(),
+        };
+        await c.projects.insertOne(project, { session });
+        await c.events.insertOne({ _id: randomUUID(), projectId: id, action: "project-created",
+          actorId: actor.id, email: actor.email, at: new Date(), note: "Project created", before: null, after: project }, { session });
+      });
+      return json({ id });
+    }
     await transaction(async (session) => {
       const p = await c.projects.findOne(
         { _id: text(data.id, "Project ID") },
