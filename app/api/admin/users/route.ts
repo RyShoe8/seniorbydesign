@@ -75,7 +75,9 @@ export async function PUT(request: Request) {
     if (
       typeof data.id !== "string" ||
       !ObjectId.isValid(data.id) ||
-      typeof data.disabled !== "boolean"
+      (data.role !== undefined && data.role !== "admin" && data.role !== "team") ||
+      (data.disabled !== undefined && typeof data.disabled !== "boolean") ||
+      (data.role === undefined && data.disabled === undefined)
     )
       throw new PortalError("Invalid account update");
     const users = await getUsersCollection(),
@@ -84,12 +86,18 @@ export async function PUT(request: Request) {
       throw new PortalError("Staff account not found", 404);
     if (adminEmails.includes(emailKey(user.email)))
       throw new PortalError(
-        "The two Administrator accounts cannot be disabled here",
+        "Ryan and Glenn's administrator accounts are protected",
       );
+    if (actor.id === data.id)
+      throw new PortalError("Ask another administrator to change your own access");
     await users.updateOne(
       { _id: user._id },
       {
-        $set: { disabled: data.disabled, role: "team", updatedAt: new Date() },
+        $set: {
+          ...(typeof data.disabled === "boolean" ? { disabled: data.disabled } : {}),
+          ...(data.role ? { role: data.role, adminGranted: data.role === "admin" } : {}),
+          updatedAt: new Date(),
+        },
         $inc: { sessionVersion: 1 },
       },
     );

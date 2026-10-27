@@ -7,6 +7,7 @@ export interface User {
   password: string;
   role: 'admin' | 'user' | 'team' | 'external';
   disabled?: boolean;
+  adminGranted?: boolean;
   emailVerifiedAt?: Date;
   sessionVersion?: number;
   createdAt: Date;

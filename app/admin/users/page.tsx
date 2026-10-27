@@ -1,7 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import "@/components/portal/portal.css";
 export default function StaffAccess() {
+  const { data: session } = useSession();
+  const [roles, setRoles] = useState<Record<string, string>>({});
   const [users, setUsers] = useState<
       { _id: string; email: string; role: string; disabled?: boolean }[]
     >([]),
@@ -20,6 +23,7 @@ export default function StaffAccess() {
     const d = await r.json();
     if (!r.ok) throw new Error(d.error);
     setUsers(d.users);
+    setRoles(Object.fromEntries(d.users.map((u: { _id: string; role: string }) => [u._id, u.role])));
     setInvites(d.invitations);
   }
   useEffect(() => {
@@ -47,8 +51,8 @@ export default function StaffAccess() {
     <div className="portal-app">
       <h1>Staff access</h1>
       <p>
-        Administrators invite SBD Team members. Company and operator accounts
-        are managed in Client Portal.
+        Administrators manage staff invitations and roles. Team members manage website content;
+        Administrators can also manage staff access. Company and operator accounts are managed in Client Portal.
       </p>
       {message && (
         <p role="status" className="portal-alert">
@@ -77,7 +81,18 @@ export default function StaffAccess() {
               {u.email} · {u.role === "admin" ? "Administrator" : "Team"} ·{" "}
               {u.disabled ? "Disabled" : "Active"}
             </span>
-            {u.role !== "admin" && (
+            {!["ryanschumacher@themediashop.co", "glenn@sbdid.com"].includes(u.email.toLowerCase()) && u._id !== session?.user?.id && (
+              <div className="portal-actions">
+              <label>Role for {u.email}
+                <select value={roles[u._id] || u.role} disabled={busy} onChange={e => setRoles({ ...roles, [u._id]: e.target.value })}>
+                  <option value="team">Team</option>
+                  <option value="admin">Administrator</option>
+                </select>
+              </label>
+              <button disabled={busy || roles[u._id] === u.role} onClick={() => {
+                if (confirm(`Change ${u.email} to ${roles[u._id] === 'admin' ? 'Administrator (can manage staff access)' : 'Team'}? They will need to sign in again.`))
+                  send({ id: u._id, role: roles[u._id] }, "PUT");
+              }}>Save role</button>
               <button
                 disabled={busy}
                 onClick={() =>
@@ -86,6 +101,7 @@ export default function StaffAccess() {
               >
                 {u.disabled ? "Restore" : "Disable"}
               </button>
+              </div>
             )}
           </div>
         ))}

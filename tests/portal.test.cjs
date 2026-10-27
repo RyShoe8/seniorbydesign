@@ -195,7 +195,9 @@ test("operator viewing does not imply approval and members cannot approve", () =
   );
   assert.equal(!!actionMembership(actor("company:a"), project, true), false);
 });
-test("only designated global admins retain Administrator role", () => {
+test("founders and explicitly promoted staff have Administrator role", () => {
+  assert.equal(staffRole({ email: "promoted@example.test", role: "admin", adminGranted: true }), "admin");
+  assert.equal(staffRole({ email: "demoted@example.test", role: "team", adminGranted: true }), "team");
   assert.equal(staffRole({ email: "Glenn@sbdid.com", role: "admin" }), "admin");
   assert.equal(
     staffRole({ email: "someone@example.test", role: "admin" }),

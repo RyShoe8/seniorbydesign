@@ -20,8 +20,8 @@ export const adminEmails = [
   "ryanschumacher@themediashop.co",
   "glenn@sbdid.com",
 ];
-export function staffRole(user: { role?: string; email: string }) {
-  if (user.role === "admin" && adminEmails.includes(emailKey(user.email)))
+export function staffRole(user: { role?: string; email: string; adminGranted?: boolean }) {
+  if (user.role === "admin" && (user.adminGranted === true || adminEmails.includes(emailKey(user.email))))
     return "admin";
   return ["admin", "user", "team"].includes(user.role || "")
     ? "team"
