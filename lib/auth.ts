@@ -4,19 +4,8 @@ import { getUsersCollection } from "./db";
 import bcrypt from "bcryptjs";
 import { emailKey, staffRole } from "./portal/policy";
 import { rateLimit } from "./portal/rate-limit";
-import { verifyStaffSignIn } from "./staff-signin";
 export const authOptions: NextAuthOptions = {
   providers: [
-    CredentialsProvider({
-      id: 'staff-email',
-      name: 'Staff email link or code',
-      credentials: { email: { type: 'email' }, code: { type: 'text' }, token: { type: 'text' } },
-      async authorize(credentials) {
-        if (!credentials?.email) return null;
-        try { return await verifyStaffSignIn(emailKey(credentials.email), credentials.code, credentials.token); }
-        catch { return null; }
-      },
-    }),
     CredentialsProvider({
       name: "Email and password",
       credentials: {
