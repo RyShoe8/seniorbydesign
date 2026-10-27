@@ -2,6 +2,8 @@ import { randomUUID } from "crypto";
 import { collections, transaction } from "@/lib/portal/db";
 import { body, failure, json, requirePortalActor } from "@/lib/portal/server";
 import { PortalError, text } from "@/lib/portal/policy";
+import { requestFields, operationalFields } from "@/lib/portal/project-fields";
+import type { Project } from "@/lib/portal/types";
 export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   try {
@@ -21,12 +23,18 @@ export async function POST(request: Request) {
           if (!(await c.organizations.findOne({ _id: organizationId, type: type as "company" | "operator", active: true }, { session })))
             throw new PortalError(`Choose an active ${type}`);
         }
-        const project = {
+        const project: Project = {
           _id: id, sourceId: id, name, companyId, operatorId, location, address, summary,
           scopes: [], documents: [], payment: "Awaiting Confirmation" as const,
           order: "Awaiting Confirmation" as const, install: null, version: 1,
           archived: false, operatorApproval: false, workflowTouched: false, updatedAt: new Date(),
         };
+        if (data.type !== undefined) {
+          project.request = requestFields(data);
+          project.request.quoteReferences = [];
+          project.workflowTouched = true;
+        }
+        operationalFields(data, project, actor.role === "admin");
         await c.projects.insertOne(project, { session });
         await c.events.insertOne({ _id: randomUUID(), projectId: id, action: "project-created",
           actorId: actor.id, email: actor.email, at: new Date(), note: "Project created", before: null, after: project }, { session });
@@ -41,7 +49,7 @@ export async function POST(request: Request) {
       if (!p) throw new PortalError("Project not found", 404);
       if (p.version !== data.version)
         throw new PortalError("Project changed. Reload before saving.", 409);
-      const before = { ...p };
+      const before = structuredClone(p);
       p.name = text(data.name, "Project name");
       p.location = text(data.location, "Location");
       p.address = text(data.address, "Address", 500);
@@ -59,6 +67,12 @@ export async function POST(request: Request) {
       if (typeof data.archived !== "boolean")
         throw new PortalError("Archive state required");
       p.archived = data.archived;
+      if (data.type !== undefined) {
+        p.request = requestFields(data, p.request);
+        p.request.quoteReferences ??= p.scopes.map(scope => scope.quote);
+        p.workflowTouched = true;
+      }
+      operationalFields(data, p, actor.role === "admin");
       p.version++;
       p.updatedAt = new Date();
       await c.projects.replaceOne({ _id: p._id }, p, { session });
@@ -77,7 +91,7 @@ export async function POST(request: Request) {
         { session },
       );
     });
-    return json({ success: true });
+    return json({ success: true, id: data.id });
   } catch (error) {
     return failure(error);
   }

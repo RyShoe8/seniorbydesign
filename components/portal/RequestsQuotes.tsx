@@ -8,11 +8,10 @@ import type { Actor, Organization } from "@/lib/portal/types";
 
 import type { DisplayProject } from "./PortalWorkspace";
 
+import { ProjectEditor } from "./ProjectEditor";
 import { displayDate, StatusBadge } from "./PortalWorkspace";
 
-import { presentationStages, quoteReady, requestStage, requestStages, requestTypes } from "@/lib/portal/requests";
-
-
+import { quoteReady, approvalState, projectPhase, paymentLabel, orderLabel } from "@/lib/portal/requests";
 
 type Workflow = (action: string, data?: Record<string, unknown>) => Promise<unknown> | undefined;
 
@@ -20,120 +19,48 @@ const fields = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); 
 
 const amount = (value?: number) => value === undefined ? "Not entered" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
 
-
-
-export function RequestPipeline({ projects, organizations, staff, actor, busy, save }: {
-
-  projects: DisplayProject[]; organizations: Organization[]; staff: boolean; actor: Actor | null; busy: boolean;
-
-  save: (project: DisplayProject, data: Record<string, unknown>) => Promise<unknown>;
-
+export function RequestPipeline({ projects, organizations, staff, mode = "requests", onSaved }: {
+  projects: DisplayProject[]; organizations: Organization[]; staff: boolean;
+  mode?: "requests" | "orders" | "projects" | "remodels";
+  onSaved: (id: string) => Promise<void> | void;
 }) {
-
   const [search, setSearch] = useState("");
-
+  const [showArchived, setShowArchived] = useState(false);
   const [company, setCompany] = useState("");
-
   const [stage, setStage] = useState("");
-
-  const [adding, setAdding] = useState(false);
-
+  const requests = mode === "requests", orders = mode === "orders";
   const name = (id: string) => organizations.find(o => o._id === id)?.name || "Company";
-
-  const active = projects.filter(p => !p.archived);
-
-  const eligible = active.filter(p => !p.request && (staff || actor?.memberships.some(m => m.active && m.role === "admin" && [p.companyId, p.operatorId].includes(m.organizationId))));
-
-  const filtered = active.filter(p => (!company || p.companyId === company) && (!stage || requestStage(p) === stage) &&
-
-    `${p.name} ${p.location} ${name(p.companyId)} ${p.request?.summary || p.summary} ${p.scopes.map(s => s.quote).join(" ")}`.toLowerCase().includes(search.toLowerCase()));
-
+  const active = projects.filter(p => (!p.archived || (staff && mode === "projects" && showArchived)) && (mode !== "remodels" || p.request?.type === "Remodel"));
+  const filtered = active.filter(p => (!company || p.companyId === company) && (!stage || projectPhase(p) === stage) && `${p.name} ${p.location} ${name(p.companyId)} ${p.request?.summary || p.summary} ${p.request?.contactName || ""} ${p.request?.quoteReference || ""} ${p.scopes.map(s => s.quote).join(" ")}`.toLowerCase().includes(search.toLowerCase()));
+  const title = requests ? "Requests & Quotes" : orders ? "Orders & Installation" : mode === "remodels" ? "Remodel Portfolio" : "All Projects";
   return <>
-
-    <div className="portal-page-heading"><div><span className="portal-eyebrow">PROJECT WORKSPACE</span><h1>Requests &amp; Quotes</h1><p>Capture the request, track pricing and presentation, then move confidently to approval.</p></div></div>
-
+    <div className="portal-page-heading portal-tracker-hero"><div><span className="portal-eyebrow">SENIOR BY DESIGN · CLIENT EXPERIENCE</span><h1>{title}</h1><p>{requests ? "Capture the request, track pricing and presentation, then move confidently to approval." : orders ? "Follow deposits, purchasing, deliveries and anticipated installation dates." : "Browse communities and open each project’s complete workflow."}</p></div></div>
+    {!requests && !orders && <dl className="portal-project-stats"><div><dt>Projects</dt><dd>{active.length}</dd></div><div><dt>New requests</dt><dd>{active.filter(p => p.request?.stage === "New Request").length}</dd></div><div><dt>Awaiting approval</dt><dd>{active.filter(p => approvalState(p) === "Pending").length}</dd></div><div><dt>Orders in process</dt><dd>{active.filter(p => p.order === "Ordered").length}</dd></div></dl>}
     <section className="portal-panel portal-request-pipeline">
-
-      <div className="portal-section-title"><h2>Request Pipeline <span className="portal-count">{filtered.length}</span></h2>
-
-        {eligible.length > 0 && <button onClick={() => setAdding(!adding)} aria-expanded={adding}>{adding ? "Cancel request" : "+ New request"}</button>}
-
-        {staff && <Link className="portal-link secondary" href="/portal/create/project">New project</Link>}
-
+      <div className="portal-section-title"><h2>{requests ? "Request Pipeline" : orders ? "Procurement & Install Tracker" : "Project Tracker"}</h2>{!orders && staff && <ProjectEditor organizations={organizations} onSaved={onSaved} />}</div>
+      {!orders && <div className="portal-request-filters"><label>Search projects<input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search community, request or contact…" /></label><label>Client<select value={company} onChange={e => setCompany(e.target.value)}><option value="">All clients</option>{organizations.filter(o => o.type === "company" && active.some(p => p.companyId === o._id)).map(o => <option key={o._id} value={o._id}>{o.name}</option>)}</select></label><label>Current phase<select value={stage} onChange={e => setStage(e.target.value)}><option value="">All phases</option>{Array.from(new Set(active.map(projectPhase))).map(value => <option key={value}>{value}</option>)}</select></label></div>}
+      {staff && mode === "projects" && <label className="portal-review-confirm portal-archive-filter"><input type="checkbox" checked={showArchived} onChange={event => setShowArchived(event.target.checked)} />Include archived projects</label>}
+      <p className="portal-table-mobile-hint">Swipe the table to see all columns.</p>
+      <div className="portal-tracker-scroll" role="region" aria-label={title} tabIndex={0}>
+        <table className="portal-tracker-table"><caption className="portal-sr-only">{title} by client and community. Scroll horizontally to see all columns.</caption>
+          <thead><tr><th scope="col">Client / Community</th><th scope="col">{requests ? "Request" : "Current phase"}</th><th scope="col">{requests ? "Quote" : "Approval"}</th><th scope="col">{orders ? "Payment" : "Presentation"}</th><th scope="col">Order status</th><th scope="col">Target install</th><th scope="col"><span className="portal-sr-only">Actions</span></th></tr></thead>
+          <tbody>{filtered.map(p => <tr key={p._id}><td><strong>{name(p.companyId)}</strong><Link className="portal-tracker-project" href={`/portal/projects/${encodeURIComponent(p._id)}?from=${mode}`}>{p.name}</Link>{p.archived && <StatusBadge value="Archived" />}</td><td>{requests ? p.request?.summary || p.summary || "Not recorded" : projectPhase(p)}</td><td>{requests ? <>{p.scopes.map(s => s.quote).join(" · ") || p.request?.quoteReference || "Not started"}{staff && <small>{amount(p.request?.quotedAmount)}</small>}</> : <StatusBadge value={approvalState(p)} />}</td><td><StatusBadge value={orders ? paymentLabel(p) : p.request?.presentation || "Not started"} /></td><td><StatusBadge value={orderLabel(p)} /></td><td>{displayDate(p.install)}</td><td><Link className="portal-link secondary" href={`/portal/projects/${encodeURIComponent(p._id)}?from=${mode}`}>Details →<span className="portal-sr-only"> {p.name}</span></Link></td></tr>)}{!filtered.length && <tr><td colSpan={7}>No matching records.</td></tr>}</tbody>
+        </table>
       </div>
-
-      {adding && eligible.length > 0 && <form key={eligible.map(p => p._id).join(",")} className="portal-request-form" onSubmit={e => {
-
-        const data = fields(e); const project = eligible.find(p => p._id === data.projectId);
-
-        if (project) void save(project, { action: "submit-request", ...data });
-
-      }}>
-
-        <h3>New project request</h3><p>Select a project and describe the work you need. SBD will review the scope and prepare a quote.</p>
-
-        <label>Community / project<select name="projectId" required defaultValue=""><option value="" disabled>Choose a project</option>{eligible.map(p => <option key={p._id} value={p._id}>{name(p.companyId)} · {p.name}</option>)}</select></label>
-
-        <label>Project type<select name="type">{requestTypes.map(v => <option key={v}>{v}</option>)}</select></label>
-
-        <label>Request / scope<textarea name="summary" rows={3} maxLength={2000} required /></label>
-
-        <button disabled={busy}>Submit request to SBD</button>
-
-      </form>}
-
-      <div className="portal-request-filters">
-
-        <label>Search requests<input value={search} onChange={e => setSearch(e.target.value)} placeholder="Community, company, request, or quote" /></label>
-
-        <label>Client<select value={company} onChange={e => setCompany(e.target.value)}><option value="">All clients</option>{organizations.filter(o => o.type === "company").map(o => <option key={o._id} value={o._id}>{o.name}</option>)}</select></label>
-
-        <label>Current stage<select value={stage} onChange={e => setStage(e.target.value)}><option value="">All stages</option>{[...requestStages, "Awaiting Approval", "Changes Requested", "Approved"].map(v => <option key={v}>{v}</option>)}</select></label>
-
-      </div>
-
-      <div className="portal-request-list">
-
-        {filtered.map(p => <article className="portal-request-item" key={p._id}>
-
-          <div className="portal-request-community"><span className="portal-eyebrow">{name(p.companyId)}</span><h3><Link href={`/portal/projects/${encodeURIComponent(p._id)}#quotes`}>{p.name}</Link></h3><p>{p.location}</p><StatusBadge value={requestStage(p)} /></div>
-
-          <dl className="portal-request-data">
-
-            <div><dt>Request</dt><dd>{p.request?.summary || p.summary || "Scope not recorded"}</dd><dt>Date received</dt><dd>{p.request ? displayDate(p.request.receivedAt) : "Not recorded"}</dd></div>
-
-            <div><dt>Quote</dt><dd>{p.scopes.map(s => s.quote).join(" · ") || "Not started"}</dd>{staff && <><dt>Quoted amount · internal</dt><dd>{amount(p.request?.quotedAmount)}</dd></>}</div>
-
-            <div><dt>Presentation</dt><dd>{p.request?.presentation || "Not started"}</dd><dt>Assigned to</dt><dd>{p.request?.assignedTo || "Unassigned"}</dd></div>
-
-            <div><dt>Order status</dt><dd>{p.order}</dd><dt>Target install</dt><dd>{displayDate(p.install)}</dd></div>
-
-          </dl>
-
-          <Link className="portal-link secondary" href={`/portal/projects/${encodeURIComponent(p._id)}#quotes`}>Review request &amp; quotes</Link>
-
-        </article>)}
-
-        {!filtered.length && <p className="portal-calm-state">No matching requests or quotes.</p>}
-
-      </div>
-
     </section>
-
   </>;
-
 }
 
-
-
-export function ProjectRequestsQuotes({ project, staff, actor, busy, workflow, events }: {
+export function ProjectRequestsQuotes({ project, staff, actor, busy, workflow, events, section = "approvals" }: {
 
   project: DisplayProject; staff: boolean; actor: Actor | null; busy: boolean; workflow: Workflow;
+  section?: "quotes" | "approvals";
 
   events: { _id: string; action: string; email: string; at: string; note: string; resolution?: string }[];
 
 }) {
 
+  const approvals = section === "approvals";
   const [reviewed, setReviewed] = useState<Record<string, boolean>>({});
 
   const canRequest = staff || actor?.memberships.some(m => m.active && m.role === "admin" && [project.companyId, project.operatorId].includes(m.organizationId));
@@ -144,67 +71,39 @@ export function ProjectRequestsQuotes({ project, staff, actor, busy, workflow, e
 
   const request = project.request;
 
-  return <section className="portal-panel portal-requests-detail" id="quotes">
+  return <section className="portal-panel portal-requests-detail" id={section}>
 
-    <div className="portal-section-title"><div><span className="portal-eyebrow">SCOPE TO APPROVAL</span><h2>Requests &amp; Quotes</h2></div><StatusBadge value={requestStage(project)} /></div>
+    <div className="portal-section-title"><div><span className="portal-eyebrow">SCOPE TO APPROVAL</span><h2>{approvals ? "Approvals" : "Request & Quote"}</h2></div><StatusBadge value={approvals ? approvalState(project) : projectPhase(project)} /></div>
 
-    <div className="portal-request-steps" aria-label="Request workflow"><span>1. Request &amp; scope</span><span>2. SBD prepares quote</span><span>3. Review document</span><span>4. Approve or request changes</span></div>
+    {approvals && <div className="portal-request-steps" aria-label="Request workflow"><span>1. Request &amp; scope</span><span>2. SBD prepares quote</span><span>3. Review document</span><span>4. Approve or request changes</span></div>}
 
-    <dl className="portal-request-summary">
+    {!approvals && <dl className="portal-request-summary">
 
       <div><dt>Request summary</dt><dd>{request?.summary || project.summary || "No request recorded yet."}</dd></div>
 
       <div><dt>Date received</dt><dd>{request ? displayDate(request.receivedAt) : "Not recorded"}</dd></div>
 
-      <div><dt>Project type</dt><dd>{request?.type || "Not recorded"}</dd></div>
+      <div><dt>Quote reference</dt><dd>{project.scopes.map(scope => scope.quote).join(" · ") || request?.quoteReference || "Not started"}</dd></div>
+      <div><dt>Quoted amount</dt><dd>{staff ? amount(request?.quotedAmount) : "Available upon request"}</dd></div>
+      <div><dt>Current phase</dt><dd>{projectPhase(project)}</dd></div>
 
       <div><dt>Assigned to</dt><dd>{request?.assignedTo || "Unassigned"}</dd></div>
 
       <div><dt>Presentation</dt><dd>{request?.presentation || "Not started"}</dd></div>
 
-      {staff && <div><dt>Quoted amount · internal</dt><dd>{amount(request?.quotedAmount)}</dd></div>}
 
-    </dl>
 
-    {(staff || (!request && canRequest)) && <details className="portal-request-editor"><summary>{staff ? "Manage request & pipeline" : "Submit a project request"}</summary>
+    </dl>}
 
-      <form key={`request-${project.version}`} className="portal-request-form" onSubmit={e => { const data = fields(e); void workflow(staff ? "update-request" : "submit-request", data); }}>
-
-        <label>Request / scope<textarea name="summary" required rows={3} maxLength={2000} defaultValue={request?.summary || project.summary} /></label>
-
-        <div className="portal-request-form-grid">
-
-          <label>Project type<select name="type" defaultValue={request?.type || "Remodel"}>{requestTypes.map(v => <option key={v}>{v}</option>)}</select></label>
-
-          {staff && <>
-
-            <label>Date received<input type="date" name="receivedAt" required defaultValue={request?.receivedAt || new Date().toLocaleDateString("en-CA")} /></label>
-
-            <label>Preparation stage<select name="stage" defaultValue={request?.stage || "New Request"}>{requestStages.map(v => <option key={v}>{v}</option>)}</select></label>
-
-            <label>Assigned to<input name="assignedTo" maxLength={200} defaultValue={request?.assignedTo} /></label>
-
-            <label>Presentation<select name="presentation" defaultValue={request?.presentation || "Not started"}>{presentationStages.map(v => <option key={v}>{v}</option>)}</select></label>
-
-            <label>Quoted amount · internal (USD)<input name="quotedAmount" type="number" min="0" max="10000000000" step="0.01" defaultValue={request?.quotedAmount} /></label>
-
-          </>}
-
-        </div>
-
-        {staff && <><p className="portal-muted">Approval stages follow the published quote decisions automatically.</p><label>Update note<input name="note" required maxLength={2000} /></label></>}
-
-        <button disabled={busy}>{staff ? "Save request details" : "Submit request to SBD"}</button>
-
-      </form>
-
-    </details>}
-
-    <h3 className="portal-quotes-title">Quotes &amp; decisions</h3>
+    <h3 className="portal-quotes-title">{approvals ? "Approval Queue" : "Quote references"}</h3>
+    {project.scopes.length > 0 && <div className="portal-tracker-scroll" role="region" aria-label="Quote review queue" tabIndex={0}><table className="portal-tracker-table portal-quote-table"><thead><tr><th scope="col">Scope / Quote</th><th scope="col">Revision</th><th scope="col">Presentation</th><th scope="col">Current document</th><th scope="col">Decision</th><th scope="col">Next step</th></tr></thead><tbody>{project.scopes.map(scope => {
+      const document = documents.find(d => d.id === scope.documentId);
+      return <tr key={scope.quote}><td><strong>{scope.label}</strong><small>Quote {scope.quote}</small></td><td>{scope.revision}</td><td>{request?.presentation || "Not started"}</td><td>{document ? <a href={`/api/portal/documents?project=${encodeURIComponent(project._id)}&document=${encodeURIComponent(document.id)}`} target="_blank" rel="noopener noreferrer">{document.name}</a> : "SBD confirmation needed"}</td><td><StatusBadge value={scope.changesRequested ? "Changes Requested" : scope.approval} /></td><td><a className="portal-link secondary" href={approvals ? `#quote-${encodeURIComponent(scope.quote)}` : "#approvals"}>{staff ? "Manage review" : "Review quote"}</a></td></tr>;
+    })}</tbody></table></div>}
 
     {!project.scopes.length && <p>No quote has been published yet. SBD will prepare a quote after reviewing the request.</p>}
 
-    {project.scopes.map(scope => {
+    {approvals && project.scopes.map(scope => {
 
       const relevant = !request?.quoteReferences || request.quoteReferences.includes(scope.quote);
       const ready = quoteReady(project, scope);
@@ -213,7 +112,7 @@ export function ProjectRequestsQuotes({ project, staff, actor, busy, workflow, e
 
       const reviewKey = `${scope.quote}-${scope.revision}-${scope.documentId}`;
 
-      return <article className="portal-quote-card" key={scope.quote}>
+      return <article className="portal-quote-card" id={`quote-${scope.quote}`} key={scope.quote}>
 
         <div className="portal-section-title"><div><h3>{scope.label} · Quote {scope.quote}</h3><p>Revision {scope.revision}</p></div><StatusBadge value={scope.changesRequested ? "Changes Requested" : scope.approval} /></div>
 

@@ -36,12 +36,17 @@ export interface PortalDocument {
 }
 export interface ProjectRequest {
   quoteReferences?: string[];
+  quoteReference?: string;
+  contactName?: string;
+  contactEmail?: string;
+  progressEstimate?: number;
+  notes?: string;
   summary: string;
   receivedAt: string;
   type: "Remodel" | "Model" | "New Development";
-  stage: "New Request" | "Scoping" | "Quote in Progress" | "Quote Sent" | "Presentation";
+  stage: "New Request" | "Scoping" | "Quote in Progress" | "Quote Sent" | "Presentation" | "Awaiting Approval" | "Awaiting Deposit" | "Ordering" | "Procurement" | "Installation Planning" | "Installed" | "Closed";
   assignedTo: string;
-  presentation: "Not started" | "Draft" | "In preparation" | "In review" | "Presented";
+  presentation: "Not started" | "Draft" | "In preparation" | "Draft in review" | "In review" | "Presented" | "Approved";
   quotedAmount?: number;
 }
 export interface Project {
@@ -56,6 +61,8 @@ export interface Project {
   summary: string;
   scopes: Scope[];
   documents: PortalDocument[];
+  paymentDetail?: string;
+  orderDetail?: string;
   payment: "Awaiting Confirmation" | "Awaiting Payment" | "Paid";
   order: "Awaiting Confirmation" | "Ordered" | "Delivered";
   install: string | null;

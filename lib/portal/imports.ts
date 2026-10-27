@@ -100,12 +100,12 @@ export async function previewImport(input: unknown, actor: Actor) {
             ...s,
             approval: "Needs Approval",
             revision: prior.revision + 1,
-            ...(prior.changesRequested ? { changesRequested: true } : {}),
+            ...(prior.changesRequested !== undefined ? { changesRequested: prior.changesRequested } : {}),
           };
         return {
           ...s,
           revision: prior.revision,
-          ...(prior.changesRequested ? { changesRequested: true } : {}),
+          ...(prior.changesRequested !== undefined ? { changesRequested: prior.changesRequested } : {}),
           ...(prior.documentId ? { documentId: prior.documentId } : {}),
           ...(prior.revisionConfirmed !== undefined
             ? { revisionConfirmed: prior.revisionConfirmed }
@@ -115,6 +115,8 @@ export async function previewImport(input: unknown, actor: Actor) {
       });
       if (old.workflowTouched) {
         proposed.payment = old.payment;
+        if (old.paymentDetail) proposed.paymentDetail = old.paymentDetail;
+        if (old.orderDetail) proposed.orderDetail = old.orderDetail;
         proposed.order = old.order;
         proposed.install = old.install;
         for (const scope of old.scopes)

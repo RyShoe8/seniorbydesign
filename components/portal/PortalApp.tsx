@@ -8,6 +8,10 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ProjectRequestsQuotes, RequestPipeline } from "./RequestsQuotes";
+import { ProjectEditor } from "./ProjectEditor";
+import { ApprovalQueue, ClientContacts } from "./PortalDirectories";
+import { ProjectProgress, ProjectOperations } from "./ProjectWorkflow";
+import { projectPhase, orderLabel } from "@/lib/portal/requests";
 import { signOut } from "next-auth/react";
 import type {
   Actor,
@@ -67,12 +71,28 @@ export default function PortalApp({
     [message, setMessage] = useState(""),
     [loading, setLoading] = useState(true),
     [busy, setBusy] = useState(false);
+  const [detailOrigin, setDetailOrigin] = useState("projects");
+  const [detailSection, setDetailSection] = useState("overview");
+  useEffect(() => {
+    const readSection = () => {
+      const hash = decodeURIComponent(window.location.hash.slice(1));
+      const section = hash.startsWith("quote-") ? "approvals" : hash === "updates" ? "orders" : hash === "team" ? "contacts" : hash;
+      setDetailSection(["overview", "quotes", "presentation", "approvals", "payment", "orders", "contacts", "documents", "activity"].includes(section) ? section : "overview");
+    };
+    readSection();
+    window.addEventListener("hashchange", readSection);
+    window.addEventListener("popstate", readSection);
+    return () => { window.removeEventListener("hashchange", readSection); window.removeEventListener("popstate", readSection); };
+  }, [selected]);
   const importing = tab === "create" && createMethod === "import" && createKind !== "company";
   useEffect(() => {
     const parts = pathname.split("/").slice(2).map(decodeURIComponent);
     setTab(parts[0] === "imports" ? "create" : parts[0] || "overview");
     setSelected(parts[0] === "projects" ? parts[1] || "" : "");
-    setOrg(new URLSearchParams(window.location.search).get("organization") || "");
+    const query = new URLSearchParams(window.location.search);
+    setOrg(query.get("organization") || "");
+    const origin = query.get("from") || "projects";
+    setDetailOrigin(["overview", "projects", "remodels", "requests", "approvals", "orders"].includes(origin) ? origin : "projects");
   }, [pathname]);
   const [jobs, setJobs] = useState<
     { _id: string; projectId: string; action: string; state: string }[]
@@ -242,6 +262,12 @@ export default function PortalApp({
       (m) => m.organizationId === id && m.role === "admin",
     );
   const manageable = organizations.filter((o) => canManage(o._id));
+  const canAccessAccountTeam = !staff && manageable.length > 0;
+  useEffect(() => {
+    if (!loading && tab === "members" && !canAccessAccountTeam) {
+      router.replace("/portal/overview");
+    }
+  }, [loading, tab, canAccessAccountTeam, router]);
   function workflow(action: string, extra: Record<string, unknown> = {}) {
     if (!project) return;
     return run(() =>
@@ -254,11 +280,20 @@ export default function PortalApp({
       }),
     );
   }
+  async function projectSaved(id: string) {
+    await load();
+    setDetailSection("overview");
+    const origin = selected ? detailOrigin : ["projects", "remodels", "requests", "approvals", "orders"].includes(tab) ? tab : "projects";
+    router.push(`/portal/projects/${encodeURIComponent(id)}?from=${origin}`);
+  }
   const navigation = [
     ["overview", "Overview"],
-    ["projects", "All projects"],
+    ["projects", "All Projects"],
+    ["remodels", "Remodel Tracker"],
     ["requests", "Requests & Quotes"],
-    ["orders", "Orders & installs"],
+    ["approvals", "Approvals"],
+    ["orders", "Orders & Installs"],
+    ["contacts", "Contacts"],
     ["documents", "Documents"],
     ...(staff
       ? [
@@ -266,7 +301,7 @@ export default function PortalApp({
           ["create", "Create"],
         ]
       : []),
-    ...(manageable.length ? [["members", "Account team"]] : []),
+    ...(canAccessAccountTeam ? [["members", "Account team"]] : []),
   ];
   const navigate = (key: string) => {
     router.push(`/portal/${key}`);
@@ -274,7 +309,7 @@ export default function PortalApp({
   };
   return (
     <PortalShell
-      tab={tab}
+      tab={selected ? detailOrigin : tab}
       title={
         project
           ? project.name
@@ -291,7 +326,7 @@ export default function PortalApp({
       signOut={() => signOut({ callbackUrl: "/account/login" })}
       staff={staff}
     >
-      {["create", "organizations", "members"].includes(tab) && (
+      {(["create", "organizations"].includes(tab) || (tab === "members" && canAccessAccountTeam)) && (
         <div className="portal-page-heading">
           <div>
             <span className="portal-eyebrow">WORKSPACE MANAGEMENT</span>
@@ -306,9 +341,6 @@ export default function PortalApp({
           </div>
         </div>
       )}
-      {staff && !selected && tab === "projects" && (
-        <div className="portal-actions"><button onClick={() => router.push("/portal/create/project")}>Create project</button></div>
-      )}
       {staff && tab === "create" && (
         <section className="portal-panel">
           <div className="portal-actions">
@@ -322,27 +354,7 @@ export default function PortalApp({
           </div>
         </section>
       )}
-      {staff && tab === "create" && createKind === "project" && createMethod === "scratch" && (
-        <section className="portal-panel">
-          <h2>New project</h2>
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            const data = Object.fromEntries(new FormData(e.currentTarget));
-            run(async () => {
-              const result = await api("manage-project", { action: "create", ...data });
-              router.push(`/portal/projects/${encodeURIComponent(result.id)}`);
-            });
-          }}>
-            <label>Project name<input name="name" required /></label>
-            <label>Company<select name="companyId" required defaultValue=""><option value="" disabled>Select a company</option>{organizations.filter(o => o.type === "company" && o.active).map(o => <option key={o._id} value={o._id}>{o.name}</option>)}</select></label>
-            <label>Operator<select name="operatorId" required defaultValue=""><option value="" disabled>Select an operator</option>{organizations.filter(o => o.type === "operator" && o.active).map(o => <option key={o._id} value={o._id}>{o.name}</option>)}</select></label>
-            <label>Location<input name="location" required /></label>
-            <label>Address<input name="address" required /></label>
-            <label>Summary<textarea name="summary" /></label>
-            <button disabled={busy}>Create project</button>
-          </form>
-        </section>
-      )}
+      {staff && tab === "create" && createKind === "project" && createMethod === "scratch" && <section className="portal-panel"><h2>New Remodel / Project Request</h2><p>Add the community, request details, workflow, and contact information.</p><ProjectEditor organizations={organizations} onSaved={projectSaved} buttonLabel="Create project" /></section>}
       {staff && tab === "create" && createKind === "company" && createMethod === "import" && (
         <section className="portal-panel">
           <h2>Import a company</h2>
@@ -387,10 +399,12 @@ export default function PortalApp({
         </div>
       )}
       {loading && <p>Loading your workspace…</p>}
-      {!loading && tab === "requests" && <RequestPipeline projects={projects} organizations={organizations} staff={staff} actor={actor} busy={busy} save={(project, data) => run(() => api("workflow", { ...data, projectId: project._id, version: project.version, eventId: crypto.randomUUID() }))} />}
+      {!loading && !selected && ["requests", "orders", "projects", "remodels"].includes(tab) && <RequestPipeline key={tab} mode={tab as "requests" | "orders" | "projects" | "remodels"} projects={projects} organizations={organizations} staff={staff} onSaved={projectSaved} />}
+      {!loading && tab === "approvals" && <ApprovalQueue projects={projects} organizations={organizations} />}
+      {!loading && tab === "contacts" && <ClientContacts projects={projects} organizations={organizations} />}
       {!loading &&
         !project && !selected &&
-        ["overview", "projects", "approvals", "orders", "documents"].includes(
+        ["overview", "documents"].includes(
           tab,
         ) && (
           <PortalPortfolio
@@ -405,7 +419,7 @@ export default function PortalApp({
             setOrg={setOrg}
             name={name}
             open={(id) => {
-              router.push(`/portal/projects/${encodeURIComponent(id)}`);
+              router.push(`/portal/projects/${encodeURIComponent(id)}?from=overview`);
             }}
             navigate={navigate}
           />
@@ -413,123 +427,49 @@ export default function PortalApp({
       {!loading && selected && !project && <div className="portal-panel"><h2>Project unavailable</h2><p>This project could not be found or you do not have access.</p><button onClick={() => navigate("projects")}>Back to projects</button></div>}
       {project && tab === "projects" && (
         <div className="portal-project-detail">
-          <button className="secondary" onClick={() => navigate("projects")}>
-            Back to projects
+          <button className="secondary" onClick={() => navigate(detailOrigin)}>
+            ← Back to tracker
           </button>
-          <div className="portal-page-heading portal-detail-heading">
+          <div className="portal-page-heading portal-detail-heading portal-tracker-hero">
             <div>
               <span className="portal-eyebrow">
                 {name(project.companyId)} · {project.location}
               </span>
               <h1>{project.name}</h1>
-              <p>{project.summary}</p>
+              <p>{name(project.companyId)} · {project.location} · {project.request?.type || "Project"}</p>
             </div>
           </div>
-          <nav className="portal-detail-nav" aria-label="Project sections">
-            <a href="#quotes">Requests &amp; Quotes</a>
-            <a href="#documents">Documents</a>
-            <a href="#updates">Status updates</a>
-            <a href="#activity">Activity</a>
+          <ProjectProgress project={project} showTimeline={false} />
+          <div className="portal-project-edit-action"><StatusBadge value={orderLabel(project)} />{staff && <ProjectEditor project={project} organizations={organizations} onSaved={projectSaved} />}</div>
+          <nav className="portal-detail-nav portal-project-tabs" aria-label="Project sections">
+            {[["overview", "Overview"], ["quotes", "Request & Quote"], ["presentation", "Presentation"], ["approvals", "Approvals"], ["payment", "Payment"], ["orders", "Order & Install"], ["contacts", "Contacts"], ["documents", "Documents"], ["activity", "Activity"]].map(([key, label]) => <a key={key} href={`#${key}`} aria-current={detailSection === key ? "page" : undefined} className={detailSection === key ? "active" : ""} onClick={e => { e.preventDefault(); setDetailSection(key); window.history.pushState(null, "", `#${key}`); }}>{label}</a>)}
           </nav>
+          <div hidden={detailSection !== "overview"}>
           <div className="portal-panel portal-project-context">
-            <h2>Project overview</h2>
+            <h2>Overview</h2>
             <dl className="portal-project-facts">
               <div><dt>Address</dt><dd>{project.address || "Not provided"}</dd></div>
               <div><dt>Client</dt><dd>{name(project.companyId)}</dd></div>
               <div><dt>Operator</dt><dd>{name(project.operatorId)}</dd></div>
+              <div><dt>Project type</dt><dd>{project.request?.type || "Not recorded"}</dd></div>
+              <div><dt>Project manager</dt><dd>{project.request?.assignedTo || "Unassigned"}</dd></div>
+              <div><dt>Current phase</dt><dd>{projectPhase(project)}</dd></div>
+              <div><dt>Estimated installation</dt><dd>{displayDate(project.install)}</dd></div>
             </dl>
             <p className="portal-project-reference">Project ID: <span>{project.sourceId}</span></p>
-            <div className="portal-actions">
-              <StatusBadge value={project.payment} />
-              <StatusBadge value={project.order} />
-              <span className="portal-badge">
-                Install: {displayDate(project.install)}
-              </span>
-            </div>
+            <ProjectProgress project={project} showStats={false} />
           </div>
-          {staff && (
-            <details className="portal-panel">
-              <summary>Edit project details</summary>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const f = new FormData(e.currentTarget);
-                  run(() =>
-                    api("manage-project", {
-                      id: project._id,
-                      version: project.version,
-                      name: f.get("name"),
-                      location: f.get("location"),
-                      address: f.get("address"),
-                      summary: f.get("summary"),
-                      operatorId: f.get("operator"),
-                      archived: f.get("archived") === "on",
-                    }),
-                  );
-                }}
-                key={project.version}
-              >
-                <label>
-                  Project name
-                  <input name="name" defaultValue={project.name} required />
-                </label>
-                <label>
-                  Location
-                  <input
-                    name="location"
-                    defaultValue={project.location}
-                    required
-                  />
-                </label>
-                <label>
-                  Address
-                  <input
-                    name="address"
-                    defaultValue={project.address}
-                    required
-                  />
-                </label>
-                <label>
-                  Summary
-                  <textarea name="summary" defaultValue={project.summary} />
-                </label>
-                <label>
-                  Operator
-                  <select name="operator" defaultValue={project.operatorId}>
-                    {organizations
-                      .filter((o) => o.type === "operator")
-                      .map((o) => (
-                        <option key={o._id} value={o._id}>
-                          {o.name}
-                        </option>
-                      ))}
-                  </select>
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    name="archived"
-                    defaultChecked={project.archived}
-                    style={{ width: "auto" }}
-                  />{" "}
-                  Archive project (removes external access)
-                </label>
-                <p className="portal-muted">
-                  Changing the operator changes access and clears operator
-                  approval authority.
-                </p>
-                <button disabled={busy}>Save project</button>
-              </form>
-            </details>
-          )}
-          <ProjectRequestsQuotes project={project} staff={staff} actor={actor} busy={busy} workflow={workflow} events={events} />
+          </div>
+          {(detailSection === "quotes" || detailSection === "approvals") && <ProjectRequestsQuotes section={detailSection} project={project} staff={staff} actor={actor} busy={busy} workflow={workflow} events={events} />}
+          <div hidden={detailSection !== "documents" && detailSection !== "presentation"}>
           <section className="portal-panel" id="documents">
-            <h2>Documents</h2>
+            <h2>{detailSection === "presentation" ? "Presentation" : "Documents"}</h2>
+            {detailSection === "presentation" && <p>Presentation status: <StatusBadge value={project.request?.presentation || "Not started"} /></p>}
             <p className="portal-muted">
               Documents open in SharePoint. Microsoft sign-in and sharing
               permissions may be required.
             </p>
-            {["Quotes", "Contracts", "Presentations"].map((category) => (
+            {(detailSection === "presentation" ? ["Presentations"] : ["Quotes", "Contracts", "Presentations"]).map((category) => (
               <div key={category}>
                 <h3>{category}</h3>
                 {project.documents
@@ -571,84 +511,9 @@ export default function PortalApp({
                 ))}
             </details>
           </section>
-          {(staff ||
-            canManage(project.companyId) ||
-            canManage(project.operatorId)) && (
-            <section className="portal-panel">
-              <h2 id="updates">
-                {staff ? "Update project status" : "Send a project update"}
-              </h2>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const f = new FormData(e.currentTarget);
-                  workflow(String(f.get("action")), {
-                    field: f.get("field"),
-                    value: f.get("value"),
-                    note: f.get("note"),
-                  });
-                }}
-              >
-                <label>
-                  Action
-                  <select name="action">
-                    {staff ? (
-                      <option value="status">Confirm official status</option>
-                    ) : (
-                      <>
-                        <option value="report-payment">
-                          Report payment sent
-                        </option>
-                        <option value="report-delivery">
-                          Report delivery received
-                        </option>
-                        <option value="delivery-issue">
-                          Report delivery issue
-                        </option>
-                        <option value="request-install">
-                          Request installation date
-                        </option>
-                      </>
-                    )}
-                  </select>
-                </label>
-                {staff && (
-                  <label>
-                    Status field
-                    <select name="field">
-                      <option value="payment">Payment</option>
-                      <option value="order">Order</option>
-                      <option value="install">Estimated install date</option>
-                    </select>
-                  </label>
-                )}
-                <label>
-                  {staff
-                    ? "New status or date (MM/DD/YYYY)"
-                    : "Requested installation date (if applicable)"}
-                  <input name="value" list="portal-statuses" />
-                  <datalist id="portal-statuses">
-                    {[
-                      "Awaiting Confirmation",
-                      "Awaiting Payment",
-                      "Paid",
-                      "Ordered",
-                      "Delivered",
-                    ].map((v) => (
-                      <option key={v} value={v} />
-                    ))}
-                  </datalist>
-                </label>
-                <label>
-                  Details / reason
-                  <textarea
-                    name="note"
-                    required
-                    placeholder="Include dates, references, and relevant details."
-                  />
-                </label>
-                <button disabled={busy}>Submit update</button>
-              </form>
+          </div>
+          {(detailSection === "payment" || detailSection === "orders") && <ProjectOperations key={`${project._id}-${detailSection}`} project={project} section={detailSection} staff={staff} canManage={!!(staff || canManage(project.companyId) || canManage(project.operatorId))} busy={busy} workflow={workflow} />}
+          {detailSection === "contacts" && <section className="portal-panel" id="contacts"><h2>Contacts</h2><dl className="portal-request-summary"><div><dt>Primary contact</dt><dd>{project.request?.contactName || "Not recorded"}</dd></div><div><dt>Contact email</dt><dd>{project.request?.contactEmail || "Not recorded"}</dd></div><div><dt>Client</dt><dd>{name(project.companyId)}</dd></div><div><dt>Operator</dt><dd>{name(project.operatorId)}</dd></div><div><dt>SBD owner</dt><dd>{project.request?.assignedTo || "Unassigned"}</dd></div><div><dt>Operator approval authority</dt><dd>{project.operatorApproval ? "Enabled" : "Company administrators only"}</dd></div></dl>
               {staff && (
                 <button
                   className="secondary"
@@ -668,9 +533,9 @@ export default function PortalApp({
                   approval
                 </button>
               )}
-            </section>
-          )}
-          <section className="portal-panel" id="activity">
+          </section>}
+          {project.request?.notes && <p className="portal-project-notes">{project.request.notes}</p>}
+          <section className="portal-panel" id="activity" hidden={detailSection !== "activity"}>
             <h2>Project activity</h2>
             {events.map((e) => (
               <div className="portal-row" key={e._id}>
@@ -1035,7 +900,7 @@ export default function PortalApp({
           ))}
         </>
       )}
-      {tab === "members" && (
+      {tab === "members" && canAccessAccountTeam && (
         <section className="portal-panel">
           <h2>Invite a teammate</h2>
           <form

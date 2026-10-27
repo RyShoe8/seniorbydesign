@@ -14,6 +14,7 @@ import {
   text,
 } from "@/lib/portal/policy";
 import { requestStages, requestTypes, presentationStages } from "@/lib/portal/requests";
+import { operationalFields } from "@/lib/portal/project-fields";
 import type { WorkflowEvent } from "@/lib/portal/types";
 export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
@@ -93,7 +94,9 @@ export async function POST(request: Request) {
         note,
         before: {
           payment: project.payment,
+          paymentDetail: project.paymentDetail,
           order: project.order,
+          orderDetail: project.orderDetail,
           install: project.install,
           scopes: project.scopes.map((s) => ({ ...s })),
           request: project.request ? { ...project.request } : null,
@@ -105,8 +108,10 @@ export async function POST(request: Request) {
         if (action === "submit-request" && project.request) throw new PortalError("This project already has a request. Ask SBD to update its scope.", 409);
         const receivedAt = action === "submit-request" ? new Date().toISOString().slice(0, 10) : dateOnly(data.receivedAt);
         if (!receivedAt) throw new PortalError("Enter the date received");
+        const priorRequest = project.request;
         const quoteReferences = action === "submit-request" ? [] : project.request?.quoteReferences || project.scopes.map(s => s.quote);
         project.request = {
+          ...priorRequest,
           quoteReferences,
           summary: text(data.summary, "Request summary", 2000),
           type: enumValue(data.type, requestTypes, "Project type"),
@@ -222,9 +227,16 @@ export async function POST(request: Request) {
       } else if (action === "status") {
         if (!staff || !note)
           throw new PortalError("SBD staff and a reason are required", 403);
-        if (data.field === "payment")
-          project.payment = enumValue(data.value, payments, "Payment");
+        if (data.field === "payment") {
+          if (payments.includes(data.value as typeof payments[number])) {
+            project.payment = enumValue(data.value, payments, "Payment");
+            delete project.paymentDetail;
+          } else operationalFields({ paymentDetail: data.value }, project, actor.role === "admin");
+        }
         else if (data.field === "order") {
+          if (!orders.includes(data.value as typeof orders[number])) {
+            operationalFields({ orderDetail: data.value }, project, actor.role === "admin");
+          } else {
           const order = enumValue(data.value, orders, "Order");
           if (
             order === "Ordered" &&
@@ -243,6 +255,8 @@ export async function POST(request: Request) {
               "Record the order before confirming delivery",
             );
           project.order = order;
+          delete project.orderDetail;
+          }
         } else if (data.field === "install")
           project.install = dateOnly(data.value);
         else throw new PortalError("Unknown status field");
@@ -311,7 +325,9 @@ export async function POST(request: Request) {
       project.updatedAt = new Date();
       event.after = event.after || {
         payment: project.payment,
+        paymentDetail: project.paymentDetail,
         order: project.order,
+        orderDetail: project.orderDetail,
         install: project.install,
         scopes: project.scopes,
         operatorApproval: project.operatorApproval,
