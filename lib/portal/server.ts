@@ -11,7 +11,7 @@ import { canAccessPortalPreview } from "./access";
 export async function requirePortalActor(staff = false) {
   const actor = await requireActor(staff);
   if (!canAccessPortalPreview(actor))
-    throw new PortalError("Portal access is limited during private testing", 403);
+    throw new PortalError("Client portal access has not been granted", 403);
   return actor;
 }
 
@@ -42,6 +42,7 @@ export async function currentActor(): Promise<Actor | null> {
     id: session.user.id,
     email: user.email,
     role: staffRole(user),
+    portalAccess: user.portalAccess,
     memberships: all.filter((m) => active.has(m.organizationId)),
   };
 }

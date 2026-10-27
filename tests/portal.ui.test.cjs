@@ -47,3 +47,33 @@ test("approval queue opens Approvals while client quote decisions remain revisio
   const changed = render(ProjectRequestsQuotes, { project: { ...project, scopes: [{ ...project.scopes[0], changesRequested: true }] }, staff: false, actor, busy: false, workflow() {}, events: [], section: "approvals" });
   assert.doesNotMatch(changed, />Approve quote<\/button>/);
 });
+
+const OrganizationDirectory = require("../components/portal/OrganizationDirectory.tsx").default;
+test("organization directory combines people, scoped admin invitations and mobile search", () => {
+  const props = { organizations, members: [{ _id: "m", organizationId: "company:a", email: "jane@example.test", fullName: "Jane Smith", position: "Director", phone: "5551234567", role: "admin", active: true }], projects: [], invitations: [], busy: false, send() {} };
+  const staff = render(OrganizationDirectory, { ...props, staff: true, manage: () => true });
+  assert.match(staff, /<details/);
+  assert.match(staff, /type="search"/);
+  assert.match(staff, /Jane Smith|jane@example.test|5551234567/);
+  assert.match(staff, /Invite an account administrator/);
+  const member = render(OrganizationDirectory, { ...props, staff: false, manage: () => false });
+  assert.doesNotMatch(member, /Send invitation|Make admin|Make member/);
+});
+
+const { PortalPortfolio } = require("../components/portal/PortalWorkspace.tsx");
+test("overview viewing scope filters cards and counts for companies and operators", () => {
+  const second = { ...project, _id: "other", name: "Other Community", companyId: "company:b", operatorId: "operator:b" };
+  const props = { staff: true, view: "overview", projects: [project, second], organizations, search: "", setSearch() {}, setOrg() {}, name: id => organizations.find(o => o._id === id)?.name || id, open() {}, navigate() {} };
+  for (const org of ["company:a", "operator:a"]) {
+    const html = render(PortalPortfolio, { ...props, org });
+    assert.match(html, /Community A/);
+    assert.doesNotMatch(html, /Other Community/);
+    assert.match(html, /1 projects/);
+    assert.match(html, /organization=(company|operator)%3Aa/);
+  }
+  const all = render(PortalPortfolio, { ...props, org: "" });
+  assert.match(all, /Other Community/);
+  assert.match(all, /All organizations .*2 projects/);
+  const empty = render(PortalPortfolio, { ...props, org: "company:empty" });
+  assert.match(empty, /No matching projects/);
+});

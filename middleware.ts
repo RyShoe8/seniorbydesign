@@ -1,6 +1,5 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
-import { canAccessPortalPreview } from "./lib/portal/access";
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   if (req.nextUrl.hostname === "clients.seniorbydesign.com" && path === "/")
@@ -13,11 +12,9 @@ export async function middleware(req: NextRequest) {
   ) {
     if (!token && !path.startsWith("/api/"))
       return NextResponse.redirect(new URL("/account/login", req.url));
-    if (!canAccessPortalPreview(token))
-      return NextResponse.json({ error: "Portal access is limited during private testing" }, {
-        status: token ? 403 : 401,
-        headers: { "X-Robots-Tag": "noindex, nofollow, noarchive", "Cache-Control": "no-store" },
-      });
+    // Database-backed portal handlers check current grants and memberships.
+    if (!token)
+      return NextResponse.json({ error: "Please sign in" }, { status: 401 });
   }
   if (path === "/admin/login" || path.startsWith("/account"))
     return NextResponse.next();

@@ -10,9 +10,9 @@ const assert = require("assert/strict");
 const origin = "http://localhost:3102";
 class Browser {
   cookies = new Map();
-  async request(path, data, form = false) {
+  async request(path, data, form = false, method) {
     const r = await fetch(origin + path, {
-      method: data ? "POST" : "GET",
+      method: method || (data ? "POST" : "GET"),
       redirect: "manual",
       headers: {
         cookie: [...this.cookies].map(([k, v]) => `${k}=${v}`).join("; "),
@@ -97,6 +97,18 @@ class Browser {
     await other.login("other@example.test", password);
     await operator.login("operator@example.test", password);
     console.log("PASS sign-in for staff and three external identities");
+    const staffId = new ObjectId();
+    await db.collection("users").insertOne({ _id: staffId, email: "staff@example.test", password: hash, role: "team", sessionVersion: 0, createdAt: new Date(), updatedAt: new Date() });
+    const teammate = new Browser();
+    await teammate.login("staff@example.test", password);
+    assert.equal((await teammate.request("/api/portal/projects")).status, 403);
+    assert.equal((await admin.request("/api/admin/users", { id: staffId.toString(), portalAccess: true }, false, "PUT")).status, 200);
+    await teammate.login("staff@example.test", password);
+    assert.equal((await teammate.request("/api/portal/projects")).status, 200);
+    assert.equal((await teammate.request("/api/admin/users", { id: staffId.toString(), portalAccess: false }, false, "PUT")).status, 403);
+    assert.equal((await admin.request("/api/admin/users", { id: staffId.toString(), portalAccess: false }, false, "PUT")).status, 200);
+    assert.equal((await teammate.request("/api/portal/projects")).status, 401);
+    console.log("PASS administrator-only portal grants and immediate staff revocation");
     const input = [
       {
         _id: "test-project",
@@ -188,8 +200,8 @@ class Browser {
     assert.equal(c.value.projects.length, 1);
     let p = c.value.projects[0];
     assert.equal(
-      (await other.request("/api/portal/projects")).value.projects.length,
-      0,
+      (await other.request("/api/portal/projects")).status,
+      403,
     );
     assert.equal(
       (await operator.request("/api/portal/projects")).value.projects.length,

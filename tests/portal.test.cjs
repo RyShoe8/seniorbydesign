@@ -20,7 +20,7 @@ const {
   documentUrl,
   staffRole,
 } = require("../lib/portal/policy.ts");
-test("private portal middleware permits only Ryan while preserving staff admin access", async () => {
+test("portal middleware requires authentication; database access policy checks staff grants and active memberships", async () => {
   const { middleware } = require("../middleware.ts");
   const { NextRequest } = require("next/server");
   const { encode } = require("next-auth/jwt");
@@ -41,8 +41,14 @@ test("private portal middleware permits only Ryan while preserving staff admin a
       { email: "ryanschumacher@themediashop.co", role: "external" },
     ]) {
       for (const path of ["/portal", "/admin/portal", "/api/portal/projects", "/api/portal/imports"])
-        assert.equal((await request(path, identity)).status, 403);
+        assert.equal((await request(path, identity)).status, path === "/admin/portal" && identity.role === "external" ? 307 : 200);
     }
+    const { canAccessPortalPreview: access } = require("../lib/portal/access.ts");
+    assert.equal(access({ role: "team", portalAccess: true }), true);
+    assert.equal(access({ role: "admin", portalAccess: false }), false);
+    assert.equal(access({ role: "team" }), false);
+    assert.equal(access({ memberships: [{ active: true }] }), true);
+    assert.equal(access({ memberships: [{ active: false }] }), false);
     const ryan = { email: "ryanschumacher@themediashop.co", role: "admin" };
     assert.equal((await request("/portal", ryan)).status, 200);
     assert.equal((await request("/api/portal/imports", ryan)).status, 200);

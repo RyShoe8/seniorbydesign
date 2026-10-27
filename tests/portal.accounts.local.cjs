@@ -14,7 +14,7 @@ const post = async (data) => {
       origin: "http://localhost:3102",
       "content-type": "application/json",
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify({ fullName: "Test Administrator", position: "Operations Director", phone: "+1 555 123 4567", ...data }),
   });
   return { status: r.status, value: await r.json() };
 };
@@ -37,12 +37,14 @@ const post = async (data) => {
         email: "invited@example.test",
         kind: "invite",
         organizationId: "company:client-a",
-        role: "member",
+        role: "admin",
         expiresAt: new Date(Date.now() + 60000),
         createdAt: new Date(),
         createdBy: admin._id.toString(),
         delivery: "sent",
       });
+    assert.equal((await post({ action: "accept", token: raw, password, fullName: "" })).status, 400);
+    assert.equal((await post({ action: "inspect", token: raw })).value.invitation, true);
     let r = await post({ action: "accept", token: raw, password });
     assert.equal(r.status, 200, JSON.stringify(r.value));
     assert.equal(
@@ -55,6 +57,11 @@ const post = async (data) => {
       (await post({ action: "accept", token: raw, password })).status,
       400,
     );
+    const profile = await db.collection("users").findOne({ email: "invited@example.test" });
+    assert.equal(profile.fullName, "Test Administrator");
+    assert.equal(profile.position, "Operations Director");
+    assert.equal(profile.phone, "+1 555 123 4567");
+    assert.equal((await db.collection("portalMemberships").findOne({ userId: profile._id.toString(), organizationId: "company:client-a" })).role, "admin");
     console.log("PASS invitation verifies identity and cannot be replayed");
     const expired = randomBytes(32).toString("hex");
     await db

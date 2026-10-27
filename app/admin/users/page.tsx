@@ -6,7 +6,7 @@ export default function StaffAccess() {
   const { data: session } = useSession();
   const [roles, setRoles] = useState<Record<string, string>>({});
   const [users, setUsers] = useState<
-      { _id: string; email: string; role: string; disabled?: boolean }[]
+      { _id: string; email: string; role: string; disabled?: boolean; portalAccess?: boolean }[]
     >([]),
     [invites, setInvites] = useState<
       {
@@ -81,6 +81,7 @@ export default function StaffAccess() {
               {u.email} · {u.role === "admin" ? "Administrator" : "Team"} ·{" "}
               {u.disabled ? "Disabled" : "Active"}
             </span>
+            <label><input type="checkbox" disabled={busy} checked={u.portalAccess ?? (u.email.toLowerCase() === "ryanschumacher@themediashop.co")} onChange={e => send({ id: u._id, portalAccess: e.target.checked }, "PUT")} /> Client portal access</label>
             {!["ryanschumacher@themediashop.co", "glenn@sbdid.com"].includes(u.email.toLowerCase()) && u._id !== session?.user?.id && (
               <div className="portal-actions">
               <label>Role for {u.email}

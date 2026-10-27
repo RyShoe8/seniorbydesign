@@ -20,6 +20,17 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   try {
     const data = await body(request, 10000);
+    if (data.action === "inspect") {
+      const { collections } = await import("@/lib/portal/db");
+      const { hash } = await import("@/lib/portal/policy");
+      const token = String(data.token || "");
+      if (!/^[a-f0-9]{64}$/.test(token)) throw new PortalError("Invalid or expired link");
+      await rateLimit(`inspect:${hash(token)}`, 30);
+      const { db } = await collections();
+      const entry = await db.collection<{ _id: string; kind: string; revoked?: boolean; usedAt?: Date; expiresAt: Date }>("accountTokens").findOne({ _id: hash(token), revoked: { $ne: true }, usedAt: { $exists: false }, expiresAt: { $gt: new Date() } });
+      if (!entry) throw new PortalError("Invalid or expired link");
+      return json({ invitation: entry.kind === "invite" });
+    }
     if (data.action === "reset") {
       const email = validEmail(data.email);
       await rateLimit(`reset:${email}`, 3);
@@ -55,6 +66,7 @@ export async function POST(request: Request) {
           String(data.token),
           data.password,
           await currentActor(),
+          { fullName: data.fullName, position: data.position, phone: data.phone },
         ),
       );
     }

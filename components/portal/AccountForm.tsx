@@ -8,6 +8,8 @@ export default function AccountForm({
 }: {
   mode: "login" | "reset" | "accept" | "change";
 }) {
+  const [invitation, setInvitation] = useState(false);
+  const [profile, setProfile] = useState({ fullName: "", position: "", phone: "" });
   const [email, setEmail] = useState(""),
     [password, setPassword] = useState(""),
     [current, setCurrent] = useState(""),
@@ -16,7 +18,9 @@ export default function AccountForm({
     [busy, setBusy] = useState(false);
   useEffect(() => {
     if (mode === "accept") {
-      setToken(location.hash.slice(1));
+      const raw = location.hash.slice(1);
+      setToken(raw);
+      fetch("/api/account", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "inspect", token: raw }) }).then(async r => { const d = await r.json(); if (!r.ok) throw new Error(d.error); setInvitation(d.invitation); }).catch(e => setMessage(e.message));
       history.replaceState(null, "", location.pathname);
     }
   }, [mode]);
@@ -48,6 +52,7 @@ export default function AccountForm({
             password,
             currentPassword: current,
             token,
+            ...profile,
           }),
         });
         const data = await response.json();
@@ -102,6 +107,11 @@ export default function AccountForm({
               />
             </label>
           )}
+          {mode === "accept" && invitation && <>
+            <label>Full name<input autoComplete="name" required value={profile.fullName} onChange={e => setProfile({ ...profile, fullName: e.target.value })} maxLength={150} /></label>
+            <label>Position<input autoComplete="organization-title" required value={profile.position} onChange={e => setProfile({ ...profile, position: e.target.value })} maxLength={150} /></label>
+            <label>Phone number (optional)<input type="tel" autoComplete="tel" value={profile.phone} onChange={e => setProfile({ ...profile, phone: e.target.value })} maxLength={50} /></label>
+          </>}
           {mode === "change" && (
             <label>
               Current password

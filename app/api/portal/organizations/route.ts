@@ -1,3 +1,5 @@
+import { ObjectId } from "mongodb";
+import { getUsersCollection } from "@/lib/db";
 import { collections, transaction } from "@/lib/portal/db";
 import { body, failure, json, requirePortalActor } from "@/lib/portal/server";
 import {
@@ -37,7 +39,7 @@ export async function GET() {
         ),
     );
     const members = await c.memberships
-      .find({ organizationId: { $in: manageable.map((o) => o._id) } })
+      .find({ organizationId: { $in: organizations.map((o) => o._id) } })
       .toArray();
     const invitations = await c.db
       .collection("accountTokens")
@@ -56,7 +58,9 @@ export async function GET() {
         revoked: 1,
       })
       .toArray();
-    return json({ organizations, members, invitations, actor });
+    const users = await (await getUsersCollection()).find({ _id: { $in: members.map(m => m.userId).filter(ObjectId.isValid).map(id => new ObjectId(id)) } }).project({ fullName: 1, position: 1, phone: 1 }).toArray();
+    const people = new Map(users.map(u => [u._id.toString(), u]));
+    return json({ organizations, members: members.map(m => { const p = people.get(m.userId); return { ...m, fullName: p?.fullName || "", position: p?.position || "", phone: p?.phone || "" }; }), invitations, actor });
   } catch (error) {
     return failure(error);
   }

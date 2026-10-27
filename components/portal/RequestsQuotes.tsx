@@ -19,8 +19,9 @@ const fields = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); 
 
 const amount = (value?: number) => value === undefined ? "Not entered" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
 
-export function RequestPipeline({ projects, organizations, staff, mode = "requests", onSaved }: {
+export function RequestPipeline({ projects, organizations, staff, mode = "requests", onSaved, organizationId = "" }: {
   projects: DisplayProject[]; organizations: Organization[]; staff: boolean;
+  organizationId?: string;
   mode?: "requests" | "orders" | "projects" | "remodels";
   onSaved: (id: string) => Promise<void> | void;
 }) {
@@ -44,7 +45,7 @@ export function RequestPipeline({ projects, organizations, staff, mode = "reques
       <div className="portal-tracker-scroll" role="region" aria-label={title} tabIndex={0}>
         <table className="portal-tracker-table"><caption className="portal-sr-only">{title} by client and community. Scroll horizontally to see all columns.</caption>
           <thead><tr><th scope="col">Client / Community</th><th scope="col">{requests ? "Request" : "Current phase"}</th><th scope="col">{requests ? "Quote" : "Approval"}</th><th scope="col">{orders ? "Payment" : "Presentation"}</th><th scope="col">Order status</th><th scope="col">Target install</th><th scope="col"><span className="portal-sr-only">Actions</span></th></tr></thead>
-          <tbody>{filtered.map(p => <tr key={p._id}><td><strong>{name(p.companyId)}</strong><Link className="portal-tracker-project" href={`/portal/projects/${encodeURIComponent(p._id)}?from=${mode}`}>{p.name}</Link>{p.archived && <StatusBadge value="Archived" />}</td><td>{requests ? p.request?.summary || p.summary || "Not recorded" : projectPhase(p)}</td><td>{requests ? <>{p.scopes.map(s => s.quote).join(" · ") || p.request?.quoteReference || "Not started"}{staff && <small>{amount(p.request?.quotedAmount)}</small>}</> : <StatusBadge value={approvalState(p)} />}</td><td><StatusBadge value={orders ? paymentLabel(p) : p.request?.presentation || "Not started"} /></td><td><StatusBadge value={orderLabel(p)} /></td><td>{displayDate(p.install)}</td><td><Link className="portal-link secondary" href={`/portal/projects/${encodeURIComponent(p._id)}?from=${mode}`}>Details →<span className="portal-sr-only"> {p.name}</span></Link></td></tr>)}{!filtered.length && <tr><td colSpan={7}>No matching records.</td></tr>}</tbody>
+          <tbody>{filtered.map(p => <tr key={p._id}><td><strong>{name(p.companyId)}</strong><Link className="portal-tracker-project" href={`/portal/projects/${encodeURIComponent(p._id)}?from=${mode}${organizationId ? `&organization=${encodeURIComponent(organizationId)}` : ""}`}>{p.name}</Link>{p.archived && <StatusBadge value="Archived" />}</td><td>{requests ? p.request?.summary || p.summary || "Not recorded" : projectPhase(p)}</td><td>{requests ? <>{p.scopes.map(s => s.quote).join(" · ") || p.request?.quoteReference || "Not started"}{staff && <small>{amount(p.request?.quotedAmount)}</small>}</> : <StatusBadge value={approvalState(p)} />}</td><td><StatusBadge value={orders ? paymentLabel(p) : p.request?.presentation || "Not started"} /></td><td><StatusBadge value={orderLabel(p)} /></td><td>{displayDate(p.install)}</td><td><Link className="portal-link secondary" href={`/portal/projects/${encodeURIComponent(p._id)}?from=${mode}${organizationId ? `&organization=${encodeURIComponent(organizationId)}` : ""}`}>Details →<span className="portal-sr-only"> {p.name}</span></Link></td></tr>)}{!filtered.length && <tr><td colSpan={7}>No matching records.</td></tr>}</tbody>
         </table>
       </div>
     </section>

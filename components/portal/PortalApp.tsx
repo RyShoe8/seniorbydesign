@@ -6,10 +6,11 @@ import {
   displayDate,
 } from "./PortalWorkspace";
 import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ProjectRequestsQuotes, RequestPipeline } from "./RequestsQuotes";
 import { ProjectEditor } from "./ProjectEditor";
-import { ApprovalQueue, ClientContacts } from "./PortalDirectories";
+import OrganizationDirectory from "./OrganizationDirectory";
+import { ApprovalQueue } from "./PortalDirectories";
 import { ProjectProgress, ProjectOperations } from "./ProjectWorkflow";
 import { projectPhase, orderLabel } from "@/lib/portal/requests";
 import { signOut } from "next-auth/react";
@@ -57,6 +58,8 @@ export default function PortalApp({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const organizationQuery = searchParams.get("organization") || "";
   const route = pathname.split("/").slice(2).map(decodeURIComponent);
   const createKind = route[1] || "project";
   const createMethod = route[2] || "";
@@ -90,10 +93,10 @@ export default function PortalApp({
     setTab(parts[0] === "imports" ? "create" : parts[0] || "overview");
     setSelected(parts[0] === "projects" ? parts[1] || "" : "");
     const query = new URLSearchParams(window.location.search);
-    setOrg(query.get("organization") || "");
+    setOrg(organizationQuery);
     const origin = query.get("from") || "projects";
     setDetailOrigin(["overview", "projects", "remodels", "requests", "approvals", "orders"].includes(origin) ? origin : "projects");
-  }, [pathname]);
+  }, [pathname, organizationQuery]);
   const [jobs, setJobs] = useState<
     { _id: string; projectId: string; action: string; state: string }[]
   >([]);
@@ -110,7 +113,7 @@ export default function PortalApp({
   useEffect(() => {
     setSource("");
     setPreview(null);
-  }, [pathname]);
+  }, [pathname, organizationQuery]);
   const [events, setEvents] = useState<
     {
       _id: string;
@@ -293,18 +296,27 @@ export default function PortalApp({
     ["requests", "Requests & Quotes"],
     ["approvals", "Approvals"],
     ["orders", "Orders & Installs"],
-    ["contacts", "Contacts"],
+    ["organizations", "Companies & operators"],
     ["documents", "Documents"],
     ...(staff
       ? [
-          ["organizations", "Companies & operators"],
+
           ["create", "Create"],
         ]
       : []),
     ...(canAccessAccountTeam ? [["members", "Account team"]] : []),
   ];
+  const scopedProjects = org ? projects.filter(p => [p.companyId, p.operatorId].includes(org)) : projects;
+  const scopeQuery = org ? `organization=${encodeURIComponent(org)}` : "";
+  const changeOrganization = (id: string) => {
+    setOrg(id);
+    setSearch("");
+    const query = new URLSearchParams(window.location.search);
+    if (id) query.set("organization", id); else query.delete("organization");
+    router.replace(`${pathname}${query.size ? `?${query}` : ""}`, { scroll: false });
+  };
   const navigate = (key: string) => {
-    router.push(`/portal/${key}`);
+    router.push(`/portal/${key}${scopeQuery && ["overview", "projects", "remodels", "requests", "approvals", "orders", "documents"].includes(key) ? `?${scopeQuery}` : ""}`);
     setSearch("");
   };
   return (
@@ -399,9 +411,10 @@ export default function PortalApp({
         </div>
       )}
       {loading && <p>Loading your workspace…</p>}
-      {!loading && !selected && ["requests", "orders", "projects", "remodels"].includes(tab) && <RequestPipeline key={tab} mode={tab as "requests" | "orders" | "projects" | "remodels"} projects={projects} organizations={organizations} staff={staff} onSaved={projectSaved} />}
-      {!loading && tab === "approvals" && <ApprovalQueue projects={projects} organizations={organizations} />}
-      {!loading && tab === "contacts" && <ClientContacts projects={projects} organizations={organizations} />}
+      {!loading && org && ["projects", "remodels", "requests", "approvals", "orders"].includes(tab) && <p className="portal-alert" role="status">Viewing {name(org)} · {scopedProjects.filter(p => !p.archived).length} projects <button className="secondary" onClick={() => changeOrganization("")}>View all organizations</button></p>}
+      {!loading && !selected && ["requests", "orders", "projects", "remodels"].includes(tab) && <RequestPipeline key={tab} mode={tab as "requests" | "orders" | "projects" | "remodels"} projects={scopedProjects} organizations={organizations} organizationId={org} staff={staff} onSaved={projectSaved} />}
+      {!loading && tab === "approvals" && <ApprovalQueue projects={scopedProjects} organizations={organizations} organizationId={org} />}
+
       {!loading &&
         !project && !selected &&
         ["overview", "documents"].includes(
@@ -416,10 +429,10 @@ export default function PortalApp({
             search={search}
             setSearch={setSearch}
             org={org}
-            setOrg={setOrg}
+            setOrg={changeOrganization}
             name={name}
             open={(id) => {
-              router.push(`/portal/projects/${encodeURIComponent(id)}?from=overview`);
+              router.push(`/portal/projects/${encodeURIComponent(id)}?from=overview${scopeQuery ? `&${scopeQuery}` : ""}`);
             }}
             navigate={navigate}
           />
@@ -859,47 +872,7 @@ export default function PortalApp({
             </form>
           </section>
       )}
-      {tab === "organizations" && staff && (
-        <>
-          {!organizations.length && <div className="portal-panel"><h2>No companies or operators yet</h2><p>Companies and operators will appear here after they are added through Create.</p></div>}
-          {organizations.map((o) => (
-            <div className="portal-panel" key={o._id}>
-              <h2>{o.name}</h2>
-              <p>
-                {o.type} · {o.slug}
-              </p>
-              <div className="portal-actions">
-              <button
-                disabled={busy}
-                className="secondary"
-                onClick={() => {
-                  const value = prompt("Organization name", o.name);
-                  if (value)
-                    run(() =>
-                      api("organizations", {
-                        action: "rename",
-                        organizationId: o._id,
-                        name: value,
-                      }),
-                    );
-                }}
-              >
-                Edit name
-              </button>
-              <button
-                className="secondary"
-                onClick={() => {
-                  setOrg(o._id);
-                  router.push(`/portal/projects?organization=${encodeURIComponent(o._id)}`);
-                }}
-              >
-                View projects
-              </button>
-              </div>
-            </div>
-          ))}
-        </>
-      )}
+      {tab === "organizations" && <OrganizationDirectory organizations={organizations} members={members} invitations={invitations} projects={projects} staff={staff} busy={busy} manage={id => !!canManage(id)} send={data => run(() => api("organizations", data))} />}
       {tab === "members" && canAccessAccountTeam && (
         <section className="portal-panel">
           <h2>Invite a teammate</h2>

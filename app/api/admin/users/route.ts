@@ -77,18 +77,21 @@ export async function PUT(request: Request) {
       !ObjectId.isValid(data.id) ||
       (data.role !== undefined && data.role !== "admin" && data.role !== "team") ||
       (data.disabled !== undefined && typeof data.disabled !== "boolean") ||
-      (data.role === undefined && data.disabled === undefined)
+      (data.portalAccess !== undefined && typeof data.portalAccess !== "boolean") ||
+      (data.role === undefined && data.disabled === undefined && data.portalAccess === undefined)
     )
       throw new PortalError("Invalid account update");
+    if (data.portalAccess !== undefined && (data.role !== undefined || data.disabled !== undefined))
+      throw new PortalError("Update portal access separately");
     const users = await getUsersCollection(),
       user = await users.findOne({ _id: new ObjectId(data.id) });
     if (!user || !staffRole(user))
       throw new PortalError("Staff account not found", 404);
-    if (adminEmails.includes(emailKey(user.email)))
+    if (data.portalAccess === undefined && adminEmails.includes(emailKey(user.email)))
       throw new PortalError(
         "Ryan and Glenn's administrator accounts are protected",
       );
-    if (actor.id === data.id)
+    if (data.portalAccess === undefined && actor.id === data.id)
       throw new PortalError("Ask another administrator to change your own access");
     await users.updateOne(
       { _id: user._id },
@@ -96,6 +99,7 @@ export async function PUT(request: Request) {
         $set: {
           ...(typeof data.disabled === "boolean" ? { disabled: data.disabled } : {}),
           ...(data.role ? { role: data.role, adminGranted: data.role === "admin" } : {}),
+          ...(typeof data.portalAccess === "boolean" ? { portalAccess: data.portalAccess } : {}),
           updatedAt: new Date(),
         },
         $inc: { sessionVersion: 1 },

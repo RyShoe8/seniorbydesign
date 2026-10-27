@@ -42,6 +42,7 @@ export const authOptions: NextAuthOptions = {
           id: user._id.toString(),
           email: user.email,
           role: staffRole(user) || "external",
+          portalAccess: user.portalAccess,
           sessionVersion: user.sessionVersion || 0,
         };
       },
@@ -53,6 +54,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role;
+        token.portalAccess = user.portalAccess;
         token.sessionVersion = user.sessionVersion || 0;
       }
       return token;
@@ -61,6 +63,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.sub || "";
         session.user.role = token.role;
+        session.user.portalAccess = token.portalAccess;
         session.user.sessionVersion = token.sessionVersion || 0;
       }
       return session;

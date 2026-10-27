@@ -12,6 +12,7 @@ import {
   text,
   staffRole,
 } from "./policy";
+import { canAccessPortalPreview } from "./access";
 import type { Actor, MembershipRole } from "./types";
 
 interface AccountToken {
@@ -131,6 +132,7 @@ export async function acceptToken(
   raw: string,
   password: unknown,
   actor: Actor | null,
+  profile?: { fullName?: unknown; position?: unknown; phone?: unknown },
 ) {
   if (!/^[a-f0-9]{64}$/.test(raw))
     throw new PortalError("Invalid or expired link");
@@ -143,6 +145,11 @@ export async function acceptToken(
     expiresAt: { $gt: new Date() },
   });
   if (!preview) throw new PortalError("Invalid or expired link");
+  const profileFields = preview.kind === "invite" ? {
+    fullName: text(profile?.fullName, "Full name", 150),
+    position: text(profile?.position, "Position", 150),
+    phone: profile?.phone ? text(profile.phone, "Phone", 50) : "",
+  } : undefined;
   const users = await getUsersCollection();
   const existing = await users
     .find({ $expr: { $eq: [{ $toLower: "$email" }, preview.email] } })
@@ -214,7 +221,7 @@ export async function acceptToken(
         throw new PortalError("Invitation is no longer authorized");
       if (
         !token.staff &&
-        !role &&
+        !(role && canAccessPortalPreview({ ...issuer, role })) &&
         !(await memberships.findOne(
           {
             userId: token.createdBy,
@@ -248,6 +255,7 @@ export async function acceptToken(
           {
             _id: userId,
             email: token.email,
+            ...profileFields,
             password: passwordHash!,
             role: token.staff ? "team" : "external",
             emailVerifiedAt: new Date(),
@@ -263,6 +271,7 @@ export async function acceptToken(
           { $set: { role: "team", updatedAt: new Date() } },
           { session },
         );
+      if (user && profileFields) await users.updateOne({ _id: userId }, { $set: { ...profileFields, updatedAt: new Date() } }, { session });
       if (token.organizationId) {
         const org = await organizations.findOneAndUpdate(
           { _id: token.organizationId, active: true },

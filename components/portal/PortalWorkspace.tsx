@@ -360,6 +360,7 @@ export function PortalPortfolio({
               </option>
             ))}
           </select>
+          <small role="status">{org ? `${name(org)} · ${scopeProjects.length} projects` : `All organizations · ${scopeProjects.length} projects`}</small>
         </label>
       </div>
       {overview && (
@@ -482,7 +483,7 @@ export function PortalPortfolio({
                 </div>
                 <Link
                   className="portal-project-open"
-                  href={`/portal/projects/${encodeURIComponent(p._id)}`}
+                  href={`/portal/projects/${encodeURIComponent(p._id)}?from=overview${org ? `&organization=${encodeURIComponent(org)}` : ""}`}
                 >
                   View project <PortalIcon name="arrow" size={18} />
                 </Link>

@@ -6,6 +6,10 @@ export interface User {
   email: string;
   password: string;
   role: 'admin' | 'user' | 'team' | 'external';
+  portalAccess?: boolean;
+  fullName?: string;
+  position?: string;
+  phone?: string;
   disabled?: boolean;
   adminGranted?: boolean;
   emailVerifiedAt?: Date;

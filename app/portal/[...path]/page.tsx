@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 export { metadata } from "../page";
 export default function Page({ params }: { params: { path: string[] } }) {
   const [section, kind, method] = params.path;
+  if (section === "contacts") redirect("/portal/organizations");
   if (section === "imports") redirect("/portal/create/project/import");
   if (!["overview", "projects", "remodels", "requests", "approvals", "orders", "contacts", "documents", "organizations", "members", "create"].includes(section)) notFound();
   if (section === "create") {

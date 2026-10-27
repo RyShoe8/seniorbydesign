@@ -10,6 +10,9 @@ export interface Organization {
   createdAt: Date;
 }
 export interface Membership {
+  fullName?: string;
+  position?: string;
+  phone?: string;
   _id: string;
   userId: string;
   organizationId: string;
@@ -85,6 +88,7 @@ export interface ImportProject extends Omit<
   operatorName: string;
 }
 export interface Actor {
+  portalAccess?: boolean;
   id: string;
   email: string;
   role?: string;

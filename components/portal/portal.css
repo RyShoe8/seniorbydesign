@@ -1491,3 +1491,12 @@ a.portal-project-open { display: flex; align-items: center; justify-content: spa
 .portal-overview-columns { margin-top: 28px; }
 
 .portal-archive-filter { margin: 14px 0; font-size: 14px; }
+
+.portal-directory-search { display: grid; gap: 10px; margin: 24px 0; }
+.portal-directory-search input { width: 100%; min-height: 48px; }
+.portal-organization summary { cursor: pointer; padding: 12px 0; }
+.portal-organization summary strong { font-size: 24px; margin-right: 16px; }
+.portal-organization summary span { display: inline-block; }
+.portal-organization .portal-row { overflow-wrap: anywhere; }
+.portal-organization form { display: grid; gap: 16px; max-width: 600px; }
+@media(max-width: 600px) { .portal-organization .portal-row { flex-direction: column; align-items: stretch; } .portal-organization summary span { display: block; margin-top: 8px; } }
