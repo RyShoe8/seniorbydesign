@@ -410,7 +410,7 @@ export default function PortalApp({
         )}
       {!loading && selected && !project && <div className="portal-panel"><h2>Project unavailable</h2><p>This project could not be found or you do not have access.</p><button onClick={() => navigate("projects")}>Back to projects</button></div>}
       {project && tab === "projects" && (
-        <>
+        <div className="portal-project-detail">
           <button className="secondary" onClick={() => navigate("projects")}>
             Back to projects
           </button>
@@ -430,13 +430,13 @@ export default function PortalApp({
             <a href="#activity">Activity</a>
           </nav>
           <div className="portal-panel portal-project-context">
-            <p>{project.address}</p>
-            <p>
-              {name(project.companyId)} · Operator: {name(project.operatorId)}
-            </p>
-            <p className="portal-muted">
-              Permanent project ID: {project.sourceId}
-            </p>
+            <h2>Project overview</h2>
+            <dl className="portal-project-facts">
+              <div><dt>Address</dt><dd>{project.address || "Not provided"}</dd></div>
+              <div><dt>Client</dt><dd>{name(project.companyId)}</dd></div>
+              <div><dt>Operator</dt><dd>{name(project.operatorId)}</dd></div>
+            </dl>
+            <p className="portal-project-reference">Project ID: <span>{project.sourceId}</span></p>
             <div className="portal-actions">
               <StatusBadge value={project.payment} />
               <StatusBadge value={project.order} />
@@ -538,6 +538,9 @@ export default function PortalApp({
                   )}
                 </div>
                 <div className="portal-actions">
+                  {s.documentId && project.documents.some(d => d.id === s.documentId) && (
+                    <a className="portal-link secondary" href={`/api/portal/documents?project=${project._id}&document=${s.documentId}`} target="_blank" rel="noopener noreferrer">View quote <span className="portal-sr-only">{s.quote} (opens in a new tab)</span></a>
+                  )}
                   {!staff &&
                     s.approval === "Needs Approval" &&
                     s.revisionConfirmed &&
@@ -839,7 +842,7 @@ export default function PortalApp({
               </div>
             ))}
           </section>
-        </>
+        </div>
       )}
       {importing && staff && (
         <section className="portal-panel">
