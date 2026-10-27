@@ -1,0 +1,144 @@
+/* Scoped to the staff workspace: public pages and portal styling stay independent. */
+.admin-workspace { --admin-ink:#382c25; --admin-muted:#766f66; --admin-line:#e4dfd5; --admin-paper:#fffefa; --admin-accent:#8a6a34; font-family:var(--font-body); font-size:14px; line-height:1.6; color:var(--admin-ink); background:#f6f4ef; min-height:100vh; display:flex; }
+.admin-workspace *, .admin-notice * { box-sizing:border-box; }
+.admin-workspace .sr-only {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);}
+.admin-workspace :focus-visible {outline:3px solid #af8745;outline-offset:3px;}
+.workspace-sidebar {width:258px;flex-shrink:0;position:fixed;inset:0 auto 0 0;overflow-y:auto;background:#fffefa;border-right:1px solid var(--admin-line);padding:28px 20px;display:flex;flex-direction:column;z-index:30;}
+.workspace-brand {display:flex;align-items:center;gap:11px;color:var(--admin-ink);text-decoration:none;font:600 16px var(--font-body);margin:0 0 26px;}
+.workspace-monogram {display:grid;place-items:center;width:44px;height:44px;border:1px solid #cbb994;border-radius:50%;font:20px var(--font-heading);color:#71552f;}
+.workspace-brand small {display:block;font:9px var(--font-body);letter-spacing:1.8px;margin-top:6px;color:var(--admin-muted);}
+.workspace-nav-search input {width:100%;background:#f6f4ef;border:1px solid var(--admin-line);border-radius:8px;padding:10px 12px;font:13px var(--font-body);min-height:42px;}
+.workspace-nav-group {margin:23px 0 0;}
+.admin-workspace .workspace-nav-group p {font:600 10px var(--font-body);letter-spacing:1.6px;text-transform:uppercase;color:#8a8175;margin:0 12px 8px;}
+.workspace-nav-link {display:flex;gap:12px;align-items:center;min-height:43px;padding:9px 12px;margin:3px 0;text-decoration:none;border-radius:8px;color:#665c50;font-size:13px;font-weight:600;}
+.workspace-nav-link>span {width:18px;text-align:center;font-size:19px;font-weight:400;color:#928573;}
+.workspace-nav-link:hover {background:#f5f2eb;color:#382c25;}
+.workspace-nav-link.active {background:#ece5d8;color:#4b3727;}
+.workspace-nav-link.active>span {color:#79592e;}
+.workspace-sidebar-footer {border-top:1px solid var(--admin-line);margin-top:26px;padding-top:18px;}
+.workspace-portal-link {display:flex;justify-content:space-between;background:#43372c;color:#fffefa;padding:12px 14px;border-radius:8px;text-decoration:none;font-size:13px;margin-bottom:18px;}
+.workspace-account {display:block;overflow-wrap:anywhere;color:#766f66;font-size:11px;}
+.workspace-signout {background:none;border:0;padding:10px 0;color:#6c5741;cursor:pointer;font:600 12px var(--font-body);min-height:44px;}
+.workspace-body {margin-left:258px;flex:1;min-width:0;}
+.workspace-topbar {height:78px;display:flex;align-items:center;gap:24px;border-bottom:1px solid var(--admin-line);padding:0 40px;background:rgba(255,254,250,.95);}
+.workspace-topbar>a {font-size:12px;color:#675849;text-decoration:none;white-space:nowrap;}
+.workspace-breadcrumb {display:flex;align-items:center;gap:12px;margin-right:auto;font-size:12px;}
+.workspace-breadcrumb a {color:#7b7166;text-decoration:none;}.workspace-breadcrumb strong {font-weight:600;}
+.admin-content {padding:32px 40px 56px;width:100%;max-width:1680px;margin:auto;min-width:0;}
+.workspace-context {margin-bottom:24px;}
+.admin-workspace .workspace-context>span {font-size:10px;font-weight:700;letter-spacing:1.8px;color:#9a7c48;}
+.admin-workspace .workspace-context p {font-size:13px;color:#766f66;margin:7px 0 0;max-width:740px;}
+.workspace-footer {display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--admin-line);padding:20px 40px;font-size:11px;color:#8b8174;}
+.workspace-menu-button,.workspace-mobile-menu {display:none;}
+.workspace-skip {position:fixed;top:-80px;left:280px;z-index:10000;background:#fff;padding:12px;}.workspace-skip:focus {top:10px;}
+.admin-loading {min-height:100vh;display:grid;place-items:center;background:#f6f4ef;font:16px var(--font-body);color:#594838;}
+/* Higher specificity than legacy page-level scoped styles, with one shared vocabulary. */
+.admin-workspace .admin-content .admin-page {max-width:none;margin:0;padding:0;min-width:0;}
+.admin-workspace .admin-content h1 {font:500 clamp(32px,3vw,43px)/1.12 var(--font-heading);letter-spacing:-.8px;color:#433428;margin:0 0 12px;}
+.admin-workspace .admin-content h2 {font:600 21px/1.3 var(--font-body);letter-spacing:-.4px;color:#493b2f;}
+.admin-workspace .admin-content h3 {font:600 16px/1.4 var(--font-body);font-style:normal;color:#493b2f;}
+.admin-workspace .admin-content p {font-size:14px;line-height:1.65;}
+.admin-workspace .admin-content .admin-header {display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:0 0 24px;margin:0;background:none;border:0;}
+.admin-workspace .admin-content .admin-header h1 {margin:0;}
+.admin-workspace .admin-content :is(.btn,.btn-small,.btn-secondary) {font:600 13px/1.3 var(--font-body);letter-spacing:0;text-transform:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:10px 17px;border:1px solid #514131;border-radius:8px;background:#514131;color:#fffefa;box-shadow:none;cursor:pointer;text-decoration:none;transition:background .15s,border-color .15s;max-width:100%;white-space:normal;text-align:center;}
+.admin-workspace .admin-content :is(.btn,.btn-small):hover {background:#372c23;border-color:#372c23;transform:none;}
+.admin-workspace .admin-content :is(.btn-secondary,.secondary) {background:#fffefa;color:#66533f;border-color:#d6cdbc;}
+.admin-workspace .admin-content .btn-secondary:hover {background:#eee8dd;}
+.admin-workspace .admin-content .btn-danger {background:#fff7f4;color:#a13f32;border-color:#eacbc3;}
+.admin-workspace .admin-content .btn-danger:hover {background:#f8e7e2;color:#872e24;border-color:#d99f91;}
+.admin-workspace .admin-content button:disabled {opacity:.5;cursor:not-allowed;}
+.admin-workspace .admin-content :is(input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]),select,textarea) {font:400 14px/1.5 var(--font-body);color:#45382d;border:1px solid #d8d1c5;background:#fffefa;border-radius:8px;padding:11px 13px;min-height:44px;max-width:100%;box-shadow:none;}
+.admin-workspace .admin-content textarea {min-height:100px;resize:vertical;}
+.admin-workspace .admin-content input[type=checkbox] {accent-color:#79603c;width:18px;height:18px;}
+.admin-workspace .admin-content input[type=file] {width:100%;padding:10px;border-style:dashed;background:#faf8f2;}
+.admin-workspace input::file-selector-button {background:#ece5d8;border:0;border-radius:5px;padding:8px 12px;margin-right:12px;color:#514131;font:600 12px var(--font-body);cursor:pointer;}
+.admin-workspace .admin-content label {font-size:13px;font-weight:600;color:#5e5043;}
+.admin-workspace .admin-content :is(.form-group,.control-group) {margin-bottom:20px;min-width:0;}
+.admin-workspace .admin-content .form-group>label {display:block;margin-bottom:7px;}
+.admin-workspace .admin-content .form-group :is(input:not([type=checkbox]),textarea,select) {width:100%;}
+.admin-workspace .admin-content :is(.form-actions,.image-actions,.testimonial-actions) {display:flex;flex-wrap:wrap;gap:8px;}
+.admin-workspace .admin-content .form-actions {border-top:1px solid #e4dfd5;padding-top:20px;margin-top:22px;}
+.admin-workspace .admin-content :is(.admin-form,.portal-panel,.upload-section,.images-grid-section,.testimonial-form-box) {background:#fffefa;border:1px solid var(--admin-line);border-radius:12px;box-shadow:0 3px 14px #493b2f04;padding:26px;margin:0 0 24px;}
+.admin-workspace .admin-content :is(.media-card,.image-card,.partner-box,.testimonial-box) {background:#fffefa;border:1px solid var(--admin-line);border-radius:12px;box-shadow:none;overflow:hidden;}
+.admin-workspace .admin-content :is(.section-header,.filter-controls,.chart-controls) {display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
+.admin-workspace .admin-content .admin-table-container {border:1px solid var(--admin-line);border-radius:12px;background:#fffefa;box-shadow:none;overflow-x:auto;margin:0 0 24px;}
+.admin-workspace .admin-content .admin-table {width:100%;border-collapse:collapse;background:#fffefa;box-shadow:none;margin:0;font-size:13px;}
+.admin-workspace .admin-content .admin-table th {background:#eeeae1;color:#776a59;font:700 10px/1.5 var(--font-body);text-transform:uppercase;letter-spacing:1.3px;border:0;padding:16px 20px;text-align:left;}
+.admin-workspace .admin-content .admin-table td {padding:18px 20px;border:0;border-bottom:1px solid #eee9e0;font-size:13px;vertical-align:middle;overflow-wrap:anywhere;}
+.admin-workspace .admin-content .admin-table tr:last-child td {border-bottom:0;}
+.admin-workspace .admin-content .admin-table tr:hover td {background:#faf8f2;}
+.admin-workspace .admin-content .admin-table td:last-child {min-width:180px;}
+.admin-workspace .admin-content .admin-table td :is(button,.btn-small) {margin:3px;min-height:38px;padding:8px 12px;font-size:12px;}
+.admin-workspace .admin-content .admin-table a:not(.btn-small) {color:#765b35;text-underline-offset:4px;}
+.admin-workspace .admin-content .portal-app {padding:0;background:none;min-height:0;font-size:14px;}
+.admin-workspace .admin-content .portal-row {gap:16px;padding:16px 0;border-bottom:1px solid var(--admin-line);overflow-wrap:anywhere;}
+.admin-workspace .admin-content .portal-row>span {min-width:0;}
+.admin-workspace .admin-content .portal-alert {border:1px solid #d9c8a3;background:#f4eee0;border-radius:8px;padding:16px;}
+.admin-collection-tools {display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;border:1px solid var(--admin-line);border-radius:12px;padding:18px 20px;background:#fffefa;margin:0 0 22px;}
+.admin-search {flex:1;min-width:180px;max-width:420px;}.admin-search span {display:block;margin-bottom:5px;font-size:11px;}.admin-search input {width:100%;}
+.admin-result-count {color:#807463;font-size:12px;margin:auto auto 12px 6px;font-variant-numeric:tabular-nums;}
+.admin-workspace .admin-content .admin-empty {flex-basis:100%;margin:0;padding:12px 0 0;border-top:1px solid #eee9e0;color:#7c7162;font-size:13px;}
+.admin-workspace .admin-editor-dialog {border:1px solid #ddd4c4;border-radius:16px;padding:0;width:min(850px,calc(100vw - 40px));max-height:90dvh;margin:auto;background:#fffefa;color:#45382d;box-shadow:0 24px 90px #231c2440;}
+.admin-editor-dialog::backdrop,.workspace-mobile-menu::backdrop {background:#28251f80;backdrop-filter:blur(4px);}
+.admin-dialog-bar {display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:3;background:#f4f0e7;border-bottom:1px solid #e4dfd5;padding:12px 24px;font-size:12px;font-weight:600;}
+.admin-dialog-bar button {border:0;background:transparent;color:#554331;font-size:26px;min-width:44px;min-height:44px;cursor:pointer;}
+.admin-workspace .admin-content .admin-form-content {background:#fffefa;width:100%;max-width:none;max-height:none;overflow:visible;border-radius:0;padding:28px;box-shadow:none;margin:0;}
+.admin-workspace .admin-content .admin-form-content>h2 {margin:0 0 24px;font:500 32px var(--font-heading);}
+.admin-notice {position:fixed;bottom:24px;right:24px;z-index:10001;display:flex;align-items:center;gap:20px;width:max-content;max-width:min(560px,calc(100vw - 32px));background:#3c342a;color:#fffefa;border:1px solid #9b8561;border-radius:12px;padding:16px 18px;box-shadow:0 10px 40px #241c2b22;font:14px/1.5 var(--font-body);white-space:pre-line;}
+.admin-notice button {color:inherit;background:none;border:0;min-width:36px;min-height:44px;font-size:24px;cursor:pointer;}
+.admin-workspace .admin-content .brochure-tabs {display:flex;gap:6px;flex-wrap:wrap;margin:22px 0;padding:8px;background:#eee9e0;border-radius:12px;}
+.admin-workspace .brochure-tabs button {padding:10px 15px;min-height:44px;border:0;border-radius:8px;background:transparent;color:#766653;font:600 12px var(--font-body);cursor:pointer;}
+.admin-workspace .brochure-tabs button[aria-pressed=true] {background:#fffefa;color:#493929;box-shadow:0 2px 5px #483c2410;}
+.admin-workspace .brochure-editor-panel {padding:28px;background:#fffefa;border:1px solid var(--admin-line);border-radius:12px;}
+.admin-workspace .brochure-savebar {display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;position:sticky;bottom:12px;padding:14px 20px;background:#fffefa;border:1px solid var(--admin-line);border-radius:12px;margin-top:24px;box-shadow:0 5px 24px #47371f14;z-index:4;}
+.admin-workspace .brochure-savebar span {align-self:center;font-size:12px;color:#7c705e;}
+@media(min-width:769px) { .admin-workspace .admin-content .media-grid {grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px;} }
+@media(max-width:1100px) { .workspace-sidebar {width:224px;padding:24px 14px;}.workspace-body {margin-left:224px;}.admin-content {padding:28px 24px 40px;}.workspace-topbar {padding:0 24px;}.workspace-brand {font-size:14px;} }
+@media(max-width:768px) {
+ .workspace-sidebar {display:none;}.workspace-body {margin-left:0;}.workspace-topbar {height:68px;padding:0 16px;gap:14px;}.workspace-topbar>a {font-size:11px;}.workspace-breadcrumb {font-size:11px;gap:8px;}.workspace-breadcrumb>a,.workspace-breadcrumb>span {display:none;}
+ .workspace-menu-button {display:block;border:1px solid #ded6c8;border-radius:8px;background:#fffefa;color:#514131;min-width:44px;min-height:44px;font-size:20px;}
+ .workspace-mobile-menu[open] {display:block;position:fixed;inset:0 auto 0 0;margin:0;width:min(320px,90vw);max-width:90vw;height:100dvh;max-height:100dvh;overflow:auto;border:0;background:#fffefa;padding:24px;color:#45382d;}
+ .workspace-close {float:right;border:0;background:none;font-size:26px;min-width:44px;min-height:44px;}.workspace-mobile-menu .workspace-brand {clear:both;}
+ .admin-content {padding:24px 16px 36px;}.workspace-context {margin-bottom:22px;}.admin-workspace .workspace-context p {font-size:12px;}.workspace-footer {padding:18px 16px;font-size:10px;}
+ .admin-workspace .admin-content .admin-header {align-items:flex-start;gap:16px;}.admin-workspace .admin-content .admin-header>div {min-width:0;max-width:100%;}
+ .admin-workspace .admin-content :is(.admin-form,.portal-panel,.upload-section,.images-grid-section,.testimonial-form-box) {padding:18px;}
+ .admin-workspace .admin-content :is(input:not([type=checkbox]):not([type=radio]),textarea,select) {font-size:16px;}
+ .admin-workspace .admin-content .form-row {display:flex;flex-direction:column;gap:0;}
+ .admin-workspace .admin-content :is(.media-grid,.images-grid,.partners-grid,.testimonials-grid) {grid-template-columns:1fr;gap:16px;}
+ .admin-workspace .admin-content :is(.portfolio-card,.blog-card,.service-card,.team-card,.project-card,.resource-card) {background:#fffefa;border:1px solid var(--admin-line);border-radius:12px;padding:20px;box-shadow:none;margin-bottom:14px;}
+ .admin-workspace .admin-content [class$='-card-field'] {gap:10px;overflow-wrap:anywhere;}
+ .admin-workspace .admin-content [class$='-card-actions'] {display:flex;flex-wrap:wrap;gap:8px;border-top:1px solid var(--admin-line);padding-top:14px;}
+ .admin-workspace .admin-content .portal-row {flex-direction:column;align-items:flex-start;}
+ .admin-workspace .admin-editor-dialog {width:calc(100vw - 16px);max-height:94dvh;border-radius:12px;}.admin-workspace .admin-content .admin-form-content {padding:20px;}.admin-dialog-bar {padding:8px 16px;}
+ .admin-collection-tools {padding:14px;gap:10px;}.admin-search {max-width:none;flex-basis:100%;}.admin-result-count {margin:auto auto auto 0;}.admin-notice {bottom:16px;right:16px;}
+ .admin-workspace .brochure-editor-panel {padding:18px;}.admin-workspace .brochure-tabs {flex-wrap:nowrap;overflow-x:auto;}.admin-workspace .brochure-tabs button {flex-shrink:0;}.admin-workspace .brochure-savebar {bottom:8px;padding:12px;}
+}
+@media(prefers-reduced-motion:reduce) {.admin-workspace * {scroll-behavior:auto!important;transition:none!important;}}
+
+.admin-dialog-fields{border:0;padding:0;margin:0;min-width:0;}
+.admin-dialog-message{margin:16px 24px;padding:12px 16px;border:1px solid #d8c6a3;border-radius:8px;background:#f5eedf;font-size:13px;}
+
+.admin-workspace .admin-content [class$="-card-value"] {color:#534638;font-size:14px;}
+.admin-workspace .admin-content [class$="-card-label"] {color:#8a7a65;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;}
+.admin-workspace .admin-content [class$="-card-link"] {color:#795c32;overflow-wrap:anywhere;}
+.admin-workspace .admin-content .resource-card-note {background:#f5f1e9;color:#665541;border:1px solid #e5dccd;border-radius:6px;}
+.admin-workspace .admin-content .portal-panel button {min-height:44px;border-radius:8px;font-size:13px;}
+@media(max-width:768px){.admin-workspace .admin-content .admin-table-container:has(.admin-table-desktop){display:none;}}
+
+.admin-workspace .admin-content .testimonial-name {font-size:14px!important;color:#514131;}
+.admin-workspace .admin-content .testimonial-details {font-size:12px!important;color:#7b6d5a;}
+.admin-workspace .admin-content .testimonial-review {font-size:14px;line-height:1.7;color:#65523f;}
+.admin-workspace .admin-content .image-alt {color:#74644f;font-size:12px;}
+.admin-workspace .admin-content .empty-state {color:#7b6d59;padding:24px;border:1px dashed #d8cfbd;border-radius:10px;background:#faf7f0;}
+.admin-workspace .admin-content .admin-load-error {flex-basis:100%;color:#9b3f31;background:#fff3ed;border:1px solid #eed2c7;padding:12px;border-radius:8px;margin:0;}
+@media(max-width:768px){.admin-workspace .admin-content .brochure-tabs{flex-wrap:nowrap;overflow-x:auto;}.admin-workspace .admin-content .brochure-tabs button{flex-shrink:0;}.workspace-topbar{gap:10px;}.workspace-topbar>a{font-size:10px;}.workspace-breadcrumb{min-width:0;}.workspace-breadcrumb strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}}
+
+.admin-workspace .admin-content .form-group small {color:#7c6c57;font-size:12px;line-height:1.6;display:block;margin-top:6px;}
+.admin-workspace .admin-content .admin-upload-control {max-width:340px;display:block;font-size:12px;}
+.admin-workspace .admin-content .admin-upload-control input {display:block;margin-top:5px;}
+
+.admin-workspace .admin-content .admin-table-container {padding:0;}
+.admin-workspace .admin-content .admin-table td :is(button,.btn-small) {width:auto;display:inline-flex;}
+.admin-workspace .admin-content .admin-table td:last-child {width:34%;}
+.admin-workspace .admin-content .admin-table :is(th,td) {background-clip:padding-box;}
+.admin-workspace .admin-content .back-link {font-size:12px;color:#806441;display:inline-block;margin-bottom:12px;text-underline-offset:4px;}

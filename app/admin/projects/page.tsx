@@ -1,6 +1,7 @@
 'use client';
+import { AdminDialog, CollectionToolbar, matchesSearch, useAdminFeedback } from '@/components/admin/AdminTools';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import PortfolioMap from '@/components/PortfolioMap';
 
 interface Project {
@@ -12,26 +13,32 @@ interface Project {
 }
 
 export default function ProjectMapManagement() {
+  const notify = useAdminFeedback();
+  const [query, setQuery] = useState('');
+  const [saving, setSaving] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [showForm, setShowForm] = useState(false);
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError('');
     try {
       const response = await fetch('/api/admin/projects');
+      if (!response.ok) throw new Error('Could not load content. Please try Refresh.');
       const data = await response.json();
       setProjects(data);
     } catch (error) {
-      // Error fetching projects
+      setLoadError('Content could not be loaded. Please try Refresh.');
+      notify(error instanceof Error ? error.message : 'Unable to complete this request. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [notify]);
+  useEffect(() => { fetchProjects(); }, [fetchProjects]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this project?')) return;
@@ -40,11 +47,12 @@ export default function ProjectMapManagement() {
       const response = await fetch(`/api/admin/projects/${id}`, {
         method: 'DELETE',
       });
+      if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
       if (response.ok) {
         fetchProjects();
       }
     } catch (error) {
-      // Error deleting project
+      notify(error instanceof Error ? error.message : 'Unable to complete this request. Please try again.');
     }
   };
 
@@ -56,14 +64,15 @@ export default function ProjectMapManagement() {
         method: 'POST',
       });
       const data = await response.json();
+      if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
       if (response.ok) {
-        alert(`Geocoding complete! ${data.geocoded} projects geocoded, ${data.failed} failed.`);
+        notify(`Geocoding complete! ${data.geocoded} projects geocoded, ${data.failed} failed.`);
         fetchProjects();
       } else {
-        alert('Error geocoding projects');
+        notify('Error geocoding projects');
       }
     } catch (error) {
-            alert('Error geocoding projects');
+            notify('Error geocoding projects');
     }
   };
 
@@ -77,14 +86,15 @@ export default function ProjectMapManagement() {
         body: JSON.stringify({ action: 'clearGeocode' }),
       });
       const data = await response.json();
+      if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
       if (response.ok) {
-        alert('Geocoding cleared successfully');
+        notify('Geocoding cleared successfully');
         fetchProjects();
       } else {
-        alert(data.error || 'Error clearing geocoding');
+        notify(data.error || 'Error clearing geocoding');
       }
     } catch (error) {
-      alert('Error clearing geocoding');
+      notify('Error clearing geocoding');
     }
   };
 
@@ -98,14 +108,15 @@ export default function ProjectMapManagement() {
         body: JSON.stringify({ action: 'regeocode' }),
       });
       const data = await response.json();
+      if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
       if (response.ok) {
-        alert('Project re-geocoded successfully');
+        notify('Project re-geocoded successfully');
         fetchProjects();
       } else {
-        alert(data.error || 'Error re-geocoding project');
+        notify(data.error || 'Error re-geocoding project');
       }
     } catch (error) {
-            alert('Error re-geocoding project');
+            notify('Error re-geocoding project');
     }
   };
 
@@ -144,6 +155,8 @@ export default function ProjectMapManagement() {
     // Try to geocode zip code (simplified - in production, use a geocoding service)
     // For now, we'll just store the zip code and geocode can happen later
 
+    if (saving) return;
+    setSaving(true);
     try {
       const url = editingProject?._id 
         ? `/api/admin/projects/${editingProject._id}`
@@ -155,21 +168,25 @@ export default function ProjectMapManagement() {
         body: JSON.stringify(data),
       });
 
+      if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
       if (response.ok) {
+        notify('Changes saved.');
         fetchProjects();
         setShowForm(false);
         setEditingProject(null);
         (e.target as HTMLFormElement).reset();
       }
     } catch (error) {
-      // Error saving project
-    }
+      notify(error instanceof Error ? error.message : 'Unable to complete this request. Please try again.');
+    } finally { setSaving(false); }
   };
+
+  const visibleItems = projects.filter(project => matchesSearch(query, project.name, project.zipCode));
 
   return (
     <div className="admin-page">
       <div className="admin-header">
-        <h1>Project Map Management</h1>
+        <h1>Project map</h1>
         <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
           <button onClick={handleGeocodeAll} className="btn-secondary">
             Geocode All Projects
@@ -180,8 +197,10 @@ export default function ProjectMapManagement() {
         </div>
       </div>
 
+      <CollectionToolbar query={query} onQuery={setQuery} count={visibleItems.length} total={projects.length} label="map locations" loading={isLoading} error={loadError} onRefresh={fetchProjects} />
+
       {showForm && (
-        <div className="admin-form-modal">
+        <AdminDialog busy={saving} title="Map Locations editor" onClose={() => setShowForm(false)}>
           <div className="admin-form-content">
             <h2>{editingProject ? 'Edit' : 'Add'} Project</h2>
             <form onSubmit={handleFormSubmit}>
@@ -233,14 +252,14 @@ export default function ProjectMapManagement() {
                 <small>Leave empty to auto-geocode from ZIP code. Use if geocoding returns incorrect location.</small>
               </div>
               <div className="form-actions">
-                <button type="submit" className="btn">Save</button>
+                <button type="submit" className="btn" disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</button>
                 <button type="button" className="btn-secondary" onClick={() => { setShowForm(false); setEditingProject(null); }}>
                   Cancel
                 </button>
               </div>
             </form>
           </div>
-        </div>
+        </AdminDialog>
       )}
 
       {isLoading ? (
@@ -250,7 +269,7 @@ export default function ProjectMapManagement() {
           {projects.length > 0 && (
             <div style={{ marginBottom: 'var(--spacing-lg)' }}>
               <h2 style={{ marginBottom: 'var(--spacing-md)' }}>Project Map Preview</h2>
-              <PortfolioMap projects={projects.map(p => ({ ...p, _id: p._id?.toString() }))} />
+              <PortfolioMap projects={visibleItems.map(p => ({ ...p, _id: p._id?.toString() }))} />
             </div>
           )}
           <div className="admin-table-container">
@@ -264,7 +283,7 @@ export default function ProjectMapManagement() {
                 </tr>
               </thead>
               <tbody>
-                {projects.map((project) => (
+                {visibleItems.map((project) => (
                   <tr key={project._id}>
                     <td>{project.name}</td>
                     <td>{project.zipCode}</td>
@@ -318,7 +337,7 @@ export default function ProjectMapManagement() {
           </div>
           
           <div className="projects-cards-mobile">
-            {projects.map((project) => (
+            {visibleItems.map((project) => (
               <div key={project._id} className="project-card">
                 <div className="project-card-content">
                   <div className="project-card-field">

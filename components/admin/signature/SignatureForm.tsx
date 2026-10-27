@@ -14,10 +14,6 @@ const fieldStyle: CSSProperties = {
   width: '100%',
   maxWidth: '420px',
   marginBottom: '0.75rem',
-  padding: '0.5rem 0.65rem',
-  fontSize: '14px',
-  border: '1px solid #ccc',
-  borderRadius: '4px',
 };
 
 const labelStyle: CSSProperties = {

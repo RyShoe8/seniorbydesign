@@ -3,11 +3,14 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { signIn, signOut } from "next-auth/react";
 import "./portal.css";
+import StaffEmailSignIn from './StaffEmailSignIn';
 export default function AccountForm({
   mode,
 }: {
   mode: "login" | "reset" | "accept" | "change";
 }) {
+  const [staffLogin, setStaffLogin] = useState(false);
+  useEffect(() => { setStaffLogin(mode === 'login' && new URLSearchParams(location.search).has('staff')); }, [mode]);
   const [email, setEmail] = useState(""),
     [password, setPassword] = useState(""),
     [current, setCurrent] = useState(""),
@@ -89,6 +92,9 @@ export default function AccountForm({
             {message}
           </p>
         )}
+        {staffLogin && <StaffEmailSignIn />}
+        <details open={!staffLogin} className="account-password-option">
+        {staffLogin && <summary>Use your password instead</summary>}
         <form onSubmit={submit}>
           {["login", "reset"].includes(mode) && (
             <label>
@@ -141,6 +147,7 @@ export default function AccountForm({
             {busy ? "Please wait…" : mode === "login" ? "Sign in" : "Continue"}
           </button>
         </form>
+        </details>
         <div className="portal-actions">
           <a href="/account/login">Sign in</a>
           <a href="/account/reset">Forgot password?</a>

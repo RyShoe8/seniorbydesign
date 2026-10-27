@@ -45,7 +45,7 @@ export default function StaffAccess() {
   }
   return (
     <div className="portal-app">
-      <h1>Staff Access</h1>
+      <h1>Staff access</h1>
       <p>
         Administrators invite SBD Team members. Company and operator accounts
         are managed in Client Portal.
@@ -65,7 +65,7 @@ export default function StaffAccess() {
       >
         <label>
           Team member email
-          <input type="email" name="email" required />
+          <input type="email" name="email" placeholder="name@seniorbydesign.com" autoComplete="email" required />
         </label>
         <button disabled={busy}>Send invitation</button>
       </form>
@@ -92,6 +92,7 @@ export default function StaffAccess() {
       </section>
       <section className="portal-panel">
         <h2>Invitations</h2>
+        {invites.length === 0 && <p className="admin-empty">No invitations yet. Invite a team member using the form above.</p>}
         {invites.map((i, n) => (
           <div className="portal-row" key={n}>
             <span>

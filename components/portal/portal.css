@@ -1194,3 +1194,8 @@
 .portal-workspace .portal-editorial h2 {
   color: #fff8eb;
 }
+
+.staff-email-signin h2 {font-size:26px;}
+.staff-email-signin>p {color:#756753;font-size:14px;}
+.account-password-option summary {cursor:pointer;padding:18px 0;font-size:14px;color:#6c5436;}
+.account-password-option[open] summary {margin-bottom:12px;}

@@ -27,16 +27,28 @@ export default function DesignGuideAdmin() {
   const [isSaving, setIsSaving] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
+  const [savedContent, setSavedContent] = useState('');
+  const [loadError, setLoadError] = useState(false);
+  const dirty = !!content && JSON.stringify(content) !== savedContent;
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ''; };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [dirty]);
 
   const fetchContent = useCallback(async () => {
+    setLoadError(false);
     try {
       const res = await fetch('/api/admin/design-guide');
+      if (!res.ok) throw new Error('Could not load brochure');
       if (res.ok) {
         const data = await res.json();
         setContent(data);
+        setSavedContent(JSON.stringify(data));
       }
     } catch (e) {
-      console.error('Error fetching design guide content:', e);
+      setLoadError(true);
     } finally {
       setIsLoading(false);
     }
@@ -102,6 +114,8 @@ export default function DesignGuideAdmin() {
 
   if (isLoading) return <p>Loading...</p>;
 
+  if (loadError) return <div className="admin-page"><h1>Brochure builder</h1><p role="alert">The brochure could not be loaded. Your saved content has not changed.</p><button className="btn" onClick={fetchContent}>Try again</button></div>;
+
   if (!content) {
     return (
       <div className="admin-page">
@@ -120,19 +134,19 @@ export default function DesignGuideAdmin() {
       {/* Top Header & Cross links */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
-          <h1 style={{ margin: 0 }}>Design Brochure Editor</h1>
+          <h1 style={{ margin: 0 }}>Brochure builder</h1>
           <p style={{ margin: '0.25rem 0 0', fontSize: '14px', color: 'var(--text-muted)' }}>
             Manage the content, imagery, and text for the interactive digital brochure.
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-          <a href="/admin/brochure" className="btn" style={{ textDecoration: 'none', background: 'var(--warm-grey-1)', color: 'var(--sbd-brown)' }}>
+          <a href="/admin/brochure" className="btn" style={{ textDecoration: 'none', background: '#fffefa', color: '#66533f' }}>
             Brochure Requests & Settings
           </a>
           <a href="/v2/experience" target="_blank" rel="noopener noreferrer" className="btn" style={{ textDecoration: 'none', background: 'var(--sbd-brown)' }}>
             Preview Digital Brochure
           </a>
-          <button className="btn" onClick={handleSave} disabled={isSaving}>
+          <button className="btn" onClick={handleSave} disabled={isSaving || !dirty}>
             {isSaving ? 'Saving...' : 'Save All Changes'}
           </button>
         </div>
@@ -145,30 +159,20 @@ export default function DesignGuideAdmin() {
       )}
 
       {/* Tab navigation */}
-      <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', marginBottom: '1.5rem', borderBottom: '2px solid var(--warm-grey-1)' }}>
+      <div className="brochure-tabs" aria-label="Brochure sections">
         {TABS.map(({ key, label }) => (
           <button
             key={key}
+            aria-pressed={activeTab === key}
             onClick={() => setActiveTab(key)}
-            style={{
-              padding: '0.6rem 1rem',
-              background: activeTab === key ? 'var(--sbd-gold)' : 'transparent',
-              color: activeTab === key ? '#fff' : 'var(--sbd-brown)',
-              border: 'none',
-              borderRadius: '4px 4px 0 0',
-              cursor: 'pointer',
-              fontWeight: activeTab === key ? 600 : 400,
-              fontSize: '0.85rem',
-              fontFamily: 'inherit',
-              transition: 'all 200ms ease',
-            }}
+
           >
             {label}
           </button>
         ))}
       </div>
 
-      <div style={{ background: '#fff', padding: '1.5rem', borderRadius: '8px' }}>
+      <fieldset className="brochure-editor-panel" disabled={isSaving}>
         {/* ============ HERO ============ */}
         {activeTab === 'hero' && (
           <div>
@@ -526,10 +530,10 @@ export default function DesignGuideAdmin() {
             </div>
           </div>
         )}
-      </div>
+      </fieldset>
 
-      <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem' }}>
-        <button className="btn" onClick={handleSave} disabled={isSaving}>
+      <div className="brochure-savebar"><span role="status">{dirty ? "You have unsaved changes" : "All changes saved"}</span>
+        <button className="btn" onClick={handleSave} disabled={isSaving || !dirty}>
           {isSaving ? 'Saving...' : 'Save All Changes'}
         </button>
       </div>

@@ -1,6 +1,7 @@
 'use client';
+import { useAdminFeedback } from '@/components/admin/AdminTools';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 
 interface Testimonial {
@@ -27,6 +28,7 @@ interface HomepageContent {
 }
 
 export default function HomepageManagement() {
+  const notify = useAdminFeedback();
   const [content, setContent] = useState<HomepageContent | null>(null);
   const [partners, setPartners] = useState<Partner[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,32 +40,28 @@ export default function HomepageManagement() {
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string>('');
 
-  useEffect(() => {
-    fetchContent();
-    fetchPartners();
-  }, []);
 
-  const fetchContent = async () => {
+  const fetchContent = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/homepage');
       const data = await response.json();
       setContent(data || {
         testimonials: [],
       });
-    } catch (error) {
-          } finally {
+    } catch (error) { notify('Unable to complete this request. Please try again.'); } finally {
       setIsLoading(false);
     }
-  };
+  }, [notify]);
 
-  const fetchPartners = async () => {
+  const fetchPartners = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/partners');
       const data = await response.json();
       setPartners(data.sort((a: Partner, b: Partner) => a.order - b.order));
-    } catch (error) {
-          }
-  };
+    } catch (error) { notify('Unable to complete this request. Please try again.'); }
+  }, [notify]);
+
+  useEffect(() => { fetchContent(); fetchPartners(); }, [fetchContent, fetchPartners]);
 
   const handleAddTestimonial = async (testimonial: Testimonial) => {
     try {
@@ -77,7 +75,7 @@ export default function HomepageManagement() {
         fetchContent();
       }
     } catch (error) {
-            alert('Error adding testimonial');
+            notify('Error adding testimonial');
     }
   };
 
@@ -93,7 +91,7 @@ export default function HomepageManagement() {
         fetchContent();
       }
     } catch (error) {
-            alert('Error updating testimonial');
+            notify('Error updating testimonial');
     }
   };
 
@@ -109,7 +107,7 @@ export default function HomepageManagement() {
         fetchContent();
       }
     } catch (error) {
-            alert('Error deleting testimonial');
+            notify('Error deleting testimonial');
     }
   };
 
@@ -163,10 +161,10 @@ export default function HomepageManagement() {
         setLogoUrl(data.url);
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Failed to upload logo' }));
-        alert(`Failed to upload logo: ${errorData.error || 'Unknown error'}\n\n${errorData.details || ''}\n\n${errorData.instructions || ''}`);
+        notify(`Failed to upload logo: ${errorData.error || 'Unknown error'}\n\n${errorData.details || ''}\n\n${errorData.instructions || ''}`);
       }
     } catch (error: any) {
-            alert(`Error uploading logo: ${error.message || 'Unknown error'}`);
+            notify(`Error uploading logo: ${error.message || 'Unknown error'}`);
     } finally {
       setUploadingLogo(false);
     }
@@ -179,7 +177,7 @@ export default function HomepageManagement() {
     // Use logoUrl state if set, otherwise fall back to editingPartner's logo
     const logo = logoUrl || editingPartner?.logo;
     if (!logo) {
-      alert('Please upload a logo or provide a logo URL');
+      notify('Please upload a logo or provide a logo URL');
       return;
     }
 
@@ -212,10 +210,10 @@ export default function HomepageManagement() {
         setLogoUrl('');
         (e.target as HTMLFormElement).reset();
       } else {
-        alert('Error saving partner');
+        notify('Error saving partner');
       }
     } catch (error) {
-            alert('Error saving partner');
+            notify('Error saving partner');
     }
   };
 
@@ -230,22 +228,22 @@ export default function HomepageManagement() {
       if (response.ok) {
         fetchPartners();
       } else {
-        alert('Error deleting partner');
+        notify('Error deleting partner');
       }
     } catch (error) {
-            alert('Error deleting partner');
+            notify('Error deleting partner');
     }
   };
 
   return (
     <div className="admin-page">
-      <h1>Homepage Content Management</h1>
+      <h1>Homepage</h1>
       
       {/* Partners Section */}
       <div className="admin-form">
         <div className="form-section">
           <div className="section-header">
-            <h2>Partners - You&apos;re In Good Hands</h2>
+            <h2>Featured partners</h2>
             <button 
               type="button" 
               className="btn" 

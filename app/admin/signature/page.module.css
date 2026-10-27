@@ -21,10 +21,11 @@
 }
 
 .card {
-  background: #fff;
-  border-radius: 8px;
+  background: #fffefa;
+  border-radius: 12px;
   padding: 1.25rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e4dfd5;
+  box-shadow: none;
 }
 
 .card h2 {
@@ -116,7 +117,7 @@
   padding: 0.4rem 0.9rem;
   font-size: 14px;
   border: 1px solid #611a15;
-  background: #fff;
+  background: #fffefa;
   border-radius: 4px;
   cursor: pointer;
   min-height: 36px;
@@ -132,7 +133,7 @@
   padding: 0.6rem 1.1rem;
   font-size: 15px;
   font-weight: 600;
-  background: var(--sbd-gold, #b8956a);
+  background: #514131;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -144,3 +145,6 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.card {min-width:0;}
+@media(max-width:1100px){.grid{grid-template-columns:1fr;}}

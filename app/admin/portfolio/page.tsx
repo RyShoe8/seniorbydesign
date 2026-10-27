@@ -1,6 +1,7 @@
 'use client';
+import { AdminDialog, CollectionToolbar, matchesSearch, useAdminFeedback } from '@/components/admin/AdminTools';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -20,9 +21,13 @@ interface PortfolioCategory {
 }
 
 export default function PortfolioManagement() {
+  const notify = useAdminFeedback();
+  const [query, setQuery] = useState('');
+  const [saving, setSaving] = useState(false);
   const router = useRouter();
   const [categories, setCategories] = useState<PortfolioCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [editingCategory, setEditingCategory] = useState<PortfolioCategory | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -30,13 +35,13 @@ export default function PortfolioManagement() {
   const [currentImageDisplayName, setCurrentImageDisplayName] = useState('');
   const [currentImageAltText, setCurrentImageAltText] = useState('');
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError('');
     try {
       const response = await fetch('/api/admin/portfolio');
+      if (!response.ok) throw new Error('Could not load content. Please try Refresh.');
       const data = await response.json();
       // Handle backward compatibility: convert string[] to PortfolioImage[]
       const normalizedData = data.map((cat: any) => {
@@ -57,10 +62,13 @@ export default function PortfolioManagement() {
       });
       setCategories(normalizedData);
     } catch (error) {
-          } finally {
+      setLoadError('Content could not be loaded. Please try Refresh.');
+      notify(error instanceof Error ? error.message : 'Unable to complete this request. Please try again.');
+    } finally {
       setIsLoading(false);
     }
-  };
+  }, [notify]);
+  useEffect(() => { fetchCategories(); }, [fetchCategories]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this category?')) return;
@@ -69,11 +77,13 @@ export default function PortfolioManagement() {
       const response = await fetch(`/api/admin/portfolio/${id}`, {
         method: 'DELETE',
       });
+      if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
       if (response.ok) {
         fetchCategories();
       }
     } catch (error) {
-          }
+      notify(error instanceof Error ? error.message : 'Unable to complete this request. Please try again.');
+    }
   };
 
   const handleEdit = (category: PortfolioCategory) => {
@@ -120,6 +130,7 @@ export default function PortfolioManagement() {
         body: formData,
       });
 
+      if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
       if (response.ok) {
         const data = await response.json();
         const newImage: PortfolioImage = {
@@ -133,10 +144,10 @@ export default function PortfolioManagement() {
         // Reset file input
         e.target.value = '';
       } else {
-        alert('Failed to upload image');
+        notify('Failed to upload image');
       }
     } catch (error) {
-            alert('Error uploading image');
+            notify('Error uploading image');
     } finally {
       setUploadingImage(false);
     }
@@ -157,6 +168,8 @@ export default function PortfolioManagement() {
       images: portfolioImages,
     };
 
+    if (saving) return;
+    setSaving(true);
     try {
       const url = editingCategory?._id 
         ? `/api/admin/portfolio/${editingCategory._id}`
@@ -168,7 +181,9 @@ export default function PortfolioManagement() {
         body: JSON.stringify(data),
       });
 
+      if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
       if (response.ok) {
+        notify('Changes saved.');
         fetchCategories();
         setShowForm(false);
         setEditingCategory(null);
@@ -178,13 +193,16 @@ export default function PortfolioManagement() {
         (e.target as HTMLFormElement).reset();
       }
     } catch (error) {
-          }
+      notify(error instanceof Error ? error.message : 'Unable to complete this request. Please try again.');
+    } finally { setSaving(false); }
   };
+
+  const visibleItems = categories.filter(category => matchesSearch(query, category.name, category.slug));
 
   return (
     <div className="admin-page">
       <div className="admin-header">
-        <h1>Portfolio Management</h1>
+        <h1>Portfolio</h1>
         <button onClick={() => { 
           setShowForm(true); 
           setEditingCategory(null);
@@ -196,8 +214,10 @@ export default function PortfolioManagement() {
         </button>
       </div>
 
+      <CollectionToolbar query={query} onQuery={setQuery} count={visibleItems.length} total={categories.length} label="portfolio categories" loading={isLoading} error={loadError} onRefresh={fetchCategories} />
+
       {showForm && (
-        <div className="admin-form-modal">
+        <AdminDialog busy={saving} title="Portfolio Categories editor" onClose={() => setShowForm(false)}>
           <div className="admin-form-content">
             <h2>{editingCategory ? 'Edit' : 'Add'} Portfolio Category</h2>
             <form onSubmit={handleFormSubmit}>
@@ -306,7 +326,7 @@ export default function PortfolioManagement() {
                 </div>
               </div>
               <div className="form-actions">
-                <button type="submit" className="btn">Save</button>
+                <button type="submit" className="btn" disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</button>
                 <button type="button" className="btn-secondary" onClick={() => { 
                   setShowForm(false); 
                   setEditingCategory(null);
@@ -319,7 +339,7 @@ export default function PortfolioManagement() {
               </div>
             </form>
           </div>
-        </div>
+        </AdminDialog>
       )}
 
       {isLoading ? (
@@ -338,7 +358,7 @@ export default function PortfolioManagement() {
                 </tr>
               </thead>
               <tbody>
-                {categories.map((category) => (
+                {visibleItems.map((category) => (
                   <tr key={category._id}>
                     <td>{category.name}</td>
                     <td>{category.slug}</td>
@@ -363,7 +383,7 @@ export default function PortfolioManagement() {
           </div>
           
           <div className="portfolio-cards-mobile">
-            {categories.map((category) => (
+            {visibleItems.map((category) => (
               <div key={category._id} className="portfolio-card">
                 <div className="portfolio-card-content">
                   <div className="portfolio-card-field">

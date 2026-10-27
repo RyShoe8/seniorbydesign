@@ -1,6 +1,7 @@
 'use client';
+import { AdminDialog, CollectionToolbar, matchesSearch, useAdminFeedback } from '@/components/admin/AdminTools';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 
 interface Service {
@@ -13,8 +14,12 @@ interface Service {
 }
 
 export default function ServicesManagement() {
+  const notify = useAdminFeedback();
+  const [query, setQuery] = useState('');
+  const [saving, setSaving] = useState(false);
   const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [uploadingHero, setUploadingHero] = useState(false);
@@ -22,20 +27,23 @@ export default function ServicesManagement() {
   const [heroImageUrl, setHeroImageUrl] = useState<string>('');
   const [additionalImages, setAdditionalImages] = useState<string[]>([]);
 
-  useEffect(() => {
-    fetchServices();
-  }, []);
 
-  const fetchServices = async () => {
+  const fetchServices = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError('');
     try {
       const response = await fetch('/api/admin/services');
+      if (!response.ok) throw new Error('Could not load content. Please try Refresh.');
       const data = await response.json();
       setServices(data);
     } catch (error) {
-          } finally {
+      setLoadError('Content could not be loaded. Please try Refresh.');
+      notify(error instanceof Error ? error.message : 'Unable to complete this request. Please try again.');
+    } finally {
       setIsLoading(false);
     }
-  };
+  }, [notify]);
+  useEffect(() => { fetchServices(); }, [fetchServices]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this service?')) return;
@@ -44,11 +52,13 @@ export default function ServicesManagement() {
       const response = await fetch(`/api/admin/services/${id}`, {
         method: 'DELETE',
       });
+      if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
       if (response.ok) {
         fetchServices();
       }
     } catch (error) {
-          }
+      notify(error instanceof Error ? error.message : 'Unable to complete this request. Please try again.');
+    }
   };
 
   const handleEdit = (service: Service) => {
@@ -79,14 +89,15 @@ export default function ServicesManagement() {
         body: formData,
       });
 
+      if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
       if (response.ok) {
         const data = await response.json();
         setHeroImageUrl(data.url);
       } else {
-        alert('Failed to upload hero image');
+        notify('Failed to upload hero image');
       }
     } catch (error) {
-      alert('Error uploading hero image');
+      notify('Error uploading hero image');
     } finally {
       setUploadingHero(false);
     }
@@ -117,7 +128,8 @@ export default function ServicesManagement() {
           body: formData,
         });
 
-        if (response.ok) {
+        if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
+      if (response.ok) {
           const data = await response.json();
           uploadedUrls.push(data.url);
         }
@@ -125,7 +137,7 @@ export default function ServicesManagement() {
 
       setAdditionalImages([...uploadedUrls, ...additionalImages]);
     } catch (error) {
-            alert('Error uploading images');
+            notify('Error uploading images');
     } finally {
       setUploadingImages(false);
       // Reset the input
@@ -152,6 +164,8 @@ export default function ServicesManagement() {
       images: additionalImages,
     };
 
+    if (saving) return;
+    setSaving(true);
     try {
       const url = editingService?._id 
         ? `/api/admin/services/${editingService._id}`
@@ -163,7 +177,9 @@ export default function ServicesManagement() {
         body: JSON.stringify(data),
       });
 
+      if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
       if (response.ok) {
+        notify('Changes saved.');
         fetchServices();
         setShowForm(false);
         setEditingService(null);
@@ -172,14 +188,16 @@ export default function ServicesManagement() {
         (e.target as HTMLFormElement).reset();
       }
     } catch (error) {
-            alert('Error saving service');
-    }
+            notify('Error saving service');
+    } finally { setSaving(false); }
   };
+
+  const visibleItems = services.filter(service => matchesSearch(query, service.title, service.slug));
 
   return (
     <div className="admin-page">
       <div className="admin-header">
-        <h1>Services Management</h1>
+        <h1>Services</h1>
         <button 
           onClick={() => { 
             setShowForm(true); 
@@ -193,8 +211,10 @@ export default function ServicesManagement() {
         </button>
       </div>
 
+      <CollectionToolbar query={query} onQuery={setQuery} count={visibleItems.length} total={services.length} label="services" loading={isLoading} error={loadError} onRefresh={fetchServices} />
+
       {showForm && (
-        <div className="admin-form-modal">
+        <AdminDialog busy={saving} title="Services editor" onClose={() => setShowForm(false)}>
           <div className="admin-form-content">
             <h2>{editingService ? 'Edit' : 'Add'} Service</h2>
             <form onSubmit={handleFormSubmit}>
@@ -302,7 +322,7 @@ export default function ServicesManagement() {
                 )}
               </div>
               <div className="form-actions">
-                <button type="submit" className="btn">Save</button>
+                <button type="submit" className="btn" disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</button>
                 <button 
                   type="button" 
                   className="btn-secondary" 
@@ -318,7 +338,7 @@ export default function ServicesManagement() {
               </div>
             </form>
           </div>
-        </div>
+        </AdminDialog>
       )}
 
       {isLoading ? (
@@ -335,7 +355,7 @@ export default function ServicesManagement() {
                 </tr>
               </thead>
               <tbody>
-                {services.map((service) => (
+                {visibleItems.map((service) => (
                   <tr key={service._id}>
                     <td>{service.title}</td>
                     <td>{service.slug}</td>
@@ -352,7 +372,7 @@ export default function ServicesManagement() {
           </div>
           
           <div className="services-cards-mobile">
-            {services.map((service) => (
+            {visibleItems.map((service) => (
               <div key={service._id} className="service-card">
                 <div className="service-card-content">
                   <div className="service-card-field">

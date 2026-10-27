@@ -4,15 +4,15 @@
   gap: 0.35rem;
   margin-bottom: 0.5rem;
   padding: 0.5rem;
-  border: 1px solid var(--warm-grey-3, #ccc);
-  border-radius: 4px 4px 0 0;
-  background: #fafafa;
+  border: 1px solid #ddd4c5;
+  border-radius: 10px 10px 0 0;
+  background: #f4f0e7;
   align-items: center;
 }
 
 .toolbar button {
   padding: 0.35rem 0.6rem;
-  border: 1px solid var(--warm-grey-3, #ccc);
+  border: 1px solid #ddd4c5;
   border-radius: 4px;
   background: #fff;
   cursor: pointer;
@@ -30,15 +30,15 @@
 }
 
 .toolbar button[data-active='true'] {
-  background: var(--sbd-gold, #b8860b);
+  background: #79603c;
   color: #fff;
   border-color: var(--sbd-gold, #b8860b);
 }
 
 .editorWrap {
-  border: 1px solid var(--warm-grey-3, #ccc);
+  border: 1px solid #ddd4c5;
   border-top: none;
-  border-radius: 0 0 4px 4px;
+  border-radius: 0 0 10px 10px;
   background: #fff;
 }
 
@@ -110,3 +110,6 @@
 .hiddenFile {
   display: none;
 }
+
+.toolbar button {min-height:40px;min-width:40px;border-radius:6px;font:600 12px var(--font-body);}
+@media(max-width:768px){.toolbar button{min-height:44px;min-width:44px;}}

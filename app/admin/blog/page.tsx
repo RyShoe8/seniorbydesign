@@ -1,6 +1,7 @@
 'use client';
+import { AdminDialog, CollectionToolbar, matchesSearch, useAdminFeedback } from '@/components/admin/AdminTools';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { BlogBodyEditor } from '@/components/admin/BlogBodyEditor';
 
@@ -19,29 +20,35 @@ interface BlogPost {
 }
 
 export default function BlogManagement() {
+  const notify = useAdminFeedback();
+  const [query, setQuery] = useState('');
+  const [saving, setSaving] = useState(false);
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [featuredImageUrl, setFeaturedImageUrl] = useState<string>('');
   const [bodyHtml, setBodyHtml] = useState('');
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
 
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError('');
     try {
       const response = await fetch('/api/admin/blog');
+      if (!response.ok) throw new Error('Could not load content. Please try Refresh.');
       const data = await response.json();
       setPosts(data);
     } catch (error) {
-      // Error fetching blog posts
+      setLoadError('Content could not be loaded. Please try Refresh.');
+      notify(error instanceof Error ? error.message : 'Unable to complete this request. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [notify]);
+  useEffect(() => { fetchPosts(); }, [fetchPosts]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this blog post?')) return;
@@ -50,11 +57,13 @@ export default function BlogManagement() {
       const response = await fetch(`/api/admin/blog/${id}`, {
         method: 'DELETE',
       });
+      if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
       if (response.ok) {
         fetchPosts();
       }
     } catch (error) {
-          }
+      notify(error instanceof Error ? error.message : 'Unable to complete this request. Please try again.');
+    }
   };
 
   const handleEdit = (post: BlogPost) => {
@@ -83,14 +92,15 @@ export default function BlogManagement() {
         body: formData,
       });
 
+      if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
       if (response.ok) {
         const data = await response.json();
         setFeaturedImageUrl(data.url);
       } else {
-        alert('Failed to upload featured image');
+        notify('Failed to upload featured image');
       }
     } catch (error) {
-      alert('Error uploading featured image');
+      notify('Error uploading featured image');
     } finally {
       setUploadingImage(false);
     }
@@ -102,7 +112,7 @@ export default function BlogManagement() {
 
     const bodyText = bodyHtml.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
     if (!bodyText) {
-      alert('Body content is required.');
+      notify('Body content is required.');
       return;
     }
 
@@ -116,6 +126,8 @@ export default function BlogManagement() {
       published: formData.get('published') === 'on',
     };
 
+    if (saving) return;
+    setSaving(true);
     try {
       const url = editingPost?._id 
         ? `/api/admin/blog/${editingPost._id}`
@@ -127,7 +139,9 @@ export default function BlogManagement() {
         body: JSON.stringify(data),
       });
 
+      if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
       if (response.ok) {
+        notify('Changes saved.');
         fetchPosts();
         setShowForm(false);
         setEditingPost(null);
@@ -136,8 +150,8 @@ export default function BlogManagement() {
         (e.target as HTMLFormElement).reset();
       }
     } catch (error) {
-      alert('Error saving blog post');
-    }
+      notify('Error saving blog post');
+    } finally { setSaving(false); }
   };
 
   const handleCloseForm = () => {
@@ -151,15 +165,17 @@ export default function BlogManagement() {
     if (!post.previewToken?.trim() || !post.slug) return;
     const url = `${window.location.origin}/blog/preview/${encodeURIComponent(post.slug)}/${post.previewToken}`;
     navigator.clipboard.writeText(url).then(
-      () => alert('Preview link copied to clipboard'),
-      () => alert('Could not copy link')
+      () => notify('Preview link copied to clipboard'),
+      () => notify('Could not copy link')
     );
   };
+
+  const visibleItems = posts.filter(post => matchesSearch(query, post.title, post.author, post.excerpt));
 
   return (
     <div className="admin-page">
       <div className="admin-header">
-        <h1>Blog Management</h1>
+        <h1>Journal & news</h1>
         <button
           onClick={() => {
             setShowForm(true);
@@ -173,8 +189,10 @@ export default function BlogManagement() {
         </button>
       </div>
 
+      <CollectionToolbar query={query} onQuery={setQuery} count={visibleItems.length} total={posts.length} label="posts" loading={isLoading} error={loadError} onRefresh={fetchPosts} />
+
       {showForm && (
-        <div className="admin-form-modal">
+        <AdminDialog busy={saving} title="Posts editor" onClose={() => setShowForm(false)}>
           <div className="admin-form-content">
             <h2>{editingPost ? 'Edit' : 'Add'} Blog Post</h2>
             <form onSubmit={handleFormSubmit}>
@@ -302,7 +320,7 @@ export default function BlogManagement() {
                 </div>
               )}
               <div className="form-actions">
-                <button type="submit" className="btn">Save</button>
+                <button type="submit" className="btn" disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</button>
                 <button 
                   type="button" 
                   className="btn-secondary" 
@@ -313,7 +331,7 @@ export default function BlogManagement() {
               </div>
             </form>
           </div>
-        </div>
+        </AdminDialog>
       )}
 
       {isLoading ? (
@@ -339,7 +357,7 @@ export default function BlogManagement() {
                     </td>
                   </tr>
                 ) : (
-                  posts.map((post) => (
+                  visibleItems.map((post) => (
                     <tr key={post._id}>
                       <td>{post.title}</td>
                       <td>{post.author}</td>
@@ -379,7 +397,7 @@ export default function BlogManagement() {
                 No blog posts yet. Click &quot;Add Post&quot; to create one.
               </div>
             ) : (
-              posts.map((post) => (
+              visibleItems.map((post) => (
                 <div key={post._id} className="blog-card">
                   <div className="blog-card-content">
                     <div className="blog-card-field">

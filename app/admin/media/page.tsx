@@ -1,6 +1,7 @@
 'use client';
+import { useAdminFeedback, CollectionToolbar, matchesSearch } from '@/components/admin/AdminTools';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 
 interface MediaItem {
@@ -14,25 +15,29 @@ interface MediaItem {
 }
 
 export default function MediaManagement() {
+  const notify = useAdminFeedback();
+  const [query, setQuery] = useState('');
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [editingItem, setEditingItem] = useState<MediaItem | null>(null);
   const [filterFolder, setFilterFolder] = useState<string>('all');
 
-  useEffect(() => {
-    fetchMedia();
-  }, []);
 
-  const fetchMedia = async () => {
+  const fetchMedia = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError('');
     try {
       const response = await fetch('/api/admin/media');
+      if (!response.ok) throw new Error('Unable to load images');
       const data = await response.json();
       setMediaItems(data);
     } catch (error) {
-          } finally {
+      setLoadError('Content could not be loaded. Please try Refresh.'); notify('Unable to complete this request. Please try again.'); } finally {
       setIsLoading(false);
     }
-  };
+  }, [notify]);
+  useEffect(() => { fetchMedia(); }, [fetchMedia]);
 
   const handleSave = async (item: MediaItem) => {
     try {
@@ -50,10 +55,10 @@ export default function MediaManagement() {
         fetchMedia();
         setEditingItem(null);
       } else {
-        alert('Failed to save changes');
+        notify('Failed to save changes');
       }
     } catch (error) {
-            alert('Error saving changes');
+            notify('Error saving changes');
     }
   };
 
@@ -78,18 +83,16 @@ export default function MediaManagement() {
         }
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Failed to delete media' }));
-        alert(errorData.error || 'Failed to delete media');
+        notify(errorData.error || 'Failed to delete media');
       }
     } catch (error) {
-      alert('Error deleting media');
+      notify('Error deleting media');
     }
   };
 
   const folders = ['all', ...Array.from(new Set(mediaItems.map(item => item.folder || 'root').filter(Boolean)))];
 
-  const filteredItems = filterFolder === 'all' 
-    ? mediaItems 
-    : mediaItems.filter(item => (item.folder || 'root') === filterFolder);
+  const filteredItems = mediaItems.filter(item => (filterFolder === 'all' || (item.folder || 'root') === filterFolder) && matchesSearch(query, item.displayName, item.altText, item.filePath));
 
   const [isUploading, setIsUploading] = useState(false);
 
@@ -114,10 +117,10 @@ export default function MediaManagement() {
       if (res.ok) {
         fetchMedia();
       } else {
-        alert('Upload failed');
+        notify('Upload failed');
       }
     } catch {
-      alert('Error uploading file');
+      notify('Error uploading file');
     } finally {
       setIsUploading(false);
       e.target.value = '';
@@ -128,31 +131,15 @@ export default function MediaManagement() {
     <div className="admin-page">
       <div className="admin-header">
         <div>
-          <h1>Media Management</h1>
+          <h1>Media library</h1>
           <p style={{ margin: '0.25rem 0 0', fontSize: '14px', color: 'var(--text-muted)' }}>
             Upload, view, and manage media assets. Large images are automatically compressed to &le; 500KB.
           </p>
         </div>
         <div className="filter-controls" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <label style={{
-            padding: '0.6rem 1.25rem',
-            background: 'var(--sbd-gold)',
-            color: '#fff',
-            borderRadius: '4px',
-            cursor: isUploading ? 'not-allowed' : 'pointer',
-            fontWeight: 600,
-            fontSize: '14px',
-            opacity: isUploading ? 0.7 : 1,
-            margin: 0,
-          }}>
-            {isUploading ? 'Compressing & Uploading...' : '+ Upload New Media'}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleMediaUpload}
-              disabled={isUploading}
-              style={{ display: 'none' }}
-            />
+          <label className="admin-upload-control">
+            {isUploading ? 'Preparing image…' : 'Upload an image'}
+            <input type="file" accept="image/*" onChange={handleMediaUpload} disabled={isUploading} />
           </label>
 
           <div>
@@ -173,6 +160,7 @@ export default function MediaManagement() {
         </div>
       </div>
 
+      <CollectionToolbar query={query} onQuery={setQuery} count={filteredItems.length} total={mediaItems.length} label="images" loading={isLoading} error={loadError} onRefresh={fetchMedia} />
       {isLoading ? (
         <p>Loading media...</p>
       ) : (

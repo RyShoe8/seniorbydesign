@@ -1,6 +1,7 @@
 'use client';
+import { AdminDialog, CollectionToolbar, matchesSearch, useAdminFeedback } from '@/components/admin/AdminTools';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 
 interface TeamMember {
@@ -17,27 +18,34 @@ interface TeamMember {
 }
 
 export default function TeamManagement() {
+  const notify = useAdminFeedback();
+  const [query, setQuery] = useState('');
+  const [saving, setSaving] = useState(false);
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [uploadingProfileImage, setUploadingProfileImage] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState<string>('');
 
-  useEffect(() => {
-    fetchMembers();
-  }, []);
 
-  const fetchMembers = async () => {
+  const fetchMembers = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError('');
     try {
       const response = await fetch('/api/admin/team');
+      if (!response.ok) throw new Error('Could not load content. Please try Refresh.');
       const data = await response.json();
       setMembers(data);
     } catch (error) {
-          } finally {
+      setLoadError('Content could not be loaded. Please try Refresh.');
+      notify(error instanceof Error ? error.message : 'Unable to complete this request. Please try again.');
+    } finally {
       setIsLoading(false);
     }
-  };
+  }, [notify]);
+  useEffect(() => { fetchMembers(); }, [fetchMembers]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this team member?')) return;
@@ -46,11 +54,13 @@ export default function TeamManagement() {
       const response = await fetch(`/api/admin/team/${id}`, {
         method: 'DELETE',
       });
+      if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
       if (response.ok) {
         fetchMembers();
       }
     } catch (error) {
-          }
+      notify(error instanceof Error ? error.message : 'Unable to complete this request. Please try again.');
+    }
   };
 
   const handleEdit = (member: TeamMember) => {
@@ -80,14 +90,15 @@ export default function TeamManagement() {
         body: formData,
       });
 
+      if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
       if (response.ok) {
         const data = await response.json();
         setProfileImageUrl(data.url);
       } else {
-        alert('Failed to upload profile image');
+        notify('Failed to upload profile image');
       }
     } catch (error) {
-      alert('Error uploading profile image');
+      notify('Error uploading profile image');
     } finally {
       setUploadingProfileImage(false);
     }
@@ -108,6 +119,8 @@ export default function TeamManagement() {
       order: parseInt(formData.get('order') as string) || 0,
     };
 
+    if (saving) return;
+    setSaving(true);
     try {
       const url = editingMember?._id 
         ? `/api/admin/team/${editingMember._id}`
@@ -119,7 +132,9 @@ export default function TeamManagement() {
         body: JSON.stringify(data),
       });
 
+      if (!response.ok) throw new Error('The request could not be completed. Your changes have not been saved.');
       if (response.ok) {
+        notify('Changes saved.');
         fetchMembers();
         setShowForm(false);
         setEditingMember(null);
@@ -127,13 +142,16 @@ export default function TeamManagement() {
         (e.target as HTMLFormElement).reset();
       }
     } catch (error) {
-          }
+      notify(error instanceof Error ? error.message : 'Unable to complete this request. Please try again.');
+    } finally { setSaving(false); }
   };
+
+  const visibleItems = members.filter(member => matchesSearch(query, member.name, member.title));
 
   return (
     <div className="admin-page">
       <div className="admin-header">
-        <h1>Team Management</h1>
+        <h1>Team profiles</h1>
         <button onClick={() => { 
           setShowForm(true); 
           setEditingMember(null);
@@ -143,8 +161,10 @@ export default function TeamManagement() {
         </button>
       </div>
 
+      <CollectionToolbar query={query} onQuery={setQuery} count={visibleItems.length} total={members.length} label="team profiles" loading={isLoading} error={loadError} onRefresh={fetchMembers} />
+
       {showForm && (
-        <div className="admin-form-modal">
+        <AdminDialog busy={saving} title="Team Profiles editor" onClose={() => setShowForm(false)}>
           <div className="admin-form-content">
             <h2>{editingMember ? 'Edit' : 'Add'} Team Member</h2>
             <form onSubmit={handleFormSubmit}>
@@ -281,7 +301,7 @@ export default function TeamManagement() {
                 </div>
               </div>
               <div className="form-actions">
-                <button type="submit" className="btn">Save</button>
+                <button type="submit" className="btn" disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</button>
                 <button type="button" className="btn-secondary" onClick={() => { 
                   setShowForm(false); 
                   setEditingMember(null);
@@ -292,7 +312,7 @@ export default function TeamManagement() {
               </div>
             </form>
           </div>
-        </div>
+        </AdminDialog>
       )}
 
       {isLoading ? (
@@ -311,7 +331,7 @@ export default function TeamManagement() {
                 </tr>
               </thead>
               <tbody>
-                {members.map((member) => (
+                {visibleItems.map((member) => (
                   <tr key={member._id}>
                     <td>{member.name}</td>
                     <td>{member.title}</td>
@@ -330,7 +350,7 @@ export default function TeamManagement() {
           </div>
           
           <div className="team-cards-mobile">
-            {members.map((member) => (
+            {visibleItems.map((member) => (
               <div key={member._id} className="team-card">
                 <div className="team-card-content">
                   <div className="team-card-field">

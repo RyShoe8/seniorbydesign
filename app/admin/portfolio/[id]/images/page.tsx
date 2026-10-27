@@ -1,4 +1,5 @@
 'use client';
+import { useAdminFeedback } from '@/components/admin/AdminTools';
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -19,6 +20,7 @@ interface PortfolioCategory {
 }
 
 export default function PortfolioImageManagement() {
+  const notify = useAdminFeedback();
   const params = useParams();
   const router = useRouter();
   const categoryId = params.id as string;
@@ -98,11 +100,11 @@ export default function PortfolioImageManagement() {
         setCurrentImageAltText('');
         e.target.value = '';
       } else {
-        alert('Failed to upload image');
+        notify('Failed to upload image');
       }
     } catch (error) {
       // Error('Error uploading image:', error);
-      alert('Error uploading image');
+      notify('Error uploading image');
     } finally {
       setUploadingImage(false);
     }
@@ -127,10 +129,10 @@ export default function PortfolioImageManagement() {
         setEditingImage(null);
         setEditingIndex(null);
       } else {
-        alert('Failed to update images');
+        notify('Failed to update images');
       }
     } catch (error) {
-      alert('Error updating images');
+      notify('Error updating images');
     }
   };
 

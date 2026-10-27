@@ -1,4 +1,5 @@
 'use client';
+import { useAdminFeedback } from '@/components/admin/AdminTools';
 
 import { useState, useEffect, useCallback } from 'react';
 
@@ -165,6 +166,7 @@ function BrochureRequestsChart({
 }
 
 export default function BrochureManagement() {
+  const notify = useAdminFeedback();
   const [settings, setSettings] = useState<BrochureSettings>({
     allowMailRequests: true,
   });
@@ -283,14 +285,14 @@ export default function BrochureManagement() {
       });
 
       if (response.ok) {
-        alert('Brochure settings saved successfully!');
+        notify('Brochure settings saved successfully!');
         fetchSettings();
       } else {
-        alert('Error saving brochure settings');
+        notify('Error saving brochure settings');
       }
     } catch (error) {
       console.error('Error saving brochure settings:', error);
-      alert('Error saving brochure settings');
+      notify('Error saving brochure settings');
     } finally {
       setIsSaving(false);
     }
@@ -367,7 +369,7 @@ export default function BrochureManagement() {
   return (
     <div className="admin-page">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-md)', flexWrap: 'wrap', gap: '0.75rem' }}>
-        <h1>Brochure Requests & Settings</h1>
+        <h1>Brochure requests</h1>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <a href="/admin/design-guide" className="btn" style={{ textDecoration: 'none' }}>
             Edit Design Brochure Content
