@@ -7,6 +7,7 @@ import {
 } from "./PortalWorkspace";
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { ProjectRequestsQuotes, RequestPipeline } from "./RequestsQuotes";
 import { signOut } from "next-auth/react";
 import type {
   Actor,
@@ -256,7 +257,7 @@ export default function PortalApp({
   const navigation = [
     ["overview", "Overview"],
     ["projects", "All projects"],
-    ["approvals", "Quotes & approvals"],
+    ["requests", "Requests & Quotes"],
     ["orders", "Orders & installs"],
     ["documents", "Documents"],
     ...(staff
@@ -386,6 +387,7 @@ export default function PortalApp({
         </div>
       )}
       {loading && <p>Loading your workspace…</p>}
+      {!loading && tab === "requests" && <RequestPipeline projects={projects} organizations={organizations} staff={staff} actor={actor} busy={busy} save={(project, data) => run(() => api("workflow", { ...data, projectId: project._id, version: project.version, eventId: crypto.randomUUID() }))} />}
       {!loading &&
         !project && !selected &&
         ["overview", "projects", "approvals", "orders", "documents"].includes(
@@ -424,7 +426,7 @@ export default function PortalApp({
             </div>
           </div>
           <nav className="portal-detail-nav" aria-label="Project sections">
-            <a href="#quotes">Quotes & approvals</a>
+            <a href="#quotes">Requests &amp; Quotes</a>
             <a href="#documents">Documents</a>
             <a href="#updates">Status updates</a>
             <a href="#activity">Activity</a>
@@ -520,132 +522,7 @@ export default function PortalApp({
               </form>
             </details>
           )}
-          <section className="portal-panel" id="quotes">
-            <h2>Quotes & approvals</h2>
-            {project.scopes.map((s) => (
-              <div key={s.quote} className="portal-row">
-                <div>
-                  <h3>
-                    {s.label} · Quote {s.quote}
-                  </h3>
-                  <span className="portal-badge">{s.approval}</span>
-                  <span className="portal-muted">Revision {s.revision}</span>
-                  {!s.revisionConfirmed && (
-                    <p className="portal-muted">
-                      SBD must confirm the current quote document before online
-                      approval.
-                    </p>
-                  )}
-                </div>
-                <div className="portal-actions">
-                  {s.documentId && project.documents.some(d => d.id === s.documentId) && (
-                    <a className="portal-link secondary" href={`/api/portal/documents?project=${project._id}&document=${s.documentId}`} target="_blank" rel="noopener noreferrer">View quote <span className="portal-sr-only">{s.quote} (opens in a new tab)</span></a>
-                  )}
-                  {!staff &&
-                    s.approval === "Needs Approval" &&
-                    s.revisionConfirmed &&
-                    actor?.memberships.some(
-                      (m) =>
-                        m.role === "admin" &&
-                        (m.organizationId === project.companyId ||
-                          (project.operatorApproval &&
-                            m.organizationId === project.operatorId)),
-                    ) && (
-                      <button
-                        disabled={busy}
-                        onClick={() => {
-                          if (
-                            confirm(
-                              `Approve quote ${s.quote}, revision ${s.revision}? Review its current document before approving.`,
-                            )
-                          )
-                            workflow("approve", {
-                              quote: s.quote,
-                              revision: s.revision,
-                            });
-                        }}
-                      >
-                        Approve quote
-                      </button>
-                    )}
-                  {(staff ||
-                    canManage(project.companyId) ||
-                    canManage(project.operatorId)) && (
-                    <button
-                      disabled={busy}
-                      className="secondary"
-                      onClick={() => {
-                        const note = prompt("Describe the requested changes");
-                        if (note)
-                          workflow("request-changes", {
-                            quote: s.quote,
-                            note,
-                          });
-                      }}
-                    >
-                      Request changes
-                    </button>
-                  )}
-                  {staff && (
-                    <button
-                      className="secondary"
-                      disabled={busy}
-                      onClick={() => {
-                        const note = prompt("Reason for reopening this quote");
-                        if (note) workflow("reopen", { quote: s.quote, note });
-                      }}
-                    >
-                      Reopen
-                    </button>
-                  )}
-                </div>
-                {staff && (
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      const f = new FormData(e.currentTarget);
-                      workflow("bind-quote", {
-                        quote: s.quote,
-                        documentId: f.get("document"),
-                        confirmStableRevision: f.get("stable") === "on",
-                        note: f.get("note"),
-                      });
-                    }}
-                  >
-                    <label>
-                      Current quote document
-                      <select name="document" required>
-                        <option value="">Choose document</option>
-                        {project.documents
-                          .filter(
-                            (d) => d.category === "Quotes" && !d.historical,
-                          )
-                          .map((d) => (
-                            <option key={d.id} value={d.id}>
-                              {d.name}
-                            </option>
-                          ))}
-                      </select>
-                    </label>
-                    <label>
-                      <input
-                        type="checkbox"
-                        name="stable"
-                        required
-                        style={{ width: "auto" }}
-                      />{" "}
-                      This link identifies a fixed document revision
-                    </label>
-                    <label>
-                      Revision note
-                      <input name="note" required />
-                    </label>
-                    <button disabled={busy}>Set quote revision</button>
-                  </form>
-                )}
-              </div>
-            ))}
-          </section>
+          <ProjectRequestsQuotes project={project} staff={staff} actor={actor} busy={busy} workflow={workflow} events={events} />
           <section className="portal-panel" id="documents">
             <h2>Documents</h2>
             <p className="portal-muted">

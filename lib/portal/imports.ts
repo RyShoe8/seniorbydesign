@@ -79,6 +79,7 @@ export async function previewImport(input: unknown, actor: Actor) {
       archived: old?.archived || false,
       operatorApproval: old?.operatorApproval || false,
       workflowTouched: old?.workflowTouched || false,
+      ...(old?.request ? { request: old.request } : {}),
     };
     if (old) {
       // Retain approved quote associations and all earlier document revisions.
@@ -99,10 +100,12 @@ export async function previewImport(input: unknown, actor: Actor) {
             ...s,
             approval: "Needs Approval",
             revision: prior.revision + 1,
+            ...(prior.changesRequested ? { changesRequested: true } : {}),
           };
         return {
           ...s,
           revision: prior.revision,
+          ...(prior.changesRequested ? { changesRequested: true } : {}),
           ...(prior.documentId ? { documentId: prior.documentId } : {}),
           ...(prior.revisionConfirmed !== undefined
             ? { revisionConfirmed: prior.revisionConfirmed }

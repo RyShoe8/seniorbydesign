@@ -182,7 +182,7 @@ export function PortalShell({
                 setMenu(false);
               }}
             >
-              <PortalIcon name={key} />
+              <PortalIcon name={key === "requests" ? "approvals" : key} />
               <span>{label}</span>
               {key === "overview" && <span className="portal-nav-dot" />}
             </Link>
@@ -323,7 +323,7 @@ export function PortalPortfolio({
       "From the first selections to the finishing touches.",
     ],
     approvals: [
-      "Decisions, made simple.",
+      "Requests & Quotes",
       "Review your current quotes and keep each project moving forward.",
     ],
     orders: [
@@ -404,7 +404,7 @@ export function PortalPortfolio({
             [
               pending.length,
               "Quotes awaiting your review",
-              "approvals",
+              "requests",
               "approvals",
             ],
             [
@@ -446,7 +446,7 @@ export function PortalPortfolio({
               {overview && (
                 <button
                   className="portal-text-button"
-                  onClick={() => navigate("approvals")}
+                  onClick={() => navigate("requests")}
                 >
                   View all <PortalIcon name="arrow" size={15} />
                 </button>

@@ -25,6 +25,7 @@ export interface Scope {
   revision: number;
   documentId?: string;
   revisionConfirmed?: boolean;
+  changesRequested?: boolean;
 }
 export interface PortalDocument {
   id: string;
@@ -33,9 +34,20 @@ export interface PortalDocument {
   category: string;
   historical: boolean;
 }
+export interface ProjectRequest {
+  quoteReferences?: string[];
+  summary: string;
+  receivedAt: string;
+  type: "Remodel" | "Model" | "New Development";
+  stage: "New Request" | "Scoping" | "Quote in Progress" | "Quote Sent" | "Presentation";
+  assignedTo: string;
+  presentation: "Not started" | "Draft" | "In preparation" | "In review" | "Presented";
+  quotedAmount?: number;
+}
 export interface Project {
   _id: string;
   sourceId: string;
+  request?: ProjectRequest;
   companyId: string;
   operatorId: string;
   name: string;

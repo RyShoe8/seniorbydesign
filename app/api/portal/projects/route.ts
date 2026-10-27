@@ -29,6 +29,7 @@ export async function GET() {
       actor,
       projects: projects.map((p) => ({
         ...p,
+        request: p.request ? (isStaff(actor) ? p.request : (({ quotedAmount, ...request }) => request)(p.request)) : undefined,
         documents: p.documents.map(({ url, ...d }) => d),
       })),
       organizations,

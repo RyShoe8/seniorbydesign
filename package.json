@@ -12,6 +12,7 @@
     "lint": "next lint",
     "verify:signature": "npm run email-client-smoke --workspace=@seniorbydesign/signature-engine",
     "test:portal": "node --test tests/portal.test.cjs",
+    "test:portal:requests": "node --test tests/portal.requests.test.cjs",
     "test:portal:integration": "node scripts/test-portal-integration.cjs"
   },
   "dependencies": {
