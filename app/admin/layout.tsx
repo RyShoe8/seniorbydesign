@@ -41,7 +41,7 @@ export default function AdminLayout({children}: {children: React.ReactNode}) {
     <aside className="workspace-sidebar">{navigation}</aside>
     <dialog ref={menu} className="workspace-mobile-menu" onCancel={() => setOpen(false)}><button className="workspace-close" aria-label="Close navigation" onClick={() => setOpen(false)}>×</button>{navigation}</dialog>
     <div className="workspace-body"><header className="workspace-topbar"><button className="workspace-menu-button" aria-label="Open navigation" aria-expanded={open} onClick={() => setOpen(true)}>☰</button><div className="workspace-breadcrumb"><Link href="/admin">Workspace</Link><span>/</span><strong>{current?.label || 'Editor'}</strong></div><a href="/v2" target="_blank" rel="noopener noreferrer">Preview v2 <span aria-hidden="true">↗</span></a><a href="/" target="_blank" rel="noopener noreferrer">Live site <span aria-hidden="true">↗</span></a></header>
-    <main id="admin-content" className="admin-content"><div className="workspace-context"><span>SENIOR BY DESIGN / {current?.label?.toUpperCase() || 'EDITOR'}</span><p>{current?.description}</p></div>{children}</main>
+    <main id="admin-content" className="admin-content">{pathname !== '/admin' && <div className="workspace-context"><span>SENIOR BY DESIGN / {current?.label?.toUpperCase() || 'EDITOR'}</span><p>{current?.description}</p></div>}{children}</main>
     <footer className="workspace-footer">Senior By Design <span>Content & brand management</span></footer></div>
   </div></AdminFeedback>;
 }

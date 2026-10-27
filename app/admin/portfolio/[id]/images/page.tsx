@@ -1,7 +1,7 @@
 'use client';
 import { useAdminFeedback } from '@/components/admin/AdminTools';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -27,6 +27,9 @@ export default function PortfolioImageManagement() {
   
   const [category, setCategory] = useState<PortfolioCategory | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [currentImageDisplayName, setCurrentImageDisplayName] = useState('');
   const [currentImageAltText, setCurrentImageAltText] = useState('');
@@ -34,6 +37,8 @@ export default function PortfolioImageManagement() {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const fetchCategory = async () => {
+    setIsLoading(true);
+    setLoadError('');
     try {
       const response = await fetch(`/api/admin/portfolio/${categoryId}`);
       if (response.ok) {
@@ -49,9 +54,10 @@ export default function PortfolioImageManagement() {
         }
         setCategory({ ...data, images: normalizedImages });
       } else {
-        const errorData = await response.json().catch(() => ({ error: 'Failed to fetch category' }));
+        throw new Error(response.status === 404 ? 'Category not found.' : 'Unable to load images. Please try again.');
       }
     } catch (error) {
+      setLoadError(error instanceof Error ? error.message : 'Unable to load images. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -94,7 +100,7 @@ export default function PortfolioImageManagement() {
         };
         
         const updatedImages = [newImage, ...category.images];
-        await updateCategoryImages(updatedImages);
+        if (!await updateCategoryImages(updatedImages)) return;
         
         setCurrentImageDisplayName('');
         setCurrentImageAltText('');
@@ -111,8 +117,9 @@ export default function PortfolioImageManagement() {
   };
 
   const updateCategoryImages = async (images: PortfolioImage[]) => {
-    if (!category) return;
-    
+    if (!category || savingRef.current) return false;
+    savingRef.current = true;
+    setSaving(true);
     try {
       const response = await fetch(`/api/admin/portfolio/${categoryId}`, {
         method: 'PUT',
@@ -128,12 +135,18 @@ export default function PortfolioImageManagement() {
         setCategory({ ...category, images });
         setEditingImage(null);
         setEditingIndex(null);
+        notify('Images saved.');
+        return true;
       } else {
         notify('Failed to update images');
       }
     } catch (error) {
-      notify('Error updating images');
+      notify('Error updating images. Your changes have not been saved.');
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
     }
+    return false;
   };
 
   const handleDeleteImage = async (index: number) => {
@@ -166,6 +179,8 @@ export default function PortfolioImageManagement() {
     return <div className="admin-page"><p>Loading...</p></div>;
   }
 
+  if (loadError) return <div className="admin-page"><h1>Portfolio images</h1><p role="alert">{loadError}</p><button className="btn" onClick={fetchCategory}>Try again</button><Link className="back-link" href="/admin/portfolio">Back to portfolio</Link></div>;
+
   if (!category) {
     return <div className="admin-page"><p>Category not found</p></div>;
   }
@@ -179,7 +194,7 @@ export default function PortfolioImageManagement() {
         </div>
       </div>
 
-      <div className="image-management-section">
+      <fieldset className="image-management-section" disabled={saving || uploadingImage} style={{border:0,padding:0,margin:0,minWidth:0}}>
         <div className="upload-section">
           <h2>Upload New Image</h2>
           <div className="upload-form">
@@ -288,7 +303,7 @@ export default function PortfolioImageManagement() {
             </div>
           )}
         </div>
-      </div>
+      </fieldset>
 
       <style jsx>{`
         .admin-header {
