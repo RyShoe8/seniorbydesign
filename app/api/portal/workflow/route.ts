@@ -1,5 +1,5 @@
 import { collections, transaction } from "@/lib/portal/db";
-import { body, failure, json, requireActor } from "@/lib/portal/server";
+import { body, failure, json, requirePortalActor } from "@/lib/portal/server";
 import {
   actionMembership,
   canRead,
@@ -15,7 +15,7 @@ import type { WorkflowEvent } from "@/lib/portal/types";
 export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   try {
-    const actor = await requireActor(),
+    const actor = await requirePortalActor(),
       c = await collections(),
       id = new URL(request.url).searchParams.get("project") || "";
     const project = await c.projects.findOne({ _id: id });
@@ -47,7 +47,7 @@ export async function GET(request: Request) {
 }
 export async function POST(request: Request) {
   try {
-    const actor = await requireActor(),
+    const actor = await requirePortalActor(),
       data = await body(request, 20000),
       c = await collections();
     const id = text(data.projectId, "Project"),

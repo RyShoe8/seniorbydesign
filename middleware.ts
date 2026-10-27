@@ -1,21 +1,26 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
+import { canAccessPortalPreview } from "./lib/portal/access";
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
-  // Portal launch is on hold. Keep staff authentication available for /admin.
+  if (req.nextUrl.hostname === "clients.seniorbydesign.com" && path === "/")
+    return NextResponse.redirect(new URL("/portal", req.url));
+  const token = await getToken({ req });
   if (
     path === "/portal" || path.startsWith("/portal/") ||
     path === "/api/portal" || path.startsWith("/api/portal/") ||
-    req.nextUrl.hostname === "clients.seniorbydesign.com"
+    path === "/admin/portal" || path.startsWith("/admin/portal/")
   ) {
-    return new NextResponse("Not found", {
-      status: 404,
-      headers: { "X-Robots-Tag": "noindex, nofollow, noarchive", "Cache-Control": "no-store" },
-    });
+    if (!token && !path.startsWith("/api/"))
+      return NextResponse.redirect(new URL("/account/login", req.url));
+    if (!canAccessPortalPreview(token))
+      return NextResponse.json({ error: "Portal access is limited during private testing" }, {
+        status: token ? 403 : 401,
+        headers: { "X-Robots-Tag": "noindex, nofollow, noarchive", "Cache-Control": "no-store" },
+      });
   }
   if (path === "/admin/login" || path.startsWith("/account"))
     return NextResponse.next();
-  const token = await getToken({ req });
   if (path.startsWith("/admin") || path.startsWith("/api/admin")) {
     const staff = token && ["admin", "team"].includes(String(token.role));
     if (!staff)

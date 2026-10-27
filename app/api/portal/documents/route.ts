@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { collections } from "@/lib/portal/db";
-import { failure, requireActor } from "@/lib/portal/server";
+import { failure, requirePortalActor } from "@/lib/portal/server";
 import { canRead, documentUrl, PortalError } from "@/lib/portal/policy";
 export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   try {
-    const actor = await requireActor(),
+    const actor = await requirePortalActor(),
       c = await collections(),
       params = new URL(request.url).searchParams;
     const project = await c.projects.findOne({

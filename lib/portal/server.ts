@@ -6,6 +6,14 @@ import { getUsersCollection } from "../db";
 import { collections } from "./db";
 import { isStaff, PortalError, staffRole } from "./policy";
 import type { Actor } from "./types";
+import { canAccessPortalPreview } from "./access";
+
+export async function requirePortalActor(staff = false) {
+  const actor = await requireActor(staff);
+  if (!canAccessPortalPreview(actor))
+    throw new PortalError("Portal access is limited during private testing", 403);
+  return actor;
+}
 
 export async function currentActor(): Promise<Actor | null> {
   const session = await getServerSession(authOptions);

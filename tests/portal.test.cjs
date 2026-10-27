@@ -20,6 +20,42 @@ const {
   documentUrl,
   staffRole,
 } = require("../lib/portal/policy.ts");
+test("private portal middleware permits only Ryan while preserving staff admin access", async () => {
+  const { middleware } = require("../middleware.ts");
+  const { NextRequest } = require("next/server");
+  const { encode } = require("next-auth/jwt");
+  const previous = process.env.NEXTAUTH_SECRET;
+  process.env.NEXTAUTH_SECRET = "isolated-portal-access-test-secret";
+  try {
+    const request = async (path, identity) => {
+      const headers = {};
+      if (identity) headers.cookie = `next-auth.session-token=${await encode({ token: identity, secret: process.env.NEXTAUTH_SECRET })}`;
+      return middleware(new NextRequest(`http://localhost:3100${path}`, { headers }));
+    };
+    assert.equal((await request("/portal")).status, 307);
+    assert.equal((await request("/api/portal/projects")).status, 401);
+    for (const identity of [
+      { email: "glenn@sbdid.com", role: "admin" },
+      { email: "team@example.test", role: "team" },
+      { email: "client@example.test", role: "external" },
+      { email: "ryanschumacher@themediashop.co", role: "external" },
+    ]) {
+      for (const path of ["/portal", "/admin/portal", "/api/portal/projects", "/api/portal/imports"])
+        assert.equal((await request(path, identity)).status, 403);
+    }
+    const ryan = { email: "ryanschumacher@themediashop.co", role: "admin" };
+    assert.equal((await request("/portal", ryan)).status, 200);
+    assert.equal((await request("/api/portal/imports", ryan)).status, 200);
+    assert.equal((await request("/admin/users", { email: "glenn@sbdid.com", role: "admin" })).status, 200);
+    assert.equal((await request("/admin", { email: "team@example.test", role: "team" })).status, 200);
+    const root = await middleware(new NextRequest("https://clients.seniorbydesign.com/"));
+    assert.equal(root.headers.get("location"), "https://clients.seniorbydesign.com/portal");
+    assert.equal((await request("/account/login")).status, 200);
+  } finally {
+    if (previous === undefined) delete process.env.NEXTAUTH_SECRET;
+    else process.env.NEXTAUTH_SECRET = previous;
+  }
+});
 const source = () => [
   {
     _id: "project-1",

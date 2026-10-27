@@ -1,5 +1,5 @@
 import { collections, transaction } from "@/lib/portal/db";
-import { body, failure, json, requireActor } from "@/lib/portal/server";
+import { body, failure, json, requirePortalActor } from "@/lib/portal/server";
 import {
   canManageOrganization,
   issueToken,
@@ -16,7 +16,7 @@ import { rateLimit } from "@/lib/portal/rate-limit";
 export const dynamic = "force-dynamic";
 export async function GET() {
   try {
-    const actor = await requireActor(),
+    const actor = await requirePortalActor(),
       c = await collections();
     const organizations = await c.organizations
       .find(
@@ -63,7 +63,7 @@ export async function GET() {
 }
 export async function POST(request: Request) {
   try {
-    const actor = await requireActor(),
+    const actor = await requirePortalActor(),
       data = await body(request, 20000),
       c = await collections();
     if (data.action === "create") {

@@ -1,10 +1,10 @@
 import { collections } from "@/lib/portal/db";
-import { failure, json, requireActor } from "@/lib/portal/server";
+import { failure, json, requirePortalActor } from "@/lib/portal/server";
 import { isStaff } from "@/lib/portal/policy";
 export const dynamic = "force-dynamic";
 export async function GET() {
   try {
-    const actor = await requireActor(),
+    const actor = await requirePortalActor(),
       c = await collections(),
       ids = actor.memberships.map((m) => m.organizationId);
     const projects = await c.projects

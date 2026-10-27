@@ -1,11 +1,11 @@
 import { randomUUID } from "crypto";
 import { collections, transaction } from "@/lib/portal/db";
-import { body, failure, json, requireActor } from "@/lib/portal/server";
+import { body, failure, json, requirePortalActor } from "@/lib/portal/server";
 import { PortalError, text } from "@/lib/portal/policy";
 export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   try {
-    const actor = await requireActor(true),
+    const actor = await requirePortalActor(true),
       data = await body(request, 20000),
       c = await collections();
     await transaction(async (session) => {

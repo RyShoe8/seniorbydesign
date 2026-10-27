@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { canAccessPortalPreview } from '@/lib/portal/access';
 
 export default function AdminLayout({
   children,
@@ -82,7 +83,9 @@ export default function AdminLayout({
           </button>
         </div>
         <nav className="admin-nav">
-          <Link href="/admin/portal" className="nav-item" onClick={closeMobileMenu}>Client Portal</Link>
+          {canAccessPortalPreview(session.user) && (
+            <a href="https://clients.seniorbydesign.com/portal" target="_blank" rel="noopener noreferrer" className="nav-item" onClick={closeMobileMenu}>Client Portal ↗</a>
+          )}
           <Link href="/admin" className={`nav-item ${pathname === '/admin' ? 'active' : ''}`} onClick={closeMobileMenu}>
             Dashboard
           </Link>

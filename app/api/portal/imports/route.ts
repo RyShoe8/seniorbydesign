@@ -1,4 +1,4 @@
-import { body, failure, json, requireActor } from "@/lib/portal/server";
+import { body, failure, json, requirePortalActor } from "@/lib/portal/server";
 import {
   previewImport,
   commitImport,
@@ -9,7 +9,7 @@ import { PortalError, text } from "@/lib/portal/policy";
 export const dynamic = "force-dynamic";
 export async function GET() {
   try {
-    await requireActor(true);
+    await requirePortalActor(true);
     return json(await importHistory());
   } catch (error) {
     return failure(error);
@@ -17,7 +17,7 @@ export async function GET() {
 }
 export async function POST(request: Request) {
   try {
-    const actor = await requireActor(true),
+    const actor = await requirePortalActor(true),
       data = await body(request);
     if (data.action === "preview")
       return json(await previewImport(data.data, actor));
