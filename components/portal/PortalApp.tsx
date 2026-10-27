@@ -378,8 +378,8 @@ export default function PortalApp({
         </section>
       )}
       {message && (
-        <div className="portal-alert" role="status">
-          {message}
+        <div className="portal-alert portal-status-message" role="status">
+          <span>{message}</span>
           <button className="secondary" onClick={() => run(load)}>
             Retry
           </button>
