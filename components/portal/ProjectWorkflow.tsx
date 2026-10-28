@@ -2,15 +2,17 @@
 import { useState } from "react";
 import type { DisplayProject } from "./PortalWorkspace";
 import { displayDate, StatusBadge } from "./PortalWorkspace";
-import { approvalState, projectPhase, projectWorkflow, paymentLabel, orderLabel, paymentStages, orderStages } from "@/lib/portal/requests";
+import { nextProjectStep, paymentStatusText, orderStatusText, approvalState, projectPhase, projectWorkflow, paymentLabel, orderLabel, paymentStages, orderStages } from "@/lib/portal/requests";
 
 type Workflow = (action: string, data?: Record<string, unknown>) => Promise<unknown> | undefined;
 export function ProjectProgress({ project, showStats = true, showTimeline = true }: { project: DisplayProject; showStats?: boolean; showTimeline?: boolean }) {
+  const next = nextProjectStep(project);
   return <>
+    {showStats && <div className="portal-next-action"><div><strong>Next step</strong><p>{next.label}</p></div><a className="portal-link" href={`#${next.section}`}>View details →</a></div>}
     {showStats && <dl className="portal-project-stats">
       <div><dt>Current phase</dt><dd>{projectPhase(project)}</dd></div>
       <div><dt>Approval</dt><dd>{approvalState(project)}</dd></div>
-      <div><dt>Payment</dt><dd>{paymentLabel(project)}</dd></div>
+      <div><dt>Payment</dt><dd>{paymentStatusText(project)}</dd></div>
       <div><dt>Anticipated install</dt><dd>{displayDate(project.install)}</dd></div>
     </dl>}
     {showTimeline && <section className="portal-workflow-panel" aria-labelledby="project-workflow-title">
@@ -30,7 +32,7 @@ export function ProjectOperations({ project, section, staff, canManage, busy, wo
   return <section className="portal-panel" id={section}>
     <h2>{payment ? "Payment" : "Order & Install"}</h2>
     <dl className="portal-request-summary">
-      <div><dt>{payment ? "Payment status" : "Order status"}</dt><dd><StatusBadge value={payment ? paymentLabel(project) : orderLabel(project)} /></dd></div>
+      <div><dt>{payment ? "Payment status" : "Order status"}</dt><dd><StatusBadge value={payment ? paymentStatusText(project) : orderStatusText(project)} /></dd></div>
       <div><dt>Current phase</dt><dd>{projectPhase(project)}</dd></div>
       <div><dt>{payment ? "Approval status" : "Anticipated installation"}</dt><dd>{payment ? approvalState(project) : displayDate(project.install)}</dd></div>
       <div><dt>SBD owner</dt><dd>{project.request?.assignedTo || "Unassigned"}</dd></div>

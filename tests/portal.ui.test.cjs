@@ -21,9 +21,9 @@ const render = (component, props) => renderToStaticMarkup(React.createElement(co
 test("SBD tracker structure matches the example's tables and Details routing", () => {
   const html = render(RequestPipeline, { projects: [project], organizations, staff: true, mode: "requests", onSaved() {} });
   assert.match(html, /<table/);
-  assert.match(html, /Client \/ Community<\/th><th scope="col">Request<\/th><th scope="col">Quote<\/th><th scope="col">Presentation<\/th>/);
+  assert.match(html, /Client \/ Community<\/th><th scope="col">Current stage<\/th><th scope="col">Quotes<\/th><th scope="col">Order \/ Installation<\/th>/);
   assert.match(html, /\?from=requests/);
-  assert.doesNotMatch(html, /#approvals/);
+  assert.match(html, /#approvals/);
   assert.match(html, /New request/);
   assert.match(html, /<dialog/);
   assert.match(html, /Client contact/);
@@ -34,7 +34,9 @@ test("client tables preserve structure but hide staff creation and private amoun
   assert.match(html, /<table/);
   assert.doesNotMatch(html, /<dialog|New request|42,000/);
   const orders = render(RequestPipeline, { projects: [project], organizations, staff: false, mode: "orders", onSaved() {} });
-  assert.match(orders, /Current phase<\/th><th scope="col">Approval<\/th><th scope="col">Payment<\/th>/);
+  assert.match(orders, /Current stage<\/th><th scope="col">Quotes<\/th>/);
+  assert.match(orders, /Order confirmation pending/);
+  assert.match(orders, /Account administrator to review the quote/);
 });
 test("approval queue opens Approvals while client quote decisions remain revision bound", () => {
   const queue = render(ApprovalQueue, { projects: [project], organizations });
@@ -76,4 +78,15 @@ test("overview viewing scope filters cards and counts for companies and operator
   assert.match(all, /All organizations .*2 projects/);
   const empty = render(PortalPortfolio, { ...props, org: "company:empty" });
   assert.match(empty, /No matching projects/);
+});
+
+test("quote references remain visible without an entered amount for either audience", () => {
+  const imported = { ...project, request: { ...project.request, quotedAmount: undefined } };
+  for (const staff of [true, false]) {
+    const html = render(RequestPipeline, { projects: [imported], organizations, staff, mode: "projects", onSaved() {} });
+    assert.match(html, /Quote 747/);
+    const tracker = html.slice(html.indexOf('<table'));
+    assert.doesNotMatch(tracker, /Not entered|Not started|Awaiting Confirmation/);
+    assert.match(html, /Next step/);
+  }
 });

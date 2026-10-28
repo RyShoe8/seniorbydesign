@@ -32,11 +32,18 @@ export function projectPhase(project: WorkflowProject) {
 export function projectWorkflow(project: WorkflowProject) {
   const phase = project.request?.stage;
   const current = phase ? requestStages.indexOf(phase) : -1;
-  const sections = ["quotes", "quotes", "quotes", "quotes", "presentation", "approvals", "payment", "orders", "orders", "orders", "orders", "activity"];
-  return requestStages.map((label, index) => ({
-    id: sections[index], label,
-    state: current < 0 ? "pending" : index < current ? "done" : index === current ? "current" : "pending",
-    detail: current === index ? "Current phase" : index < current ? "Earlier phase" : "Upcoming",
+  const steps = [
+    { label: "Request & scope", id: "quotes", from: 0, to: 1 },
+    { label: "Quote & design", id: "quotes", from: 2, to: 4 },
+    { label: "Client approval", id: "approvals", from: 5, to: 5 },
+    { label: "Payment", id: "payment", from: 6, to: 6 },
+    { label: "Ordering & delivery", id: "orders", from: 7, to: 8 },
+    { label: "Installation & completion", id: "orders", from: 9, to: 11 },
+  ];
+  return steps.map(step => ({
+    id: step.id, label: step.label,
+    state: current < 0 ? "pending" : current > step.to ? "done" : current >= step.from ? "current" : "pending",
+    detail: current >= step.from && current <= step.to ? `Current stage: ${phase}` : current > step.to ? "Earlier stage" : "Upcoming",
   }));
 }
 
@@ -49,4 +56,26 @@ export function normalizedPayment(value: string): Project["payment"] {
 }
 export function normalizedOrder(value: string): Project["order"] {
   return ["Received", "Installed"].includes(value) ? "Delivered" : ["POs placed", "Vendor acknowledgments", "In production", "In transit", "Partially received"].includes(value) ? "Ordered" : "Awaiting Confirmation";
+}
+
+// Display guidance explains stored statuses without inferring an unrecorded phase.
+export function nextProjectStep(project: WorkflowProject) {
+  const scopes = currentScopes(project);
+  if (scopes.some(s => s.changesRequested)) return { label: "SBD to revise the quote", section: "approvals" };
+  if (scopes.some(s => s.approval !== "Approved" && quoteReady(project, s))) return { label: "Account administrator to review the quote", section: "approvals" };
+  if (scopes.some(s => s.approval !== "Approved")) return { label: "SBD to confirm the quote document for review", section: "quotes" };
+  if (!project.request?.stage) return { label: "SBD to confirm the project stage", section: "overview" };
+  const phase = project.request.stage;
+  if (["New Request", "Scoping", "Quote in Progress"].includes(phase)) return { label: "SBD to prepare the scope and quote", section: "quotes" };
+  if (["Quote Sent", "Awaiting Approval"].includes(phase)) return { label: "Review quote and approval details", section: "approvals" };
+  if (phase === "Presentation") return { label: "Review the design presentation", section: "presentation" };
+  if (phase === "Awaiting Deposit") return { label: "Review deposit and payment details", section: "payment" };
+  if (["Ordering", "Procurement", "Installation Planning"].includes(phase)) return { label: "Check order progress and installation timing", section: "orders" };
+  return { label: "Review project completion and activity", section: "activity" };
+}
+export function orderStatusText(project: Pick<Project, "order" | "orderDetail">) {
+  return orderLabel(project) === "Awaiting Confirmation" ? "Order confirmation pending" : orderLabel(project);
+}
+export function paymentStatusText(project: Pick<Project, "payment" | "paymentDetail">) {
+  return paymentLabel(project) === "Awaiting Confirmation" ? "Payment status to be confirmed" : paymentLabel(project);
 }

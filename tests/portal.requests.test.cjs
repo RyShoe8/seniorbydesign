@@ -29,9 +29,9 @@ test("SBD's explicit workflow phase stays separate from approvals and ordering",
   const project = { scopes: [{ quote: "747", approval: "Approved", revision: 2 }], documents: [], request: { stage: "Presentation" }, payment: "Paid", order: "Delivered", install: "2026-12-01" };
   assert.equal(requestHelpers.projectPhase(project), "Presentation");
   const steps = requestHelpers.projectWorkflow(project);
-  assert.deepEqual(steps.map(step => step.label), ["New Request", "Scoping", "Quote in Progress", "Quote Sent", "Presentation", "Awaiting Approval", "Awaiting Deposit", "Ordering", "Procurement", "Installation Planning", "Installed", "Closed"]);
-  assert.equal(steps.find(step => step.state === "current").label, "Presentation");
-  assert.equal(steps.find(step => step.label === "Installed").state, "pending");
+  assert.equal(steps.length, 6);
+  assert.equal(steps.find(step => step.state === "current").label, "Quote & design");
+  assert.equal(steps.find(step => step.label === "Installation & completion").state, "pending");
   delete project.request;
   assert.equal(requestHelpers.projectPhase(project), "Not recorded");
   assert.ok(requestHelpers.projectWorkflow(project).every(step => step.state === "pending"));

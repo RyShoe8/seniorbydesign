@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { projectPhase, nextProjectStep, orderStatusText, paymentStatusText } from "@/lib/portal/requests";
 import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { Project, Organization } from "@/lib/portal/types";
@@ -376,7 +377,7 @@ export function PortalPortfolio({
               scopeProjects.filter((p) => p.request?.type === "Remodel").length,
               "Remodels",
               "projects",
-              "remodels",
+              "projects",
             ],
             [
               pending.length,
@@ -384,7 +385,7 @@ export function PortalPortfolio({
               "requests",
               "approvals",
             ],
-            [scopeProjects.filter(p => p.install).length, "Install dates on file", "orders", "orders"],
+            [scopeProjects.filter(p => p.install).length, "Install dates on file", "orders", "projects"],
           ].map(([count, label, icon, target]) => (
             <button
               className="portal-metric"
@@ -455,14 +456,11 @@ export function PortalPortfolio({
                   </span>
                   <StatusBadge
                     value={
-                      p.archived
-                        ? "Archived"
-                        : p.scopes.some((s) => s.approval === "Needs Approval")
-                          ? "Needs Approval"
-                          : p.order
+                      p.archived ? "Archived" : `Stage: ${projectPhase(p)}`
                     }
                   />
                 </div>
+                <p className="portal-card-next-step">Next: {nextProjectStep(p).label}</p>
                 <p className="portal-property-owner">{name(p.companyId)}</p>
                 <h3>{p.name}</h3>
                 <p className="portal-property-location">
@@ -512,7 +510,7 @@ export function PortalPortfolio({
               {overview && (
                 <button
                   className="portal-text-button"
-                  onClick={() => navigate("requests")}
+                  onClick={() => navigate("approvals")}
                 >
                   View all <PortalIcon name="arrow" size={15} />
                 </button>
@@ -610,10 +608,10 @@ export function PortalPortfolio({
                     <small>{p.location}</small>
                   </td>
                   <td>
-                    <StatusBadge value={p.payment} />
+                    <StatusBadge value={paymentStatusText(p)} />
                   </td>
                   <td>
-                    <StatusBadge value={p.order} />
+                    <StatusBadge value={orderStatusText(p)} />
                   </td>
                   <td>{displayDate(p.install)}</td>
                   <td>

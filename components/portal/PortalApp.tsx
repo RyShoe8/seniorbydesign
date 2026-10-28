@@ -291,17 +291,14 @@ export default function PortalApp({
   }
   const navigation = [
     ["overview", "Overview"],
-    ["projects", "All Projects"],
-    ["remodels", "Remodel Tracker"],
-    ["requests", "Requests & Quotes"],
+    ["projects", "Projects"],
     ["approvals", "Approvals"],
-    ["orders", "Orders & Installs"],
-    ["organizations", "Companies & operators"],
+    ...(staff ? [["organizations", "Companies & operators"]] : []),
     ["documents", "Documents"],
     ...(staff
       ? [
 
-          ["create", "Create"],
+          ["create", "Add / import"],
         ]
       : []),
     ...(canAccessAccountTeam ? [["members", "Account team"]] : []),
@@ -453,7 +450,7 @@ export default function PortalApp({
             </div>
           </div>
           <ProjectProgress project={project} showTimeline={false} />
-          <div className="portal-project-edit-action"><StatusBadge value={orderLabel(project)} />{staff && <ProjectEditor project={project} organizations={organizations} onSaved={projectSaved} />}</div>
+          <div className="portal-project-edit-action"><span>Order: <StatusBadge value={orderLabel(project) === "Awaiting Confirmation" ? "Order confirmation pending" : orderLabel(project)} /></span>{staff && <ProjectEditor project={project} organizations={organizations} onSaved={projectSaved} />}</div>
           <nav className="portal-detail-nav portal-project-tabs" aria-label="Project sections">
             {[["overview", "Overview"], ["quotes", "Request & Quote"], ["presentation", "Presentation"], ["approvals", "Approvals"], ["payment", "Payment"], ["orders", "Order & Install"], ["contacts", "Contacts"], ["documents", "Documents"], ["activity", "Activity"]].map(([key, label]) => <a key={key} href={`#${key}`} aria-current={detailSection === key ? "page" : undefined} className={detailSection === key ? "active" : ""} onClick={e => { e.preventDefault(); setDetailSection(key); window.history.pushState(null, "", `#${key}`); }}>{label}</a>)}
           </nav>
@@ -477,7 +474,7 @@ export default function PortalApp({
           <div hidden={detailSection !== "documents" && detailSection !== "presentation"}>
           <section className="portal-panel" id="documents">
             <h2>{detailSection === "presentation" ? "Presentation" : "Documents"}</h2>
-            {detailSection === "presentation" && <p>Presentation status: <StatusBadge value={project.request?.presentation || "Not started"} /></p>}
+            {detailSection === "presentation" && <p>Presentation status: <StatusBadge value={project.request?.presentation || "Not recorded"} /></p>}
             <p className="portal-muted">
               Documents open in SharePoint. Microsoft sign-in and sharing
               permissions may be required.
