@@ -12,7 +12,7 @@ export const adminSections = [
   { label: 'Brand & outreach', items: [
     { href: '/admin/design-guide', label: 'Brochure builder', icon: '▤', description: 'Edit the digital brochure section by section, then preview your changes.' },
     { href: '/admin/brochure', label: 'Brochure requests', icon: '✉', description: 'Review request activity, update delivery settings, and email a brochure.' },
-    { href: '/admin/media', label: 'Media library', icon: '▧', description: 'Find images, upload new assets, and improve their accessibility descriptions.' },
+    { href: '/admin/media', label: 'Media', icon: '▧', description: 'Browse brand assets by folder, download original files, and manage website images.' },
     { href: '/admin/signature', label: 'Email signatures', icon: '✎', description: 'Create a consistent, professional signature for every member of the team.' },
   ] },
   { label: 'Administration', items: [{ href: '/admin/users', label: 'Staff access', icon: '⚙', description: 'Invite SBD staff and manage their access to the website workspace.' }] },
