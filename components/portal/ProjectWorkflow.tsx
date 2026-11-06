@@ -3,7 +3,7 @@ import { useState } from "react";
 import type { DisplayProject } from "./PortalWorkspace";
 import { displayDate, StatusBadge } from "./PortalWorkspace";
 import { WaitingBadge } from "./ProjectWork";
-import { projectAction, paymentStatusText, orderStatusText, approvalState, projectPhase, projectWorkflow, paymentLabel, orderLabel, paymentStages, orderStages } from "@/lib/portal/requests";
+import { projectAction, projectInstall, paymentStatusText, orderStatusText, approvalState, projectPhase, projectWorkflow, paymentLabel, orderLabel, paymentStages, orderStages } from "@/lib/portal/requests";
 
 type Workflow = (action: string, data?: Record<string, unknown>) => Promise<unknown> | undefined;
 export function ProjectProgress({ project, staff = false, showStats = true, showTimeline = true }: { project: DisplayProject; staff?: boolean; showStats?: boolean; showTimeline?: boolean }) {
@@ -16,7 +16,7 @@ export function ProjectProgress({ project, staff = false, showStats = true, show
       <div><dt>Approval</dt><dd>{approvalState(project)}</dd></div>
       <div><dt>Payment</dt><dd>{paymentStatusText(project)}</dd></div>
       <div><dt>Order</dt><dd>{orderStatusText(project)}</dd></div>
-      <div><dt>Install</dt><dd>{displayDate(project.install)}</dd></div>
+      <div><dt>Install</dt><dd>{displayDate(projectInstall(project))}</dd></div>
     </dl>}
     {showTimeline && <section className="portal-workflow-panel" aria-labelledby="project-workflow-title">
       <h2 id="project-workflow-title">Workflow</h2>

@@ -2,13 +2,13 @@ import { randomUUID } from "crypto";
 import { collections, transaction } from "../portal/db";
 import { PortalError } from "../portal/policy";
 import { accountOrigin } from "../portal/origins";
-import type { Organization, Project } from "../portal/types";
+import type { Organization, Project, SheetQuoteRow } from "../portal/types";
 import {
   createSheetWebhook, enableWebhook, findSheetIdByPermalink, getSheet,
   sheetWritesEnabled, smartsheetConfigured, updateRowCells,
 } from "./client";
 import {
-  cellValue, columnReport, FIELD_MAP, findColumn, isSyncTicked, ownerName, reconcile, rowDetails, SYNC_COLUMN,
+  cellValue, columnReport, FIELD_MAP, findColumn, isSyncTicked, ownerName, quoteRow, reconcile, rowDetails, SYNC_COLUMN,
   type CellWrite, type MapContext,
 } from "./mapping";
 
@@ -23,7 +23,7 @@ interface SyncState {
   lastError?: string;
   issues?: { rowId: number; project: string; messages: string[] }[];
 }
-export interface PlannedChange { project: string; rowId: number | null; action: "create" | "update" | "link" | "unlink" | "skip"; portal: string[]; sheetCells: number; issues: string[] }
+export interface PlannedChange { project: string; rowId: number | null; action: "create" | "update" | "link" | "unlink" | "quote"; portal: string[]; sheetCells: number; issues: string[] }
 
 async function stateCollection() {
   const { db } = await collections();
@@ -112,6 +112,7 @@ export async function syncSheet({ dryRun = false }: { dryRun?: boolean } = {}) {
   const quoteColumn = findColumn(sheet.columns, ["Quote No"]);
   const plan: PlannedChange[] = [];
   const updates: { id: number; cells: CellWrite[] }[] = [];
+  const quoteRows = new Map<string, SheetQuoteRow[]>();
 
   for (const row of sheet.rows) {
     const ticked = isSyncTicked(cellValue(row, syncColumn));
@@ -124,11 +125,15 @@ export async function syncSheet({ dryRun = false }: { dryRun?: boolean } = {}) {
       const name = key(cellValue(row, nameColumn)), owner = orgKey(cellValue(row, ownerColumn));
       const candidates = projects.filter((p) => !p.smartsheet && key(p.name) === name && orgKey(ctx.orgName(p.companyId)) === owner);
       existing = candidates.length === 1 ? candidates[0] : null;
-      // A quote already in the portal belongs to that project and its approvals. A second copy would split them.
+      // A quote already in the portal belongs to that project and its approvals, so the row attaches to it
+      // for reference. The project's own fields, approvals and documents are left alone.
       const quote = key(cellValue(row, quoteColumn));
       const holder = !existing && quote ? projects.find((p) => p.scopes.some((scope) => key(scope.quote) === quote)) : null;
       if (holder) {
-        plan.push({ project: String(cellValue(row, nameColumn)), rowId: row.id, action: "skip", portal: [], sheetCells: 0, issues: [`Quote ${quote} is already on "${holder.name}" in the portal, so this row was not added`] });
+        const rows = quoteRows.get(holder._id) || [];
+        rows.push(quoteRow(row, sheet.columns, quote));
+        quoteRows.set(holder._id, rows);
+        plan.push({ project: String(cellValue(row, nameColumn)), rowId: row.id, action: "quote", portal: [`Quote ${quote} on ${holder.name}`], sheetCells: 0, issues: [] });
         continue;
       }
     }
@@ -163,6 +168,12 @@ export async function syncSheet({ dryRun = false }: { dryRun?: boolean } = {}) {
   }
   const result = { plan, writesEnabled: sheetWritesEnabled() };
   if (dryRun) return result;
+  // Rebuilt each time, so an unticked or removed row drops off. Not a project edit, so the version stays put.
+  for (const project of projects) {
+    const next = quoteRows.get(project._id) || [];
+    if (JSON.stringify(project.sheetQuoteRows || []) === JSON.stringify(next)) continue;
+    await c.projects.updateOne({ _id: project._id }, next.length ? { $set: { sheetQuoteRows: next } } : { $unset: { sheetQuoteRows: "" } });
+  }
   if (writes) await updateRowCells(sheetId, updates);
   await saveState({
     lastSyncAt: new Date(), lastError: "",
@@ -208,7 +219,8 @@ export async function sheetStatus() {
   return {
     ...base,
     sheet: { name: sheet.name, rows: sheet.rows.filter((row) => isSyncTicked(cellValue(row, syncColumn))).length },
-    linked: await c.projects.countDocuments({ smartsheet: { $exists: true } }),
+    linked: (await c.projects.find({ $or: [{ smartsheet: { $exists: true } }, { sheetQuoteRows: { $exists: true } }] }).project({ smartsheet: 1, sheetQuoteRows: 1 }).toArray())
+      .reduce((total, project) => total + (project.smartsheet ? 1 : 0) + (project.sheetQuoteRows?.length || 0), 0),
     report: columnReport(sheet.columns),
   };
 }

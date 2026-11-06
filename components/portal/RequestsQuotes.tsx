@@ -11,7 +11,7 @@ import type { DisplayProject } from "./PortalWorkspace";
 import { ProjectEditor } from "./ProjectEditor";
 import { displayDate, StatusBadge } from "./PortalWorkspace";
 
-import { orderStatusText, currentScopes, quoteReady, approvalState, projectPhase, paymentLabel, orderLabel, projectAction, pipelineGroups, pipelineGroupIndex, requestTypes } from "@/lib/portal/requests";
+import { orderStatusText, currentScopes, quoteReady, approvalState, projectPhase, paymentLabel, orderLabel, projectAction, projectInstall, pipelineGroups, pipelineGroupIndex, requestTypes } from "@/lib/portal/requests";
 import { PipelineFilter, ProjectSteps, QuickInstall, QuickOrder, QuickPhase, QuickStage, WaitingBadge } from "./ProjectWork";
 
 type Workflow = (action: string, data?: Record<string, unknown>) => Promise<unknown> | undefined;
@@ -63,7 +63,7 @@ export function RequestPipeline({ projects, organizations, staff, mode = "reques
               <td data-label="Project"><small>{name(p.companyId)}</small><Link className="portal-tracker-project" href={href}>{p.name}</Link><small>{p.location}</small>{p.archived && <StatusBadge value="Archived" />}</td>
               <td data-label="Current stage">{staff ? <><QuickStage project={p} onChanged={onChanged} /><QuickPhase project={p} onChanged={onChanged} /></> : <><strong>{projectPhase(p)}</strong>{p.request?.projectPhase && <small>Phase: {p.request.projectPhase}</small>}</>}<ProjectSteps project={p} showLabel={false} /></td>
               <td data-label="Quotes"><Link href={`${href}#quotes`}>{references ? `Quote ${references}` : "No quote reference recorded"}</Link>{staff && p.request?.quotedAmount !== undefined && <small>Amount: {amount(p.request.quotedAmount)}</small>}<small>Approval: {approvalState(p)}</small></td>
-              <td data-label="Order / Installation">{staff ? <><QuickOrder project={p} onChanged={onChanged} /><QuickInstall project={p} onChanged={onChanged} /></> : <><span>{orderStatusText(p)}</span><small>Install: {displayDate(p.install)}</small></>}</td>
+              <td data-label="Order / Installation">{staff ? <><QuickOrder project={p} onChanged={onChanged} /><QuickInstall project={p} onChanged={onChanged} /></> : <><span>{orderStatusText(p)}</span><small>Install: {displayDate(projectInstall(p))}</small></>}</td>
               <td data-label="Next step"><WaitingBadge project={p} staff={staff} /><p>{next.label}</p><Link className="portal-link secondary" href={`${href}#${next.section}`}>{next.cta}<span className="portal-sr-only"> for {p.name}</span> →</Link></td>
             </tr>;
           })}{!filtered.length && <tr><td colSpan={5}>No matching projects. Try clearing your search or changing the filters.</td></tr>}</tbody>

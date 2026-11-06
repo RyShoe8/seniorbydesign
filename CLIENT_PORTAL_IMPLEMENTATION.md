@@ -22,6 +22,7 @@ How it behaves:
 - The cell stays ticked. Unticking it later hides the project from clients without deleting it, and ticking it again brings it back.
 - After that, changes reach the other side field by field. Live updates need "Turn on live updates" on the Smartsheet page.
 - An Owner Group new to the portal gets a company and an operator of the same name, with the code prefix removed.
+- A ticked row whose `Quote No` is already on a portal project attaches to that project under "Quote details" instead of becoming a new project. These rows are read-only: they change nothing on the project and nothing on the sheet. Clients see only the row's name, phase and install date. The rows are rebuilt on every sync, so unticking or removing one drops it.
 - New portal projects are not added to the sheet. It is organized into sections, and only people should decide where a row goes.
 
 | Portal field | Smartsheet column | Direction |

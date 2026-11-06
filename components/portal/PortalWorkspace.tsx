@@ -1,14 +1,16 @@
 "use client";
 import Link from "next/link";
-import { projectAction, orderStatusText, paymentStatusText } from "@/lib/portal/requests";
+import { projectAction, projectInstall, orderStatusText, paymentStatusText } from "@/lib/portal/requests";
 import { ProjectSteps, WaitingBadge, WorkQueue } from "./ProjectWork";
 import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import type { Project, Organization } from "@/lib/portal/types";
+import type { Project, Organization, SheetQuoteRow } from "@/lib/portal/types";
 
-export type DisplayProject = Omit<Project, "documents" | "smartsheet"> & {
+export type DisplayProject = Omit<Project, "documents" | "smartsheet" | "sheetQuoteRows"> & {
   documents: Omit<Project["documents"][number], "url">[];
   smartsheetDetails?: Record<string, string>;
+  /** Clients receive these without `rowId` and `details`. */
+  sheetQuoteRows?: (Pick<SheetQuoteRow, "quote" | "name" | "install" | "projectPhase"> & Partial<Pick<SheetQuoteRow, "rowId" | "details">>)[];
 };
 export function PortalIcon({
   name,
@@ -306,9 +308,8 @@ export function PortalPortfolio({
       (!org || [p.companyId, p.operatorId].includes(org)),
   );
   const scheduled = scopeProjects
-    .filter(
-      (p) => p.install && p.install >= new Date().toLocaleDateString("en-CA"),
-    )
+    .map((p) => ({ project: p, install: projectInstall(p) }))
+    .filter(({ install }) => install && install >= new Date().toLocaleDateString("en-CA"))
     .sort((a, b) => a.install!.localeCompare(b.install!));
   const filtered = scopeProjects.filter(
     (p) =>
@@ -379,11 +380,11 @@ export function PortalPortfolio({
           <h2>Upcoming installations <span className="portal-count">{scheduled.length}</span></h2>
           {scheduled.length ? (
             <div className="portal-upcoming-list">
-              {scheduled.slice(0, 4).map((p) => (
+              {scheduled.slice(0, 4).map(({ project: p, install }) => (
                 <button className="portal-install-row" key={p._id} onClick={() => open(p._id)}>
                   <span className="portal-date-tile">
-                    <span>{new Date(p.install + "T12:00:00").toLocaleDateString("en-US", { month: "short" })}</span>
-                    <strong>{p.install!.slice(8)}</strong>
+                    <span>{new Date(install + "T12:00:00").toLocaleDateString("en-US", { month: "short" })}</span>
+                    <strong>{install!.slice(8)}</strong>
                   </span>
                   <span className="portal-row-main">
                     <strong>{p.name}</strong>
@@ -453,7 +454,7 @@ export function PortalPortfolio({
                 </p>
                 <ProjectSteps project={p} />
                 <p className="portal-card-next-step">{projectAction(p, staff).label}</p>
-                <p className="portal-card-install">Install: {displayDate(p.install)}</p>
+                <p className="portal-card-install">Install: {displayDate(projectInstall(p))}</p>
                 <Link
                   className="portal-project-open"
                   href={`/portal/projects/${encodeURIComponent(p._id)}?from=overview${org ? `&organization=${encodeURIComponent(org)}` : ""}`}

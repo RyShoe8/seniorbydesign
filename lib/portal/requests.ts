@@ -1,4 +1,4 @@
-import type { Project } from "./types";
+import type { Project, SheetQuoteRow } from "./types";
 // SBD's prototype defines these phases independently of approval/payment status.
 export const requestStages = ["New Request", "Scoping", "Quote in Progress", "Quote Sent", "Presentation", "Awaiting Approval", "Awaiting Deposit", "Ordering", "Procurement", "Installation Planning", "Installed", "Closed"] as const;
 export const requestTypes = ["Remodel", "Model", "New Development", "Finish Board", "Sales Office", "FFE Presentation", "Other"] as const;
@@ -109,6 +109,15 @@ export const pipelineGroups = [
 export function pipelineGroupIndex(project: Pick<Project, "request">) {
   const stage = project.request?.stage;
   return stage ? pipelineGroups.findIndex(group => (group.stages as readonly string[]).includes(stage)) : -1;
+}
+/** What a client may see of a quote's sheet row. Details hold internal notes and budgets. */
+export function clientQuoteRow({ quote, name, install, projectPhase }: SheetQuoteRow) {
+  return { quote, name, install, projectPhase };
+}
+/** The project's own install date, or the soonest one from its quote rows. */
+export function projectInstall(project: Pick<Project, "install"> & { sheetQuoteRows?: { install?: string }[] }) {
+  if (project.install) return project.install;
+  return (project.sheetQuoteRows || []).map((row) => row.install).filter((date): date is string => Boolean(date)).sort()[0] || null;
 }
 export function orderStatusText(project: Pick<Project, "order" | "orderDetail">) {
   return orderLabel(project) === "Awaiting Confirmation" ? "Order confirmation pending" : orderLabel(project);

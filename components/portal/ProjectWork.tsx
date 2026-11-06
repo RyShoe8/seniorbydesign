@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { orderLabel, orderStages, orderStatusText, pipelineGroupIndex, pipelineGroups, projectAction, projectPhases, requestStages } from "@/lib/portal/requests";
-import type { DisplayProject } from "./PortalWorkspace";
+import { displayDate, type DisplayProject } from "./PortalWorkspace";
 
 const projectHref = (project: DisplayProject, from: string, organizationId = "", section = "") =>
   `/portal/projects/${encodeURIComponent(project._id)}?from=${from}${organizationId ? `&organization=${encodeURIComponent(organizationId)}` : ""}${section ? `#${section}` : ""}`;
@@ -142,4 +142,29 @@ export function QuickOrder({ project, onChanged }: { project: DisplayProject; on
 }
 export function QuickInstall({ project, onChanged }: { project: DisplayProject; onChanged?: () => Promise<void> | void }) {
   return <QuickField project={project} field="install" label="Install date" type="date" value={project.install || ""} onChanged={onChanged} />;
+}
+
+/** Sheet details for each quote on a project. Clients see only the phase and install date. */
+export function QuoteRows({ project, staff }: { project: DisplayProject; staff: boolean }) {
+  const rows = project.sheetQuoteRows;
+  if (!rows?.length) return null;
+  return (
+    <section className="portal-quote-rows" aria-labelledby="quote-rows-title">
+      <h3 id="quote-rows-title">Quote details</h3>
+      {rows.map((row) => (
+        <article key={row.rowId}>
+          <h4>{row.name} <small>Quote {row.quote}</small></h4>
+          <dl>
+            <div><dt>Phase</dt><dd>{row.projectPhase || "Not recorded"}</dd></div>
+            <div><dt>Install</dt><dd>{displayDate(row.install || null)}</dd></div>
+            {staff && row.details?.Status && <div><dt>Status</dt><dd>{row.details.Status}</dd></div>}
+            {staff && row.details?.["Assigned to"] && <div><dt>SBD owner</dt><dd>{row.details["Assigned to"]}</dd></div>}
+            {staff && row.details?.["Approved Budget"] && <div><dt>Approved budget</dt><dd>{row.details["Approved Budget"]}</dd></div>}
+          </dl>
+          {staff && row.details?.Notes && <div className="portal-internal-notes"><h3>SBD notes <small>Staff only</small></h3><p>{row.details.Notes}</p></div>}
+          {staff && row.details && <details className="portal-sheet-details"><summary>All Smartsheet details ({Object.keys(row.details).length})</summary><dl>{Object.entries(row.details).map(([title, value]) => <div key={title}><dt>{title}</dt><dd>{value}</dd></div>)}</dl></details>}
+        </article>
+      ))}
+    </section>
+  );
 }

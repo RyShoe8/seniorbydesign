@@ -4,6 +4,7 @@ import {
   PortalPortfolio,
   StatusBadge,
   displayDate,
+  type DisplayProject,
 } from "./PortalWorkspace";
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -11,9 +12,10 @@ import { ProjectRequestsQuotes, RequestPipeline } from "./RequestsQuotes";
 import { ProjectEditor } from "./ProjectEditor";
 import OrganizationDirectory from "./OrganizationDirectory";
 import SmartsheetPanel from "./SmartsheetPanel";
+import { QuoteRows } from "./ProjectWork";
 import { ApprovalQueue } from "./PortalDirectories";
 import { ProjectProgress, ProjectOperations } from "./ProjectWorkflow";
-import { projectPhase, orderLabel } from "@/lib/portal/requests";
+import { projectInstall, projectPhase } from "@/lib/portal/requests";
 import { signOut } from "next-auth/react";
 import type {
   Actor,
@@ -23,10 +25,7 @@ import type {
 } from "@/lib/portal/types";
 import "./portal.css";
 import "./portal-work.css";
-type ViewProject = Omit<Project, "documents" | "smartsheet"> & {
-  documents: Omit<Project["documents"][number], "url">[];
-  smartsheetDetails?: Record<string, string>;
-};
+type ViewProject = DisplayProject;
 type Preview = {
   id: string;
   changes: {
@@ -468,8 +467,9 @@ export default function PortalApp({
               <div><dt>Project type</dt><dd>{project.request?.type || "Not recorded"}</dd></div>
               <div><dt>Project manager</dt><dd>{project.request?.assignedTo || "Unassigned"}</dd></div>
               <div><dt>Current phase</dt><dd>{projectPhase(project)}</dd></div>
-              <div><dt>Estimated installation</dt><dd>{displayDate(project.install)}</dd></div>
+              <div><dt>Estimated installation</dt><dd>{displayDate(projectInstall(project))}</dd></div>
             </dl>
+            <QuoteRows project={project} staff={staff} />
             <p className="portal-project-reference">Project ID: <span>{project.sourceId}</span></p>
             {staff && project.request?.internalNotes && <div className="portal-internal-notes"><h3>SBD notes <small>Staff only</small></h3><p>{project.request.internalNotes}</p></div>}
             {staff && project.smartsheetDetails && <details className="portal-sheet-details"><summary>All Smartsheet details ({Object.keys(project.smartsheetDetails).length})</summary><dl>{Object.entries(project.smartsheetDetails).map(([title, value]) => <div key={title}><dt>{title}</dt><dd>{value}</dd></div>)}</dl></details>}

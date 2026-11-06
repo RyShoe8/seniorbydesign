@@ -81,6 +81,17 @@ export interface Project {
   workflowTouched: boolean;
   updatedAt: Date;
   smartsheet?: SmartsheetLink;
+  /** Sheet rows for this project's quotes. Read-only reference, rebuilt on every sync. */
+  sheetQuoteRows?: SheetQuoteRow[];
+}
+export interface SheetQuoteRow {
+  rowId: number;
+  quote: string;
+  name: string;
+  install?: string;
+  projectPhase?: string;
+  /** Every cell on the row. Includes internal notes and budgets, so staff only. */
+  details: Record<string, string>;
 }
 /** Links a project to its Smartsheet row. `snapshot` holds the last agreed value of each mapped field. */
 export interface SmartsheetLink {
@@ -97,6 +108,7 @@ export interface ImportProject extends Omit<
   | "version"
   | "updatedAt"
   | "smartsheet"
+  | "sheetQuoteRows"
   | "operatorApproval"
   | "workflowTouched"
   | "archived"

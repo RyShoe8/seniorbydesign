@@ -1,6 +1,7 @@
 import { collections } from "@/lib/portal/db";
 import { failure, json, requirePortalActor } from "@/lib/portal/server";
 import { isStaff } from "@/lib/portal/policy";
+import { clientQuoteRow } from "@/lib/portal/requests";
 export const dynamic = "force-dynamic";
 export async function GET() {
   try {
@@ -28,8 +29,9 @@ export async function GET() {
     return json({
       actor,
       // Sync bookkeeping is internal and can hold staff-only values such as quoted amounts.
-      projects: projects.map(({ smartsheet, ...p }) => ({
+      projects: projects.map(({ smartsheet, sheetQuoteRows, ...p }) => ({
         ...p,
+        ...(sheetQuoteRows ? { sheetQuoteRows: isStaff(actor) ? sheetQuoteRows : sheetQuoteRows.map(clientQuoteRow) } : {}),
         ...(isStaff(actor) && smartsheet?.details ? { smartsheetDetails: smartsheet.details } : {}),
         request: p.request ? (isStaff(actor) ? p.request : (({ quotedAmount, internalNotes, sheetStatus, ...request }) => request)(p.request)) : undefined,
         documents: p.documents.map(({ url, ...d }) => d),

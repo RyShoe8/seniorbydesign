@@ -143,6 +143,7 @@ test("internal notes and sheet status never reach client accounts", () => {
   const route = fs.readFileSync(path.join(__dirname, "../app/api/portal/projects/route.ts"), "utf8");
   assert.match(route, /quotedAmount, internalNotes, sheetStatus, \.\.\.request/);
   assert.match(route, /isStaff\(actor\) && smartsheet\?\.details/);
+  assert.match(route, /isStaff\(actor\) \? sheetQuoteRows : sheetQuoteRows\.map\(clientQuoteRow\)/);
 });
 test("row details list what people see on the row, for staff lookup", () => {
   const details = rowDetails(row({ "Purchase Order": "24, 3021", Architect: "Lantz", "Portal Visible": true, Xmas: "" }), columns);

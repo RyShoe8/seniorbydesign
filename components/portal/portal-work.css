@@ -103,6 +103,13 @@
 .portal-workspace .portal-project-tabs { margin: 14px 0; gap: 6px; }
 .portal-workspace .portal-project-tabs a { padding: 8px 13px; min-height: 40px; font-size: 14px; border-radius: 8px; }
 .portal-smartsheet h2 { margin-top: 22px; }
+.portal-quote-rows { margin: 18px 0; }
+.portal-quote-rows article { border: 1px solid var(--portal-line); border-radius: 8px; padding: 14px 16px; margin-top: 10px; }
+.portal-workspace .portal-quote-rows h4 { font: 600 15px/1.4 var(--font-body); margin: 0 0 8px; }
+.portal-quote-rows h4 small { font-weight: 400; color: #6f6252; margin-left: 6px; white-space: nowrap; }
+.portal-quote-rows article > dl { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px 16px; margin: 0; }
+.portal-quote-rows article > dl dt { font-size: 12px; color: #6f6252; }
+.portal-quote-rows article > dl dd { margin: 2px 0 0; font-size: 14px; }
 .portal-internal-notes { margin: 16px 0; padding: 14px 16px; background: #faf6ec; border: 1px solid #e4d8bd; border-radius: 8px; }
 .portal-workspace .portal-internal-notes h3 { font-size: 15px; margin: 0 0 6px; }
 .portal-internal-notes small { font-size: 12px; font-weight: 400; color: #6f6252; margin-left: 6px; }

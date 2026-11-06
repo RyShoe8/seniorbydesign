@@ -1,6 +1,6 @@
 import { dateOnly, PortalError } from "../portal/policy";
 import { normalizedPayment, paymentLabel, projectPhases, requestTypes } from "../portal/requests";
-import type { Project, ProjectRequest } from "../portal/types";
+import type { Project, ProjectRequest, SheetQuoteRow } from "../portal/types";
 
 export type SyncValue = string | number | boolean | null;
 export interface SheetColumn {
@@ -226,6 +226,25 @@ export function rowDetails(row: SheetRow, columns: SheetColumn[]) {
     if (value !== null && value !== "" && value !== false) details[column.title] = value === true ? "Yes" : String(column.type === "CONTACT_LIST" ? value : row.cells.find((cell) => cell.columnId === column.id)?.displayValue ?? value);
   }
   return details;
+}
+
+/** A row belonging to a quote on an existing project. It is only read, and changes nothing on that project. */
+export function quoteRow(row: SheetRow, columns: SheetColumn[], quote: string): SheetQuoteRow {
+  const value = (key: string) => {
+    const field = FIELD_MAP.find((candidate) => candidate.key === key)!;
+    try {
+      const parsed = field.parse(cellValue(row, findColumn(columns, field.columns)));
+      return typeof parsed === "string" ? parsed : undefined;
+    } catch {
+      return undefined;
+    }
+  };
+  const install = value("install"), projectPhase = value("request.projectPhase");
+  return {
+    rowId: row.id, quote, name: String(cellValue(row, findColumn(columns, ["Community Name"])) ?? ""),
+    ...(install ? { install } : {}), ...(projectPhase ? { projectPhase } : {}),
+    details: rowDetails(row, columns),
+  };
 }
 
 export function findColumn(columns: SheetColumn[], titles: readonly string[]) {

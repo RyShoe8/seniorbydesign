@@ -140,20 +140,48 @@ test("sync against the sheet's real shape", async (t) => {
     sheet.rows.pop();
   });
 
-  await t.test("a row whose quote is already on a portal project is flagged, not created", async () => {
-    await c.projects.insertOne({ _id: "existing", sourceId: "existing", name: "The Community", companyId: "company:legendliving", operatorId: "company:legendliving", location: "", address: "", summary: "", scopes: [{ code: "MC", label: "Memory Care", quote: "900", approval: "Approved", revision: 1 }], documents: [], payment: "Paid", order: "Ordered", install: null, version: 1, archived: false, operatorApproval: false, workflowTouched: false, updatedAt: new Date() });
-    sheet.rows.push(makeRow(6, { "Owner Group": "099-Legend Living", "Community Name": "TX - The Community - MC", "Portal Visible": true, "Quote No": 900 }));
-    const before = await c.projects.countDocuments();
+  await t.test("a row whose quote is on a portal project attaches to it, read-only, leaving the project alone", async () => {
+    await c.projects.insertOne({ _id: "existing", sourceId: "existing", name: "The Community", companyId: "company:legendliving", operatorId: "company:legendliving", location: "", address: "", summary: "", scopes: [{ code: "MC", label: "Memory Care", quote: "900", approval: "Approved", revision: 1 }, { code: "AL", label: "Assisted Living", quote: "901", approval: "Approved", revision: 1 }], documents: [{ id: "d", name: "Quote", url: "u", category: "Quotes", historical: false }], payment: "Paid", order: "Ordered", install: null, version: 1, archived: false, operatorApproval: false, workflowTouched: false, updatedAt: new Date() });
+    const before = await c.projects.findOne({ _id: "existing" });
+    const count = await c.projects.countDocuments();
+    sheet.rows.push(makeRow(6, { "Owner Group": "099-Legend Living", "Community Name": "TX - The Community - MC", "Portal Visible": true, "Quote No": 900, "SBD install week": "2027-02-01", "Project Phase": "8. Procurement", Notes: "internal only" }));
+    sheet.rows.push(makeRow(7, { "Owner Group": "099-Legend Living", "Community Name": "TX - The Community - AL", "Portal Visible": true, "Quote No": 901, "SBD install week": "2027-01-15" }));
+    const writes = writesTo().length;
+
     const preview = await syncSheet({ dryRun: true });
-    const entry = preview.plan.find((p) => p.rowId === 6);
-    assert.equal(entry.action, "skip");
-    assert.match(entry.issues[0], /Quote 900 is already on "The Community"/);
+    assert.equal(preview.plan.find((p) => p.rowId === 6).action, "quote");
+    assert.deepEqual(preview.plan.find((p) => p.rowId === 6).issues, []);
+    assert.equal((await c.projects.findOne({ _id: "existing" })).sheetQuoteRows, undefined, "preview stores nothing");
+
     await syncSheet();
-    assert.equal(await c.projects.countDocuments(), before);
-    const kept = await c.projects.findOne({ _id: "existing" });
-    assert.equal(kept.smartsheet, undefined);
-    assert.equal(kept.version, 1);
-    sheet.rows.pop();
+    assert.equal(await c.projects.countDocuments(), count, "no new project");
+    const after = await c.projects.findOne({ _id: "existing" });
+    assert.deepEqual(after.sheetQuoteRows.map((r) => [r.quote, r.install, r.projectPhase]), [["900", "2027-02-01", "8. Procurement"], ["901", "2027-01-15", undefined]]);
+    assert.equal(after.sheetQuoteRows[0].details.Notes, "internal only");
+    for (const field of ["version", "scopes", "documents", "payment", "order", "install", "name", "archived", "updatedAt"]) assert.deepEqual(after[field], before[field], field);
+    assert.equal(after.smartsheet, undefined);
+    assert.equal(writesTo().length, writes, "nothing is written to the sheet");
+
+    const { projectInstall, clientQuoteRow } = require("../lib/portal/requests.ts");
+    assert.equal(projectInstall(after), "2027-01-15");
+    assert.equal(projectInstall({ ...after, install: "2027-03-01" }), "2027-03-01");
+    const client = clientQuoteRow(after.sheetQuoteRows[0]);
+    assert.deepEqual(Object.keys(client).sort(), ["install", "name", "projectPhase", "quote"]);
+    assert.doesNotMatch(JSON.stringify(client), /internal only/);
+
+    const repeat = JSON.stringify(after.sheetQuoteRows);
+    await syncSheet();
+    assert.equal(JSON.stringify((await c.projects.findOne({ _id: "existing" })).sheetQuoteRows), repeat);
+
+    sheet.rows.find((r) => r.id === 6).cells.find((x) => x.columnId === columns.find((col) => col.title === "Portal Visible").id).value = false;
+    await syncSheet();
+    assert.deepEqual((await c.projects.findOne({ _id: "existing" })).sheetQuoteRows.map((r) => r.quote), ["901"], "unticking drops the row");
+
+    sheet.rows.splice(-2, 2);
+    await syncSheet();
+    const cleared = await c.projects.findOne({ _id: "existing" });
+    assert.equal(cleared.sheetQuoteRows, undefined, "removing the rows clears them");
+    assert.equal(cleared.scopes.length, 2, "quotes stay");
   });
 
   await t.test("a row removed from the sheet unlinks the project and keeps it", async () => {

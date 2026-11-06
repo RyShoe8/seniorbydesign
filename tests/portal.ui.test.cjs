@@ -52,6 +52,20 @@ test("overview opens with what each audience must do, and never asks a client to
   assert.match(staff, /Your team&#x27;s next moves/);
   assert.match(staff, /Confirm the quote document/);
 });
+test("quote details show phase and install to clients, and notes and budgets only to staff", () => {
+  const { QuoteRows } = require("../components/portal/ProjectWork.tsx");
+  const row = { quote: "664", name: "GA - Phoenix - MC", install: "2026-11-18", projectPhase: "8. Procurement" };
+  const client = render(QuoteRows, { project: { ...project, sheetQuoteRows: [row] }, staff: false });
+  assert.match(client, /Quote 664/);
+  assert.match(client, /8\. Procurement/);
+  assert.match(client, /Nov 18, 2026/);
+  assert.doesNotMatch(client, /Staff only|All Smartsheet details|SBD owner/);
+  const staff = render(QuoteRows, { project: { ...project, sheetQuoteRows: [{ ...row, rowId: 1, details: { Status: "Paid", Notes: "internal", "Approved Budget": "$138,317" } }] }, staff: true });
+  assert.match(staff, /Staff only/);
+  assert.match(staff, /internal/);
+  assert.match(staff, /\$138,317/);
+  assert.equal(render(QuoteRows, { project, staff: true }), "");
+});
 test("client tables preserve structure but hide staff creation and private amounts", () => {
   const html = render(RequestPipeline, { projects: [project], organizations, staff: false, mode: "requests", onSaved() {} });
   assert.match(html, /<table/);
