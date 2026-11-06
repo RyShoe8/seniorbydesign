@@ -23,7 +23,7 @@ interface SyncState {
   lastError?: string;
   issues?: { rowId: number; project: string; messages: string[] }[];
 }
-export interface PlannedChange { project: string; rowId: number | null; action: "create" | "update" | "link" | "unlink"; portal: string[]; sheetCells: number; issues: string[] }
+export interface PlannedChange { project: string; rowId: number | null; action: "create" | "update" | "link" | "unlink" | "skip"; portal: string[]; sheetCells: number; issues: string[] }
 
 async function stateCollection() {
   const { db } = await collections();
@@ -46,6 +46,8 @@ async function resolveSheetId() {
   return id;
 }
 const key = (value: unknown) => String(value ?? "").trim().toLowerCase();
+/** "ReNew REIT" and "RenewREIT" are the same company. */
+const orgKey = (name: unknown) => key(ownerName(String(name ?? ""))).replace(/[^a-z0-9]/g, "");
 const orgSlug = (name: string) => key(name).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "unnamed";
 
 /** Owner Groups new to the portal get an organization, created only when a project using them is saved. */
@@ -54,7 +56,7 @@ function mapContext(organizations: Organization[]) {
   const ctx: MapContext = {
     orgName: (id) => organizations.find((org) => org._id === id)?.name ?? pending.get(id)?.name ?? null,
     orgId: (name, type) => {
-      const match = organizations.find((org) => org.active && org.type === type && key(ownerName(org.name)) === key(name));
+      const match = organizations.find((org) => org.active && org.type === type && orgKey(org.name) === orgKey(name));
       if (match) return match._id;
       const slug = orgSlug(name), id = `${type}:${slug}`;
       if (!pending.has(id)) pending.set(id, { _id: id, type, slug, name, active: true, version: 1, createdAt: new Date() });
@@ -107,6 +109,7 @@ export async function syncSheet({ dryRun = false }: { dryRun?: boolean } = {}) {
   const syncColumn = findColumn(sheet.columns, SYNC_COLUMN);
   const nameColumn = findColumn(sheet.columns, ["Community Name"]);
   const ownerColumn = findColumn(sheet.columns, ["Owner Group"]);
+  const quoteColumn = findColumn(sheet.columns, ["Quote No"]);
   const plan: PlannedChange[] = [];
   const updates: { id: number; cells: CellWrite[] }[] = [];
 
@@ -118,9 +121,16 @@ export async function syncSheet({ dryRun = false }: { dryRun?: boolean } = {}) {
     let existing = linked;
     if (!existing) {
       // Several jobs can share a community, so link only an unambiguous match.
-      const name = key(cellValue(row, nameColumn)), owner = key(ownerName(String(cellValue(row, ownerColumn))));
-      const candidates = projects.filter((p) => !p.smartsheet && key(p.name) === name && key(ownerName(ctx.orgName(p.companyId) || "")) === owner);
+      const name = key(cellValue(row, nameColumn)), owner = orgKey(cellValue(row, ownerColumn));
+      const candidates = projects.filter((p) => !p.smartsheet && key(p.name) === name && orgKey(ctx.orgName(p.companyId)) === owner);
       existing = candidates.length === 1 ? candidates[0] : null;
+      // A quote already in the portal belongs to that project and its approvals. A second copy would split them.
+      const quote = key(cellValue(row, quoteColumn));
+      const holder = !existing && quote ? projects.find((p) => p.scopes.some((scope) => key(scope.quote) === quote)) : null;
+      if (holder) {
+        plan.push({ project: String(cellValue(row, nameColumn)), rowId: row.id, action: "skip", portal: [], sheetCells: 0, issues: [`Quote ${quote} is already on "${holder.name}" in the portal, so this row was not added`] });
+        continue;
+      }
     }
     const firstTime = !linked;
     const merged = reconcile({ project: existing ?? blankProject(), snapshot: existing?.smartsheet?.snapshot, row, columns: sheet.columns, ctx, ingest: firstTime });

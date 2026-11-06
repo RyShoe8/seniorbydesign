@@ -131,10 +131,35 @@ test("sync against the sheet's real shape", async (t) => {
     assert.deepEqual([...methods].sort(), ["GET", "PUT"]);
   });
 
+  await t.test("an owner spelled differently uses the existing company instead of creating another", async () => {
+    await c.organizations.insertOne({ _id: "company:legendliving", type: "company", slug: "legendliving", name: "LegendLiving", active: true, version: 1, createdAt: new Date() });
+    sheet.rows.push(makeRow(5, { "Owner Group": "099-Legend Living", "Community Name": "TX - Legend", "Portal Visible": true, Status: "Quoting" }));
+    await syncSheet();
+    assert.equal((await c.projects.findOne({ name: "TX - Legend" })).companyId, "company:legendliving");
+    assert.equal(await c.organizations.findOne({ _id: "company:legend-living" }), null);
+    sheet.rows.pop();
+  });
+
+  await t.test("a row whose quote is already on a portal project is flagged, not created", async () => {
+    await c.projects.insertOne({ _id: "existing", sourceId: "existing", name: "The Community", companyId: "company:legendliving", operatorId: "company:legendliving", location: "", address: "", summary: "", scopes: [{ code: "MC", label: "Memory Care", quote: "900", approval: "Approved", revision: 1 }], documents: [], payment: "Paid", order: "Ordered", install: null, version: 1, archived: false, operatorApproval: false, workflowTouched: false, updatedAt: new Date() });
+    sheet.rows.push(makeRow(6, { "Owner Group": "099-Legend Living", "Community Name": "TX - The Community - MC", "Portal Visible": true, "Quote No": 900 }));
+    const before = await c.projects.countDocuments();
+    const preview = await syncSheet({ dryRun: true });
+    const entry = preview.plan.find((p) => p.rowId === 6);
+    assert.equal(entry.action, "skip");
+    assert.match(entry.issues[0], /Quote 900 is already on "The Community"/);
+    await syncSheet();
+    assert.equal(await c.projects.countDocuments(), before);
+    const kept = await c.projects.findOne({ _id: "existing" });
+    assert.equal(kept.smartsheet, undefined);
+    assert.equal(kept.version, 1);
+    sheet.rows.pop();
+  });
+
   await t.test("a row removed from the sheet unlinks the project and keeps it", async () => {
     const [removed] = sheet.rows.splice(2, 1);
     await syncSheet();
-    const p = await c.projects.findOne({});
+    const p = await c.projects.findOne({ name: "GA - The Phoenix" });
     assert.ok(p, "project still exists");
     assert.equal(p.smartsheet, undefined);
     sheet.rows.push(removed);

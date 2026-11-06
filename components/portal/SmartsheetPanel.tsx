@@ -12,7 +12,7 @@ interface Status {
     reference: string[];
   } | null;
 }
-const actionLabel: Record<string, string> = { create: "New project", update: "Update", link: "Link to existing", unlink: "Unlink (row removed)" };
+const actionLabel: Record<string, string> = { create: "New project", update: "Update", link: "Link to existing", unlink: "Unlink (row removed)", skip: "Not added" };
 
 export default function SmartsheetPanel({ admin }: { admin: boolean }) {
   const [status, setStatus] = useState<Status | null>(null);
