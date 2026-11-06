@@ -1,0 +1,128 @@
+/* The shared color system for the staff workspace and the client portal. Change a
+   token here and both move together. Loaded after each area's own stylesheet. */
+.admin-workspace, .portal-app {
+  --ws-walnut: #2f2018;
+  --ws-walnut-2: #46301f;
+  --ws-page: #f3eadb;
+  --ws-card: #fffdf8;
+  --ws-line: #e2d3b8;
+  --ws-ink: #36241a;
+  --ws-muted: #66563f;
+  --ws-brown: #593825;
+  --ws-brown-dark: #41281a;
+  --ws-gold: #c6994a;
+  --ws-gold-soft: #f8ebce;
+  --ws-gold-ink: #72500f;
+  --ws-clay: #a8481f;
+  --ws-clay-soft: #fbe5d8;
+  --ws-teal: #1f6468;
+  --ws-teal-soft: #d9ecec;
+  --ws-sage: #3f6e45;
+  --ws-sage-soft: #dfeeda;
+  --portal-line: var(--ws-line);
+  --admin-line: var(--ws-line);
+  --admin-ink: var(--ws-ink);
+  --admin-muted: var(--ws-muted);
+  --admin-paper: var(--ws-card);
+  --admin-accent: var(--ws-brown);
+}
+
+/* Page and sidebar */
+.admin-workspace, .portal-app.portal-workspace, .portal-app:has(.portal-login) { background: var(--ws-page); color: var(--ws-ink); }
+.workspace-sidebar, .portal-sidebar, .workspace-mobile-menu[open] { background: linear-gradient(180deg, var(--ws-walnut-2), var(--ws-walnut)); }
+.workspace-nav-link.active, .portal-workspace .portal-nav-item.active { background: var(--ws-gold); color: var(--ws-walnut); font-weight: 600; }
+.workspace-nav-link.active svg, .portal-workspace .portal-nav-item.active svg { opacity: 1; }
+.workspace-portal-link { background: var(--ws-gold); color: var(--ws-walnut); font-weight: 600; }
+.workspace-topbar, .portal-workspace .portal-topbar { background: var(--ws-card); border-bottom: 2px solid var(--ws-gold); }
+.workspace-topbar { position: sticky; top: 0; z-index: 20; }
+.admin-workspace .portal-avatar, .portal-avatar { background: var(--ws-brown); color: #fff8eb; }
+
+/* Quiet text stays readable */
+.portal-footer, .portal-footer span, .workspace-footer, .workspace-footer span,
+.portal-breadcrumb > span:first-of-type, .portal-breadcrumb-divider, .portal-identity span,
+.workspace-breadcrumb a, .workspace-breadcrumb span, .workspace-topbar > a { color: var(--ws-muted); }
+.portal-workspace .portal-page-heading p, .portal-workspace .portal-org-filter > span, .portal-workspace .portal-date-tile > span,
+.portal-workspace .portal-row-main span, .portal-workspace .portal-property-location { color: var(--ws-muted); }
+.portal-workspace .portal-text-button { color: var(--ws-brown); }
+.portal-workspace .portal-revisions summary { color: var(--ws-muted); }
+.portal-org-type { padding: 2px 9px; border-radius: 11px; font-size: 12px; font-weight: 600; }
+.portal-org-type.company { background: var(--ws-gold-soft); color: var(--ws-gold-ink); }
+.portal-org-type.operator { background: var(--ws-teal-soft); color: var(--ws-teal); }
+.portal-create-choices a { background: var(--ws-card); border: 1px solid var(--ws-line); color: var(--ws-ink); }
+.portal-create-choices a:hover { background: var(--ws-gold-soft); border-color: var(--ws-gold); }
+.portal-create-choices a[aria-current="page"] { border-color: var(--ws-brown); box-shadow: inset 0 0 0 1px var(--ws-brown); }
+.portal-find kbd { opacity: 1; color: var(--ws-muted); }
+.portal-concierge .portal-eyebrow, .portal-concierge > span:last-child, .workspace-account { color: #d9cdbb; }
+
+/* Headings, cards, tables */
+.portal-workspace h1, .portal-workspace h2, .admin-workspace .admin-content h1 { color: var(--ws-brown); }
+.portal-eyebrow, .admin-workspace .workspace-context > span { color: var(--ws-gold-ink); font-size: 11px; }
+.portal-workspace .portal-panel, .portal-workspace .portal-section-card, .portal-workspace .portal-project-card,
+.admin-workspace .admin-content :is(.admin-form, .portal-panel, .upload-section, .images-grid-section, .testimonial-form-box, .media-card, .image-card, .partner-box, .testimonial-box, .admin-table-container, .admin-table, .brochure-editor-panel),
+.admin-collection-tools { background: var(--ws-card); border-color: var(--ws-line); box-shadow: 0 1px 3px #36241a14; }
+/* !important: older pages set their own header color in page-level styles. */
+.portal-tracker-table th, .admin-workspace .admin-content .admin-table th { background: var(--ws-brown) !important; color: #fff8eb !important; }
+.portal-tracker-table tbody tr:hover, .admin-workspace .admin-content .admin-table tr:hover td { background: var(--ws-gold-soft); }
+.admin-workspace .admin-content .admin-table { background: var(--ws-card); }
+/* :where keeps this weaker than any specific link style, such as the active tab. */
+.portal-main-shell :where(a:not(.portal-link):not(.portal-avatar):not(.portal-queue-row):not(.portal-project-open)) { color: var(--ws-brown); }
+.portal-sidebar .portal-website-link { color: #f1d7a5; }
+
+/* Buttons. The portal's primary buttons already use the brand brown. */
+.admin-workspace .admin-content :is(.btn, .btn-small) { background: var(--ws-brown); border-color: var(--ws-brown); color: #fff8eb; }
+.admin-workspace .admin-content :is(.btn, .btn-small):hover { background: var(--ws-brown-dark); border-color: var(--ws-brown-dark); }
+.portal-app button.secondary, .portal-app .portal-link.secondary, .admin-workspace .admin-content .btn-secondary { background: var(--ws-card); border-color: var(--ws-brown); color: var(--ws-brown); }
+.portal-app button.secondary:hover, .portal-app .portal-link.secondary:hover, .admin-workspace .admin-content .btn-secondary:hover { background: var(--ws-gold-soft); }
+.admin-workspace .admin-content .btn-danger { background: var(--ws-clay-soft); color: var(--ws-clay); border-color: var(--ws-clay); }
+
+/* Admin lists: tighter rows, actions on one line, chips for status */
+.admin-workspace .admin-content .admin-table td { padding: 11px 16px; }
+.admin-workspace .admin-content .admin-table th { padding: 11px 16px; }
+@media (min-width: 1100px) { .admin-workspace .admin-content .admin-table td:last-child { white-space: nowrap; width: 1%; min-width: 0; } .admin-workspace .admin-content .admin-table td:last-child > div { flex-wrap: nowrap !important; } .admin-workspace .admin-content .admin-table td:last-child :is(button, a) { flex-shrink: 0; white-space: nowrap; overflow-wrap: normal; } }
+.admin-chip { display: inline-block; padding: 2px 9px; border-radius: 11px; font-size: 12px; font-weight: 600; line-height: 1.4; }
+.admin-chip.good { background: var(--ws-sage-soft); color: var(--ws-sage); }
+.admin-chip.waiting { background: var(--ws-gold-soft); color: var(--ws-gold-ink); }
+.admin-map-preview { margin: 0 0 18px; padding: 12px 16px; background: var(--ws-card); border: 1px solid var(--ws-line); border-radius: 12px; }
+.admin-map-preview summary { cursor: pointer; font-weight: 600; color: var(--ws-brown); min-height: 28px; }
+.admin-map-preview[open] summary { margin-bottom: 12px; }
+
+/* Status: the same meaning uses the same color everywhere */
+.portal-waiting.client, .portal-status.needs { background: var(--ws-clay-soft); color: var(--ws-clay); }
+.portal-waiting.sbd, .portal-status.progress { background: var(--ws-teal-soft); color: var(--ws-teal); }
+.portal-waiting.none, .portal-status.complete { background: var(--ws-sage-soft); color: var(--ws-sage); }
+.portal-status.pending { background: var(--ws-gold-soft); color: var(--ws-gold-ink); }
+.portal-workspace .portal-status { font-size: 12px; font-weight: 600; border-radius: 12px; padding: 3px 10px; }
+.portal-steps-bar i { background: #e7dac2; }
+.portal-steps-bar i.done { background: var(--ws-brown); }
+.portal-steps-bar i.current { background: var(--ws-gold); }
+.portal-count { background: var(--ws-gold-soft); color: var(--ws-gold-ink); }
+
+/* Every project card carries a band in its owner's color */
+.portal-workspace .portal-project-card { border-top: 4px solid var(--ws-line); }
+.portal-workspace .portal-project-card:has(.portal-waiting.client) { border-top-color: var(--ws-clay); }
+.portal-workspace .portal-project-card:has(.portal-waiting.sbd) { border-top-color: var(--ws-teal); }
+.portal-workspace .portal-project-card:has(.portal-waiting.none) { border-top-color: var(--ws-sage); }
+.portal-queue.primary { border-color: var(--ws-clay); box-shadow: inset 4px 0 0 var(--ws-clay); }
+.portal-queue:not(.primary) { box-shadow: inset 4px 0 0 var(--ws-teal); }
+.portal-queue-cta { color: var(--ws-clay); }
+.portal-workspace .portal-next-action { background: var(--ws-teal-soft); border-color: #a9d1d1; }
+.portal-workspace .portal-next-action.owner-client { background: var(--ws-clay-soft); border-color: #e9b79c; }
+.portal-workspace .portal-next-action.owner-none { background: var(--ws-sage-soft); border-color: #b9d6b2; }
+.portal-workspace .portal-pipeline button strong { color: var(--ws-brown); }
+.portal-workspace .portal-pipeline button[aria-pressed="true"] strong { color: #fff8eb; }
+.portal-workspace .portal-project-tabs a.active { background: var(--ws-brown); border-color: var(--ws-brown); }
+.portal-workspace .portal-quick-field :is(select, input) { background: var(--ws-gold-soft); }
+
+/* Website workspace home */
+.admin-workspace [class*="statCard"] { background: var(--ws-card); border-color: var(--ws-line); border-top: 4px solid var(--ws-gold); }
+.admin-workspace [class*="statCard"] strong { color: var(--ws-brown); }
+.admin-workspace [class*="taskCard"] { background: var(--ws-card); border-color: var(--ws-line); }
+.admin-workspace [class*="taskCard"]:hover { background: var(--ws-gold-soft); border-color: var(--ws-gold); }
+.admin-workspace [class*="taskCard"] > span { color: var(--ws-clay); }
+.admin-workspace [class*="note"] { background: var(--ws-gold-soft); border-color: var(--ws-gold); }
+.admin-workspace [class*="welcome"] { margin-bottom: 20px; }
+.admin-portal-strip { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 14px 18px; margin: 0 0 22px; background: var(--ws-brown); color: #fff8eb; border-radius: 10px; }
+.admin-portal-strip strong { display: block; font: 500 22px/1.25 var(--font-heading), Georgia, serif; }
+.admin-portal-strip span { font-size: 13px; color: #f2dfbc; }
+.admin-portal-strip a { flex-shrink: 0; padding: 10px 16px; min-height: 44px; display: inline-flex; align-items: center; border-radius: 8px; background: var(--ws-gold); color: var(--ws-walnut); font-weight: 600; font-size: 13px; text-decoration: none; }
+.workspace-nav-search kbd, .portal-find kbd { font: 11px var(--font-body); padding: 1px 6px; border: 1px solid currentColor; border-radius: 4px; opacity: .65; }

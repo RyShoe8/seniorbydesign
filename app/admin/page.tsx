@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import styles from './page.module.css';
 import Link from 'next/link';
+import { projectAction } from '@/lib/portal/requests';
 
 interface DashboardStats {
   portfolio: number;
@@ -59,6 +60,22 @@ export default function AdminDashboard() {
     }
   };
 
+  // Staff with portal access see what's waiting there as soon as they sign in.
+  const [portalWork, setPortalWork] = useState<{ yours: number; clients: number } | null>(null);
+  useEffect(() => {
+    let live = true;
+    fetch('/api/portal/projects')
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (!live || !data?.projects) return;
+        const open = data.projects.filter((project: Parameters<typeof projectAction>[0] & { archived: boolean }) => !project.archived);
+        const owners = open.map((project: Parameters<typeof projectAction>[0]) => projectAction(project, true).owner);
+        setPortalWork({ yours: owners.filter((owner: string) => owner === 'sbd').length, clients: owners.filter((owner: string) => owner === 'client').length });
+      })
+      .catch(() => { /* The strip is optional; the rest of the page doesn't depend on it. */ });
+    return () => { live = false; };
+  }, []);
+
   const counts = [
     {key:'portfolio', label:'Portfolio categories', href:'/admin/portfolio'},
     {key:'services', label:'Services', href:'/admin/services'},
@@ -68,6 +85,7 @@ export default function AdminDashboard() {
   ] as const;
   return <div className="admin-dashboard">
     <div className={styles.welcome}><div><span className={styles.eyebrow}>THE SBD WORKSPACE</span><h1>A thoughtful space<br/>to manage your brand.</h1><p>Keep your stories, spaces, and people up to date.<br/>Everything you need is right here.</p></div><Link href="/admin/design-guide" className={styles.featureLink}><span>FEATURED WORKSPACE</span><h2>The digital brochure</h2><p>Shape the story, refine the details,<br/>and bring the SBD experience to life.</p><strong>Open brochure builder ↗</strong></Link></div>
+    {portalWork && <div className="admin-portal-strip"><div><strong>{portalWork.yours === 0 ? 'Client portal is all caught up' : `${portalWork.yours} client ${portalWork.yours === 1 ? 'project needs' : 'projects need'} your team`}</strong><span>{portalWork.clients} waiting on clients</span></div><a href="/portal">Open client portal →</a></div>}
     {error && <p role="alert">{error} <button className="btn-secondary" onClick={fetchStats}>Retry</button></p>}
     <div className={styles.sectionHeading}><h2>Your website at a glance</h2><span>Live content totals</span></div>
     <div className={styles.dashboardStats}>{counts.map(item => <Link href={item.href} className={styles.statCard} key={item.key}><span>{item.label}</span><strong>{isLoading || error ? '—' : stats[item.key]}</strong><small>Manage <span aria-hidden="true">↗</span></small></Link>)}</div>

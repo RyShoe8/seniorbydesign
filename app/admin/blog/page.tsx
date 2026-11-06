@@ -170,7 +170,10 @@ export default function BlogManagement() {
     );
   };
 
-  const visibleItems = posts.filter(post => matchesSearch(query, post.title, post.author, post.excerpt));
+  // Drafts are the work in progress, so they come first. Each group keeps its newest-first order.
+  const visibleItems = posts
+    .filter(post => matchesSearch(query, post.title, post.author, post.excerpt))
+    .sort((a, b) => Number(Boolean(a.publishedAt)) - Number(Boolean(b.publishedAt)));
 
   return (
     <div className="admin-page">
@@ -344,7 +347,7 @@ export default function BlogManagement() {
                 <tr>
                   <th>Title</th>
                   <th>Author</th>
-                  <th>Published</th>
+                  <th>Status</th>
                   <th>Date</th>
                   <th>Actions</th>
                 </tr>
@@ -361,7 +364,7 @@ export default function BlogManagement() {
                     <tr key={post._id}>
                       <td>{post.title}</td>
                       <td>{post.author}</td>
-                      <td>{post.publishedAt ? 'Yes' : 'No'}</td>
+                      <td><span className={`admin-chip ${post.publishedAt ? 'good' : 'waiting'}`}>{post.publishedAt ? 'Published' : 'Draft'}</span></td>
                       <td>
                         {post.publishedAt 
                           ? new Date(post.publishedAt).toLocaleDateString()
@@ -409,8 +412,8 @@ export default function BlogManagement() {
                       <span className="blog-card-value">{post.author}</span>
                     </div>
                     <div className="blog-card-field">
-                      <span className="blog-card-label">Published:</span>
-                      <span className="blog-card-value">{post.publishedAt ? 'Yes' : 'No'}</span>
+                      <span className="blog-card-label">Status:</span>
+                      <span className={`admin-chip ${post.publishedAt ? 'good' : 'waiting'}`}>{post.publishedAt ? 'Published' : 'Draft'}</span>
                     </div>
                     <div className="blog-card-field">
                       <span className="blog-card-label">Date:</span>

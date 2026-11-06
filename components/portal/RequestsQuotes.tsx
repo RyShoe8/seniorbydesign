@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 import type { Actor, Organization } from "@/lib/portal/types";
 
@@ -34,6 +34,24 @@ export function RequestPipeline({ projects, organizations, staff, mode = "reques
   const [step, setStep] = useState("");
   const [waiting, setWaiting] = useState("");
   const [type, setType] = useState(mode === "remodels" ? "Remodel" : "");
+  // Coming back from a project should land on the same filtered list.
+  const memory = `sbd-project-filters:${mode}`;
+  const [restored, setRestored] = useState(false);
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(memory) || "{}");
+      if (typeof saved.search === "string") setSearch(saved.search);
+      if (typeof saved.company === "string") setCompany(saved.company);
+      if (typeof saved.step === "string") setStep(saved.step);
+      if (typeof saved.waiting === "string") setWaiting(saved.waiting);
+      if (typeof saved.type === "string" && mode !== "remodels") setType(saved.type);
+    } catch { /* Filters are a convenience; start clear if they can't be read. */ }
+    setRestored(true);
+  }, [memory, mode]);
+  useEffect(() => {
+    if (!restored) return;
+    try { sessionStorage.setItem(memory, JSON.stringify({ search, company, step, waiting, type })); } catch { /* See above. */ }
+  }, [restored, memory, search, company, step, waiting, type]);
   const requests = mode === "requests", orders = mode === "orders";
   const name = (id: string) => organizations.find(o => o._id === id)?.name || "Company";
   const active = projects.filter(p => (!p.archived || (staff && mode === "projects" && showArchived)) && (mode !== "remodels" || p.request?.type === "Remodel"));
@@ -107,7 +125,7 @@ export function ProjectRequestsQuotes({ project, staff, actor, busy, workflow, e
 
       <div><dt>Quote reference</dt><dd>{project.scopes.map(scope => scope.quote).join(" · ") || request?.quoteReference || "Not started"}</dd></div>
       <div><dt>Quoted amount</dt><dd>{staff ? amount(request?.quotedAmount) : "Available upon request"}</dd></div>
-      <div><dt>Current phase</dt><dd>{projectPhase(project)}</dd></div>
+      <div><dt>Stage</dt><dd>{projectPhase(project)}</dd></div>
 
       <div><dt>Assigned to</dt><dd>{request?.assignedTo || "Unassigned"}</dd></div>
 

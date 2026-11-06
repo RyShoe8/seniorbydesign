@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { orderLabel, orderStages, orderStatusText, pipelineGroupIndex, pipelineGroups, projectAction, projectPhases, requestStages } from "@/lib/portal/requests";
 import { displayDate, type DisplayProject } from "./PortalWorkspace";
 
@@ -151,8 +152,8 @@ export function QuoteRows({ project, staff }: { project: DisplayProject; staff: 
   return (
     <section className="portal-quote-rows" aria-labelledby="quote-rows-title">
       <h3 id="quote-rows-title">Quote details</h3>
-      {rows.map((row) => (
-        <article key={row.rowId}>
+      {rows.map((row, index) => (
+        <article key={`${row.quote}-${index}`}>
           <h4>{row.name} <small>Quote {row.quote}</small></h4>
           <dl>
             <div><dt>Phase</dt><dd>{row.projectPhase || "Not recorded"}</dd></div>
@@ -166,5 +167,70 @@ export function QuoteRows({ project, staff }: { project: DisplayProject; staff: 
         </article>
       ))}
     </section>
+  );
+}
+
+/** Jump straight to any project from anywhere. Press / to start typing. */
+export function QuickFind({ projects, name }: { projects: DisplayProject[]; name: (id: string) => string }) {
+  const router = useRouter();
+  const input = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState("");
+  const [active, setActive] = useState(0);
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const focus = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey) return;
+      if (target && (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) || target.isContentEditable)) return;
+      event.preventDefault();
+      input.current?.focus();
+    };
+    document.addEventListener("keydown", focus);
+    return () => document.removeEventListener("keydown", focus);
+  }, []);
+  const term = query.trim().toLowerCase();
+  const results = term
+    ? projects.filter((p) => !p.archived && `${p.name} ${p.location} ${name(p.companyId)} ${p.scopes.map((s) => s.quote).join(" ")} ${p.request?.quoteReference || ""}`.toLowerCase().includes(term)).slice(0, 8)
+    : [];
+  const go = (project: DisplayProject) => {
+    setQuery(""); setOpen(false); input.current?.blur();
+    router.push(`/portal/projects/${encodeURIComponent(project._id)}?from=projects`);
+  };
+  return (
+    <div className="portal-find" role="search">
+      <input
+        ref={input}
+        type="search"
+        aria-label="Find a project"
+        placeholder="Find a project…"
+        value={query}
+        role="combobox"
+        aria-expanded={open && results.length > 0}
+        aria-controls="portal-find-results"
+        aria-activedescendant={open && results[active] ? `portal-find-${results[active]._id}` : undefined}
+        onChange={(event) => { setQuery(event.target.value); setActive(0); setOpen(true); }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") { setQuery(""); setOpen(false); event.currentTarget.blur(); }
+          else if (event.key === "ArrowDown") { event.preventDefault(); setActive(Math.min(active + 1, results.length - 1)); }
+          else if (event.key === "ArrowUp") { event.preventDefault(); setActive(Math.max(active - 1, 0)); }
+          else if (event.key === "Enter" && results[active]) { event.preventDefault(); go(results[active]); }
+        }}
+      />
+      {!query && <kbd aria-hidden="true">/</kbd>}
+      {open && term && (
+        <ul id="portal-find-results" role="listbox" className="portal-find-results">
+          {results.map((project, index) => (
+            <li key={project._id} id={`portal-find-${project._id}`} role="option" aria-selected={index === active}>
+              <button type="button" className={`portal-find-result ${index === active ? "active" : ""}`} tabIndex={-1} onMouseDown={(event) => event.preventDefault()} onClick={() => go(project)}>
+                <strong>{project.name}</strong><span>{name(project.companyId)} · {project.location}</span>
+              </button>
+            </li>
+          ))}
+          {!results.length && <li className="portal-find-empty">No matching projects</li>}
+        </ul>
+      )}
+    </div>
   );
 }

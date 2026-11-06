@@ -276,10 +276,8 @@ export default function AdminSignaturePage() {
     <div className={styles.page}>
       <h1>Email signature</h1>
       <p className={styles.lead}>
-        Admins save organization branding (logo, studios, design center, social links, layout) once;
-        it loads from the server for every signed-in user. Name, title, email, and phones are filled in
-        locally in this browser only and are not stored—each person enters their own, then copies the HTML
-        for Gmail or Outlook.
+        Enter your details, copy your signature, and paste it into Gmail or Outlook. What you type here
+        isn&apos;t saved. The logo and company details are already set for you.
       </p>
 
       {settingsError && (
@@ -292,9 +290,45 @@ export default function AdminSignaturePage() {
       )}
 
       <div className={styles.grid}>
-        {isAdmin ? (
-          <section className={styles.card}>
-            <h2>Brand &amp; template</h2>
+        <section className={styles.card}>
+          <h2>1. Your details</h2>
+          <SignatureForm value={profile} onChange={setProfile} />
+          {!canCopy && !isSettingsLoading && (
+            <p className={styles.muted}>Enter your first name, last name, and email to copy your signature.</p>
+          )}
+          {isSettingsLoading && (
+            <p className={styles.muted}>Enter your details after settings finish loading.</p>
+          )}
+        </section>
+
+        <section className={`${styles.card} ${styles.previewSection}`}>
+          <h2>2. Copy your signature</h2>
+          {isSettingsLoading ? (
+            <p className={styles.muted}>Loading preview…</p>
+          ) : (
+            <SignaturePreview html={html} animationKey={previewKey} />
+          )}
+          <div className={styles.row}>
+            <CopyButton html={html} disabled={!canCopy} />
+          </div>
+          <div className={styles.hint}>
+            <p>
+              <strong>How to paste:</strong> Use <strong>Copy signature</strong>, then open Gmail
+              → Settings → General → Signature, or Outlook → File → Options → Mail → Signatures,
+              and paste. Outlook may show only the first frame of an animated GIF; design that
+              frame to look good on its own. The light fade you see here is only in this admin
+              preview, not in the copied HTML.
+            </p>
+          </div>
+        </section>
+
+        {isAdmin && (
+          <details className={`${styles.card} ${styles.brandPanel}`}>
+            <summary>
+              <strong>Organization branding</strong>
+              <span>Administrators only. Changes apply to everyone&apos;s signature once saved.</span>
+            </summary>
+            <div className={styles.brandBody}>
             {isSettingsLoading && <p className={styles.muted}>Loading saved settings…</p>}
             {lastUpdated && !isSettingsLoading && (
               <p className={styles.muted}>
@@ -443,7 +477,9 @@ export default function AdminSignaturePage() {
                   maxWidth: '100%',
                 }}
               />
-              <div style={{ marginTop: '0.35rem', fontSize: '12px', color: '#666', maxWidth: '560px' }}>
+              <details className={styles.helpDetails}>
+                <summary>Logo URL rules</summary>
+                <div>
                 Use a full <code style={{ fontSize: '11px' }}>https://…</code> URL that opens in a private
                 window (Outlook and Mail cannot use site-relative paths like{' '}
                 <code style={{ fontSize: '11px' }}>/images/…</code>). For best Outlook reliability, host the
@@ -455,7 +491,8 @@ export default function AdminSignaturePage() {
                 <code style={{ fontSize: '11px' }}>/api/image-proxy</code> URLs, short links, and redirect
                 URLs (for example <code style={{ fontSize: '11px' }}>bit.ly</code>). PNG or GIF only — no
                 SVG/WebP, and avoid spaces or query strings in the path.
-              </div>
+                </div>
+              </details>
             </label>
 
             <label style={{ display: 'block', marginBottom: '0.75rem', fontSize: '14px' }}>
@@ -485,13 +522,16 @@ export default function AdminSignaturePage() {
                   maxWidth: '160px',
                 }}
               />
-              <div style={{ marginTop: '0.35rem', fontSize: '12px', color: '#666', maxWidth: '560px' }}>
+              <details className={styles.helpDetails}>
+                <summary>When to set this</summary>
+                <div>
                 Optional. Leave blank so the logo keeps its natural proportions at 110px wide (best for Gmail
                 and Apple Mail). If{' '}
                 <strong style={{ fontWeight: 600 }}>Outlook for Windows</strong> shows a clipped or stretched
                 logo while other apps look fine, measure the image height at 110px width and enter that number
                 here, then copy the signature again.
-              </div>
+                </div>
+              </details>
             </label>
 
             <label style={{ display: 'block', marginBottom: '0.75rem', fontSize: '14px' }}>
@@ -663,49 +703,9 @@ export default function AdminSignaturePage() {
                 {isSaving ? 'Saving…' : 'Save organization signature'}
               </button>
             </div>
-          </section>
-        ) : (
-          <section className={styles.card}>
-            <h2>Brand &amp; template</h2>
-            {isSettingsLoading && <p className={styles.muted}>Loading organization settings…</p>}
-            <p className={styles.notice}>
-              Only administrators can change organization branding. The preview below uses the saved
-              organization settings.
-            </p>
-          </section>
+            </div>
+          </details>
         )}
-
-        <section className={styles.card}>
-          <h2>Your signature</h2>
-          <SignatureForm value={profile} onChange={setProfile} />
-          {!canCopy && !isSettingsLoading && (
-            <p className={styles.error}>Enter first name, last name, and email to enable copying.</p>
-          )}
-          {isSettingsLoading && (
-            <p className={styles.muted}>Enter your details after settings finish loading.</p>
-          )}
-        </section>
-
-        <section className={`${styles.card} ${styles.previewSection}`}>
-          <h2>Preview</h2>
-          {isSettingsLoading ? (
-            <p className={styles.muted}>Loading preview…</p>
-          ) : (
-            <SignaturePreview html={html} animationKey={previewKey} />
-          )}
-          <div className={styles.row}>
-            <CopyButton html={html} disabled={!canCopy} />
-          </div>
-          <div className={styles.hint}>
-            <p>
-              <strong>How to paste:</strong> Use <strong>Copy signature</strong>, then open Gmail
-              → Settings → General → Signature, or Outlook → File → Options → Mail → Signatures,
-              and paste. Outlook may show only the first frame of an animated GIF; design that
-              frame to look good on its own. The light fade you see here is only in this admin
-              preview, not in the copied HTML.
-            </p>
-          </div>
-        </section>
       </div>
     </div>
   );

@@ -14,6 +14,7 @@ interface Project {
 
 export default function ProjectMapManagement() {
   const notify = useAdminFeedback();
+  const [showMap, setShowMap] = useState(false);
   const [query, setQuery] = useState('');
   const [saving, setSaving] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -267,10 +268,10 @@ export default function ProjectMapManagement() {
       ) : (
         <>
           {projects.length > 0 && (
-            <div style={{ marginBottom: 'var(--spacing-lg)' }}>
-              <h2 style={{ marginBottom: 'var(--spacing-md)' }}>Project Map Preview</h2>
-              <PortfolioMap projects={visibleItems.map(p => ({ ...p, _id: p._id?.toString() }))} />
-            </div>
+            <details className="admin-map-preview" onToggle={(event) => setShowMap(event.currentTarget.open)}>
+              <summary>Preview the map ({visibleItems.length} locations)</summary>
+              {showMap && <PortfolioMap projects={visibleItems.map(p => ({ ...p, _id: p._id?.toString() }))} />}
+            </details>
           )}
           <div className="admin-table-container">
             <table className="admin-table admin-table-desktop">
@@ -278,7 +279,7 @@ export default function ProjectMapManagement() {
                 <tr>
                   <th>Project Name</th>
                   <th>ZIP Code</th>
-                  <th>Coordinates</th>
+                  <th>Map status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -289,11 +290,9 @@ export default function ProjectMapManagement() {
                     <td>{project.zipCode}</td>
                     <td>
                       {project.latitude && project.longitude ? (
-                        <span style={{ fontSize: '12px', color: 'var(--warm-grey-3)' }}>
-                          {project.latitude.toFixed(4)}, {project.longitude.toFixed(4)}
-                        </span>
+                        <span className="admin-chip good" title={`${project.latitude.toFixed(4)}, ${project.longitude.toFixed(4)}`}>On the map</span>
                       ) : (
-                        <span style={{ fontSize: '12px', color: '#dc3545' }}>Not geocoded</span>
+                        <span className="admin-chip waiting">Not on the map</span>
                       )}
                     </td>
                     <td>
@@ -303,15 +302,13 @@ export default function ProjectMapManagement() {
                           <>
                             <button 
                               onClick={() => project._id && handleClearGeocode(project._id)} 
-                              className="btn-small"
-                              style={{ backgroundColor: '#ffc107', color: '#000' }}
+                              className="btn-small btn-secondary"
                             >
                               Clear Geocode
                             </button>
                             <button 
                               onClick={() => project._id && handleRegeocode(project._id)} 
-                              className="btn-small"
-                              style={{ backgroundColor: '#17a2b8', color: '#fff' }}
+                              className="btn-small btn-secondary"
                             >
                               Re-geocode
                             </button>
@@ -320,7 +317,6 @@ export default function ProjectMapManagement() {
                           <button 
                             onClick={() => project._id && handleRegeocode(project._id)} 
                             className="btn-small"
-                            style={{ backgroundColor: '#28a745', color: '#fff' }}
                           >
                             Geocode
                           </button>
@@ -349,13 +345,11 @@ export default function ProjectMapManagement() {
                     <span className="project-card-value">{project.zipCode}</span>
                   </div>
                   <div className="project-card-field">
-                    <span className="project-card-label">Coordinates:</span>
+                    <span className="project-card-label">Map status:</span>
                     {project.latitude && project.longitude ? (
-                      <span className="project-card-value" style={{ fontSize: '14px', color: 'var(--warm-grey-3)' }}>
-                        {project.latitude.toFixed(4)}, {project.longitude.toFixed(4)}
-                      </span>
+                      <span className="admin-chip good">On the map</span>
                     ) : (
-                      <span className="project-card-value" style={{ fontSize: '14px', color: '#dc3545' }}>Not geocoded</span>
+                      <span className="admin-chip waiting">Not on the map</span>
                     )}
                   </div>
                 </div>
@@ -365,15 +359,13 @@ export default function ProjectMapManagement() {
                     <>
                       <button 
                         onClick={() => project._id && handleClearGeocode(project._id)} 
-                        className="btn btn-small"
-                        style={{ backgroundColor: '#ffc107', color: '#000' }}
+                        className="btn btn-small btn-secondary"
                       >
                         Clear Geocode
                       </button>
                       <button 
                         onClick={() => project._id && handleRegeocode(project._id)} 
-                        className="btn btn-small"
-                        style={{ backgroundColor: '#17a2b8', color: '#fff' }}
+                        className="btn btn-small btn-secondary"
                       >
                         Re-geocode
                       </button>
@@ -382,7 +374,6 @@ export default function ProjectMapManagement() {
                     <button 
                       onClick={() => project._id && handleRegeocode(project._id)} 
                       className="btn btn-small"
-                      style={{ backgroundColor: '#28a745', color: '#fff' }}
                     >
                       Geocode
                     </button>

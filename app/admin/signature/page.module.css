@@ -148,3 +148,48 @@
 
 .card {min-width:0;}
 @media(max-width:1100px){.grid{grid-template-columns:1fr;}}
+/* Details and Copy side by side, so nobody scrolls between typing and copying. */
+@media(min-width:1101px){.previewSection{grid-column:auto;position:sticky;top:84px;}}
+.previewSection{min-width:0;overflow-x:auto;}
+
+/* Most people only need their own details, so branding stays closed until wanted. */
+.brandPanel {
+  grid-column: 1 / -1;
+}
+
+.brandPanel > summary {
+  display: grid;
+  gap: 2px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.brandPanel > summary strong {
+  font-size: 16px;
+  color: #593825;
+}
+
+.brandPanel > summary span {
+  font-size: 13px;
+  color: #66563f;
+}
+
+.brandBody {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2d3b8;
+  max-width: 720px;
+}
+
+.helpDetails {
+  margin-top: 0.35rem;
+  font-size: 12px;
+  color: #66563f;
+  max-width: 560px;
+}
+
+.helpDetails > summary {
+  cursor: pointer;
+  min-height: 24px;
+  color: #593825;
+}

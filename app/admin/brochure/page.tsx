@@ -174,7 +174,7 @@ export default function BrochureManagement() {
   const [isSaving, setIsSaving] = useState(false);
   const [isChartLoading, setIsChartLoading] = useState(false);
   const [chartError, setChartError] = useState('');
-  const [datePreset, setDatePreset] = useState<'today' | '7' | '30' | '90' | 'ytd' | 'custom'>('today');
+  const [datePreset, setDatePreset] = useState<'today' | '7' | '30' | '90' | 'ytd' | 'custom'>('30');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [chartData, setChartData] = useState<{ labels: string[]; digital: number[]; physical: number[] }>({

@@ -36,7 +36,7 @@ export function ProjectOperations({ project, section, staff, canManage, busy, wo
     <h2>{payment ? "Payment" : "Order & Install"}</h2>
     <dl className="portal-request-summary">
       <div><dt>{payment ? "Payment status" : "Order status"}</dt><dd><StatusBadge value={payment ? paymentStatusText(project) : orderStatusText(project)} /></dd></div>
-      <div><dt>Current phase</dt><dd>{projectPhase(project)}</dd></div>
+      <div><dt>Stage</dt><dd>{projectPhase(project)}</dd></div>
       <div><dt>{payment ? "Approval status" : "Anticipated installation"}</dt><dd>{payment ? approvalState(project) : displayDate(project.install)}</dd></div>
       <div><dt>SBD owner</dt><dd>{project.request?.assignedTo || "Unassigned"}</dd></div>
     </dl>

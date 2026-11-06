@@ -5,6 +5,7 @@ import { signIn, signOut } from "next-auth/react";
 import PasswordInput from "./PasswordInput";
 import "./portal.css";
 import "./portal-work.css";
+import "@/components/brand/workspace-theme.css";
 export default function AccountForm({
   mode,
 }: {
@@ -127,9 +128,7 @@ export default function AccountForm({
           )}
           {mode !== "reset" && (
             <label>
-              {mode === "login"
-                ? "Password"
-                : "New password (new accounts and password resets)"}
+              {mode === "login" ? "Password" : mode === "accept" ? "Choose a password (at least 12 characters)" : "New password (at least 12 characters)"}
               <PasswordInput
                 autoComplete={
                   mode === "login" ? "current-password" : "new-password"
@@ -148,12 +147,18 @@ export default function AccountForm({
             </p>
           )}
           <button disabled={busy}>
-            {busy ? "Please wait…" : mode === "login" ? "Sign in" : "Continue"}
+            {busy ? "Please wait…" : { login: "Sign in", reset: "Send reset link", accept: invitation ? "Accept invitation" : "Save new password", change: "Change password" }[mode]}
           </button>
         </form>
         <div className="portal-actions">
-          <a href="/account/login">Sign in</a>
-          <a href="/account/reset">Forgot password?</a>
+          {mode === "change" ? (
+            <button type="button" className="secondary" onClick={() => history.back()}>Back</button>
+          ) : (
+            <>
+              {mode !== "login" && <a href="/account/login">Back to sign in</a>}
+              {mode !== "reset" && <a href="/account/reset">Forgot password?</a>}
+            </>
+          )}
         </div>
       </div>
     </div>

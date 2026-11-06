@@ -13,9 +13,36 @@ import { ProjectEditor } from "./ProjectEditor";
 import OrganizationDirectory from "./OrganizationDirectory";
 import SmartsheetPanel from "./SmartsheetPanel";
 import { QuoteRows } from "./ProjectWork";
+import Link from "next/link";
+
+const ACTIVITY_LABELS: Record<string, string> = {
+  "project-created": "Project created",
+  "project-updated": "Project updated",
+  "smartsheet-sync": "Updated from Smartsheet",
+  import: "Imported",
+  approve: "Quote approved",
+  "request-changes": "Changes requested",
+  reopen: "Quote reopened for review",
+  "add-quote": "Quote added",
+  "add-quote-document": "Quote document attached",
+  "bind-quote": "Revised quote published",
+  "submit-request": "Request submitted",
+  "update-request": "Request updated",
+  status: "Status changed",
+  "operator-authority": "Operator approval changed",
+  "report-payment": "Payment reported",
+  "report-delivery": "Delivery reported",
+  "delivery-issue": "Delivery issue reported",
+  "request-install": "Installation date requested",
+  "resolve-report": "Report answered",
+};
+const activityLabel = (action: string) => {
+  const words = action.replaceAll("-", " ");
+  return ACTIVITY_LABELS[action] || words.charAt(0).toUpperCase() + words.slice(1);
+};
 import { ApprovalQueue } from "./PortalDirectories";
 import { ProjectProgress, ProjectOperations } from "./ProjectWorkflow";
-import { projectInstall, projectPhase } from "@/lib/portal/requests";
+import { needsDecision, needsRevision, projectAction, projectInstall, projectPhase } from "@/lib/portal/requests";
 import { signOut } from "next-auth/react";
 import type {
   Actor,
@@ -25,6 +52,7 @@ import type {
 } from "@/lib/portal/types";
 import "./portal.css";
 import "./portal-work.css";
+import "@/components/brand/workspace-theme.css";
 type ViewProject = DisplayProject;
 type Preview = {
   id: string;
@@ -336,11 +364,17 @@ export default function PortalApp({
       navigate={navigate}
       signOut={() => signOut({ callbackUrl: "/account/login" })}
       staff={staff}
+      projects={projects}
+      name={name}
+      badges={{
+        overview: projects.filter((p) => !p.archived && projectAction(p, staff).owner === (staff ? "sbd" : "client")).length,
+        approvals: projects.filter((p) => !p.archived && (staff ? needsRevision(p) : needsDecision(p))).length,
+      }}
     >
       {(["create", "organizations", "smartsheet"].includes(tab) || (tab === "members" && canAccessAccountTeam)) && (
         <div className="portal-page-heading">
           <div>
-            <span className="portal-eyebrow">WORKSPACE MANAGEMENT</span>
+            {staff && <span className="portal-eyebrow">WORKSPACE MANAGEMENT</span>}
             <h1>{navigation.find((n) => n[0] === tab)?.[1]}</h1>
             <p>
               {tab === "create"
@@ -356,17 +390,18 @@ export default function PortalApp({
       )}
       {staff && tab === "smartsheet" && <SmartsheetPanel admin={actor?.role === "admin"} />}
       {staff && tab === "create" && (
-        <section className="portal-panel">
-          <div className="portal-actions">
-            <button className={createKind === "project" ? "" : "secondary"} onClick={() => router.push("/portal/create/project")}>New project</button>
-            <button className={createKind === "company" ? "" : "secondary"} onClick={() => router.push("/portal/create/company")}>New company</button>
-          </div>
-          <h2>How would you like to create your {createKind === "company" ? "company" : "project"}?</h2>
-          <div className="portal-actions">
-            <button onClick={() => router.push(`/portal/create/${createKind}/scratch`)}>Create from scratch</button>
-            <button className="secondary" onClick={() => router.push(`/portal/create/${createKind}/import`)}>Import JSON</button>
-          </div>
-        </section>
+        <nav className="portal-create-choices" aria-label="What to add">
+          {[
+            ["project", "scratch", "New project", "Add a community and its request by hand."],
+            ["project", "import", "Import projects", "Upload a JSON file and review it first."],
+            ["company", "scratch", "New company or operator", "Add an organization to invite people into."],
+            ["company", "import", "Import a company", "Upload a JSON file with its name."],
+          ].map(([kind, method, label, detail]) => (
+            <Link key={label} href={`/portal/create/${kind}/${method}`} aria-current={createKind === kind && createMethod === method ? "page" : undefined}>
+              <strong>{label}</strong><span>{detail}</span>
+            </Link>
+          ))}
+        </nav>
       )}
       {staff && tab === "create" && createKind === "project" && createMethod === "scratch" && <section className="portal-panel"><h2>New Remodel / Project Request</h2><p>Add the community, request details, workflow, and contact information.</p><ProjectEditor organizations={organizations} onSaved={projectSaved} buttonLabel="Create project" /></section>}
       {staff && tab === "create" && createKind === "company" && createMethod === "import" && (
@@ -415,7 +450,7 @@ export default function PortalApp({
       {loading && <p>Loading your workspace…</p>}
       {!loading && org && ["projects", "remodels", "requests", "approvals", "orders"].includes(tab) && <p className="portal-alert" role="status">Viewing {name(org)} · {scopedProjects.filter(p => !p.archived).length} projects <button className="secondary" onClick={() => changeOrganization("")}>View all organizations</button></p>}
       {!loading && !selected && ["requests", "orders", "projects", "remodels"].includes(tab) && <RequestPipeline key={tab} mode={tab as "requests" | "orders" | "projects" | "remodels"} projects={scopedProjects} organizations={organizations} organizationId={org} staff={staff} onSaved={projectSaved} onChanged={load} />}
-      {!loading && tab === "approvals" && <ApprovalQueue projects={scopedProjects} organizations={organizations} organizationId={org} />}
+      {!loading && tab === "approvals" && <ApprovalQueue projects={scopedProjects} organizations={organizations} organizationId={org} staff={staff} />}
 
       {!loading &&
         !project && !selected &&
@@ -454,7 +489,7 @@ export default function PortalApp({
           </div>
           <ProjectProgress project={project} staff={staff} showTimeline={false} />
           <nav className="portal-detail-nav portal-project-tabs" aria-label="Project sections">
-            {[["overview", "Overview"], ["quotes", "Quote"], ["approvals", "Approvals"], ["presentation", "Presentation"], ["payment", "Payment"], ["orders", "Order & install"], ["documents", "Documents"], ["contacts", "Contacts"], ["activity", "History"]].map(([key, label]) => <a key={key} href={`#${key}`} aria-current={detailSection === key ? "page" : undefined} className={detailSection === key ? "active" : ""} onClick={e => { e.preventDefault(); setDetailSection(key); window.history.pushState(null, "", `#${key}`); }}>{label}</a>)}
+            {[["overview", "Overview"], ["quotes", "Quote"], ["approvals", "Approvals"], ["presentation", "Presentation"], ["payment", "Payment"], ["orders", "Order & install"], ["documents", "Documents"], ["contacts", "Contacts"], ["activity", "History"]].map(([key, label]) => <a key={key} href={`#${key}`} aria-current={detailSection === key ? "page" : undefined} className={detailSection === key ? "active" : ""} onClick={e => { e.preventDefault(); setDetailSection(key); window.history.pushState(null, "", `#${key}`); }}>{label}{key === "approvals" && (staff ? needsRevision(project) : needsDecision(project)) && <span className="portal-tab-dot"><span className="portal-sr-only"> (action needed)</span></span>}{key === "documents" && project.documents.filter(d => !d.historical).length > 0 && <span className="portal-tab-count">{project.documents.filter(d => !d.historical).length}</span>}</a>)}
           </nav>
           <div hidden={detailSection !== "overview"}>
           <div className="portal-panel portal-project-context">
@@ -465,7 +500,7 @@ export default function PortalApp({
               <div><dt>Operator</dt><dd>{name(project.operatorId)}</dd></div>
               <div><dt>Project type</dt><dd>{project.request?.type || "Not recorded"}</dd></div>
               <div><dt>Project manager</dt><dd>{project.request?.assignedTo || "Unassigned"}</dd></div>
-              <div><dt>Current phase</dt><dd>{projectPhase(project)}</dd></div>
+              <div><dt>Stage</dt><dd>{projectPhase(project)}</dd></div>
               <div><dt>Estimated installation</dt><dd>{displayDate(projectInstall(project))}</dd></div>
             </dl>
             <QuoteRows project={project} staff={staff} />
@@ -555,10 +590,10 @@ export default function PortalApp({
             {events.map((e) => (
               <div className="portal-row" key={e._id}>
                 <div>
-                  <strong>{e.action.replaceAll("-", " ")}</strong>
+                  <strong>{activityLabel(e.action)}</strong>
                   <p>{e.note}</p>
                   <small>
-                    {e.email} · {new Date(e.at).toLocaleString()}
+                    {e.email} · {new Date(e.at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
                     {e.resolution ? ` · ${e.resolution}` : ""}
                   </small>
                 </div>
@@ -892,16 +927,20 @@ export default function PortalApp({
               );
             }}
           >
-            <label>
-              Organization
-              <select name="organization" required>
-                {manageable.map((o) => (
-                  <option key={o._id} value={o._id}>
-                    {o.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            {manageable.length === 1 ? (
+              <input type="hidden" name="organization" value={manageable[0]._id} />
+            ) : (
+              <label>
+                Organization
+                <select name="organization" required>
+                  {manageable.map((o) => (
+                    <option key={o._id} value={o._id}>
+                      {o.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             <label>
               Email
               <input name="email" type="email" required />
@@ -909,27 +948,30 @@ export default function PortalApp({
             <label>
               Access
               <select name="role">
-                <option value="member">Member</option>
-                <option value="admin">Account admin</option>
+                <option value="member">Team member: can view projects and documents</option>
+                <option value="admin">Account administrator: can also approve quotes and invite people</option>
               </select>
             </label>
-            <p className="portal-muted">
-              The first SBD invitation to an organization grants account-admin
-              access.
-            </p>
+            {staff && (
+              <p className="portal-muted">
+                The first SBD invitation to an organization grants account-admin
+                access.
+              </p>
+            )}
             <button disabled={busy}>Send invitation</button>
           </form>
           <h2>Members</h2>
           {members.map((m) => (
             <div className="portal-row" key={m._id}>
               <div>
-                {m.email}
+                <strong>{m.fullName || m.email}</strong>{m.userId === actor?.id ? " (you)" : ""}
                 <p className="portal-muted">
-                  {name(m.organizationId)} · {m.role} ·{" "}
-                  {m.active ? "Active" : "Disabled"}
+                  {m.fullName ? `${m.email} · ` : ""}{manageable.length > 1 ? `${name(m.organizationId)} · ` : ""}
+                  {m.role === "admin" ? "Account administrator" : "Team member"}
+                  {m.active ? "" : " · Disabled"}
                 </p>
               </div>
-              <div className="portal-actions">
+              {m.userId !== actor?.id && <div className="portal-actions">
                 <button
                   className="secondary"
                   disabled={busy}
@@ -945,7 +987,7 @@ export default function PortalApp({
                     )
                   }
                 >
-                  {m.role === "admin" ? "Make member" : "Make admin"}
+                  {m.role === "admin" ? "Make team member" : "Make administrator"}
                 </button>
                 <button
                   className="secondary"
@@ -964,7 +1006,7 @@ export default function PortalApp({
                 >
                   {m.active ? "Disable" : "Restore"}
                 </button>
-              </div>
+              </div>}
             </div>
           ))}
           {invitations.length > 0 && <h2>Invitations</h2>}

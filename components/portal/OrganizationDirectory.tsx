@@ -2,12 +2,11 @@
 import { useState } from "react";
 import type { Organization, Membership, Project } from "@/lib/portal/types";
 type Invitation = { email: string; organizationId: string; role?: string; delivery: string; expiresAt: string };
-export default function OrganizationDirectory({ organizations, members, invitations, projects, staff, busy, manage, send }: { organizations: Organization[]; members: Membership[]; invitations: Invitation[]; projects: Pick<Project, "companyId" | "request">[]; staff: boolean; busy: boolean; manage: (id: string) => boolean; send: (data: unknown) => void }) {
+export default function OrganizationDirectory({ organizations, members, invitations, projects, staff, busy, manage, send }: { organizations: Organization[]; members: Membership[]; invitations: Invitation[]; projects: Pick<Project, "companyId" | "operatorId" | "request">[]; staff: boolean; busy: boolean; manage: (id: string) => boolean; send: (data: unknown) => void }) {
   const [query, setQuery] = useState("");
   const term = query.trim().toLowerCase();
   const includes = (...values: (string | undefined)[]) => values.join(" ").toLowerCase().includes(term);
   return <section>
-    <h1>Companies &amp; operators</h1>
     <label className="portal-directory-search">Search companies, operators, and people<input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Name, email, phone, position, or organization…" /></label>
     {!organizations.length && <p>No companies or operators are assigned yet.</p>}
     {organizations.map(o => {
@@ -19,7 +18,7 @@ export default function OrganizationDirectory({ organizations, members, invitati
       const matchingContacts = contacts.filter(c => orgMatch || includes(c.contactName, c.contactEmail));
       if (!orgMatch && !matching.length && !matchingContacts.length && !pending.some(i => includes(i.email))) return null;
       return <details className="portal-panel portal-organization" key={o._id} open={term ? true : undefined}>
-        <summary><strong>{o.name}</strong><span>{o.type} · {people.length} people{o.active ? "" : " · Inactive"}</span></summary>
+        <summary><strong>{o.name}</strong><span className={`portal-org-type ${o.type}`}>{o.type === "company" ? "Company" : "Operator"}</span><span>{projects.filter(p => p.companyId === o._id || p.operatorId === o._id).length} projects · {people.length} {people.length === 1 ? "person" : "people"}{pending.length ? ` · ${pending.length} invited` : ""}{o.active ? "" : " · Inactive"}</span></summary>
         <div className="portal-actions"><a href={`/portal/projects?organization=${encodeURIComponent(o._id)}`}>View projects</a>{staff && <button className="secondary" disabled={busy} onClick={() => { const name = prompt("Organization name", o.name); if (name) send({ action: "rename", organizationId: o._id, name }); }}>Edit name</button>}</div>
         <h2>People</h2>
         {!matching.length && !matchingContacts.length && <p>No people match this search.</p>}

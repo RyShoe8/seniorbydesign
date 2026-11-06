@@ -119,6 +119,14 @@ export function projectInstall(project: Pick<Project, "install"> & { sheetQuoteR
   if (project.install) return project.install;
   return (project.sheetQuoteRows || []).map((row) => row.install).filter((date): date is string => Boolean(date)).sort()[0] || null;
 }
+/** A current quote is ready and waiting for the client's decision. */
+export function needsDecision(project: WorkflowProject) {
+  return currentScopes(project).some((scope) => scope.approval !== "Approved" && !scope.changesRequested && quoteReady(project, scope));
+}
+/** The client asked for changes, so SBD owes a revised quote. */
+export function needsRevision(project: Pick<Project, "scopes" | "request">) {
+  return currentScopes(project).some((scope) => scope.changesRequested);
+}
 export function orderStatusText(project: Pick<Project, "order" | "orderDetail">) {
   return orderLabel(project) === "Awaiting Confirmation" ? "Order confirmation pending" : orderLabel(project);
 }

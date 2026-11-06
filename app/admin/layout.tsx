@@ -10,6 +10,7 @@ import { adminSections } from "@/components/admin/navigation";
 import { AdminFeedback } from "@/components/admin/AdminTools";
 import "./admin.css";
 import "@/components/admin/workspace-brand.css";
+import "@/components/brand/workspace-theme.css";
 
 export default function AdminLayout({children}: {children: React.ReactNode}) {
   const {data: session, status} = useSession();
@@ -20,7 +21,20 @@ export default function AdminLayout({children}: {children: React.ReactNode}) {
   const [query, setQuery] = useState('');
   const current = adminSections.flatMap(s => s.items).filter(i => pathname === i.href || (i.href !== '/admin' && pathname.startsWith(i.href + '/'))).at(-1);
   useEffect(() => { if(status === 'unauthenticated' && pathname !== '/admin/login') router.replace('/admin/login'); }, [status, pathname, router]);
-  useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => { setOpen(false); setQuery(''); }, [pathname]);
+  // Press / to jump to a section from anywhere that isn't a form field.
+  const search = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const focus = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey) return;
+      if (target && (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable)) return;
+      event.preventDefault();
+      search.current?.focus();
+    };
+    document.addEventListener('keydown', focus);
+    return () => document.removeEventListener('keydown', focus);
+  }, []);
   useEffect(() => {
     if(open) menu.current?.showModal(); else menu.current?.close();
     if(!open) return;
@@ -33,12 +47,18 @@ export default function AdminLayout({children}: {children: React.ReactNode}) {
   const navigation = <>
     <Link className="workspace-brand" href="/admin" aria-label="Senior By Design workspace overview"><Image src="/images/sbd-logo-no-tagline.png" alt="" width={94} height={104} /><span>SOUL WARMING INTERIORS</span></Link>
     <div className="workspace-label">WEBSITE WORKSPACE</div>
-    <label className="workspace-nav-search"><span className="sr-only">Find a section</span><input type="search" placeholder="Find a section…" value={query} onChange={e => setQuery(e.target.value)} /></label>
+    <label className="workspace-nav-search"><span className="sr-only">Find a section</span><input ref={search} type="search" placeholder="Find a section… ( / )" value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => {
+      if (e.key === 'Escape') { setQuery(''); return; }
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const first = adminSections.flatMap(s => s.items).find(i => (i.href !== '/admin/users' || session.user?.role === 'admin') && (i.label + ' ' + i.description).toLowerCase().includes(query.toLowerCase()));
+      if (first && query.trim()) router.push(first.href);
+    }} /></label>
     <nav aria-label="Site management">{adminSections.map(section => {
       const items = section.items.filter(i => (i.href !== '/admin/users' || session.user?.role === 'admin') && (i.label + ' ' + i.description).toLowerCase().includes(query.toLowerCase()));
       return items.length > 0 && <div className="workspace-nav-group" key={section.label}><p>{section.label}</p>{items.map(item => <Link key={item.href} href={item.href} className={`workspace-nav-link ${current?.href === item.href ? 'active' : ''}`} aria-current={current?.href === item.href ? 'page' : undefined} onClick={() => setOpen(false)}><PortalIcon name={item.icon} size={19} />{item.label}</Link>)}</div>;
     })}</nav>
-    <div className="workspace-sidebar-footer">{canAccessPortalPreview(session.user) && <a className="workspace-portal-link" href="https://clients.seniorbydesign.com/portal" target="_blank" rel="noopener noreferrer">Client portal <span aria-hidden="true">↗</span></a>}<span className="workspace-account">{session.user?.email}</span><button className="workspace-signout" onClick={() => signOut({callbackUrl:'/admin/login'})}>Sign out</button></div>
+    <div className="workspace-sidebar-footer">{canAccessPortalPreview(session.user) && <a className="workspace-portal-link" href="/portal">Client portal <span aria-hidden="true">→</span></a>}<span className="workspace-account">{session.user?.email}</span><button className="workspace-signout" onClick={() => signOut({callbackUrl:'/admin/login'})}>Sign out</button></div>
   </>;
   return <AdminFeedback><div className="admin-workspace">
     <a className="workspace-skip" href="#admin-content">Skip to content</a>

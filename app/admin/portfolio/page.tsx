@@ -363,7 +363,7 @@ export default function PortfolioManagement() {
                     <td>{category.name}</td>
                     <td>{category.slug}</td>
                     <td>{category.order || 0}</td>
-                    <td>{category.images?.length || 0}</td>
+                    <td>{category.images?.length || 0}{(() => { const missing = (category.images || []).filter((image: { altText?: string }) => !image.altText?.trim()).length; return missing > 0 ? <> <span className="admin-chip waiting">{missing} need descriptions</span></> : null; })()}</td>
                     <td>
                       <button 
                         onClick={() => category._id && router.push(`/admin/portfolio/${category._id}/images`)} 

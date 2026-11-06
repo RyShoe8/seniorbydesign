@@ -33,7 +33,7 @@ export function SignatureForm({ value, onChange, disabled }: Props) {
 
   return (
     <fieldset disabled={disabled} style={{ border: 'none', padding: 0, margin: 0 }}>
-      <legend style={labelStyle}>Your details</legend>
+      <legend style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clipPath: 'inset(50%)' }}>Your details</legend>
       <label style={labelStyle}>
         First name
         <input

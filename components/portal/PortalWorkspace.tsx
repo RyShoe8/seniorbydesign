@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { projectAction, projectInstall, orderStatusText, paymentStatusText } from "@/lib/portal/requests";
-import { ProjectSteps, WaitingBadge, WorkQueue } from "./ProjectWork";
+import { ProjectSteps, QuickFind, WaitingBadge, WorkQueue } from "./ProjectWork";
 import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { Project, Organization, SheetQuoteRow } from "@/lib/portal/types";
@@ -148,7 +148,15 @@ export function PortalShell({
   navigate,
   signOut,
   staff,
+  projects = [],
+  name = (id: string) => id,
+  badges = {},
 }: {
+  /** For the find box. */
+  projects?: DisplayProject[];
+  name?: (id: string) => string;
+  /** Counts of waiting work, by navigation key. */
+  badges?: Record<string, number>;
   children: ReactNode;
   tab: string;
   title: string;
@@ -202,6 +210,7 @@ export function PortalShell({
             >
               <PortalIcon name={key === "requests" ? "approvals" : key === "remodels" ? "projects" : key === "contacts" ? "members" : key === "smartsheet" ? "sync" : key} />
               <span>{label}</span>
+              {badges[key] > 0 && <span className="portal-nav-badge"><span className="portal-sr-only">, waiting: </span>{badges[key]}</span>}
             </Link>
           ))}
         </nav>
@@ -243,6 +252,7 @@ export function PortalShell({
             <span className="portal-breadcrumb-divider">/</span>
             <strong>{title}</strong>
           </div>
+          <QuickFind projects={projects} name={name} />
           <div className="portal-identity">
             <div>
               <strong>{organization}</strong>
@@ -357,7 +367,7 @@ export function PortalPortfolio({
           <h1>{title}</h1>
           <p>{description}</p>
         </div>
-        {organizations.length > 1 && <label className="portal-org-filter">
+        {staff && organizations.length > 1 && <label className="portal-org-filter">
           <span>Viewing</span>
           <select
             aria-label="Filter by organization"
