@@ -133,7 +133,6 @@ export default function PortalApp({
       role: string;
       delivery: string;
       expiresAt: string;
-      revoked?: boolean;
     }[]
   >([]);
   const staff = actor?.role === "admin" || actor?.role === "team";
@@ -968,16 +967,12 @@ export default function PortalApp({
               </div>
             </div>
           ))}
-          <h2>Invitations</h2>
+          {invitations.length > 0 && <h2>Invitations</h2>}
           {invitations.map((i, n) => (
             <div className="portal-row" key={n}>
               <span>
                 {i.email} · {name(i.organizationId)} ·{" "}
-                {i.revoked
-                  ? "Revoked"
-                  : new Date(i.expiresAt) < new Date()
-                    ? "Expired"
-                    : i.delivery}
+                {new Date(i.expiresAt) < new Date() ? "Expired" : i.delivery}
               </span>
               <div className="portal-actions">
                 <button

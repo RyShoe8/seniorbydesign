@@ -47,6 +47,7 @@ export async function GET() {
         kind: "invite",
         organizationId: { $in: manageable.map((o) => o._id) },
         usedAt: { $exists: false },
+        revoked: { $ne: true },
       })
       .project({
         _id: 0,
@@ -55,7 +56,6 @@ export async function GET() {
         role: 1,
         delivery: 1,
         expiresAt: 1,
-        revoked: 1,
       })
       .toArray();
     const users = await (await getUsersCollection()).find({ _id: { $in: members.map(m => m.userId).filter(ObjectId.isValid).map(id => new ObjectId(id)) } }).project({ fullName: 1, position: 1, phone: 1 }).toArray();
@@ -136,7 +136,7 @@ export async function POST(request: Request) {
         organizationId: id,
         role,
         createdBy: actor.id,
-      });
+      }, isStaff(actor) ? undefined : actor.email);
       return json({ success: true });
     }
     if (data.action === "membership") {

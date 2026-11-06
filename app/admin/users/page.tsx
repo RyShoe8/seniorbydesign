@@ -12,7 +12,6 @@ export default function StaffAccess() {
       {
         email: string;
         delivery: string;
-        revoked?: boolean;
         expiresAt: string;
       }[]
     >([]),
@@ -109,16 +108,12 @@ export default function StaffAccess() {
       </section>
       <section className="portal-panel">
         <h2>Invitations</h2>
-        {invites.length === 0 && <p className="admin-empty">No invitations yet. Invite a team member using the form above.</p>}
+        {invites.length === 0 && <p className="admin-empty">No open invitations. Invite a team member using the form above.</p>}
         {invites.map((i, n) => (
           <div className="portal-row" key={n}>
             <span>
               {i.email} ·{" "}
-              {i.revoked
-                ? "Revoked"
-                : new Date(i.expiresAt) < new Date()
-                  ? "Expired"
-                  : i.delivery}
+              {new Date(i.expiresAt) < new Date() ? "Expired" : i.delivery}
             </span>
             <div className="portal-actions">
               <button disabled={busy} onClick={() => send({ email: i.email })}>

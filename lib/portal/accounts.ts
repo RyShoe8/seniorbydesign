@@ -14,6 +14,7 @@ import {
 } from "./policy";
 import { canAccessPortalPreview } from "./access";
 import { accountOrigin } from "./origins";
+import { renderAccountEmail, type AccountEmail } from "./email";
 import type { Actor, MembershipRole } from "./types";
 
 interface AccountToken {
@@ -70,12 +71,17 @@ export async function issueToken(
     AccountToken,
     "kind" | "createdBy" | "organizationId" | "role" | "staff"
   >,
+  /** Shown in the email as who sent the invitation. */
+  invitedBy?: string,
 ) {
   // Resolve the link first: a configuration problem must not revoke a working invitation.
   const origin = accountOrigin(options.staff ? "staff" : "client");
   if (!origin)
     throw new PortalError("Account email origin is not configured", 503);
-  const { db } = await collections();
+  const { db, organizations } = await collections();
+  // Read before any token changes, so a missing organization cannot revoke a working invitation.
+  const organization = options.organizationId ? await organizations.findOne({ _id: options.organizationId }) : null;
+  if (options.organizationId && !organization) throw new PortalError("Organization not found", 404);
   const raw = randomBytes(32).toString("hex");
   const token: AccountToken = {
     _id: hash(raw),
@@ -100,17 +106,15 @@ export async function issueToken(
   await tokens.insertOne(token);
   const url = new URL("/account/accept", origin);
   url.hash = raw;
-  const subject =
-    options.kind === "invite"
-      ? "Your Senior By Design invitation"
-      : "Reset your Senior By Design password";
+  const message: AccountEmail =
+    options.kind === "reset"
+      ? { kind: "reset" }
+      : organization
+        ? { kind: "client-invite", organization: organization.name, organizationType: organization.type, role: options.role || "member", invitedBy }
+        : { kind: "staff-invite", invitedBy };
+  const { subject, html, text: plain } = renderAccountEmail(message, url.href, origin);
   try {
-    await sendTransactionalEmail(
-      [{ email }],
-      subject,
-      `<p>${subject}</p><p><a href="${url.href}">Continue securely</a></p><p>This personal link expires and can be used once. If unexpected, ignore this email.</p>`,
-      `${subject}\n${url.href}`,
-    );
+    await sendTransactionalEmail([{ email }], subject, html, plain);
     await tokens.updateOne({ _id: token._id }, { $set: { delivery: "sent" } });
   } catch {
     await tokens.updateOne(

@@ -25,8 +25,8 @@ export async function GET() {
     const { db } = await collections();
     const invitations = await db
       .collection("accountTokens")
-      .find({ kind: "invite", staff: true, usedAt: { $exists: false } })
-      .project({ _id: 0, email: 1, delivery: 1, expiresAt: 1, revoked: 1 })
+      .find({ kind: "invite", staff: true, usedAt: { $exists: false }, revoked: { $ne: true } })
+      .project({ _id: 0, email: 1, delivery: 1, expiresAt: 1 })
       .toArray();
     return json({
       users: users.map((u) => ({
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
         kind: "invite",
         staff: true,
         createdBy: actor.id,
-      });
+      }, actor.email);
     return json({ success: true });
   } catch (error) {
     return failure(error);
