@@ -13,6 +13,7 @@ import {
   staffRole,
 } from "./policy";
 import { canAccessPortalPreview } from "./access";
+import { accountOrigin } from "./origins";
 import type { Actor, MembershipRole } from "./types";
 
 interface AccountToken {
@@ -70,6 +71,10 @@ export async function issueToken(
     "kind" | "createdBy" | "organizationId" | "role" | "staff"
   >,
 ) {
+  // Resolve the link first: a configuration problem must not revoke a working invitation.
+  const origin = accountOrigin(options.staff ? "staff" : "client");
+  if (!origin)
+    throw new PortalError("Account email origin is not configured", 503);
   const { db } = await collections();
   const raw = randomBytes(32).toString("hex");
   const token: AccountToken = {
@@ -93,16 +98,6 @@ export async function issueToken(
     { $set: { revoked: true } },
   );
   await tokens.insertOne(token);
-  const origin = options.staff
-    ? (process.env.SBD_ADMIN_ORIGIN || process.env.NEXTAUTH_URL)
-    : (process.env.SBD_PORTAL_ORIGIN || process.env.NEXTAUTH_URL);
-  if (!origin) {
-    await tokens.updateOne(
-      { _id: token._id },
-      { $set: { delivery: "failed" } },
-    );
-    throw new PortalError("Account email origin is not configured", 503);
-  }
   const url = new URL("/account/accept", origin);
   url.hash = raw;
   const subject =

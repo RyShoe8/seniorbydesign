@@ -6,6 +6,60 @@ This implementation is new code; the supplied patch was not applied. The origina
 
 Use a separate preview database/cluster and controlled inboxes. The current database helper uses the database name `seniorbydesign`, so isolate preview through a separate MongoDB URI/cluster, not an unimplemented database-name variable. Transactions require a replica set or MongoDB Atlas; standalone MongoDB is unsupported and must not be used for commits or account acceptance.
 
+## Smartsheet sync
+
+Staff manage it at `/portal/smartsheet`, which shows the column mapping, a preview that changes nothing, and any rows needing attention.
+
+Settings:
+
+- `SMARTSHEET_ACCESS_TOKEN`: connects the sheet. Without it, the sync is off and the portal works normally.
+- `SMARTSHEET_WRITES_ENABLED=true`: lets the portal write to the sheet. Until it is set, changes only flow from the sheet into the portal.
+- `SMARTSHEET_SHEET_ID` (optional): the numeric sheet id. By default the sheet is found from its link.
+
+How it behaves:
+
+- A row joins the portal when `Portal Visible` is ticked on the "Active Projects" sheet: its fields are ingested and the project is created or linked. Section headings and totals rows have no Owner Group, so they never join. Several jobs can share a community, so an existing project is linked only on a single exact name-and-owner match.
+- The cell stays ticked. Unticking it later hides the project from clients without deleting it, and ticking it again brings it back.
+- After that, changes reach the other side field by field. Live updates need "Turn on live updates" on the Smartsheet page.
+- An Owner Group new to the portal gets a company and an operator of the same name, with the code prefix removed.
+- New portal projects are not added to the sheet. It is organized into sections, and only people should decide where a row goes.
+
+| Portal field | Smartsheet column | Direction |
+| --- | --- | --- |
+| Project name | Community Name | Both ways |
+| Portal summary | Portal Summary | Both ways |
+| Project phase | Project Phase | Both ways |
+| Install date | SBD install week | Both ways |
+| Approved budget (staff only) | Approved Budget | Both ways |
+| Quote number | Quote No | Both ways |
+| Client contact | Client Contact | Both ways |
+| Current stage, payment, status | Status | From sheet |
+| Company and operator | Owner Group | From sheet |
+| Location | City, State | From sheet |
+| Address | Address | From sheet |
+| Project type | Project Type | From sheet |
+| SBD owner | Assigned to | From sheet |
+| Date requested | Date Requested | From sheet |
+| SBD notes (staff only) | Notes | From sheet |
+| Hidden from clients | Portal Visible (unticked) | From sheet |
+
+Every other column appears read-only for staff under "All Smartsheet details" on each project. The field map and the Status table are in `lib/smartsheet/mapping.ts`.
+
+`Status` is from-sheet because it drives automations on the sheet, which a portal edit must not set off.
+
+Sheet data is protected:
+
+- The client can only read and update existing cells. It has no call that adds or deletes rows, columns or sheets, and a test enforces this.
+- Blank values are never written, so clearing a portal field leaves the cell alone.
+- A newly linked row keeps its sheet values. The portal only fills cells that are empty.
+- If a field changes on both sides, the sheet's value is kept and the row is flagged.
+- Deleting a row only unlinks its project. Formula cells and locked columns are never written.
+- Quote approvals and documents stay in the portal only, because they are revision-bound client decisions.
+
+Test the sync without contacting Smartsheet: `node --test tests/portal.smartsheet.local.cjs`.
+
+## Settings
+
 Required settings: `MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `SBD_ADMIN_ORIGIN`, `SBD_PORTAL_ORIGIN`, `BREVO_API_KEY`, and the existing Brevo sender settings. For production, the origins are `https://seniorbydesign.com` and `https://clients.seniorbydesign.com`.
 
 Use two deployments of this codebase with the same production database and identity data, but canonical `NEXTAUTH_URL` per host and host-only cookies. This avoids relying on one NextAuth 4 canonical URL for two origins. Staff access stays on the main site; the client host redirects `/` to `/portal`. Local preview can use one localhost origin for both settings. Configure DNS/TLS on Vercel before live use. No deployment or DNS change has been performed.

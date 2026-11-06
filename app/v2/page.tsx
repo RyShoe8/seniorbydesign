@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import SeoImage from "@/components/v2/SeoImage";
 import Link from "@/components/v2/PreviewLink";
 import NewsletterCTA from "@/components/v2/NewsletterCTA";
 import TestimonialsCarousel from "@/components/v2/TestimonialsCarousel";
@@ -29,8 +28,28 @@ import {
   HOME_HUB_SECTION_HEADING,
 } from "@/lib/home-seo";
 import { HUB_LINKS } from "@/lib/internal-links";
-import { heroAlt, STATIC_IMAGES } from "@/lib/image-seo";
+import { formatImageAlt, heroAlt, STATIC_IMAGES } from "@/lib/image-seo";
+import HeroCarousel, { type HeroSlide } from "@/components/v2/HeroCarousel";
 import styles from "./page.module.css";
+
+const HERO_SLIDES: HeroSlide[] = [
+  { src: STATIC_IMAGES.portfolioHero, alt: heroAlt("portfolio-index"), position: "55% center" },
+  { src: STATIC_IMAGES.newsletterHero, alt: heroAlt("newsletter") },
+  {
+    src: STATIC_IMAGES.blogHero,
+    alt: formatImageAlt({
+      description: "senior living game room and bar with custom lighting and artwork",
+      designType: "senior living interior design",
+    }),
+  },
+  {
+    src: STATIC_IMAGES.firmHero,
+    alt: formatImageAlt({
+      description: "senior living gallery hall with grand piano and patterned tile niches",
+      designType: "senior living interior design",
+    }),
+  },
+];
 
 export const metadata: Metadata = generateSEOMetadata({
   title: HOME_TITLE,
@@ -86,13 +105,7 @@ export default async function Home() {
           </span>
         </div>
         <div className="sbd-home-hero-photo">
-          <SeoImage
-            src={STATIC_IMAGES.portfolioHero}
-            alt={heroAlt("portfolio-index")}
-            fill
-            priority
-            sizes="(max-width: 760px) 100vw, 55vw"
-          />
+          <HeroCarousel slides={HERO_SLIDES} sizes="(max-width: 760px) 100vw, 55vw" />
           <span>THE ART OF FEELING AT HOME</span>
         </div>
       </section>

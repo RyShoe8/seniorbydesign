@@ -16,6 +16,7 @@ import {
 import { requestStages, requestTypes, presentationStages } from "@/lib/portal/requests";
 import { operationalFields } from "@/lib/portal/project-fields";
 import type { WorkflowEvent } from "@/lib/portal/types";
+import { pushProjectSafely } from "@/lib/smartsheet/sync";
 export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   try {
@@ -351,6 +352,7 @@ export async function POST(request: Request) {
       );
       return { success: true };
     });
+    await pushProjectSafely(id);
     return json(result);
   } catch (error) {
     return failure(error);

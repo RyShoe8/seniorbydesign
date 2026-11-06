@@ -1,7 +1,9 @@
 import type { Project } from "./types";
 // SBD's prototype defines these phases independently of approval/payment status.
 export const requestStages = ["New Request", "Scoping", "Quote in Progress", "Quote Sent", "Presentation", "Awaiting Approval", "Awaiting Deposit", "Ordering", "Procurement", "Installation Planning", "Installed", "Closed"] as const;
-export const requestTypes = ["Remodel", "Model", "New Development"] as const;
+export const requestTypes = ["Remodel", "Model", "New Development", "Finish Board", "Sales Office", "FFE Presentation", "Other"] as const;
+/** The sheet's Project Phase dropdown, word for word. */
+export const projectPhases = ["1. Site Visit & Planning", "2. Concept Design", "3. Schematic Design", "4. Design Dev", "5. Contract Doc", "6. In Pricing", "7. Const Admin", "8. Procurement", "9. Project Closeout", "10. Completed"] as const;
 export const presentationStages = ["Not started", "Draft", "In preparation", "Draft in review", "In review", "Presented", "Approved"] as const;
 export function quoteReady(project: { documents: { id: string; category: string; historical: boolean }[] }, scope: Project["scopes"][number]) {
   return Boolean(scope.revisionConfirmed && scope.documentId && project.documents.some(d => d.id === scope.documentId && d.category === "Quotes" && !d.historical));
@@ -72,6 +74,41 @@ export function nextProjectStep(project: WorkflowProject) {
   if (phase === "Awaiting Deposit") return { label: "Review deposit and payment details", section: "payment" };
   if (["Ordering", "Procurement", "Installation Planning"].includes(phase)) return { label: "Check order progress and installation timing", section: "orders" };
   return { label: "Review project completion and activity", section: "activity" };
+}
+export type WaitingOn = "sbd" | "client" | "none";
+const CLIENT_PHASES = ["Quote Sent", "Presentation", "Awaiting Approval", "Awaiting Deposit"];
+/** Who holds the next move, in the words each audience needs. */
+export function projectAction(project: WorkflowProject, staff: boolean): { owner: WaitingOn; label: string; cta: string; section: string } {
+  const scopes = currentScopes(project);
+  const phase = project.request?.stage;
+  const says = (owner: WaitingOn, section: string, forStaff: string, forClient: string, cta: string) =>
+    ({ owner, section, cta, label: staff ? forStaff : forClient });
+  if (scopes.some(s => s.changesRequested)) return says("sbd", "approvals", "Revise the quote: the client asked for changes", "SBD is revising the quote you commented on", staff ? "Revise quote" : "See quote");
+  if (scopes.some(s => s.approval !== "Approved" && quoteReady(project, s))) return says("client", "approvals", "Waiting for the client to approve the quote", "Please review and approve your quote", staff ? "See quote" : "Review quote");
+  if (scopes.some(s => s.approval !== "Approved")) return says("sbd", "quotes", "Confirm the quote document so the client can approve it", "SBD is finalizing your quote", staff ? "Confirm document" : "See quote");
+  if (!phase) return says("sbd", "overview", "Set the project's stage", "SBD is reviewing this project", "Open project");
+  if (["Installed", "Closed"].includes(phase)) return says("none", "activity", "Complete. Nothing is needed", "Complete. Nothing is needed from you", "See history");
+  if (CLIENT_PHASES.includes(phase)) {
+    if (phase === "Awaiting Deposit") return says("client", "payment", "Waiting for the client's deposit", "Your deposit is the next step", "See payment");
+    if (phase === "Presentation") return says("client", "presentation", "Waiting for the client to review the presentation", "Please review your design presentation", staff ? "See presentation" : "Review presentation");
+    return says("client", "approvals", "Waiting for the client to review the quote", "Please review your quote", staff ? "See quote" : "Review quote");
+  }
+  if (["New Request", "Scoping", "Quote in Progress"].includes(phase)) return says("sbd", "quotes", "Prepare the scope and quote", "SBD is preparing your quote", staff ? "Work on quote" : "See request");
+  return says("sbd", "orders", phase === "Installation Planning" ? "Schedule the installation" : "Keep orders moving and confirm the install date", phase === "Installation Planning" ? "SBD is planning your installation" : "SBD is ordering your furnishings", staff ? "Update order" : "See progress");
+}
+
+/** The six stages of a project, used everywhere a project's progress is shown or filtered. */
+export const pipelineGroups = [
+  { id: "request", label: "Request", stages: ["New Request", "Scoping"] },
+  { id: "quote", label: "Quote & design", stages: ["Quote in Progress", "Quote Sent", "Presentation"] },
+  { id: "approval", label: "Approval", stages: ["Awaiting Approval"] },
+  { id: "payment", label: "Deposit", stages: ["Awaiting Deposit"] },
+  { id: "orders", label: "Ordering", stages: ["Ordering", "Procurement"] },
+  { id: "install", label: "Install", stages: ["Installation Planning", "Installed", "Closed"] },
+] as const;
+export function pipelineGroupIndex(project: Pick<Project, "request">) {
+  const stage = project.request?.stage;
+  return stage ? pipelineGroups.findIndex(group => (group.stages as readonly string[]).includes(stage)) : -1;
 }
 export function orderStatusText(project: Pick<Project, "order" | "orderDetail">) {
   return orderLabel(project) === "Awaiting Confirmation" ? "Order confirmation pending" : orderLabel(project);

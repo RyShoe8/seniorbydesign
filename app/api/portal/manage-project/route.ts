@@ -2,8 +2,9 @@ import { randomUUID } from "crypto";
 import { collections, transaction } from "@/lib/portal/db";
 import { body, failure, json, requirePortalActor } from "@/lib/portal/server";
 import { PortalError, text } from "@/lib/portal/policy";
-import { requestFields, operationalFields } from "@/lib/portal/project-fields";
+import { requestFields, operationalFields, quickUpdate } from "@/lib/portal/project-fields";
 import type { Project } from "@/lib/portal/types";
+import { pushProjectSafely } from "@/lib/smartsheet/sync";
 export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   try {
@@ -39,7 +40,25 @@ export async function POST(request: Request) {
         await c.events.insertOne({ _id: randomUUID(), projectId: id, action: "project-created",
           actorId: actor.id, email: actor.email, at: new Date(), note: "Project created", before: null, after: project }, { session });
       });
+      await pushProjectSafely(id);
       return json({ id });
+    }
+    if (data.action === "quick-update") {
+      const id = text(data.id, "Project ID");
+      const updated = await transaction(async (session) => {
+        const p = await c.projects.findOne({ _id: id }, { session });
+        if (!p) throw new PortalError("Project not found", 404);
+        if (p.version !== data.version) throw new PortalError("Someone just changed this project. The list has been refreshed; please try again.", 409);
+        const before = structuredClone(p);
+        const note = quickUpdate(p, data.field, data.value, actor.role === "admin");
+        p.version++;
+        p.updatedAt = new Date();
+        await c.projects.replaceOne({ _id: p._id }, p, { session });
+        await c.events.insertOne({ _id: randomUUID(), projectId: p._id, action: "project-updated", actorId: actor.id, email: actor.email, at: new Date(), note, before, after: p }, { session });
+        return p.version;
+      });
+      await pushProjectSafely(id);
+      return json({ success: true, version: updated });
     }
     await transaction(async (session) => {
       const p = await c.projects.findOne(
@@ -91,6 +110,7 @@ export async function POST(request: Request) {
         { session },
       );
     });
+    await pushProjectSafely(String(data.id));
     return json({ success: true, id: data.id });
   } catch (error) {
     return failure(error);

@@ -10,6 +10,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ProjectRequestsQuotes, RequestPipeline } from "./RequestsQuotes";
 import { ProjectEditor } from "./ProjectEditor";
 import OrganizationDirectory from "./OrganizationDirectory";
+import SmartsheetPanel from "./SmartsheetPanel";
 import { ApprovalQueue } from "./PortalDirectories";
 import { ProjectProgress, ProjectOperations } from "./ProjectWorkflow";
 import { projectPhase, orderLabel } from "@/lib/portal/requests";
@@ -21,8 +22,10 @@ import type {
   Project,
 } from "@/lib/portal/types";
 import "./portal.css";
-type ViewProject = Omit<Project, "documents"> & {
+import "./portal-work.css";
+type ViewProject = Omit<Project, "documents" | "smartsheet"> & {
   documents: Omit<Project["documents"][number], "url">[];
+  smartsheetDetails?: Record<string, string>;
 };
 type Preview = {
   id: string;
@@ -299,6 +302,7 @@ export default function PortalApp({
       ? [
 
           ["create", "Add / import"],
+          ["smartsheet", "Smartsheet sync"],
         ]
       : []),
     ...(canAccessAccountTeam ? [["members", "Account team"]] : []),
@@ -335,7 +339,7 @@ export default function PortalApp({
       signOut={() => signOut({ callbackUrl: "/account/login" })}
       staff={staff}
     >
-      {(["create", "organizations"].includes(tab) || (tab === "members" && canAccessAccountTeam)) && (
+      {(["create", "organizations", "smartsheet"].includes(tab) || (tab === "members" && canAccessAccountTeam)) && (
         <div className="portal-page-heading">
           <div>
             <span className="portal-eyebrow">WORKSPACE MANAGEMENT</span>
@@ -343,6 +347,8 @@ export default function PortalApp({
             <p>
               {tab === "create"
                 ? "Create a project or company from scratch, or import JSON."
+                : tab === "smartsheet"
+                  ? "Keep project details in step between this portal and Smartsheet."
                 : tab === "members"
                   ? "The right people, connected to the right projects."
                   : "Browse the companies and operators connected to your projects."}
@@ -350,6 +356,7 @@ export default function PortalApp({
           </div>
         </div>
       )}
+      {staff && tab === "smartsheet" && <SmartsheetPanel admin={actor?.role === "admin"} />}
       {staff && tab === "create" && (
         <section className="portal-panel">
           <div className="portal-actions">
@@ -409,7 +416,7 @@ export default function PortalApp({
       )}
       {loading && <p>Loading your workspace…</p>}
       {!loading && org && ["projects", "remodels", "requests", "approvals", "orders"].includes(tab) && <p className="portal-alert" role="status">Viewing {name(org)} · {scopedProjects.filter(p => !p.archived).length} projects <button className="secondary" onClick={() => changeOrganization("")}>View all organizations</button></p>}
-      {!loading && !selected && ["requests", "orders", "projects", "remodels"].includes(tab) && <RequestPipeline key={tab} mode={tab as "requests" | "orders" | "projects" | "remodels"} projects={scopedProjects} organizations={organizations} organizationId={org} staff={staff} onSaved={projectSaved} />}
+      {!loading && !selected && ["requests", "orders", "projects", "remodels"].includes(tab) && <RequestPipeline key={tab} mode={tab as "requests" | "orders" | "projects" | "remodels"} projects={scopedProjects} organizations={organizations} organizationId={org} staff={staff} onSaved={projectSaved} onChanged={load} />}
       {!loading && tab === "approvals" && <ApprovalQueue projects={scopedProjects} organizations={organizations} organizationId={org} />}
 
       {!loading &&
@@ -437,22 +444,19 @@ export default function PortalApp({
       {!loading && selected && !project && <div className="portal-panel"><h2>Project unavailable</h2><p>This project could not be found or you do not have access.</p><button onClick={() => navigate("projects")}>Back to projects</button></div>}
       {project && tab === "projects" && (
         <div className="portal-project-detail">
-          <button className="secondary" onClick={() => navigate(detailOrigin)}>
-            ← Back to tracker
+          <button className="portal-text-button portal-back" onClick={() => navigate(detailOrigin)}>
+            ← All projects
           </button>
-          <div className="portal-page-heading portal-detail-heading portal-tracker-hero">
+          <div className="portal-work-heading portal-detail-title">
             <div>
-              <span className="portal-eyebrow">
-                {name(project.companyId)} · {project.location}
-              </span>
               <h1>{project.name}</h1>
               <p>{name(project.companyId)} · {project.location} · {project.request?.type || "Project"}</p>
             </div>
+            {staff && <ProjectEditor project={project} organizations={organizations} onSaved={projectSaved} />}
           </div>
-          <ProjectProgress project={project} showTimeline={false} />
-          <div className="portal-project-edit-action"><span>Order: <StatusBadge value={orderLabel(project) === "Awaiting Confirmation" ? "Order confirmation pending" : orderLabel(project)} /></span>{staff && <ProjectEditor project={project} organizations={organizations} onSaved={projectSaved} />}</div>
+          <ProjectProgress project={project} staff={staff} showTimeline={false} />
           <nav className="portal-detail-nav portal-project-tabs" aria-label="Project sections">
-            {[["overview", "Overview"], ["quotes", "Request & Quote"], ["presentation", "Presentation"], ["approvals", "Approvals"], ["payment", "Payment"], ["orders", "Order & Install"], ["contacts", "Contacts"], ["documents", "Documents"], ["activity", "Activity"]].map(([key, label]) => <a key={key} href={`#${key}`} aria-current={detailSection === key ? "page" : undefined} className={detailSection === key ? "active" : ""} onClick={e => { e.preventDefault(); setDetailSection(key); window.history.pushState(null, "", `#${key}`); }}>{label}</a>)}
+            {[["overview", "Overview"], ["quotes", "Quote"], ["approvals", "Approvals"], ["presentation", "Presentation"], ["payment", "Payment"], ["orders", "Order & install"], ["documents", "Documents"], ["contacts", "Contacts"], ["activity", "History"]].map(([key, label]) => <a key={key} href={`#${key}`} aria-current={detailSection === key ? "page" : undefined} className={detailSection === key ? "active" : ""} onClick={e => { e.preventDefault(); setDetailSection(key); window.history.pushState(null, "", `#${key}`); }}>{label}</a>)}
           </nav>
           <div hidden={detailSection !== "overview"}>
           <div className="portal-panel portal-project-context">
@@ -467,6 +471,8 @@ export default function PortalApp({
               <div><dt>Estimated installation</dt><dd>{displayDate(project.install)}</dd></div>
             </dl>
             <p className="portal-project-reference">Project ID: <span>{project.sourceId}</span></p>
+            {staff && project.request?.internalNotes && <div className="portal-internal-notes"><h3>SBD notes <small>Staff only</small></h3><p>{project.request.internalNotes}</p></div>}
+            {staff && project.smartsheetDetails && <details className="portal-sheet-details"><summary>All Smartsheet details ({Object.keys(project.smartsheetDetails).length})</summary><dl>{Object.entries(project.smartsheetDetails).map(([title, value]) => <div key={title}><dt>{title}</dt><dd>{value}</dd></div>)}</dl></details>}
             <ProjectProgress project={project} showStats={false} />
           </div>
           </div>

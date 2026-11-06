@@ -29,6 +29,29 @@ test("SBD tracker structure matches the example's tables and Details routing", (
   assert.match(html, /Client contact/);
   assert.match(html, /Progress estimate/);
 });
+test("staff change stage, order and install in the row; projects show who holds the next move", () => {
+  const html = render(RequestPipeline, { projects: [project], organizations, staff: true, mode: "projects", onSaved() {} });
+  assert.match(html, /aria-label="Stage for Community A"/);
+  assert.match(html, /aria-label="Order status for Community A"/);
+  assert.match(html, /aria-label="Install date for Community A"/);
+  assert.match(html, /With client/);
+  assert.match(html, /Waiting for the client to approve the quote/);
+});
+test("overview opens with what each audience must do, and never asks a client to review an unready quote", () => {
+  const { WorkQueue } = require("../components/portal/ProjectWork.tsx");
+  const name = id => id;
+  const client = render(WorkQueue, { projects: [project], staff: false, name });
+  assert.match(client, /What we need from you/);
+  assert.match(client, /Review quote/);
+  assert.match(client, /#approvals/);
+  const unready = { ...project, scopes: [{ ...project.scopes[0], revisionConfirmed: false }] };
+  const notYet = render(WorkQueue, { projects: [unready], staff: false, name });
+  assert.match(notYet, /SBD is finalizing your quote/);
+  assert.doesNotMatch(notYet, /Review quote/);
+  const staff = render(WorkQueue, { projects: [unready], staff: true, name });
+  assert.match(staff, /Your team&#x27;s next moves/);
+  assert.match(staff, /Confirm the quote document/);
+});
 test("client tables preserve structure but hide staff creation and private amounts", () => {
   const html = render(RequestPipeline, { projects: [project], organizations, staff: false, mode: "requests", onSaved() {} });
   assert.match(html, /<table/);
@@ -36,7 +59,9 @@ test("client tables preserve structure but hide staff creation and private amoun
   const orders = render(RequestPipeline, { projects: [project], organizations, staff: false, mode: "orders", onSaved() {} });
   assert.match(orders, /Current stage<\/th><th scope="col">Quotes<\/th>/);
   assert.match(orders, /Order confirmation pending/);
-  assert.match(orders, /Account administrator to review the quote/);
+  assert.match(orders, /Please review and approve your quote/);
+  assert.match(orders, /Needs you/);
+  assert.doesNotMatch(orders, /aria-label="Stage for/);
 });
 test("approval queue opens Approvals while client quote decisions remain revision bound", () => {
   const queue = render(ApprovalQueue, { projects: [project], organizations });

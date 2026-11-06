@@ -1,0 +1,31 @@
+/* Brings the website workspace onto the client portal's look: walnut sidebar,
+   real logo, line icons and account avatar. Loaded after admin.css. */
+.workspace-sidebar { width: 240px; background: #352c26; color: #efe9df; border-right: 0; padding: 28px 16px 20px; }
+.workspace-body { margin-left: 240px; }
+.workspace-brand { flex-direction: column; gap: 14px; margin: 0 0 26px; color: #d6c6a7; font: 9px var(--font-body); letter-spacing: 2px; text-align: center; }
+.workspace-brand img { background: #fffaf0; border-radius: 3px; padding: 8px; width: 94px; height: 104px; object-fit: contain; }
+.workspace-label { font-size: 10px; letter-spacing: 1.7px; color: #a89a8c; padding: 0 12px; margin: 0 0 12px; }
+.workspace-nav-search input { background: #ffffff10; border-color: #ffffff24; color: #efe9df; }
+.workspace-nav-search input::placeholder { color: #bdb2a5; }
+.admin-workspace .workspace-nav-group p { color: #a89a8c; }
+.workspace-nav-link { color: #cec4b9; font-size: 14px; font-weight: 500; min-height: 44px; }
+.workspace-nav-link svg { flex-shrink: 0; opacity: .8; }
+.workspace-nav-link:hover { background: #ffffff0b; color: #fff; }
+.workspace-nav-link.active { background: #c7aa7130; color: #f1d7a5; }
+.workspace-sidebar-footer { border-top-color: #ffffff18; }
+.workspace-portal-link { background: #c7aa7130; color: #f1d7a5; }
+.workspace-account { color: #bdb2a5; font-size: 12px; }
+.workspace-signout { color: #cec4b9; font-size: 13px; }
+.admin-workspace .portal-avatar { flex-shrink: 0; height: 35px; width: 35px; border-radius: 50%; display: grid; place-items: center; background: #eae3d6; color: #6c5637; text-decoration: none; font-size: 11px; }
+.workspace-topbar { height: 68px; }
+.workspace-footer > span:first-child { letter-spacing: 1.5px; }
+.workspace-footer { font-size: 12px; }
+.admin-workspace :focus-visible { outline-color: #b88e48; }
+.workspace-sidebar :focus-visible, .workspace-mobile-menu :focus-visible { outline-color: #e1c591; }
+@media (max-width: 1100px) { .workspace-sidebar { width: 224px; } .workspace-body { margin-left: 224px; } }
+@media (max-width: 768px) {
+  .workspace-body { margin-left: 0; }
+  .workspace-mobile-menu[open] { background: #352c26; color: #efe9df; }
+  .workspace-close { color: #efe9df; }
+  .admin-workspace .portal-avatar { min-width: 44px; min-height: 44px; }
+}

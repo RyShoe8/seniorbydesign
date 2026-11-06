@@ -1,6 +1,6 @@
 import type { Project, ProjectRequest } from "./types";
 import { dateOnly, enumValue, PortalError, text } from "./policy";
-import { requestStages, requestTypes, presentationStages, paymentStages, orderStages, normalizedPayment, normalizedOrder } from "./requests";
+import { requestStages, requestTypes, presentationStages, paymentStages, orderStages, normalizedPayment, normalizedOrder, projectPhases } from "./requests";
 
 export function requestFields(data: Record<string, unknown>, prior?: ProjectRequest): ProjectRequest {
   const receivedAt = dateOnly(data.receivedAt);
@@ -29,6 +29,31 @@ export function requestFields(data: Record<string, unknown>, prior?: ProjectRequ
     }
   }
   return request;
+}
+/** One-field edits from the project tracker, validated the same way as the full form. */
+export function quickUpdate(project: Project, field: unknown, value: unknown, admin: boolean): string {
+  if (field === "stage") {
+    if (!project.request) {
+      project.request = { summary: project.summary || project.name, receivedAt: new Date().toISOString().slice(0, 10), type: "Remodel", stage: "New Request", assignedTo: "", presentation: "Not started", quoteReferences: project.scopes.map(scope => scope.quote) };
+    }
+    project.request.stage = enumValue(value, requestStages, "Current stage");
+    project.workflowTouched = true;
+    return `Stage changed to ${project.request.stage}`;
+  }
+  if (field === "phase") {
+    if (!project.request) throw new PortalError("Set the project's stage first");
+    project.request.projectPhase = enumValue(value, projectPhases, "Project phase");
+    return `Project phase changed to ${project.request.projectPhase}`;
+  }
+  if (field === "order") {
+    operationalFields({ orderDetail: value }, project, admin);
+    return `Order changed to ${project.orderDetail}`;
+  }
+  if (field === "install") {
+    project.install = dateOnly(value);
+    return project.install ? `Install date set to ${project.install}` : "Install date cleared";
+  }
+  throw new PortalError("Unknown field");
 }
 export function operationalFields(data: Record<string, unknown>, project: Project, admin: boolean) {
   if (data.paymentDetail !== undefined) {

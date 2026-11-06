@@ -2,6 +2,7 @@ import { timingSafeEqual } from "crypto";
 import { collections } from "@/lib/portal/db";
 import { json } from "@/lib/portal/server";
 import { sendTransactionalEmail } from "@/lib/brevo";
+import { accountOrigin } from "@/lib/portal/origins";
 export const dynamic = "force-dynamic";
 // Invoke from a scheduler with a dedicated bearer secret; never from the browser.
 export async function GET(request: Request) {
@@ -34,7 +35,7 @@ export async function GET(request: Request) {
       );
     if (!job) break;
     try {
-      const origin = process.env.SBD_ADMIN_ORIGIN;
+      const origin = accountOrigin("staff");
       if (!origin) throw new Error("Missing origin");
       const url = new URL("/admin/portal", origin).href;
       await sendTransactionalEmail(

@@ -1,12 +1,14 @@
 "use client";
 import Link from "next/link";
-import { projectPhase, nextProjectStep, orderStatusText, paymentStatusText } from "@/lib/portal/requests";
+import { projectAction, orderStatusText, paymentStatusText } from "@/lib/portal/requests";
+import { ProjectSteps, WaitingBadge, WorkQueue } from "./ProjectWork";
 import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { Project, Organization } from "@/lib/portal/types";
 
-export type DisplayProject = Omit<Project, "documents"> & {
+export type DisplayProject = Omit<Project, "documents" | "smartsheet"> & {
   documents: Omit<Project["documents"][number], "url">[];
+  smartsheetDetails?: Record<string, string>;
 };
 export function PortalIcon({
   name,
@@ -83,6 +85,18 @@ export function PortalIcon({
       </>
     ),
     menu: <path d="M3 6h18M3 12h18M3 18h18" />,
+    home: <path d="m3 11 9-8 9 8M5 9.5V21h14V9.5M10 21v-6h4v6" />,
+    portfolio: (<><rect x="3" y="3" width="18" height="18" rx="1" /><path d="m3 17 5-5 4 4 3-3 6 6M15 8h.01" /></>),
+    services: <path d="m12 3 9 9-9 9-9-9zM8 12h8" />,
+    team: (<><circle cx="12" cy="8" r="4" /><path d="M4 21v-1a8 8 0 0 1 16 0v1" /></>),
+    journal: <path d="M5 3h14v18H5zM9 8h6M9 12h6M9 16h4" />,
+    link: <path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1m2 4a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1" />,
+    brochure: <path d="M12 6c-2-2-5-3-9-3v16c4 0 7 1 9 3 2-2 5-3 9-3V3c-4 0-7 1-9 3Zm0 0v16" />,
+    mail: (<><rect x="3" y="5" width="18" height="14" rx="1" /><path d="m3 7 9 7 9-7" /></>),
+    media: <path d="M3 6h6l2 3h10v11H3z" />,
+    pen: <path d="M4 20l1-5L16 4l4 4L9 19zM14 6l4 4" />,
+    gear: (<><circle cx="12" cy="12" r="3" /><path d="M12 2v4m0 12v4M2 12h4m12 0h4M5 5l3 3m8 8 3 3M5 19l3-3m8-8 3-3" /></>),
+    sync: <path d="M4 10a8 8 0 0 1 14-4l2 2m0-5v5h-5M20 14a8 8 0 0 1-14 4l-2-2m0 5v-5h5" />,
   };
   return (
     <svg
@@ -156,6 +170,7 @@ export function PortalShell({
   useEffect(() => { setMenu(false); }, [tab, title]);
   return (
     <div className="portal-app portal-workspace">
+      <a className="workspace-skip" href="#portal-content">Skip to content</a>
       {menu && <button className="portal-menu-backdrop" aria-label="Close navigation" onClick={() => setMenu(false)} />}
       <aside id="portal-navigation" className={`portal-sidebar ${menu ? "is-open" : ""}`}>
         <button
@@ -171,7 +186,7 @@ export function PortalShell({
           />
           <span>SOUL WARMING INTERIORS</span>
         </button>
-        <div className="portal-workspace-label">CLIENT EXPERIENCE</div>
+        <div className="portal-workspace-label">{staff ? "PROJECT WORKSPACE" : "YOUR PROJECTS"}</div>
         <nav aria-label="Portal navigation">
           {navigation.map(([key, label]) => (
             <Link
@@ -183,9 +198,8 @@ export function PortalShell({
                 setMenu(false);
               }}
             >
-              <PortalIcon name={key === "requests" ? "approvals" : key === "remodels" ? "projects" : key === "contacts" ? "members" : key} />
+              <PortalIcon name={key === "requests" ? "approvals" : key === "remodels" ? "projects" : key === "contacts" ? "members" : key === "smartsheet" ? "sync" : key} />
               <span>{label}</span>
-              {key === "overview" && <span className="portal-nav-dot" />}
             </Link>
           ))}
         </nav>
@@ -223,7 +237,7 @@ export function PortalShell({
             >
               <PortalIcon name="menu" />
             </button>
-            <span>Client portal</span>
+            <span>{staff ? "Workspace" : "Client portal"}</span>
             <span className="portal-breadcrumb-divider">/</span>
             <strong>{title}</strong>
           </div>
@@ -247,7 +261,7 @@ export function PortalShell({
             </a>
           </div>
         </header>
-        <main className="portal-content">
+        <main id="portal-content" className="portal-content">
           {children}
           <footer className="portal-footer">
             <span>SENIOR BY DESIGN</span>
@@ -291,11 +305,6 @@ export function PortalPortfolio({
         (staff && view === "projects" && filter === "archived")) &&
       (!org || [p.companyId, p.operatorId].includes(org)),
   );
-  const pending = scopeProjects.flatMap((p) =>
-    p.scopes
-      .filter((s) => s.approval === "Needs Approval")
-      .map((s) => ({ project: p, scope: s })),
-  );
   const scheduled = scopeProjects
     .filter(
       (p) => p.install && p.install >= new Date().toLocaleDateString("en-CA"),
@@ -316,8 +325,8 @@ export function PortalPortfolio({
   const overview = view === "overview";
   const headings: Record<string, [string, string]> = {
     overview: [
-      staff ? "Welcome to your project command center" : `Welcome, ${org ? name(org) : organizations.find(o => o.type === "company")?.name || "your workspace"}`,
-      "A thoughtfully organized view of requests, design, approvals, purchasing and installation.",
+      staff ? "What needs attention" : `Welcome, ${org ? name(org) : organizations.find(o => o.type === "company")?.name || "your workspace"}`,
+      staff ? "Who is holding each project, and the next move." : "What we need from you, and where everything stands.",
     ],
     projects: [
       "Your projects",
@@ -339,15 +348,15 @@ export function PortalPortfolio({
   const [title, description] = headings[view] || headings.projects;
   return (
     <>
-      <div className={`portal-page-heading ${overview ? "portal-tracker-hero" : ""}`}>
+      <div className="portal-page-heading">
         <div>
           <span className="portal-eyebrow">
-            {overview ? "YOUR PORTFOLIO" : "PROJECT WORKSPACE"}
+            {overview ? (staff ? "TODAY" : "YOUR PROJECTS") : "PROJECT WORKSPACE"}
           </span>
           <h1>{title}</h1>
           <p>{description}</p>
         </div>
-        <label className="portal-org-filter">
+        {organizations.length > 1 && <label className="portal-org-filter">
           <span>Viewing</span>
           <select
             aria-label="Filter by organization"
@@ -362,55 +371,38 @@ export function PortalPortfolio({
             ))}
           </select>
           <small role="status">{org ? `${name(org)} · ${scopeProjects.length} projects` : `All organizations · ${scopeProjects.length} projects`}</small>
-        </label>
+        </label>}
       </div>
+      {overview && <WorkQueue projects={scopeProjects} staff={staff} name={name} organizationId={org} />}
       {overview && (
-        <section className="portal-metrics" aria-label="Portfolio summary">
-          {[
-            [
-              scopeProjects.filter(p => !["Installed", "Closed"].includes(p.request?.stage || "")).length,
-              "Active projects",
-              "projects",
-              "projects",
-            ],
-            [
-              scopeProjects.filter((p) => p.request?.type === "Remodel").length,
-              "Remodels",
-              "projects",
-              "projects",
-            ],
-            [
-              pending.length,
-              "Pending approvals",
-              "requests",
-              "approvals",
-            ],
-            [scopeProjects.filter(p => p.install).length, "Install dates on file", "orders", "projects"],
-          ].map(([count, label, icon, target]) => (
-            <button
-              className="portal-metric"
-              key={String(label)}
-              onClick={() => navigate(String(target))}
-            >
-              <span className="portal-metric-label">
-                {label}
-                <PortalIcon name={String(icon)} size={18} />
-              </span>
-              <strong>
-                {count}
-                <PortalIcon name="arrow" size={18} />
-              </strong>
-            </button>
-          ))}
+        <section className="portal-section-card portal-upcoming">
+          <h2>Upcoming installations <span className="portal-count">{scheduled.length}</span></h2>
+          {scheduled.length ? (
+            <div className="portal-upcoming-list">
+              {scheduled.slice(0, 4).map((p) => (
+                <button className="portal-install-row" key={p._id} onClick={() => open(p._id)}>
+                  <span className="portal-date-tile">
+                    <span>{new Date(p.install + "T12:00:00").toLocaleDateString("en-US", { month: "short" })}</span>
+                    <strong>{p.install!.slice(8)}</strong>
+                  </span>
+                  <span className="portal-row-main">
+                    <strong>{p.name}</strong>
+                    <span>{p.location} · Estimated</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="portal-empty-copy">Installation dates will appear here as they are scheduled.</p>
+          )}
         </section>
       )}
       {(overview || view === "projects") && (
         <section className="portal-project-section">
           <div className="portal-section-title">
             <div>
-              <span className="portal-eyebrow">EVERY DETAIL, CONNECTED</span>
               <h2>
-                {overview ? "Featured Projects" : "Project portfolio"}{" "}
+                {overview ? "Your projects" : "Project portfolio"}{" "}
                 <span className="portal-count">{filtered.length}</span>
               </h2>
             </div>
@@ -451,34 +443,17 @@ export function PortalPortfolio({
             {filtered.slice(0, overview ? 6 : filtered.length).map((p, i) => (
               <article className="portal-project-card" key={p._id}>
                 <div className="portal-project-card-top">
-                  <span className="portal-project-number">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <StatusBadge
-                    value={
-                      p.archived ? "Archived" : `Stage: ${projectPhase(p)}`
-                    }
-                  />
+                  <p className="portal-property-owner">{name(p.companyId)}</p>
+                  {p.archived ? <StatusBadge value="Archived" /> : <WaitingBadge project={p} staff={staff} />}
                 </div>
-                <p className="portal-card-next-step">Next: {nextProjectStep(p).label}</p>
-                <p className="portal-property-owner">{name(p.companyId)}</p>
                 <h3>{p.name}</h3>
                 <p className="portal-property-location">
                   <PortalIcon name="pin" size={14} />
                   {p.location}
                 </p>
-                {p.request?.progressEstimate !== undefined && <div className="portal-estimated-progress" role="progressbar" aria-label={`Estimated progress for ${p.name}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={p.request.progressEstimate}><span style={{ width: `${p.request.progressEstimate}%` }} /></div>}
-                {p.request?.type && <p className="portal-card-project-type">{p.request.type} · {p.request.stage}</p>}
-                <div className="portal-project-card-details">
-                  <div>
-                    <span>Care type</span>
-                    <strong>{p.scopes.map((s) => s.code).join(" · ")}</strong>
-                  </div>
-                  <div>
-                    <span>Estimated install</span>
-                    <strong>{displayDate(p.install)}</strong>
-                  </div>
-                </div>
+                <ProjectSteps project={p} />
+                <p className="portal-card-next-step">{projectAction(p, staff).label}</p>
+                <p className="portal-card-install">Install: {displayDate(p.install)}</p>
                 <Link
                   className="portal-project-open"
                   href={`/portal/projects/${encodeURIComponent(p._id)}?from=overview${org ? `&organization=${encodeURIComponent(org)}` : ""}`}
@@ -495,98 +470,6 @@ export function PortalPortfolio({
             </div>
           )}
         </section>
-      )}
-      {(overview || view === "approvals") && (
-        <div className={overview ? "portal-overview-columns" : ""}>
-          <section className="portal-section-card">
-            <div className="portal-section-title">
-              <div>
-                <span className="portal-eyebrow">YOUR NEXT STEP</span>
-                <h2>
-                  Needs your attention{" "}
-                  <span className="portal-count">{pending.length}</span>
-                </h2>
-              </div>
-              {overview && (
-                <button
-                  className="portal-text-button"
-                  onClick={() => navigate("approvals")}
-                >
-                  View all <PortalIcon name="arrow" size={15} />
-                </button>
-              )}
-            </div>
-            {pending.length ? (
-              pending
-                .slice(0, overview ? 3 : pending.length)
-                .map(({ project: p, scope: s }) => (
-                  <button
-                    className="portal-attention-row"
-                    key={`${p._id}-${s.quote}`}
-                    onClick={() => open(p._id)}
-                  >
-                    <span className="portal-attention-icon">
-                      <PortalIcon name="approvals" />
-                    </span>
-                    <span className="portal-row-main">
-                      <strong>{p.name}</strong>
-                      <span>
-                        {s.label} · Quote {s.quote}
-                      </span>
-                    </span>
-                    <span className="portal-review-label">
-                      Review quote <PortalIcon name="arrow" size={16} />
-                    </span>
-                  </button>
-                ))
-            ) : (
-              <div className="portal-calm-state">
-                <PortalIcon name="check" />
-                <h3>You’re all caught up.</h3>
-                <p>No quotes are waiting for review.</p>
-              </div>
-            )}
-          </section>
-          {overview && (
-            <section className="portal-section-card">
-              <div className="portal-section-title">
-                <div>
-                  <span className="portal-eyebrow">LOOKING AHEAD</span>
-                  <h2>Upcoming installations</h2>
-                </div>
-                <PortalIcon name="orders" />
-              </div>
-              {scheduled.length ? (
-                scheduled.slice(0, 3).map((p) => (
-                  <button
-                    className="portal-install-row"
-                    key={p._id}
-                    onClick={() => open(p._id)}
-                  >
-                    <span className="portal-date-tile">
-                      <span>
-                        {new Date(p.install + "T12:00:00").toLocaleDateString(
-                          "en-US",
-                          { month: "short" },
-                        )}
-                      </span>
-                      <strong>{p.install!.slice(8)}</strong>
-                    </span>
-                    <span className="portal-row-main">
-                      <strong>{p.name}</strong>
-                      <span>{p.location} · Estimated</span>
-                    </span>
-                    <PortalIcon name="arrow" size={16} />
-                  </button>
-                ))
-              ) : (
-                <p className="portal-empty-copy">
-                  Installation dates will appear here as they are scheduled.
-                </p>
-              )}
-            </section>
-          )}
-        </div>
       )}
       {view === "orders" && (
         <section className="portal-section-card portal-scroll">

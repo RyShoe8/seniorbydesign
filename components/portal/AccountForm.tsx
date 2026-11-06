@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { signIn, signOut } from "next-auth/react";
 import "./portal.css";
+import "./portal-work.css";
 export default function AccountForm({
   mode,
 }: {

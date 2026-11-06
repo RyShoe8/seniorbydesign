@@ -40,13 +40,19 @@ export interface PortalDocument {
 export interface ProjectRequest {
   quoteReferences?: string[];
   quoteReference?: string;
+  /** Word for word from the sheet's Project Phase dropdown. */
+  projectPhase?: string;
+  /** Word for word from the sheet's Status column. */
+  sheetStatus?: string;
+  /** From the sheet's Notes column. Staff only: never sent to client accounts. */
+  internalNotes?: string;
   contactName?: string;
   contactEmail?: string;
   progressEstimate?: number;
   notes?: string;
   summary: string;
   receivedAt: string;
-  type: "Remodel" | "Model" | "New Development";
+  type: "Remodel" | "Model" | "New Development" | "Finish Board" | "Sales Office" | "FFE Presentation" | "Other";
   stage: "New Request" | "Scoping" | "Quote in Progress" | "Quote Sent" | "Presentation" | "Awaiting Approval" | "Awaiting Deposit" | "Ordering" | "Procurement" | "Installation Planning" | "Installed" | "Closed";
   assignedTo: string;
   presentation: "Not started" | "Draft" | "In preparation" | "Draft in review" | "In review" | "Presented" | "Approved";
@@ -74,12 +80,23 @@ export interface Project {
   operatorApproval: boolean;
   workflowTouched: boolean;
   updatedAt: Date;
+  smartsheet?: SmartsheetLink;
+}
+/** Links a project to its Smartsheet row. `snapshot` holds the last agreed value of each mapped field. */
+export interface SmartsheetLink {
+  rowId: number;
+  snapshot: Record<string, string | number | boolean | null>;
+  /** Every cell on the row, for staff reference. */
+  details?: Record<string, string>;
+  syncedAt: Date;
+  lastError?: string;
 }
 export interface ImportProject extends Omit<
   Project,
   | "_id"
   | "version"
   | "updatedAt"
+  | "smartsheet"
   | "operatorApproval"
   | "workflowTouched"
   | "archived"

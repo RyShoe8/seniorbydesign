@@ -7,6 +7,7 @@ import { collections } from "./db";
 import { isStaff, PortalError, staffRole } from "./policy";
 import type { Actor } from "./types";
 import { canAccessPortalPreview } from "./access";
+import { sameSiteRequest } from "./origins";
 
 export async function requirePortalActor(staff = false) {
   const actor = await requireActor(staff);
@@ -80,8 +81,7 @@ export function failure(error: unknown) {
   );
 }
 export function checkOrigin(request: Request) {
-  const origin = request.headers.get("origin");
-  if (!origin || origin !== new URL(request.url).origin)
+  if (!sameSiteRequest(request.headers.get("origin"), request.url, request.headers))
     throw new PortalError("Invalid request origin", 403);
 }
 export async function body(

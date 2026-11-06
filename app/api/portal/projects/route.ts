@@ -27,9 +27,11 @@ export async function GET() {
       .toArray();
     return json({
       actor,
-      projects: projects.map((p) => ({
+      // Sync bookkeeping is internal and can hold staff-only values such as quoted amounts.
+      projects: projects.map(({ smartsheet, ...p }) => ({
         ...p,
-        request: p.request ? (isStaff(actor) ? p.request : (({ quotedAmount, ...request }) => request)(p.request)) : undefined,
+        ...(isStaff(actor) && smartsheet?.details ? { smartsheetDetails: smartsheet.details } : {}),
+        request: p.request ? (isStaff(actor) ? p.request : (({ quotedAmount, internalNotes, sheetStatus, ...request }) => request)(p.request)) : undefined,
         documents: p.documents.map(({ url, ...d }) => d),
       })),
       organizations,

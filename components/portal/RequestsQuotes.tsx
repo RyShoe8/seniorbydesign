@@ -11,7 +11,8 @@ import type { DisplayProject } from "./PortalWorkspace";
 import { ProjectEditor } from "./ProjectEditor";
 import { displayDate, StatusBadge } from "./PortalWorkspace";
 
-import { nextProjectStep, orderStatusText, currentScopes, quoteReady, approvalState, projectPhase, paymentLabel, orderLabel } from "@/lib/portal/requests";
+import { orderStatusText, currentScopes, quoteReady, approvalState, projectPhase, paymentLabel, orderLabel, projectAction, pipelineGroups, pipelineGroupIndex, requestTypes } from "@/lib/portal/requests";
+import { PipelineFilter, ProjectSteps, QuickInstall, QuickOrder, QuickPhase, QuickStage, WaitingBadge } from "./ProjectWork";
 
 type Workflow = (action: string, data?: Record<string, unknown>) => Promise<unknown> | undefined;
 
@@ -19,43 +20,51 @@ const fields = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); 
 
 const amount = (value?: number) => value === undefined ? "Amount not recorded" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
 
-export function RequestPipeline({ projects, organizations, staff, mode = "requests", onSaved, organizationId = "" }: {
+export function RequestPipeline({ projects, organizations, staff, mode = "requests", onSaved, onChanged, organizationId = "" }: {
   projects: DisplayProject[]; organizations: Organization[]; staff: boolean;
   organizationId?: string;
   mode?: "requests" | "orders" | "projects" | "remodels";
   onSaved: (id: string) => Promise<void> | void;
+  /** Refreshes the list after a value is edited in place. */
+  onChanged?: () => Promise<void> | void;
 }) {
   const [search, setSearch] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [company, setCompany] = useState("");
-  const [stage, setStage] = useState("");
+  const [step, setStep] = useState("");
+  const [waiting, setWaiting] = useState("");
   const [type, setType] = useState(mode === "remodels" ? "Remodel" : "");
   const requests = mode === "requests", orders = mode === "orders";
   const name = (id: string) => organizations.find(o => o._id === id)?.name || "Company";
   const active = projects.filter(p => (!p.archived || (staff && mode === "projects" && showArchived)) && (mode !== "remodels" || p.request?.type === "Remodel"));
-  const filtered = active.filter(p => (!type || p.request?.type === type) && (!company || p.companyId === company) && (!stage || projectPhase(p) === stage) && `${p.name} ${p.location} ${name(p.companyId)} ${p.request?.summary || p.summary} ${p.request?.contactName || ""} ${p.request?.quoteReference || ""} ${p.scopes.map(s => s.quote).join(" ")}`.toLowerCase().includes(search.toLowerCase()));
+  // Work that needs this viewer sorts to the top, then what is waiting on others, then finished projects.
+  const urgency = (p: DisplayProject) => { const owner = projectAction(p, staff).owner; return owner === "none" ? 2 : owner === (staff ? "sbd" : "client") ? 0 : 1; };
+  const filtered = active
+    .filter(p => (!type || p.request?.type === type) && (!company || p.companyId === company) && (!waiting || projectAction(p, staff).owner === waiting) && (!step || pipelineGroups[pipelineGroupIndex(p)]?.id === step) && `${p.name} ${p.location} ${name(p.companyId)} ${p.request?.summary || p.summary} ${p.request?.contactName || ""} ${p.request?.quoteReference || ""} ${p.scopes.map(s => s.quote).join(" ")}`.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => urgency(a) - urgency(b) || a.name.localeCompare(b.name));
+  const filteredBy = search || company || step || waiting || (type && mode !== "remodels");
   const title = requests ? "Requests & Quotes" : orders ? "Orders & Installation" : mode === "remodels" ? "Remodel Portfolio" : "Projects";
+  const clear = () => { setSearch(""); setCompany(""); setStep(""); setWaiting(""); if (mode !== "remodels") setType(""); };
+  const clients = organizations.filter(o => o.type === "company" && active.some(p => p.companyId === o._id));
   return <>
-    <div className="portal-page-heading portal-tracker-hero"><div><span className="portal-eyebrow">SENIOR BY DESIGN · CLIENT EXPERIENCE</span><h1>{title}</h1><p>{requests ? "Capture the request, track pricing and presentation, then move confidently to approval." : orders ? "Follow deposits, purchasing, deliveries and anticipated installation dates." : "Browse communities and open each project’s complete workflow."}</p></div></div>
-    {!requests && !orders && <dl className="portal-project-stats"><div><dt>Projects</dt><dd>{active.length}</dd></div><div><dt>New requests</dt><dd>{active.filter(p => p.request?.stage === "New Request").length}</dd></div><div><dt>Awaiting approval</dt><dd>{active.filter(p => approvalState(p) === "Pending").length}</dd></div><div><dt>Orders in process</dt><dd>{active.filter(p => p.order === "Ordered").length}</dd></div></dl>}
+    <div className="portal-work-heading"><h1>{title}</h1>{!orders && staff && <ProjectEditor organizations={organizations} onSaved={onSaved} />}</div>
+    <PipelineFilter projects={active} value={step} onChange={setStep} />
     <section className="portal-panel portal-request-pipeline">
-      <div className="portal-section-title"><h2>{requests ? "Request Pipeline" : orders ? "Procurement & Install Tracker" : "Project tracker"}</h2>{!orders && staff && <ProjectEditor organizations={organizations} onSaved={onSaved} />}</div>
-      {<div className="portal-request-filters"><label>Search projects<input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search community, request or contact…" /></label><label>Client<select value={company} onChange={e => setCompany(e.target.value)}><option value="">All clients</option>{organizations.filter(o => o.type === "company" && active.some(p => p.companyId === o._id)).map(o => <option key={o._id} value={o._id}>{o.name}</option>)}</select></label><label>Project type<select value={type} onChange={e => setType(e.target.value)}><option value="">All types</option>{["Remodel", "Model", "New Development"].map(value => <option key={value}>{value}</option>)}</select></label><label>Current stage<select value={stage} onChange={e => setStage(e.target.value)}><option value="">All phases</option>{Array.from(new Set(active.map(projectPhase))).map(value => <option key={value}>{value}</option>)}</select></label></div>}
-      {staff && mode === "projects" && <label className="portal-review-confirm portal-archive-filter"><input type="checkbox" checked={showArchived} onChange={event => setShowArchived(event.target.checked)} />Include archived projects</label>}
-      <p className="portal-tracker-count" role="status">{filtered.length} projects{search || company || stage || type ? " matching your filters" : ""}</p>
+      <div className="portal-request-filters"><label className="portal-filter-search">Search<input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Community, client, contact or quote…" /></label>{clients.length > 1 && <label>Client<select value={company} onChange={e => setCompany(e.target.value)}><option value="">All clients</option>{clients.map(o => <option key={o._id} value={o._id}>{o.name}</option>)}</select></label>}<label>Waiting on<select value={waiting} onChange={e => setWaiting(e.target.value)}><option value="">Anyone</option><option value={staff ? "sbd" : "client"}>{staff ? "Your team" : "You"}</option><option value={staff ? "client" : "sbd"}>{staff ? "Client" : "SBD"}</option><option value="none">Complete</option></select></label><label>Type<select value={type} onChange={e => setType(e.target.value)}><option value="">All types</option>{requestTypes.map(value => <option key={value}>{value}</option>)}</select></label></div>
+      <div className="portal-tracker-meta"><p className="portal-tracker-count" role="status">{filtered.length} projects{filteredBy ? " matching your filters" : ""}</p>{filteredBy && <button type="button" className="portal-text-button" onClick={clear}>Clear filters</button>}{staff && mode === "projects" && <label className="portal-archive-filter"><input type="checkbox" checked={showArchived} onChange={event => setShowArchived(event.target.checked)} /> Include archived</label>}</div>
       <div className="portal-tracker-scroll portal-simple-tracker">
         <table className="portal-tracker-table"><caption className="portal-sr-only">Projects, current stage, and next steps</caption>
           <thead><tr><th scope="col">Client / Community</th><th scope="col">Current stage</th><th scope="col">Quotes</th><th scope="col">Order / Installation</th><th scope="col">Next step</th></tr></thead>
           <tbody>{filtered.map(p => {
-            const next = nextProjectStep(p);
+            const next = projectAction(p, staff);
             const href = `/portal/projects/${encodeURIComponent(p._id)}?from=${mode}${organizationId ? `&organization=${encodeURIComponent(organizationId)}` : ""}`;
             const references = currentScopes(p).map(s => s.quote).join(" · ") || p.request?.quoteReference;
             return <tr key={p._id}>
               <td data-label="Project"><small>{name(p.companyId)}</small><Link className="portal-tracker-project" href={href}>{p.name}</Link><small>{p.location}</small>{p.archived && <StatusBadge value="Archived" />}</td>
-              <td data-label="Current stage"><strong>{projectPhase(p)}</strong><small>{p.request?.type || "Type not recorded"}</small></td>
+              <td data-label="Current stage">{staff ? <><QuickStage project={p} onChanged={onChanged} /><QuickPhase project={p} onChanged={onChanged} /></> : <><strong>{projectPhase(p)}</strong>{p.request?.projectPhase && <small>Phase: {p.request.projectPhase}</small>}</>}<ProjectSteps project={p} showLabel={false} /></td>
               <td data-label="Quotes"><Link href={`${href}#quotes`}>{references ? `Quote ${references}` : "No quote reference recorded"}</Link>{staff && p.request?.quotedAmount !== undefined && <small>Amount: {amount(p.request.quotedAmount)}</small>}<small>Approval: {approvalState(p)}</small></td>
-              <td data-label="Order / Installation"><span>{orderStatusText(p)}</span><small>Install: {displayDate(p.install)}</small></td>
-              <td data-label="Next step"><p>{next.label}</p><Link className="portal-link secondary" href={`${href}#${next.section}`}>Open project<span className="portal-sr-only"> {p.name}</span> →</Link></td>
+              <td data-label="Order / Installation">{staff ? <><QuickOrder project={p} onChanged={onChanged} /><QuickInstall project={p} onChanged={onChanged} /></> : <><span>{orderStatusText(p)}</span><small>Install: {displayDate(p.install)}</small></>}</td>
+              <td data-label="Next step"><WaitingBadge project={p} staff={staff} /><p>{next.label}</p><Link className="portal-link secondary" href={`${href}#${next.section}`}>{next.cta}<span className="portal-sr-only"> for {p.name}</span> →</Link></td>
             </tr>;
           })}{!filtered.length && <tr><td colSpan={5}>No matching projects. Try clearing your search or changing the filters.</td></tr>}</tbody>
         </table>

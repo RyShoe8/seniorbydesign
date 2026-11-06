@@ -236,7 +236,8 @@ export async function commitImport(id: string, actor: Actor) {
           409,
         );
       if (old && project.version === old.version) continue;
-      await c.projects.replaceOne({ _id: project._id }, project, {
+      // An import replaces project data but must not orphan its Smartsheet row.
+      await c.projects.replaceOne({ _id: project._id }, old?.smartsheet ? { ...project, smartsheet: old.smartsheet } : project, {
         upsert: true,
         session,
       });
