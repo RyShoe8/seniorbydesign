@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { signIn, signOut } from "next-auth/react";
+import PasswordInput from "./PasswordInput";
 import "./portal.css";
 import "./portal-work.css";
 export default function AccountForm({
@@ -116,8 +117,7 @@ export default function AccountForm({
           {mode === "change" && (
             <label>
               Current password
-              <input
-                type="password"
+              <PasswordInput
                 autoComplete="current-password"
                 value={current}
                 onChange={(e) => setCurrent(e.target.value)}
@@ -130,8 +130,7 @@ export default function AccountForm({
               {mode === "login"
                 ? "Password"
                 : "New password (new accounts and password resets)"}
-              <input
-                type="password"
+              <PasswordInput
                 autoComplete={
                   mode === "login" ? "current-password" : "new-password"
                 }

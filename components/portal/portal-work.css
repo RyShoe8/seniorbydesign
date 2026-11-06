@@ -19,6 +19,12 @@
 .portal-workspace .workspace-skip { position: fixed; top: -80px; left: 16px; z-index: 10000; background: #fff; padding: 12px; }
 .portal-workspace .workspace-skip:focus { top: 10px; }
 
+/* Show / hide password. */
+.portal-password { position: relative; display: block; margin-bottom: 12px; }
+.portal-app .portal-panel form .portal-password input { margin-bottom: 0; padding-right: 72px; }
+.portal-app .portal-password .portal-password-toggle { position: absolute; top: 50%; right: 4px; transform: translateY(-50%); min-height: 40px; min-width: 56px; padding: 6px 10px; border: 0; background: transparent; color: #6e5128; font-size: 14px; font-weight: 600; }
+.portal-app .portal-password .portal-password-toggle:hover { background: #f5f0e6; }
+
 /* Who holds the next move. Words carry the meaning; color only reinforces it. */
 .portal-waiting { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; line-height: 1.5; white-space: nowrap; }
 .portal-waiting.sbd { background: #e9e2d4; color: #5c4427; }
