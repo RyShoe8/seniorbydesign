@@ -45,7 +45,7 @@ export default function AdminLayout({children}: {children: React.ReactNode}) {
   if(status === 'loading') return <div className="admin-loading" role="status">Opening your workspace…</div>;
   if(!session) return null;
   const navigation = <>
-    <Link className="workspace-brand" href="/admin" aria-label="Senior By Design workspace overview"><Image src="/images/sbd-logo-no-tagline.png" alt="" width={94} height={104} /><span>SOUL WARMING INTERIORS</span></Link>
+    <Link className="workspace-brand" href="/admin" aria-label="Senior By Design workspace overview"><Image src="/images/sbd-logo-no-tagline.png" alt="" width={94} height={104} priority /><span>SOUL WARMING INTERIORS</span></Link>
     <div className="workspace-label">WEBSITE WORKSPACE</div>
     <label className="workspace-nav-search"><span className="sr-only">Find a section</span><input ref={search} type="search" placeholder="Find a section… ( / )" value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => {
       if (e.key === 'Escape') { setQuery(''); return; }
