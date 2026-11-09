@@ -2,10 +2,17 @@
 
 import { useState } from 'react';
 import SeoImage from '@/components/v2/SeoImage';
-import EntityContactBlock from '@/components/v2/EntityContactBlock';
 import { getRecaptchaToken } from '@/lib/recaptcha-client';
 import { heroAlt, STATIC_IMAGES } from '@/lib/image-seo';
-import { CONTACT_INTRO } from '@/lib/geo-entity';
+import {
+  CONTACT_INTRO,
+  ORG_EMAIL,
+  formatAddressLines,
+  formatPhoneDisplay,
+  formatPhoneTel,
+  formatStudioLines,
+  getWarehouseLabel,
+} from '@/lib/geo-entity';
 import styles from './page.module.css';
 
 export default function Contact() {
@@ -138,12 +145,47 @@ export default function Contact() {
         </div>
       </section>
 
-      <section className="contact-content section-padding reveal-on-scroll">
-        <div className="container">
-          <p className={styles.contactIntro}>{CONTACT_INTRO}</p>
-          <div className={styles.contactGrid}>
-            <div className={styles.contactFormWrapper}>
-              <h2>Drop us a Note</h2>
+      <section className={`contact-content ${styles.contactBody} reveal-on-scroll`}>
+        <div className={`container ${styles.contactGrid}`}>
+          <aside className={styles.concierge}>
+            <span className={styles.eyebrow}>Enquiries</span>
+            <h2>Contact Senior By Design</h2>
+            <p className={styles.conciergeIntro}>{CONTACT_INTRO}</p>
+
+            <div className={styles.direct}>
+              <span className={styles.placeLabel}>Call</span>
+              <a className={styles.phone} href={`tel:${formatPhoneTel()}`}>
+                {formatPhoneDisplay()}
+              </a>
+              <span className={styles.placeLabel}>Email</span>
+              <a className={styles.email} href={`mailto:${ORG_EMAIL}`}>
+                {ORG_EMAIL}
+              </a>
+            </div>
+
+            <address className={styles.places} aria-label="Senior By Design locations">
+              <div>
+                <span className={styles.placeLabel}>Design Studios</span>
+                {formatStudioLines().map((line) => (
+                  <span key={line} className={styles.placeLine}>
+                    {line}
+                  </span>
+                ))}
+              </div>
+              <div>
+                <span className={styles.placeLabel}>{getWarehouseLabel()}</span>
+                {formatAddressLines().map((line) => (
+                  <span key={line} className={styles.placeLine}>
+                    {line}
+                  </span>
+                ))}
+              </div>
+            </address>
+          </aside>
+
+          <div className={styles.enquiry}>
+            <span className={styles.eyebrow}>Write to us</span>
+            <h2>Drop us a Note</h2>
               <form onSubmit={handleSubmit} className="contact-form">
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
@@ -244,27 +286,22 @@ export default function Contact() {
                 </div>
 
                 {submitStatus === 'success' && (
-                  <div className={`${styles.formMessage} ${styles.success}`}>
+                  <div className={`${styles.formMessage} ${styles.success}`} role="status">
                     Thank you! Your message has been sent successfully.
                   </div>
                 )}
 
                 {submitStatus === 'error' && (
-                  <div className={`${styles.formMessage} ${styles.error}`}>
+                  <div className={`${styles.formMessage} ${styles.error}`} role="alert">
                     There was an error sending your message. Please try again.
                   </div>
                 )}
 
-                <button type="submit" className="btn" disabled={isSubmitting}>
-                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                <button type="submit" className={`btn ${styles.send}`} disabled={isSubmitting}>
+                  {isSubmitting ? 'Sending…' : 'Send Message'}
+                  {!isSubmitting && <span aria-hidden="true">→</span>}
                 </button>
               </form>
-            </div>
-
-            <div className={styles.contactInfo}>
-              <h2>Contact Senior By Design</h2>
-              <EntityContactBlock variant="full" />
-            </div>
           </div>
         </div>
       </section>

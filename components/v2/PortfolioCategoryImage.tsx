@@ -9,11 +9,17 @@ interface PortfolioCategoryImageProps {
   src: string;
   alt: string;
   displayName: string;
+  /** Set false when the page prints the name beneath the photo instead of over it. */
+  showTitle?: boolean;
 }
 
-export default function PortfolioCategoryImage({ src, alt, displayName }: PortfolioCategoryImageProps) {
+export default function PortfolioCategoryImage({ src, alt, displayName, showTitle = true }: PortfolioCategoryImageProps) {
   const [hasError, setHasError] = useState(false);
   const imageSrc = getPortfolioImageUrl(src);
+
+  if (hasError && !showTitle) {
+    return <div className={styles.placeholder} aria-hidden="true" />;
+  }
 
   if (hasError) {
     return (
@@ -40,9 +46,11 @@ export default function PortfolioCategoryImage({ src, alt, displayName }: Portfo
         unoptimized={src.startsWith('http') || imageSrc.startsWith('/api/image-proxy')}
         onError={() => setHasError(true)}
       />
-      <div className={styles.overlay}>
-        <h3>{displayName}</h3>
-      </div>
+      {showTitle && (
+        <div className={styles.overlay}>
+          <h3>{displayName}</h3>
+        </div>
+      )}
     </>
   );
 }

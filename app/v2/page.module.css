@@ -674,3 +674,67 @@
     height: 96px;
   }
 }
+
+/* Partner logos: one quiet tone on the page itself (no boxes), two rows until the visitor asks for more. */
+.partnersSection,
+.partnersGrid {
+  isolation: auto;
+  contain: none;
+  transform: none;
+  overflow: visible;
+}
+.partnersGrid .partnerLogo {
+  border: 0;
+  background: transparent;
+  opacity: 1;
+  transform: none;
+  -webkit-backface-visibility: visible;
+  backface-visibility: visible;
+}
+.partnersGrid .partnerLogo img {
+  filter: grayscale(1) contrast(1.2) brightness(1.08);
+  opacity: 0.62;
+  mix-blend-mode: multiply;
+  transition: filter 0.7s ease, opacity 0.7s ease;
+}
+.partnersGrid .partnerLogo:hover img,
+.partnersGrid .partnerLogo a:focus-visible img {
+  filter: none;
+  opacity: 1;
+}
+.partnersCollapsed > :nth-child(n + 11) {
+  display: none;
+}
+.partnersMore {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+.partnersMore button {
+  background: none;
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  cursor: pointer;
+}
+.partnersMoreNarrowOnly {
+  display: none;
+}
+@media (max-width: 1000px) {
+  .partnersCollapsed > :nth-child(n + 10) {
+    display: none;
+  }
+  .partnersMoreNarrowOnly {
+    display: flex;
+  }
+}
+@media (max-width: 550px) {
+  .partnersCollapsed > :nth-child(n + 7) {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .partnersGrid .partnerLogo img {
+    transition: none;
+  }
+}

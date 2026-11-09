@@ -13,7 +13,7 @@ export default function HubLinksSection({ links, heading, className, bgClass = '
   if (links.length === 0) return null;
 
   return (
-    <section className={`section-padding ${bgClass} ${className ?? ''}`.trim()}>
+    <section className={`section-padding ${styles.hubSection} ${bgClass} ${className ?? ''}`.trim()}>
       <div className="container">
         <h2 className={styles.heading}>{heading}</h2>
         <div className={styles.hubGrid}>

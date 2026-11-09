@@ -249,5 +249,16 @@
 .memberInfoOverlay p { color: #806a4d; font-size: 13px; }
 .quote { max-width: 900px; margin: 0 auto 24px; font-family: var(--font-heading); font-size: clamp(28px, 3vw, 40px); }
 .quoteAuthor { font-size: 12px; letter-spacing: 1px; color: #806a4d; }
-@media(max-width: 900px) { .teamGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media(max-width: 520px) { .teamGrid { grid-template-columns: 1fr; } }
+
+/* Smaller portraits: four to a row, so the team reads as a group rather than a wall of large photos. */
+.teamGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 44px 26px; max-width: 1120px; margin: 0 auto; }
+.teamGrid .memberInfoOverlay { padding: 16px 16px 16px; }
+.teamGrid .memberInfoOverlay h3 { font-size: 22px; line-height: 1.2; margin-bottom: 6px; letter-spacing: 0; }
+.teamGrid .memberInfoOverlay p { font-size: 11px; line-height: 1.5; letter-spacing: 0.16em; text-transform: uppercase; color: #7d5f2e; }
+@media(max-width: 1000px) { .teamGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 780px; } }
+@media(max-width: 680px) {
+  .teamGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 16px; max-width: 460px; }
+  .teamGrid .memberInfoOverlay { padding: 12px 12px 14px; }
+  .teamGrid .memberInfoOverlay h3 { font-size: 19px; }
+  .teamGrid .memberInfoOverlay p { font-size: 10.5px; letter-spacing: 0.12em; }
+}

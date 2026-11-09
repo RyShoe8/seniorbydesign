@@ -247,3 +247,58 @@
 .cardGrid, .hubGrid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 20px; }
 .card { padding: 28px; background: #fcfbf8; }
 .cardLabel { font-size: 26px; }
+
+/* Explore: a single ruled directory row, not a grid of boxes. */
+.hubSection.hubSection.hubSection {
+  padding-top: clamp(52px, 5.5vw, 88px);
+  padding-bottom: clamp(52px, 5.5vw, 88px);
+}
+.hubSection .heading {
+  margin-bottom: 30px;
+  font-size: clamp(26px, 2.6vw, 36px);
+  text-align: left;
+}
+.hubGrid.hubGrid {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0;
+  overflow: hidden;
+  border-top: 1px solid #d9ccb6;
+  border-bottom: 1px solid #d9ccb6;
+}
+.hubGrid.hubGrid .hubCard {
+  margin: -1px 0 0 -1px;
+  padding: 26px 22px 30px;
+  border: 0;
+  border-top: 1px solid #d9ccb6;
+  border-left: 1px solid #d9ccb6;
+  background: transparent;
+  transform: none;
+  transition: background 0.6s ease;
+}
+.hubGrid.hubGrid .hubCard:hover {
+  transform: none;
+  border-color: #d9ccb6;
+  background: #faf6ef;
+}
+.hubGrid.hubGrid .hubLabel {
+  font-size: 24px;
+  transition: color 0.5s ease;
+}
+.hubGrid.hubGrid .hubCard:hover .hubLabel {
+  color: #7d5f2e;
+}
+.hubGrid.hubGrid .hubDescription {
+  font-size: 14px;
+  line-height: 1.65;
+}
+@media (max-width: 600px) {
+  .hubGrid.hubGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .hubGrid.hubGrid .hubCard {
+    padding: 20px 14px 22px;
+  }
+  .hubGrid.hubGrid .hubLabel {
+    font-size: 21px;
+  }
+}

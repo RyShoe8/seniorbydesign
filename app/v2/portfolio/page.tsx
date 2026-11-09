@@ -69,20 +69,11 @@ export default async function Portfolio() {
         </div>
       </section>
 
-      <section className="portfolio-map-section section-padding bg-warm-grey reveal-on-scroll">
-        <div className="container">
-          <h2>Project Locations</h2>
-          <PortfolioMap projects={projects.map((p) => ({ ...p, _id: p._id?.toString() }))} />
-        </div>
-      </section>
-
-      <NewsletterCTA />
-
       <section className="portfolio-categories section-padding reveal-on-scroll">
         <div className="container">
           <h2 className={styles.sectionHeading}>Project Categories</h2>
-          <div className={styles.portfolioGrid}>
-            {categories.map((category) => {
+          <div className={styles.categoryMosaic}>
+            {categories.map((category, index) => {
               const displayName = category.name || '';
               const linkSlug = category.slug || '';
               const label = portfolioCategoryDisplayLabel(linkSlug, displayName);
@@ -101,17 +92,27 @@ export default async function Portfolio() {
                 <Link
                   key={category._id?.toString() || category.slug || displayName}
                   href={`/portfolio/${linkSlug}`}
-                  className={styles.portfolioCategoryCard}
+                  className={styles.categoryTile}
                 >
-                  {imageUrl ? (
-                    <div className={styles.categoryImageWrapper}>
-                      <PortfolioCategoryImage src={imageUrl} alt={imageAlt} displayName={label} />
-                    </div>
-                  ) : (
-                    <div className={styles.categoryPlaceholder}>
-                      <h3>{label}</h3>
-                    </div>
-                  )}
+                  <div className={styles.tilePhoto}>
+                    {imageUrl && (
+                      <PortfolioCategoryImage
+                        src={imageUrl}
+                        alt={imageAlt}
+                        displayName={label}
+                        showTitle={false}
+                      />
+                    )}
+                  </div>
+                  <div className={styles.tileCaption}>
+                    <span className={styles.tileNumber} aria-hidden="true">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <h3>{label}</h3>
+                    <span className={styles.tileCue}>
+                      View projects <span aria-hidden="true">→</span>
+                    </span>
+                  </div>
                 </Link>
               );
             })}
@@ -123,6 +124,15 @@ export default async function Portfolio() {
           </div>
         </div>
       </section>
+
+      <section className="portfolio-map-section section-padding bg-warm-grey reveal-on-scroll">
+        <div className="container">
+          <h2>Project Locations</h2>
+          <PortfolioMap projects={projects.map((p) => ({ ...p, _id: p._id?.toString() }))} />
+        </div>
+      </section>
+
+      <NewsletterCTA />
     </>
   );
 }

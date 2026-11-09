@@ -193,3 +193,65 @@
 @media (prefers-reduced-motion: reduce) {
   .sbd-marketing *, .sbd-marketing *::before, .sbd-marketing *::after { transition-duration: 0.01ms !important; }
 }
+
+/* ---------------------------------------------------------------------------
+   Photographs are never written on. Titles, captions and controls sit on solid
+   ground beside or beneath the picture.
+   --------------------------------------------------------------------------- */
+@keyframes sbd-rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+@keyframes sbd-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sbd-draw { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+/* Home hero: a tall editorial spread. Copy arrives line by line; the caption moves onto the bar under the photo. */
+.sbd-marketing .sbd-home-hero { grid-template-columns: 45% 55%; min-height: clamp(560px, calc(100vh - 94px), 860px); }
+.sbd-marketing .sbd-home-hero-copy { padding-top: clamp(40px, 5vw, 80px); padding-bottom: clamp(40px, 5vw, 80px); }
+.sbd-marketing .sbd-home-hero-copy h1 { font-size: clamp(46px, 5.3vw, 88px); line-height: 1; margin: 18px 0 30px; }
+.sbd-marketing .sbd-home-hero-copy h1 em { display: inline-block; padding-top: 0.08em; }
+.sbd-marketing .sbd-home-hero-copy > * { animation: sbd-rise 1.1s var(--h-ease) both; }
+.sbd-marketing .sbd-home-hero-copy > :nth-child(2) { animation-delay: 0.12s; }
+.sbd-marketing .sbd-home-hero-copy > :nth-child(3) { animation-delay: 0.26s; }
+.sbd-marketing .sbd-home-hero-copy > :nth-child(4) { animation-delay: 0.4s; }
+.sbd-marketing .sbd-home-hero-copy > :nth-child(5) { animation-delay: 0.54s; }
+.sbd-marketing .sbd-hero-note { margin-top: clamp(28px, 3.6vw, 52px); padding-top: 22px; border-top: 1px solid var(--h-line); }
+.sbd-marketing .sbd-home-hero-photo { animation: sbd-fade 1.6s ease both; }
+.sbd-marketing .sbd-home-hero-photo > span {
+  right: 28px; bottom: 0; height: 64px; display: flex; align-items: center; z-index: 3;
+  padding: 0; background: none; color: var(--h-muted); font-size: 11px; letter-spacing: 0.24em;
+}
+@media (max-width: 1180px) { .sbd-marketing .sbd-home-hero-photo > span { display: none; } }
+@media (max-width: 760px) {
+  .sbd-marketing .sbd-home-hero { grid-template-columns: 1fr; min-height: 0; }
+  .sbd-marketing .sbd-home-hero-photo { min-height: max(380px, 78vw); }
+}
+
+/* Interior page heroes: a clean photograph, with the title on an ivory plaque that rises over its lower edge. */
+.sbd-marketing .sbd-page-hero {
+  --hero-photo: clamp(300px, 58vh, 620px);
+  height: auto; overflow: visible; contain: none; border: 0;
+  background: var(--h-ivory); padding-bottom: clamp(20px, 3vw, 44px);
+}
+.sbd-marketing .sbd-page-hero > div { display: block; position: relative; height: auto; padding: var(--hero-photo) 0 0; }
+.sbd-marketing .sbd-page-hero > div::after { content: none; }
+.sbd-marketing .sbd-page-hero > div > img { height: var(--hero-photo) !important; bottom: auto !important; animation: sbd-fade 1.4s ease both; }
+.sbd-marketing .sbd-page-hero > div > div { position: absolute; inset: 0 0 auto; height: var(--hero-photo); }
+.sbd-marketing .sbd-page-hero h1 {
+  position: relative; z-index: 2; box-sizing: border-box;
+  width: min(960px, calc(100% - 44px)); max-width: none;
+  margin: clamp(-104px, -8vw, -64px) auto 0; padding: 0 clamp(22px, 5vw, 80px) 4px;
+  background: var(--h-ivory); color: var(--h-ink);
+  font-weight: 300; font-size: clamp(34px, 4.6vw, 68px); line-height: 1.08; letter-spacing: -0.01em;
+  text-align: center; text-wrap: balance;
+  animation: sbd-rise 1.1s var(--h-ease) 0.1s both;
+}
+/* A gold thread drops from the photograph into the plaque. */
+.sbd-marketing .sbd-page-hero h1::before {
+  content: ""; display: block; position: relative; top: -26px; width: 1px; height: 64px; margin: 0 auto;
+  background: var(--h-gold); transform-origin: top; animation: sbd-draw 1s var(--h-ease) 0.7s both;
+}
+.sbd-marketing .sbd-page-hero + section.section-padding { padding-top: clamp(44px, 5.5vw, 84px); }
+@media (max-width: 760px) {
+  .sbd-marketing .sbd-page-hero { --hero-photo: clamp(240px, 62vw, 360px); height: auto; }
+  .sbd-marketing .sbd-page-hero > div { padding: var(--hero-photo) 0 0; }
+  .sbd-marketing .sbd-page-hero h1 { font-size: clamp(30px, 8.4vw, 40px); max-width: none; }
+  .sbd-marketing .sbd-page-hero h1::before { height: 48px; top: -20px; }
+}

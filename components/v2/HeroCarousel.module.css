@@ -1,79 +1,136 @@
+/* The photograph is never written on: slides cross-fade on a stage, and the
+   counter, progress and pause control live on a solid bar beneath it. */
 .carousel {
   position: absolute;
   inset: 0;
+  background: #f0e8db;
+}
+.stage {
+  position: absolute;
+  inset: 0 0 64px 0;
   overflow: hidden;
   background: #e6dfd2;
 }
 .slide {
   position: absolute;
   inset: 0;
-  transform: translateX(100%);
+  opacity: 0;
   visibility: hidden;
-}
-.active,
-.leaving {
-  visibility: visible;
-  transition: transform 1100ms cubic-bezier(0.65, 0, 0.35, 1), visibility 1100ms;
+  transition: opacity 1600ms ease, visibility 1600ms;
 }
 .active {
-  transform: translateX(0);
+  opacity: 1;
+  visibility: visible;
+  z-index: 1;
 }
+/* The outgoing photo stays put underneath while the next one fades in over it. */
 .leaving {
-  transform: translateX(-100%);
+  opacity: 1;
+  visibility: visible;
+  z-index: 0;
 }
-.controls {
+.active img,
+.leaving img {
+  animation: heroDrift 9s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+@keyframes heroDrift {
+  from { transform: scale(1.08); }
+  to { transform: scale(1); }
+}
+.bar {
   position: absolute;
-  left: 18px;
-  bottom: 16px;
-  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 64px;
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding: 2px 8px 2px 2px;
-  border-radius: 24px;
-  background: #30261b73;
+  gap: 14px;
+  padding: 0 28px;
+  color: #6f6253;
 }
-.playPause {
-  width: 40px;
-  height: 40px;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  color: #fff;
-  font-size: 11px;
-  letter-spacing: -1px;
-  cursor: pointer;
+.count {
+  font-family: var(--font-heading), Georgia, serif;
+  font-size: 20px;
+  line-height: 1;
+  color: #3a2c22;
+  font-variant-numeric: lining-nums tabular-nums;
 }
-.dot {
+.countTotal {
+  color: #6f6253;
+}
+.segments {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.segment {
   position: relative;
-  width: 24px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
   border: 0;
   background: transparent;
   cursor: pointer;
 }
-.dot::after {
+.segment::before,
+.segment::after {
   content: "";
   position: absolute;
+  left: 0;
+  right: 0;
   top: 50%;
-  left: 50%;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  border: 1px solid #fff;
-  transform: translate(-50%, -50%);
+  height: 1px;
+  background: #cdbfa8;
 }
-.dotActive::after {
-  background: #fff;
+.segment::after {
+  height: 2px;
+  margin-top: -0.5px;
+  background: #b08d57;
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.segmentActive::after {
+  transform: scaleX(1);
+}
+.segmentRunning::after {
+  animation: heroProgress 6000ms linear both;
+}
+@keyframes heroProgress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.segment:hover::before {
+  background: #7d5f2e;
+}
+.playPause {
+  min-height: 44px;
+  margin-left: 6px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: #6f6253;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.4s ease;
+}
+.playPause:hover {
+  color: #3a2c22;
 }
 .playPause:focus-visible,
-.dot:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: -3px;
+.segment:focus-visible {
+  outline: 2px solid #a17f45;
+  outline-offset: -4px;
+}
+@media (max-width: 760px) {
+  .stage { inset: 0 0 56px 0; }
+  .bar { height: 56px; padding: 0 22px; gap: 10px; }
+  .segment { width: 32px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .active,
-  .leaving {
-    transition: none;
-  }
+  .slide { transition: none; }
+  .active img, .leaving img, .segmentRunning::after { animation: none; }
 }

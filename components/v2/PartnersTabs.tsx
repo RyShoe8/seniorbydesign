@@ -26,6 +26,8 @@ type CategoryKey = typeof categories[number]['key'];
 
 export default function PartnersTabs({ partners }: { partners: Partner[] }) {
   const [activeTab, setActiveTab] = useState<CategoryKey>('all');
+  // Every logo stays in the page; the grid just shows the first two rows until asked for the rest.
+  const [expanded, setExpanded] = useState(false);
 
   const filteredPartners = useMemo(() => {
     if (activeTab === 'all') {
@@ -46,7 +48,10 @@ export default function PartnersTabs({ partners }: { partners: Partner[] }) {
             className={`${styles.partnersTab} ${
               activeTab === category.key ? styles.partnersTabActive : ''
             }`}
-            onClick={() => setActiveTab(category.key)}
+            onClick={() => {
+              setActiveTab(category.key);
+              setExpanded(false);
+            }}
           >
             {category.label}
           </button>
@@ -54,7 +59,10 @@ export default function PartnersTabs({ partners }: { partners: Partner[] }) {
       </div>
 
       {filteredPartners.length > 0 ? (
-        <div className={styles.partnersGrid}>
+        <div
+          id="partners-grid"
+          className={`${styles.partnersGrid} ${expanded ? '' : styles.partnersCollapsed}`}
+        >
           {filteredPartners.map((partner) => {
             if (!partner || !partner.logo) return null;
             const logoUrl = partner.logo;
@@ -104,6 +112,23 @@ export default function PartnersTabs({ partners }: { partners: Partner[] }) {
         <p className={styles.partnersEmptyState}>
           No partners to show in this category yet.
         </p>
+      )}
+
+      {filteredPartners.length > 6 && (
+        <div
+          className={`${styles.partnersMore} ${filteredPartners.length > 10 ? '' : styles.partnersMoreNarrowOnly}`}
+        >
+          <button
+            type="button"
+            className="sbd-text-link"
+            aria-expanded={expanded}
+            aria-controls="partners-grid"
+            onClick={() => setExpanded(!expanded)}
+          >
+            {expanded ? 'Show fewer' : `View all ${filteredPartners.length}`}
+            <span aria-hidden="true">{expanded ? '↑' : '↓'}</span>
+          </button>
+        </div>
       )}
     </div>
   );

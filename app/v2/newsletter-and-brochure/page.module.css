@@ -1,205 +1,217 @@
+/* Hero photo: the shared v2 page-hero treatment (hotel.css) places the title on a plaque beneath it. */
 .newsletterHero {
   position: relative;
-  height: 500px;
-  overflow: hidden;
-  contain: layout style paint;
 }
-
-@media (max-width: 768px) {
-  .newsletterHero {
-    height: 350px;
-  }
-}
-
 .newsletterHeroImage {
   position: relative;
   width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 100px;
 }
-
-
-.newsletterHeroImage h1 {
-  position: relative;
-  z-index: 2;
-  color: #fff;
-  font-size: 75px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  text-align: center;
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 8px;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  max-width: 90%;
-}
-
 .heroImage {
   object-fit: cover;
-  aspect-ratio: 16 / 9;
   width: 100%;
-  height: 100%;
 }
 
-@media (max-width: 768px) {
-  .newsletterHeroImage {
-    align-items: flex-end;
-    justify-content: center;
-    padding-bottom: 60px;
-  }
-
-  .newsletterHeroImage h1 {
-    font-size: 36px;
-    padding: var(--spacing-sm) var(--spacing-md);
-    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
-  }
-}
-
+/* The same pairing as the contact page: a dark walnut card beside a form of ruled lines. */
 .newsletterFormWrapper {
-  max-width: 700px;
-  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(36px, 6vw, 96px);
+  align-items: start;
+}
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #d8bf92;
+}
+.eyebrow::before {
+  content: "";
+  flex-shrink: 0;
+  width: 32px;
+  height: 1px;
+  background: #b08d57;
+}
+.brochureIntro {
+  position: sticky;
+  top: 112px;
+  padding: clamp(40px, 4.4vw, 68px) clamp(30px, 3.6vw, 56px);
+  background: #2b1e16;
+  color: #e6dac6;
+}
+.brochureIntro::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 1px solid #b08d5766;
+  pointer-events: none;
+}
+.newsletterFormWrapper .brochureIntro h2 {
+  margin: 20px 0 22px;
+  font-size: clamp(32px, 3.2vw, 46px);
+  font-weight: 300;
+  line-height: 1.1;
+  color: #f5eee2;
+  text-align: left;
+}
+.newsletterFormWrapper .brochureIntro p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #d9ccb8;
+  text-align: left;
+}
+.editions {
+  margin: 34px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid #ffffff24;
+}
+.editions li {
+  padding: 18px 0;
+  border-bottom: 1px solid #ffffff24;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #e6dac6;
+}
+.editions li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.editions span {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--font-heading), Georgia, serif;
+  font-size: 24px;
+  line-height: 1.2;
+  color: #f5eee2;
 }
 
-.newsletterFormWrapper h2 {
-  text-align: center;
-  margin-bottom: var(--spacing-sm);
+.brochureForm {
+  padding-top: clamp(0px, 1.4vw, 20px);
 }
-
-.newsletterFormWrapper p {
-  text-align: center;
-  margin-bottom: var(--spacing-lg);
-}
-
 .formRow {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--spacing-md);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0 clamp(24px, 3vw, 44px);
 }
-
 .formGroup {
-  margin-bottom: var(--spacing-md);
+  margin-bottom: 30px;
 }
-
 .formGroup label {
   display: block;
-  margin-bottom: 0.5rem;
 }
-
-.formGroup input[type="checkbox"] {
-  width: auto;
-  margin-right: 0.5rem;
+.brochureForm .formGroup :is(input:not([type="checkbox"]), select) {
+  width: 100%;
+  min-height: 50px;
+  padding: 10px 0 12px;
+  border: 0;
+  border-bottom: 1px solid #cdbfa8;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+  color: #3a2c22;
+  font-family: inherit;
+  font-size: 18px;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
 }
-
-.formMessage {
-  padding: var(--spacing-sm);
-  border-radius: 4px;
-  margin-bottom: var(--spacing-md);
+.brochureForm .formGroup select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%237d5f2e' stroke-width='1.2'%3E%3Cpath d='M3 6l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  background-size: 16px;
+  cursor: pointer;
 }
-
-.formMessage.success {
-  background: #d4edda;
-  color: #155724;
+.brochureForm .formGroup :is(input:not([type="checkbox"]), select):hover {
+  border-bottom-color: #7d5f2e;
 }
-
-.formMessage.error {
-  background: #f8d7da;
-  color: #721c24;
+.brochureForm .formGroup :is(input:not([type="checkbox"]), select):focus {
+  outline: none;
+  border-bottom-color: #7d5f2e;
+  box-shadow: 0 1px 0 #7d5f2e;
 }
-
-@media (max-width: 768px) {
-  .formRow {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Download Section Styles */
-.downloadSection {
-  background: #f8f9fa;
-  border-top: 3px solid #e9ecef;
-}
-
-.downloadOptions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--spacing-lg);
-  margin-top: var(--spacing-md);
-}
-
-.downloadCard {
-  background: #fff;
-  padding: var(--spacing-xl);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  transition: transform 0.3s ease;
-}
-
-.downloadCard:hover {
-  transform: translateY(-4px);
-}
-
-.downloadCard h3 {
-  color: var(--sbd-brown);
-  margin-bottom: var(--spacing-sm);
-  font-size: 1.25rem;
-}
-
-.downloadCard p {
-  color: var(--text-muted);
-  margin-bottom: var(--spacing-md);
-  line-height: 1.5;
-}
-
-.downloadBtn {
-  display: inline-block;
-  background: var(--sbd-gold);
-  color: #fff;
-  padding: 1rem 2rem;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
-}
-
-.downloadBtn:hover {
-  background-color: var(--sbd-brown);
-}
-
-.emailConfirmation {
+.brochureForm .checkboxLabel {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-sm);
-  padding: var(--spacing-md);
-  background: rgba(0, 123, 255, 0.1);
-  border-radius: 4px;
+  gap: 12px;
+  min-height: 44px;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #5a4c3e;
+  cursor: pointer;
+}
+.brochureForm .checkboxLabel input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  accent-color: #7d5f2e;
+  cursor: pointer;
+}
+.brochureForm .send {
+  min-width: 260px;
+  min-height: 58px;
+  margin-top: 8px;
+}
+.formMessage {
+  margin-bottom: 26px;
+  padding: 16px 20px;
+  border-left: 2px solid #b08d57;
+  background: #f0e8db;
+  color: #3a2c22;
+  font-size: 16px;
+}
+.formMessage.error {
+  border-left-color: #a4442f;
+  background: #f7e9e2;
+  color: #7c2c1b;
 }
 
-.emailIcon {
-  font-size: 1.2rem;
+/* After the request: the download sits under the form, on the same column. */
+.brochureForm .downloadSection.downloadSection {
+  margin-top: 44px;
+  padding: 36px 0 0;
+  border-top: 1px solid #e3d7c3;
+  background: none;
+}
+.brochureForm .downloadSection :global(.container) {
+  padding: 0;
+}
+.brochureForm .downloadSection .centeredHeading {
+  margin-bottom: 24px;
+  text-align: left;
+}
+.brochureForm .downloadSection .centeredHeading::after {
+  margin-left: 0;
+}
+.downloadOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
-.centeredHeading {
-  text-align: center;
-  margin-bottom: var(--spacing-xl);
-  color: var(--sbd-brown);
+@media (max-width: 960px) {
+  .newsletterFormWrapper {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .brochureIntro {
+    position: relative;
+    top: auto;
+  }
 }
-
-
-
-
-.newsletterFormWrapper{max-width:820px;padding:36px;background:#fffefa;border:1px solid #e3d8c7;border-radius:4px;box-shadow:none}.newsletterFormWrapper h2{font-size:36px;font-weight:500}.newsletterFormWrapper p{font-size:15px;line-height:1.85}.formGroup{margin-bottom:22px}.formRow{gap:20px}.downloadCard{border:1px solid #dfd1ba;border-radius:4px;box-shadow:none;background:#fcfaf5}.downloadCard:hover{transform:none;box-shadow:none}.downloadCard h3{font-size:28px;font-style:normal}.downloadBtn{box-shadow:none;border-radius:3px}.downloadBtn:hover{transform:none;box-shadow:none}@media(max-width:760px){.newsletterFormWrapper{padding:24px}.formRow{grid-template-columns:1fr}}
-
-/* V2 detail and interaction polish */
-
-.downloadSection { background: #f2eee6; border-top: 1px solid #dfd5c5; }
-.downloadOptions { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 24px; }
-.downloadCard { padding: 32px; text-align: left; }
-.downloadBtn { background: #593825; color: #fffaf1; font-size: 13px; font-weight: 500; padding: 14px 22px; }
-.emailConfirmation { background: #edf1e8; border: 1px solid #cdd6c3; color: #46553a; padding: 20px; }
-.formMessage { border-radius: 3px; padding: 18px 22px; font-size: 14px; }
+@media (max-width: 560px) {
+  .formGroup {
+    margin-bottom: 24px;
+  }
+  .brochureIntro {
+    padding: 44px 30px;
+  }
+}

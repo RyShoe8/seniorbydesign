@@ -484,3 +484,144 @@
     font-size: 19px;
   }
 }
+
+/* The firm in three figures, on dark walnut. */
+.figures {
+  background: #2b1e16;
+  padding: clamp(56px, 7vw, 104px) 0;
+}
+.figuresGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.figuresGrid > div {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: 18px;
+  padding: 6px clamp(20px, 3.4vw, 56px);
+  border-left: 1px solid #b08d5759;
+}
+.figuresGrid > div:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+.figuresGrid dd {
+  margin: 0;
+  font-family: var(--font-heading), Georgia, serif;
+  font-size: clamp(54px, 7.2vw, 112px);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: #f5eee2;
+  font-variant-numeric: lining-nums;
+  white-space: nowrap;
+}
+.figuresGrid dd small {
+  font-size: 0.3em;
+  font-style: italic;
+  letter-spacing: 0;
+  color: #d8bf92;
+}
+.figuresGrid dt {
+  max-width: 240px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.7;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #d8bf92;
+}
+
+/* Communities we serve: two ruled lists instead of rows of boxes. */
+.communityColumns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(40px, 7vw, 120px);
+  max-width: 1120px;
+  margin: 0 auto;
+  align-items: start;
+}
+.communityColumns .communityLabel {
+  margin: 0 0 14px;
+  font-family: var(--font-body), sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #7d5f2e;
+}
+.communityList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid #b08d57;
+}
+.communityList li {
+  border-bottom: 1px solid #e3d7c3;
+  font-family: var(--font-heading), Georgia, serif;
+  font-size: clamp(26px, 2.6vw, 36px);
+  line-height: 1.2;
+  color: #3a2c22;
+}
+.communityList li > span,
+.communityList .communityLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 44px;
+  padding: 16px 4px 16px 0;
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.5s ease, padding 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.communityList .communityLink span {
+  font-size: 20px;
+  color: #7d5f2e;
+  transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.communityList .communityLink:hover {
+  padding-left: 12px;
+  color: #7d5f2e;
+}
+.communityList .communityLink:hover span {
+  transform: translateX(6px);
+}
+.communityListQuiet {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 28px;
+}
+.communityListQuiet li {
+  font-size: clamp(20px, 1.9vw, 25px);
+  color: #5a4c3e;
+}
+.communityListQuiet li > span {
+  padding: 13px 0;
+}
+@media (max-width: 860px) {
+  .figuresGrid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 34px;
+  }
+  .figuresGrid > div {
+    padding: 0 0 0 22px;
+    border-left: 1px solid #b08d5759;
+  }
+  .figuresGrid > div:first-child {
+    padding-left: 22px;
+    border-left: 1px solid #b08d5759;
+  }
+  .figuresGrid dd {
+    font-size: clamp(54px, 17vw, 84px);
+  }
+  .figuresGrid dt {
+    max-width: none;
+  }
+  .communityColumns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

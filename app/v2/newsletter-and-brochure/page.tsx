@@ -164,13 +164,33 @@ export default function NewsletterAndBrochure() {
       <section className="newsletter-content section-padding reveal-on-scroll">
         <div className="container">
           <div className={styles.newsletterFormWrapper}>
-            <h2>Download Our Brochure</h2>
-            <p>
-              {brochureSettings.allowMailRequests
-                ? 'Get instant access to our digital brochure, or opt to receive a physical copy by mail. You can also join our family and receive our monthly newsletter.'
-                : 'Get instant access to our digital brochure. You can also join our family and receive our monthly newsletter.'}
-            </p>
+            <div className={styles.brochureIntro}>
+              <span className={styles.eyebrow}>The SBD brochure</span>
+              <h2>Download Our Brochure</h2>
+              <p>
+                {brochureSettings.allowMailRequests
+                  ? 'Get instant access to our digital brochure, or opt to receive a physical copy by mail. You can also join our family and receive our monthly newsletter.'
+                  : 'Get instant access to our digital brochure. You can also join our family and receive our monthly newsletter.'}
+              </p>
+              <ul className={styles.editions}>
+                <li>
+                  <span>Digital edition</span>
+                  Sent to you right away.
+                </li>
+                {brochureSettings.allowMailRequests && (
+                  <li>
+                    <span>Printed edition</span>
+                    A physical copy, mailed to your address.
+                  </li>
+                )}
+                <li>
+                  <span>Monthly newsletter</span>
+                  Optional. Tick the box to join.
+                </li>
+              </ul>
+            </div>
 
+            <div className={styles.brochureForm}>
             {isLoadingSettings ? (
               <p>Loading...</p>
             ) : (
@@ -226,7 +246,7 @@ export default function NewsletterAndBrochure() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label>
+                  <label className={styles.checkboxLabel}>
                     <input
                       type="checkbox"
                       name="newsletter"
@@ -308,19 +328,20 @@ export default function NewsletterAndBrochure() {
                 )}
 
                 {submitStatus === 'success' && (
-                  <div className={`${styles.formMessage} ${styles.success}`}>
+                  <div className={`${styles.formMessage} ${styles.success}`} role="status">
                     Thank you! {formData.brochureType === 'digital' ? 'Your download link has been sent to your email.' : 'Your brochure will be mailed to you shortly.'}
                   </div>
                 )}
 
                 {submitStatus === 'error' && (
-                  <div className={`${styles.formMessage} ${styles.error}`}>
+                  <div className={`${styles.formMessage} ${styles.error}`} role="alert">
                     There was an error processing your request. Please try again.
                   </div>
                 )}
 
-                <button type="submit" className="btn" disabled={isSubmitting}>
-                  {isSubmitting ? 'Processing...' : 'Submit'}
+                <button type="submit" className={`btn ${styles.send}`} disabled={isSubmitting}>
+                  {isSubmitting ? 'Sending…' : 'Request the brochure'}
+                  {!isSubmitting && <span aria-hidden="true">→</span>}
                 </button>
               </form>
             )}
@@ -342,6 +363,7 @@ export default function NewsletterAndBrochure() {
                 </div>
               </section>
             )}
+            </div>
           </div>
         </div>
       </section>

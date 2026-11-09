@@ -186,3 +186,99 @@
     height: 340px;
   }
 }
+
+/* Category mosaic: photographs lead the page, and each name sits beneath its photo, never on it. */
+.categoryMosaic {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: clamp(40px, 4.5vw, 68px) 28px;
+}
+.categoryMosaic .categoryTile {
+  grid-column: span 4;
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.categoryMosaic .categoryTile:nth-child(7n + 1),
+.categoryMosaic .categoryTile:nth-child(7n) {
+  grid-column: span 7;
+}
+.categoryMosaic .categoryTile:nth-child(7n + 2),
+.categoryMosaic .categoryTile:nth-child(7n + 6) {
+  grid-column: span 5;
+}
+.tilePhoto {
+  position: relative;
+  height: clamp(280px, 31vw, 460px);
+  overflow: hidden;
+  background: #e6dfd2;
+}
+.tilePhoto img {
+  transition: transform 1.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.categoryTile:hover .tilePhoto img {
+  transform: scale(1.045);
+}
+.tileCaption {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 16px;
+  padding: 20px 2px 0;
+}
+.tileNumber {
+  font-family: var(--font-heading), Georgia, serif;
+  font-size: 20px;
+  font-style: italic;
+  color: #b08d57;
+  font-variant-numeric: lining-nums;
+}
+.categoryMosaic .tileCaption h3 {
+  margin: 0;
+  font-size: clamp(24px, 2.2vw, 32px);
+  font-weight: 400;
+  line-height: 1.15;
+  color: #3a2c22;
+  transition: color 0.5s ease;
+}
+.categoryTile:hover .tileCaption h3 {
+  color: #7d5f2e;
+}
+.tileCue {
+  display: inline-flex;
+  gap: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #b08d57;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #6f6253;
+  transition: gap 0.5s cubic-bezier(0.22, 0.61, 0.36, 1), color 0.5s ease;
+}
+.categoryTile:hover .tileCue {
+  gap: 18px;
+  color: #3a2c22;
+}
+@media (max-width: 1000px) {
+  .categoryMosaic .categoryTile,
+  .categoryMosaic .categoryTile:nth-child(n) {
+    grid-column: span 6;
+  }
+  .tileCue {
+    display: none;
+  }
+}
+@media (max-width: 640px) {
+  .categoryMosaic .categoryTile,
+  .categoryMosaic .categoryTile:nth-child(n) {
+    grid-column: span 12;
+  }
+  .tilePhoto {
+    height: 64vw;
+  }
+  .tileCue {
+    display: inline-flex;
+  }
+}

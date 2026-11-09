@@ -30,7 +30,16 @@ import {
 import { HUB_LINKS } from "@/lib/internal-links";
 import { formatImageAlt, heroAlt, STATIC_IMAGES } from "@/lib/image-seo";
 import HeroCarousel, { type HeroSlide } from "@/components/v2/HeroCarousel";
+import ServicesShowcase from "@/components/v2/ServicesShowcase";
 import styles from "./page.module.css";
+
+// The photograph shown beside each service on the home page.
+const SERVICE_PHOTOS: Record<string, { image: string; position?: string }> = {
+  "interior-environments-and-design": { image: STATIC_IMAGES.portfolioHero, position: "55% center" },
+  "ffe-services": { image: STATIC_IMAGES.warehouse(2) },
+  "procurement-and-installation": { image: STATIC_IMAGES.warehouse(4) },
+  "overall-design-and-development": { image: STATIC_IMAGES.firmHero },
+};
 
 const HERO_SLIDES: HeroSlide[] = [
   { src: STATIC_IMAGES.portfolioHero, alt: heroAlt("portfolio-index"), position: "55% center" },
@@ -140,29 +149,14 @@ export default async function Home() {
         className={`${styles.servicesTeaserSection} section-padding reveal-on-scroll`}
       >
         <div className="container">
-          <h2 className={styles.sectionHeading}>
-            Our Senior Living Design Services
-          </h2>
-          <div className={styles.servicesTeaserGrid}>
-            {HOME_SERVICE_TEASERS.map((service) => (
-              <Link
-                key={service.slug}
-                href={`/services/${service.slug}`}
-                className={styles.serviceTeaserCard}
-              >
-                <h3 className={styles.serviceTeaserTitle}>{service.title}</h3>
-                <p className={styles.serviceTeaserDescription}>
-                  {service.description}
-                </p>
-                <span className={styles.serviceTeaserLink}>Learn more</span>
-              </Link>
-            ))}
-          </div>
-          <div className={styles.servicesTeaserCta}>
-            <Link href="/services" className="btn">
-              View All Services
-            </Link>
-          </div>
+          <ServicesShowcase
+            eyebrow="What we do"
+            heading="Our Senior Living Design Services"
+            services={HOME_SERVICE_TEASERS.map((service) => ({
+              ...service,
+              ...SERVICE_PHOTOS[service.slug],
+            }))}
+          />
         </div>
       </section>
 

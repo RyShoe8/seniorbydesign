@@ -86,6 +86,27 @@ export default function SeniorLivingDesignFirmPage() {
         </div>
       </section>
 
+      <section className={styles.figures} aria-label="Senior By Design in numbers">
+        <dl className={`container ${styles.figuresGrid}`}>
+          <div>
+            <dt>Dallas design center and warehouse</dt>
+            <dd>
+              35,000 <small>sq ft</small>
+            </dd>
+          </div>
+          <div>
+            <dt>Senior living communities designed</dt>
+            <dd>300</dd>
+          </div>
+          <div>
+            <dt>Procured in acquisitions</dt>
+            <dd>
+              $30M<small>+</small>
+            </dd>
+          </div>
+        </dl>
+      </section>
+
       <section className="firm-section section-padding bg-warm-grey reveal-on-scroll">
         <div className="container">
           <div className={styles.twoColumn}>
@@ -142,31 +163,39 @@ export default function SeniorLivingDesignFirmPage() {
       <section className="firm-section section-padding reveal-on-scroll">
         <div className="container">
           <h2 className={styles.centeredHeading}>Communities We Serve</h2>
-          <div className={styles.communitiesGrid}>
-            {FIRM_COMMUNITIES_SENIOR_LIVING.map((community) => {
-              const link = communityLabelLink(community);
-              return (
-                <div key={community} className={styles.communityPill}>
-                  {link ? (
-                    <Link href={link.href} className={styles.communityPillLink}>{community}</Link>
-                  ) : (
-                    <span>{community}</span>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          <div className={styles.multifamilyGroup}>
-            <h3 className={styles.multifamilyHeading}>Multifamily &amp; Mixed-Use</h3>
-            <div className={styles.multifamilyGrid}>
-              <div className={styles.staticPill}><span>High-Rise</span></div>
-              <div className={styles.staticPill}><span>Mid-Rise</span></div>
-              <div className={styles.staticPill}><span>Mixed-Use</span></div>
-              <div className={styles.staticPill}><span>Transit-Oriented</span></div>
-              <div className={styles.staticPill}><span>Garden-Style</span></div>
-              <div className={styles.staticPill}><span>Affordable Housing</span></div>
-              <div className={styles.staticPill}><span>Model Units</span></div>
-              <div className={styles.staticPill}><span>Redevelopment</span></div>
+          <div className={styles.communityColumns}>
+            <div>
+              <h3 className={styles.communityLabel}>Senior Living</h3>
+              <ul className={styles.communityList}>
+                {FIRM_COMMUNITIES_SENIOR_LIVING.map((community) => {
+                  const link = communityLabelLink(community);
+                  return (
+                    <li key={community}>
+                      {link ? (
+                        <Link href={link.href} className={styles.communityLink}>
+                          {community}
+                          <span aria-hidden="true">→</span>
+                        </Link>
+                      ) : (
+                        <span>{community}</span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            <div>
+              <h3 className={styles.communityLabel}>Multifamily &amp; Mixed-Use</h3>
+              <ul className={`${styles.communityList} ${styles.communityListQuiet}`}>
+                <li><span>High-Rise</span></li>
+                <li><span>Mid-Rise</span></li>
+                <li><span>Mixed-Use</span></li>
+                <li><span>Transit-Oriented</span></li>
+                <li><span>Garden-Style</span></li>
+                <li><span>Affordable Housing</span></li>
+                <li><span>Model Units</span></li>
+                <li><span>Redevelopment</span></li>
+              </ul>
             </div>
           </div>
         </div>

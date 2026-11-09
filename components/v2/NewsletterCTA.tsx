@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import Image from 'next/image';
 import Link from '@/components/v2/PreviewLink';
+import { STATIC_IMAGES } from '@/lib/image-seo';
 import { getRecaptchaToken } from '@/lib/recaptcha-client';
 import styles from './NewsletterCTA.module.css';
 
@@ -400,45 +402,65 @@ export default function NewsletterCTA() {
 
   return (
     <section className={styles.newsletterCta}>
-      <div className={styles.newsletterCtaContainer}>
-        <h3 className={styles.newsletterCtaHeading}>
-          See how we design spaces residents love and operators trust.
-        </h3>
-        <button
-          type="button"
-          className={`btn ${styles.brochureButton}`}
-          onClick={openModal}
-
-        >
-          <span className={styles.brochureButtonText}>Get the brochure</span>
-        </button>
+      <div className={styles.band}>
+        <div className={styles.bandPhoto} aria-hidden="true">
+          <Image src={STATIC_IMAGES.blogHero} alt="" fill sizes="(max-width: 860px) 100vw, 580px" />
+        </div>
+        <div className={styles.newsletterCtaContainer}>
+          <span className={styles.dialogEyebrow}>The SBD brochure</span>
+          <h3 className={styles.newsletterCtaHeading}>
+            See how we design spaces residents love and operators trust.
+          </h3>
+          <button type="button" className={`btn ${styles.brochureButton}`} onClick={openModal}>
+            <span className={styles.brochureButtonText}>Get the brochure</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
       </div>
 
       {isOpen && (
         <div
-          className={styles.modalOverlay}
+          className={styles.overlay}
           role="dialog"
           aria-modal="true"
+          aria-labelledby="brochureDialogTitle"
           onClick={(event) => {
             if (event.target === event.currentTarget) {
               closeModal();
             }
           }}
         >
-          <div className={styles.modal} ref={modalRef}>
-            <button type="button" className={styles.modalClose} onClick={closeModal} aria-label="Close">
-              ×
+          <div className={styles.dialog}>
+            <div className={styles.dialogPhoto} aria-hidden="true">
+              <Image src={STATIC_IMAGES.newsletterHero} alt="" fill sizes="400px" />
+            </div>
+            <div className={styles.dialogBody} ref={modalRef}>
+            <button type="button" className={styles.dialogClose} onClick={closeModal} aria-label="Close">
+              <span aria-hidden="true">×</span>
             </button>
 
             {step === 'choice' && allowMailRequests && (
-              <div className={styles.modalStep}>
-                <h4>How would you like the brochure?</h4>
-                <div className={styles.choiceButtons}>
-                  <button type="button" className="btn" onClick={() => handleChoice('digital')}>
-                    View the digital brochure
+              <div className={styles.dialogStep}>
+                <span className={styles.dialogEyebrow}>The SBD brochure</span>
+                <h4 id="brochureDialogTitle" className={styles.dialogTitle}>
+                  How would you like <em>your copy?</em>
+                </h4>
+                <div className={styles.options}>
+                  <button type="button" className={styles.option} onClick={() => handleChoice('digital')}>
+                    <span className={styles.optionNumber} aria-hidden="true">01</span>
+                    <span className={styles.optionText}>
+                      <strong>Digital edition</strong>
+                      <span>View it online now, or download the PDF.</span>
+                    </span>
+                    <span className={styles.optionArrow} aria-hidden="true">→</span>
                   </button>
-                  <button type="button" className={styles.secondaryBtn} onClick={() => handleChoice('physical')}>
-                    Mail me a printed copy
+                  <button type="button" className={styles.option} onClick={() => handleChoice('physical')}>
+                    <span className={styles.optionNumber} aria-hidden="true">02</span>
+                    <span className={styles.optionText}>
+                      <strong>Printed edition</strong>
+                      <span>A printed copy, mailed to your address.</span>
+                    </span>
+                    <span className={styles.optionArrow} aria-hidden="true">→</span>
                   </button>
                 </div>
               </div>
@@ -446,7 +468,19 @@ export default function NewsletterCTA() {
 
             {step === 'form' && (
               <form onSubmit={handleSubmit} className={styles.modalForm}>
-                <h4 className={styles.formTitle}>Your brochure request</h4>
+                <div className={styles.dialogEyebrowRow}>
+                  <span className={styles.dialogEyebrow}>
+                    {brochureType === 'digital' ? 'Digital edition' : 'Printed edition'}
+                  </span>
+                  {allowMailRequests && (
+                    <button type="button" className={styles.changeLink} onClick={() => setStep('choice')}>
+                      Change
+                    </button>
+                  )}
+                </div>
+                <h4 id="brochureDialogTitle" className={styles.dialogTitle}>
+                  Your brochure <em>request</em>
+                </h4>
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
                     <label htmlFor="ctaFirstName">First Name *</label>
@@ -528,19 +562,6 @@ export default function NewsletterCTA() {
                       />
                     </div>
 
-                    <div className={styles.formGroup}>
-                      <label htmlFor="ctaZip">ZIP Code *</label>
-                      <input
-                        type="text"
-                        id="ctaZip"
-                        name="zip"
-                        required
-                        value={formData.zip}
-                        onChange={handleChange}
-                        onFocus={handleInputFocus}
-                      />
-                    </div>
-
                     <div className={`${styles.formRow} ${styles.formRowThreeCol}`}>
                       <div className={styles.formGroup}>
                         <label htmlFor="ctaCity">City *</label>
@@ -571,7 +592,7 @@ export default function NewsletterCTA() {
                             onKeyDown={handleStateInputKeyDown}
                             ref={stateInputRef}
                             autoComplete="off"
-                            placeholder="Select or type a state"
+                            placeholder="Type or select"
                           />
                           {stateDropdownOpen && filteredStates.length > 0 && (
                             <div className={styles.stateDropdownList}>
@@ -619,15 +640,28 @@ export default function NewsletterCTA() {
                     disabled={isSubmitting}
                     ref={submitButtonRef}
                   >
-                    {isSubmitting ? 'Processing...' : 'Submit'}
+                    {isSubmitting
+                      ? 'Sending…'
+                      : brochureType === 'digital'
+                        ? 'Get the brochure'
+                        : 'Request my copy'}
+                    {!isSubmitting && <span aria-hidden="true">→</span>}
                   </button>
                 </div>
               </form>
             )}
 
             {step === 'success' && (
-              <div className={styles.modalStep}>
-                <h4>Your Brochure is Ready</h4>
+              <div className={`${styles.dialogStep} ${styles.dialogSuccess}`}>
+                <span className={styles.successMark} aria-hidden="true" />
+                <span className={styles.dialogEyebrow}>Thank you</span>
+                <h4 id="brochureDialogTitle" className={styles.dialogTitle}>
+                  {brochureType === 'digital' ? (
+                    <>Your brochure <em>is ready</em></>
+                  ) : (
+                    <>Your brochure <em>is on its way</em></>
+                  )}
+                </h4>
                 {brochureType === 'digital' ? (
                   // PDF viewer + download after lead capture — not /experience (admin-email only)
                   <div className={styles.brochureActions}>
@@ -636,21 +670,22 @@ export default function NewsletterCTA() {
                       className={`btn ${styles.viewBtn}`}
                       onClick={closeModal}
                     >
-                      View Brochure
+                      View brochure <span aria-hidden="true">→</span>
                     </Link>
                     <a
                       href="/files/SBD Interactive Brochure.pdf"
                       download="SBD Interactive Brochure.pdf"
-                      className={`btn ${styles.downloadBtn}`}
+                      className={styles.ghostBtn}
                     >
-                      Download Brochure
+                      Download PDF
                     </a>
                   </div>
                 ) : (
-                  <p>Thanks! Your brochure will be mailed to you shortly.</p>
+                  <p className={styles.successNote}>Thanks! Your brochure will be mailed to you shortly.</p>
                 )}
               </div>
             )}
+            </div>
           </div>
         </div>
       )}

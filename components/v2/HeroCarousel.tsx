@@ -56,45 +56,55 @@ export default function HeroCarousel({
         if (!event.currentTarget.contains(event.relatedTarget)) setHeld(false);
       }}
     >
-      {slides.map((slide, index) => (
-        <div
-          key={slide.src}
-          className={`${styles.slide} ${index === active ? styles.active : index === leaving ? styles.leaving : ""}`}
-          role="group"
-          aria-roledescription="slide"
-          aria-label={`${index + 1} of ${slides.length}`}
-          aria-hidden={index !== active}
-        >
-          <SeoImage
-            src={slide.src}
-            alt={slide.alt}
-            fill
-            priority={index === 0}
-            sizes={sizes}
-            style={slide.position ? { objectPosition: slide.position } : undefined}
-          />
-        </div>
-      ))}
+      <div className={styles.stage}>
+        {slides.map((slide, index) => (
+          <div
+            key={slide.src}
+            className={`${styles.slide} ${index === active ? styles.active : index === leaving ? styles.leaving : ""}`}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`${index + 1} of ${slides.length}`}
+            aria-hidden={index !== active}
+          >
+            <SeoImage
+              src={slide.src}
+              alt={slide.alt}
+              fill
+              priority={index === 0}
+              sizes={sizes}
+              style={slide.position ? { objectPosition: slide.position } : undefined}
+            />
+          </div>
+        ))}
+      </div>
       {slides.length > 1 && (
-        <div className={styles.controls}>
+        <div className={styles.bar}>
+          <span className={styles.count} aria-hidden="true">
+            {String(active + 1).padStart(2, "0")}
+          </span>
+          <div className={styles.segments}>
+            {slides.map((slide, index) => (
+              <button
+                type="button"
+                key={slide.src}
+                className={`${styles.segment} ${index === active ? styles.segmentActive : ""} ${index === active && !paused && !held ? styles.segmentRunning : ""}`}
+                onClick={() => goTo(index)}
+                aria-label={`Show image ${index + 1} of ${slides.length}`}
+                aria-current={index === active ? "true" : undefined}
+              />
+            ))}
+          </div>
+          <span className={`${styles.count} ${styles.countTotal}`} aria-hidden="true">
+            {String(slides.length).padStart(2, "0")}
+          </span>
           <button
             type="button"
             className={styles.playPause}
             onClick={() => setPaused(!paused)}
             aria-label={paused ? "Play slideshow" : "Pause slideshow"}
           >
-            <span aria-hidden="true">{paused ? "▶" : "❚❚"}</span>
+            <span aria-hidden="true">{paused ? "Play" : "Pause"}</span>
           </button>
-          {slides.map((slide, index) => (
-            <button
-              type="button"
-              key={slide.src}
-              className={`${styles.dot} ${index === active ? styles.dotActive : ""}`}
-              onClick={() => goTo(index)}
-              aria-label={`Show image ${index + 1} of ${slides.length}`}
-              aria-current={index === active ? "true" : undefined}
-            />
-          ))}
         </div>
       )}
     </div>
