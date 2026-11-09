@@ -28,7 +28,8 @@ export function generateSEOMetadata({
 }: SEOProps & { keywords?: string[] }): Metadata {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://seniorbydesign.com';
   const fullUrl = url ? `${siteUrl}${url}` : siteUrl;
-  const fullImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
+  const pageImage = image || '/images/senior-living-logo-design-sbd.webp';
+  const fullImage = pageImage.startsWith('http') ? pageImage : `${siteUrl}${pageImage}`;
 
   const metadata: Metadata = {
     title,

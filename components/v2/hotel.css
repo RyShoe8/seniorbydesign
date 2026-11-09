@@ -1,0 +1,160 @@
+/* A quieter, hotel-like finish for the v2 public site: editorial type, generous
+   space, hairline rules instead of boxes, and slow, deliberate motion. Everything is
+   scoped to .sbd-marketing, so the live site, admin and portal are unaffected.
+   Loaded after marketing.css. */
+.sbd-marketing {
+  --h-ivory: #faf6ef;
+  --h-stone: #f0e8db;
+  --h-walnut: #2b1e16;
+  --h-walnut-2: #3c2a1e;
+  --h-ink: #3a2c22;
+  --h-body: #5a4c3e;
+  --h-muted: #6f6253;
+  --h-gold: #b08d57;
+  --h-gold-ink: #7d5f2e;
+  --h-line: #e3d7c3;
+  --h-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  background: var(--h-ivory);
+  color: var(--h-body);
+  font-size: 17px;
+  /* Full-bleed bands are sized to the window, which includes a desktop scrollbar. Clip, don't scroll. */
+  overflow-x: clip;
+}
+.sbd-marketing p { font-size: 17px; line-height: 1.85; color: var(--h-body); }
+.sbd-marketing .bg-warm-grey { background: var(--h-stone); }
+.sbd-marketing .section-padding { padding-top: clamp(72px, 9vw, 136px); padding-bottom: clamp(72px, 9vw, 136px); }
+
+/* Type: light display serif, generous measure */
+.sbd-marketing :is(h1, h2, h3) { font-family: var(--font-heading), Georgia, serif; color: var(--h-ink); }
+.sbd-marketing h1 { font-weight: 400; letter-spacing: -0.01em; }
+.sbd-marketing h2 { font-size: clamp(32px, 3.6vw, 54px); font-weight: 400; letter-spacing: -0.005em; line-height: 1.12; }
+.sbd-marketing h3 { font-size: clamp(22px, 2vw, 28px); font-weight: 500; line-height: 1.25; }
+.sbd-marketing h2 em, .sbd-marketing h1 em { font-style: italic; font-weight: 300; color: var(--h-gold-ink); }
+.sbd-marketing [class*="_sectionHeading__"], .sbd-marketing [class*="_centeredHeading__"], .sbd-marketing [class*="_heading__"] { font-weight: 400; }
+.sbd-marketing :is([class*="_sectionHeading__"], [class*="_centeredHeading__"])::after {
+  content: ""; display: block; width: 56px; height: 1px; margin: 22px auto 0; background: var(--h-gold);
+}
+.sbd-marketing .who-we-are-section [class*="_sectionHeading__"]::after { margin-left: 0; }
+
+/* Small capitals, never smaller than readable */
+.sbd-marketing .sbd-eyebrow {
+  display: inline-flex; align-items: center; gap: 14px;
+  font-size: 12px; letter-spacing: 0.28em; font-weight: 600; color: var(--h-gold-ink); text-transform: uppercase;
+}
+.sbd-marketing .sbd-eyebrow::before { content: ""; width: 32px; height: 1px; background: var(--h-gold); flex-shrink: 0; }
+.sbd-marketing .sbd-footer-intro .sbd-eyebrow { color: #d8bf92; }
+
+/* Buttons: square, spaced capitals, calm hover */
+.sbd-marketing .btn, .sbd-marketing [class*="_downloadBtn__"], .sbd-marketing [class*="_brochureButton__"] {
+  border-radius: 0; text-transform: uppercase; letter-spacing: 0.18em; font-size: 12px; font-weight: 600;
+  min-height: 50px; padding: 16px 30px; display: inline-flex; align-items: center; justify-content: center; gap: 14px;
+  background: var(--h-walnut-2); border: 1px solid var(--h-walnut-2); color: #fbf3e4;
+  transition: background 0.5s var(--h-ease), border-color 0.5s var(--h-ease), color 0.5s var(--h-ease);
+}
+.sbd-marketing .btn:hover:not(:disabled), .sbd-marketing [class*="_downloadBtn__"]:hover { background: var(--h-walnut); border-color: var(--h-gold); }
+.sbd-marketing .btn-secondary { background: transparent; color: var(--h-ink); border-color: var(--h-gold); }
+.sbd-marketing .btn-secondary:hover:not(:disabled) { background: var(--h-gold); color: #fff; }
+.sbd-marketing .sbd-text-link {
+  font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--h-ink); min-height: 44px;
+  border-bottom: 1px solid var(--h-gold); transition: gap 0.5s var(--h-ease), color 0.5s var(--h-ease);
+}
+.sbd-marketing .sbd-text-link:hover { gap: 26px; color: var(--h-gold-ink); }
+
+/* Header: lighter, spaced capitals */
+.sbd-marketing [class*="_header__"] { background: #faf6eff2; border-bottom-color: var(--h-line); }
+.sbd-marketing [class*="_navLink__"] { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--h-ink); }
+.sbd-marketing [class*="_navLink__"][class*="_contactLink__"] { border-radius: 0; background: var(--h-walnut-2); color: #fbf3e4; padding: 14px 22px; }
+.sbd-marketing [class*="_navLink__"][class*="_contactLink__"]:hover { background: var(--h-walnut); }
+.sbd-marketing [class*="_mobileMenuButton__"] { border-radius: 0; min-width: 48px; min-height: 48px; }
+.sbd-marketing [class*="_mobileNavLink__"] { font-family: var(--font-heading), Georgia, serif; font-size: 26px; min-height: 52px; display: flex; align-items: center; }
+
+/* Home hero */
+.sbd-marketing .sbd-home-hero { background: var(--h-stone); }
+.sbd-marketing .sbd-home-hero-copy h1 { font-weight: 400; color: var(--h-ink); }
+.sbd-marketing .sbd-home-hero-copy h1 em { color: var(--h-gold-ink); font-weight: 300; }
+.sbd-marketing .sbd-home-hero-copy > p { font-size: 17px; color: var(--h-body); max-width: 420px; }
+.sbd-marketing .sbd-hero-note { font-size: 11px; letter-spacing: 0.24em; color: var(--h-muted); }
+.sbd-marketing .sbd-home-hero-photo > span { font-size: 11px; letter-spacing: 0.24em; background: #1f150fa6; padding: 10px 14px; }
+.sbd-marketing .sbd-capabilities-strip { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--h-muted); padding: 30px 5vw; border-bottom-color: var(--h-line); background: var(--h-ivory); }
+.sbd-marketing .sbd-capabilities-strip > span:first-child { text-transform: none; letter-spacing: 0; font-size: 24px; color: var(--h-ink); }
+
+/* Interior page heroes: taller, quieter, deeper shade at the foot */
+.sbd-marketing .sbd-page-hero { height: clamp(380px, 62vh, 640px); background: var(--h-walnut); }
+.sbd-marketing .sbd-page-hero > div::after { background: linear-gradient(0deg, #1a110bd9 0%, #1a110b4d 45%, transparent 80%); }
+.sbd-marketing .sbd-page-hero h1 { font-weight: 300; font-size: clamp(40px, 5.4vw, 76px); letter-spacing: -0.01em; color: #fbf3e4; }
+
+/* Cards become editorial panels: hairline frame, no shadow, slow lift */
+.sbd-marketing :is([class*="_serviceTeaserCard__"], [class*="_hubCard__"], [class*="CrossLinks_card__"], [class*="_blogCard__"], [class*="_portfolioCard__"], [class*="_portfolioCategoryCard__"], [class*="_teamMemberCard__"], [class*="_testimonialCard__"], [class*="_downloadCard__"], [class*="_financingCard__"], [class*="_contactInfo__"], [class*="_contactFormWrapper__"], [class*="_relatedItem__"]) {
+  border-radius: 0 !important; box-shadow: none !important; background: #fffdf8; border: 1px solid var(--h-line);
+  transition: border-color 0.6s var(--h-ease), transform 0.6s var(--h-ease);
+}
+.sbd-marketing :is([class*="_serviceTeaserCard__"], [class*="_hubCard__"], [class*="CrossLinks_card__"], [class*="_blogCard__"], [class*="_portfolioCard__"], [class*="_portfolioCategoryCard__"], [class*="_teamMemberCard__"], [class*="_relatedItem__"]):hover {
+  border-color: var(--h-gold); transform: translateY(-3px);
+}
+.sbd-marketing :is([class*="_serviceTeaserTitle__"], [class*="_hubLabel__"], [class*="CrossLinks_cardLabel__"]) { font-family: var(--font-heading), Georgia, serif; font-weight: 500; color: var(--h-ink); }
+.sbd-marketing :is([class*="_serviceTeaserDescription__"], [class*="_hubDescription__"]) { font-size: 15px; color: var(--h-body); line-height: 1.7; }
+.sbd-marketing [class*="_serviceTeaserLink__"] { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--h-gold-ink); }
+
+/* Photography breathes and moves slowly */
+.sbd-marketing :is([class*="_portfolioCard__"], [class*="_portfolioCategoryCard__"], [class*="_blogCard__"], [class*="_teamMemberCard__"], [class*="_galleryItem__"]) { overflow: hidden; }
+.sbd-marketing :is([class*="_portfolioCard__"], [class*="_portfolioCategoryCard__"], [class*="_blogCard__"], [class*="_teamMemberCard__"], [class*="_galleryItem__"]) img { transition: transform 1.4s var(--h-ease); }
+.sbd-marketing :is([class*="_portfolioCard__"], [class*="_portfolioCategoryCard__"], [class*="_blogCard__"], [class*="_teamMemberCard__"], [class*="_galleryItem__"]):hover img { transform: scale(1.04); }
+
+/* The signature statement sits on a dark, quiet ground */
+.sbd-marketing .sbd-signature { background: var(--h-walnut); }
+.sbd-marketing .sbd-signature :is(h2, p) { color: #f3e9d8; }
+.sbd-marketing .sbd-signature [class*="_sectionHeading__"]::after { background: var(--h-gold); }
+.sbd-marketing .sbd-signature p { font-family: var(--font-heading), Georgia, serif; font-size: clamp(20px, 2vw, 26px); line-height: 1.6; font-weight: 400; max-width: 900px; margin: 0 auto; text-align: center; }
+
+/* Testimonials read as quotations */
+.sbd-marketing [class*="_testimonialText__"] { font-family: var(--font-heading), Georgia, serif; font-style: italic; font-size: clamp(20px, 2vw, 25px); line-height: 1.55; color: var(--h-ink); }
+.sbd-marketing [class*="_testimonialName__"] { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--h-gold-ink); }
+
+/* Tabs, FAQ and forms */
+.sbd-marketing :is([class*="_partnersTab__"], [class*="PartnersTabs_tab"]) { border-radius: 0; text-transform: uppercase; letter-spacing: 0.14em; font-size: 12px; min-height: 44px; }
+.sbd-marketing [class*="_faqQuestion__"] { font-family: var(--font-heading), Georgia, serif; font-size: clamp(19px, 1.8vw, 23px); font-weight: 500; color: var(--h-ink); min-height: 56px; }
+.sbd-marketing [class*="_faqItem__"] { border-color: var(--h-line); }
+.sbd-marketing :is(input, textarea, select) { border-radius: 0; border-color: #d5c7b1; background: #fffdf8; }
+.sbd-marketing :is(input, textarea, select):focus { border-color: var(--h-gold); outline: none; box-shadow: 0 0 0 3px #b08d5733; }
+.sbd-marketing label { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--h-muted); }
+
+/* Newsletter band */
+.sbd-marketing [class*="_newsletterCta__"] { background: var(--h-stone); }
+.sbd-marketing [class*="_newsletterCtaHeading__"] { font-weight: 400; color: var(--h-ink); }
+
+/* Footer: deep walnut, readable small print */
+.sbd-marketing footer.footer { background: var(--h-walnut); padding-top: clamp(64px, 8vw, 110px); }
+.sbd-marketing .sbd-footer-intro h2 { font-weight: 300; font-size: clamp(32px, 4vw, 52px); color: #f5eee2; }
+.sbd-marketing .sbd-footer-intro h2 em { color: #d8bf92; }
+.sbd-marketing footer.footer :is(h2, h3) { color: #f5eee2; }
+.sbd-marketing .sbd-footer-cta { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; min-height: 44px; align-items: center; }
+.sbd-marketing footer.footer :is(p, li, a, address) { font-size: 14px; }
+.sbd-marketing footer.footer .footer-bottom p { font-size: 12px; }
+.sbd-marketing footer.footer .footer-links a { display: inline-flex; align-items: center; min-height: 36px; }
+
+/* Phones: comfortable reading, finger-sized controls, nothing that zooms the page */
+@media (max-width: 760px) {
+  .sbd-marketing p { font-size: 16px; }
+  .sbd-marketing .section-padding { padding-top: 64px; padding-bottom: 64px; }
+  .sbd-marketing .sbd-home-hero-copy h1 { font-size: 46px; }
+  .sbd-marketing .sbd-capabilities-strip { flex-wrap: wrap; gap: 10px 20px; justify-content: flex-start; }
+  .sbd-marketing .sbd-capabilities-strip > span:first-child { flex-basis: 100%; font-size: 21px; }
+  .sbd-marketing :is(input, textarea, select) { font-size: 16px; }
+  .sbd-marketing .btn { width: 100%; }
+  .sbd-marketing .sbd-hero-actions { flex-direction: column; align-items: stretch; }
+  .sbd-marketing footer.footer .footer-links a { min-height: 44px; }
+  .sbd-marketing footer.footer a[href^="tel:"], .sbd-marketing footer.footer a[href^="mailto:"] { display: inline-flex; align-items: center; min-height: 44px; }
+  .sbd-marketing .sbd-footer-intro { flex-direction: column; align-items: flex-start; }
+}
+/* Phones: every link a finger can hit, nothing wider than the screen */
+@media (max-width: 760px) {
+  .sbd-marketing footer.footer .footer-heading, .sbd-marketing footer.footer .footer-social-heading { font-size: 12px; }
+  .sbd-marketing footer.footer :is(.social-link, .footer-newsletter-link) { display: inline-flex; align-items: center; min-height: 44px; }
+  .sbd-marketing :is([class*="_communityPillLink__"], [class*="_backLink__"], .back-link, [class*="_shareLink__"]) { display: inline-flex; align-items: center; min-height: 44px; }
+  .sbd-marketing [class*="PortfolioCarousel_carouselWrapper__"] { overflow-x: clip; }
+  .sbd-marketing [class*="PortfolioCarousel_navButtonRight__"] { right: 8px; }
+  .sbd-marketing [class*="PortfolioCarousel_navButtonLeft__"] { left: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sbd-marketing *, .sbd-marketing *::before, .sbd-marketing *::after { transition-duration: 0.01ms !important; }
+}

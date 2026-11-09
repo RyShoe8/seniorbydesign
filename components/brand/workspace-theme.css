@@ -54,6 +54,10 @@
 .portal-find kbd { opacity: 1; color: var(--ws-muted); }
 .portal-concierge .portal-eyebrow, .portal-concierge > span:last-child, .workspace-account { color: #d9cdbb; }
 
+/* Sidebar capitals: still quiet, but readable */
+.workspace-brand span, .portal-brand span { font-size: 10px; }
+.workspace-label, .portal-workspace-label, .admin-workspace .workspace-nav-group p, .portal-concierge .portal-eyebrow { font-size: 11px; }
+
 /* Headings, cards, tables */
 .portal-workspace h1, .portal-workspace h2, .admin-workspace .admin-content h1 { color: var(--ws-brown); }
 .portal-eyebrow, .admin-workspace .workspace-context > span { color: var(--ws-gold-ink); font-size: 11px; }
@@ -126,3 +130,23 @@
 .admin-portal-strip span { font-size: 13px; color: #f2dfbc; }
 .admin-portal-strip a { flex-shrink: 0; padding: 10px 16px; min-height: 44px; display: inline-flex; align-items: center; border-radius: 8px; background: var(--ws-gold); color: var(--ws-walnut); font-weight: 600; font-size: 13px; text-decoration: none; }
 .workspace-nav-search kbd, .portal-find kbd { font: 11px var(--font-body); padding: 1px 6px; border: 1px solid currentColor; border-radius: 4px; opacity: .65; }
+
+/* Phones: readable labels, finger-sized controls, and fields that don't zoom the page */
+@media (max-width: 768px) {
+  .admin-workspace :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]), select, textarea) { font-size: 16px !important; }
+  .workspace-topbar > a { font-size: 12px; min-height: 44px; display: inline-flex; align-items: center; }
+  .workspace-breadcrumb strong { font-size: 13px; }
+  .admin-workspace .workspace-context > span, .admin-workspace [class*="eyebrow"] { font-size: 12px; }
+  .admin-workspace .admin-content [class$="-card-label"] { font-size: 12px; }
+  .admin-workspace :is(details > summary, .admin-map-preview summary) { min-height: 44px; display: flex; align-items: center; }
+  .admin-workspace .admin-content [class$="-card-link"] { display: inline-flex; align-items: center; min-height: 44px; }
+}
+@media (max-width: 760px) {
+  .portal-app :is(input:not([type=checkbox]):not([type=radio]), select, textarea) { font-size: 16px; }
+  .portal-workspace .portal-eyebrow { font-size: 12px; }
+  .portal-workspace .portal-org-filter > span { font-size: 12px; }
+  .portal-workspace .portal-date-tile > span { font-size: 11px; }
+  .portal-workspace .portal-revisions summary { font-size: 14px; }
+  .portal-workspace :is(details > summary) { min-height: 44px; display: flex; align-items: center; }
+  .portal-app .portal-actions a { display: inline-flex; align-items: center; min-height: 44px; }
+}

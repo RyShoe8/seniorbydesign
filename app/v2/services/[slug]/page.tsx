@@ -5,7 +5,7 @@ import RelatedServices from '@/components/v2/RelatedServices';
 import SeeOurWork from '@/components/v2/SeeOurWork';
 import { getService } from '../../actions';
 import SeoImage from '@/components/v2/SeoImage';
-import { serviceHeroAlt } from '@/lib/image-seo';
+import { serviceHeroAlt, STATIC_IMAGES } from '@/lib/image-seo';
 import PageSchema from '@/components/v2/PageSchema';
 import { generateSEOMetadata, ServiceSchema, BreadcrumbSchema } from '@/components/v2/SEO';
 import { normalizeServiceSlug } from '@/lib/service-slug';
@@ -92,17 +92,14 @@ export default async function ServicePage({ params }: Props) {
       />
       <section className={`${styles.serviceHero} sbd-page-hero`}>
         <div className={styles.serviceHeroImage}>
-          {service.heroImage ? (
-            <SeoImage
-              src={service.heroImage}
-              alt={serviceHeroAlt(pageH1)}
-              fill
-              className={styles.heroImage}
-              priority
-            />
-          ) : (
-            <div className={styles.heroPlaceholder} />
-          )}
+          {/* A service without its own photo still opens on an interior, not a blank banner. */}
+          <SeoImage
+            src={service.heroImage || STATIC_IMAGES.servicesHero}
+            alt={serviceHeroAlt(pageH1)}
+            fill
+            className={styles.heroImage}
+            priority
+          />
           <h1>{pageH1}</h1>
         </div>
       </section>

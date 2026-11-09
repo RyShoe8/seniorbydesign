@@ -6,6 +6,7 @@ import PreviewHeader from "./v2/Header";
 import PreviewFooter from "./v2/Footer";
 import ScrollReveal from "./ScrollReveal";
 import "./v2/marketing.css";
+import "./v2/hotel.css";
 export default function ConditionalLayout({children}:{children:React.ReactNode}) {
  const pathname=usePathname() || '/';
  const preview=pathname==='/v2'||pathname.startsWith('/v2/');
