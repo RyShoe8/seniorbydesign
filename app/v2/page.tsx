@@ -180,8 +180,6 @@ export default async function Home() {
         </div>
       </section>
 
-      <HubLinksSection links={HUB_LINKS} heading={HOME_HUB_SECTION_HEADING} />
-
       <section className="section-padding reveal-on-scroll sbd-signature">
         <div className="container">
           <h2 className={`${styles.sectionHeading} text-center`}>What Makes SBD Different</h2>
@@ -231,6 +229,8 @@ export default async function Home() {
       </section>
 
       <FaqSection faqs={SENIOR_LIVING_FAQS} heading={HOME_FAQ_HEADING} />
+
+      <HubLinksSection links={HUB_LINKS} heading={HOME_HUB_SECTION_HEADING} />
 
       <NewsletterCTA />
     </>
