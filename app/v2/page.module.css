@@ -655,3 +655,22 @@
 .partnerLogo img { max-height: 100px !important; }
 @media(max-width: 1000px) { .partnersGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media(max-width: 550px) { .partnersGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .partnerLogo { min-height: 100px; padding: 16px; } }
+
+/* Every logo box keeps one height, so logos loading as you scroll can't move the page. */
+.partnerLogo {
+  height: 120px;
+}
+.partnerLogo a {
+  height: 100%;
+}
+.partnerLogo img,
+.partnerLogo span,
+.partnerLogo a img,
+.partnerLogo a span {
+  max-height: 100% !important;
+}
+@media (max-width: 768px) {
+  .partnerLogo {
+    height: 96px;
+  }
+}

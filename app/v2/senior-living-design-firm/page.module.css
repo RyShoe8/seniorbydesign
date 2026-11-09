@@ -424,3 +424,63 @@
 .communityPill { border: 1px solid #ded3c1; padding: 18px 22px; }
 .communitiesGrid, .multifamilyGrid { gap: 16px; }
 .entityContact { border-top: 1px solid #ded3c1; padding-top: 24px; margin-top: 28px; }
+
+/* Community types read as headings, not footnotes. */
+.communitiesGrid {
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 14px;
+  max-width: 1040px;
+}
+.communityPill,
+.staticPill {
+  min-height: 84px;
+  padding: 20px 24px;
+  border-radius: 0;
+  font-family: var(--font-heading), Georgia, serif;
+  font-size: 24px;
+  line-height: 1.25;
+  color: #3a2c22;
+}
+.communityPill {
+  background: #fffdf8;
+  border: 1px solid #e3d7c3;
+  border-left: 3px solid #b08d57;
+}
+.communityPill:hover {
+  box-shadow: none;
+  border-color: #b08d57;
+}
+.communityPillLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+.staticPill {
+  border: 1px solid #e3d7c3;
+  font-size: 22px;
+}
+.multifamilyGroup {
+  max-width: 1040px;
+}
+.multifamilyHeading {
+  font-size: clamp(28px, 3vw, 36px);
+  margin-bottom: 24px;
+}
+.multifamilyGrid {
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+}
+@media (max-width: 760px) {
+  .communitiesGrid,
+  .multifamilyGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .communityPill,
+  .staticPill {
+    min-height: 72px;
+    padding: 14px 12px;
+    font-size: 19px;
+  }
+}

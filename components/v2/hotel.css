@@ -146,6 +146,39 @@
   .sbd-marketing footer.footer a[href^="tel:"], .sbd-marketing footer.footer a[href^="mailto:"] { display: inline-flex; align-items: center; min-height: 44px; }
   .sbd-marketing .sbd-footer-intro { flex-direction: column; align-items: flex-start; }
 }
+/* Readable copy. Page intros are the voice of each page, so they lead at a generous size. */
+.sbd-marketing :is([class*="_servicesIntro__"], [class*="_portfolioIntro__"], [class*="_blogIntro__"], [class*="_contactIntro__"], [class*="_introParagraph__"], [class*="_entityLead__"], [class*="_introText__"], [class*="_serviceIntro__"], [class*="_serviceGeoLead__"], [class*="_centeredParagraph__"]),
+.sbd-marketing [class*="_introContent__"] p {
+  font-size: clamp(19px, 1.55vw, 22px);
+  line-height: 1.75;
+  color: var(--h-body);
+  max-width: 880px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.sbd-marketing :is([class*="_serviceHeader__"], [class*="_columnContent__"], [class*="_serviceBody__"], [class*="_blogPostBody__"], [class*="_bioContent__"]) :is(p, li),
+.sbd-marketing [class*="_serviceHeader__"] p {
+  font-size: 18px;
+  line-height: 1.85;
+  color: var(--h-body);
+}
+.sbd-marketing [class*="_serviceHeader__"] { max-width: 960px; }
+.sbd-marketing [class*="_bulletsColumn__"] li { font-size: 17px; line-height: 1.6; padding-top: 6px; padding-bottom: 6px; color: var(--h-ink); }
+.sbd-marketing [class*="_whoWeDesignForList__"] li { font-size: 18px; }
+
+/* Headings over photographs stay light, whatever the page heading color is */
+.sbd-marketing :is([class*="_categoryOverlay__"], [class*="PortfolioCategoryImage_overlay__"]) :is(h2, h3, h4, p, span) { color: #fffaf1; }
+.sbd-marketing :is([class*="_categoryOverlay__"], [class*="PortfolioCategoryImage_overlay__"]) {
+  padding: 28px 26px;
+  background: linear-gradient(to top, #1d140ee6 0%, #1d140e99 55%, transparent 100%);
+}
+.sbd-marketing :is([class*="_categoryOverlay__"], [class*="PortfolioCategoryImage_overlay__"]) h3 {
+  font-size: clamp(26px, 2.4vw, 32px);
+  font-weight: 400;
+  text-shadow: 0 1px 12px #000000a6;
+}
+.sbd-marketing [class*="_portfolioCategoryCard__"] { border: 0; }
+
 /* Phones: every link a finger can hit, nothing wider than the screen */
 @media (max-width: 760px) {
   .sbd-marketing footer.footer .footer-heading, .sbd-marketing footer.footer .footer-social-heading { font-size: 12px; }
@@ -154,6 +187,8 @@
   .sbd-marketing [class*="PortfolioCarousel_carouselWrapper__"] { overflow-x: clip; }
   .sbd-marketing [class*="PortfolioCarousel_navButtonRight__"] { right: 8px; }
   .sbd-marketing [class*="PortfolioCarousel_navButtonLeft__"] { left: 8px; }
+  .sbd-marketing :is([class*="_serviceHeader__"], [class*="_columnContent__"], [class*="_serviceBody__"], [class*="_blogPostBody__"], [class*="_bioContent__"]) :is(p, li) { font-size: 17px; }
+  .sbd-marketing [class*="_bulletsColumn__"] li { font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .sbd-marketing *, .sbd-marketing *::before, .sbd-marketing *::after { transition-duration: 0.01ms !important; }

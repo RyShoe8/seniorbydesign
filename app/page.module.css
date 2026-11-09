@@ -551,6 +551,21 @@
   }
 }
 
-
-
-
+/* Every logo box keeps one height, so logos loading as you scroll can't move the page. */
+.partnerLogo {
+  height: 120px;
+}
+.partnerLogo a {
+  height: 100%;
+}
+.partnerLogo img,
+.partnerLogo span,
+.partnerLogo a img,
+.partnerLogo a span {
+  max-height: 100% !important;
+}
+@media (max-width: 768px) {
+  .partnerLogo {
+    height: 96px;
+  }
+}
