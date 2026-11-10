@@ -37,6 +37,8 @@ export interface DGHero {
 export interface DGIntro {
   headline: string;
   body: string;
+  /** Photograph shown with the introduction. Falls back to the first card image when unset. */
+  image?: DGImage;
   stats: DGStat[];
   cards: DGIntroCard[];
 }
@@ -168,9 +170,34 @@ export interface DGCTA {
   backgroundImage?: DGImage;
 }
 
+/* ---------- Story: chapter order, visibility and names ------------ */
+export type DGChapterKey =
+  | 'intro'
+  | 'whyUs'
+  | 'services'
+  | 'agingInPlace'
+  | 'process'
+  | 'portfolio'
+  | 'testimonials'
+  | 'financing'
+  | 'faq';
+
+/** How the digital brochure is told. Every field is optional; the brochure has a default for each. */
+export interface DGStory {
+  /** Small line above the cover headline. */
+  coverEyebrow?: string;
+  /** Chapters in reading order. Chapters left out are appended in their default order. */
+  order?: DGChapterKey[];
+  /** Chapters left out of the brochure. */
+  hidden?: DGChapterKey[];
+  /** The short name shown above each chapter headline and in the contents. */
+  labels?: Partial<Record<DGChapterKey | 'cta', string>>;
+}
+
 /* ---------- Top-level document ------------------------------------ */
 export interface DesignGuideContent {
   _id?: ObjectId;
+  story?: DGStory;
   hero: DGHero;
   intro: DGIntro;
   whyUs: DGWhyUs;

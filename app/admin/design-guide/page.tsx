@@ -1,28 +1,31 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import type { DesignGuideContent } from '@/lib/design-guide-models';
+import { useState, useEffect, useCallback, type CSSProperties, type ReactNode } from 'react';
+import type { DesignGuideContent, DGChapterKey } from '@/lib/design-guide-models';
+import {
+  BROCHURE_CHAPTERS,
+  BROCHURE_DRAFT_KEY,
+  DEFAULT_CLOSING_LABEL,
+  DEFAULT_COVER_EYEBROW,
+  orderedChapterKeys,
+} from '@/lib/design-guide-story';
 import ImageUploadField from '@/components/admin/ImageUploadField';
 
-type TabKey = 'hero' | 'intro' | 'whyUs' | 'services' | 'aging' | 'process' | 'testimonials' | 'portfolio' | 'financing' | 'faq' | 'cta';
+type TabKey = 'story' | 'hero' | DGChapterKey | 'cta';
 
-const TABS: { key: TabKey; label: string }[] = [
-  { key: 'hero', label: 'Hero' },
-  { key: 'intro', label: 'Introduction' },
-  { key: 'whyUs', label: 'Why Us' },
-  { key: 'services', label: 'Services' },
-  { key: 'aging', label: 'Aging in Place' },
-  { key: 'process', label: 'Process' },
-  { key: 'testimonials', label: 'Testimonials' },
-  { key: 'portfolio', label: 'Portfolio' },
-  { key: 'financing', label: 'Financing' },
-  { key: 'faq', label: 'FAQ' },
-  { key: 'cta', label: 'CTA' },
-];
+const PREVIEW_URL = '/v2/experience?draft=1';
+
+const subhead: CSSProperties = { margin: '1.75rem 0 0.75rem', color: 'var(--sbd-brown)' };
+const hint: CSSProperties = { margin: '0 0 1rem', fontSize: '14px', color: '#7c705e', lineHeight: 1.6 };
+const card: CSSProperties = { padding: '1rem', border: '1px solid #e6dfd2', borderRadius: '8px', marginBottom: '0.75rem', background: '#fffdf8' };
+const smallBtn: CSSProperties = { minWidth: '40px', minHeight: '40px', padding: '0 0.6rem', border: '1px solid #ddd4c4', background: '#fffefa', borderRadius: '6px', cursor: 'pointer', color: '#554331', fontSize: '14px' };
+const removeBtn: CSSProperties = { ...smallBtn, border: '1px solid #ecc9cd', background: '#fbeaec', color: '#721c24' };
+const addBtn: CSSProperties = { minHeight: '44px', padding: '0.5rem 1rem', border: '1px dashed #b9ab94', background: 'transparent', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', color: '#554331' };
+const grid2: CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0 1rem' };
 
 export default function DesignGuideAdmin() {
   const [content, setContent] = useState<DesignGuideContent | null>(null);
-  const [activeTab, setActiveTab] = useState<TabKey>('hero');
+  const [activeTab, setActiveTab] = useState<TabKey>('story');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
@@ -48,16 +51,41 @@ export default function DesignGuideAdmin() {
     return () => window.removeEventListener('beforeunload', warn);
   }, [dirty]);
 
+  // The live preview window reads this draft and redraws as you type. Nothing here is public.
+  useEffect(() => {
+    if (!content) return;
+    const timer = window.setTimeout(() => {
+      try {
+        window.localStorage.setItem(BROCHURE_DRAFT_KEY, JSON.stringify(content));
+      } catch {
+        /* Preview simply shows the last saved brochure if the draft cannot be stored. */
+      }
+    }, 200);
+    return () => window.clearTimeout(timer);
+  }, [content]);
+
+  const openPreview = () => {
+    try {
+      if (content) window.localStorage.setItem(BROCHURE_DRAFT_KEY, JSON.stringify(content));
+    } catch {
+      setSaveMsg('Live preview is unavailable because browser storage is full or disabled. Save your changes to preview the saved brochure.');
+      return;
+    }
+    window.open(PREVIEW_URL, 'sbd-brochure-preview', 'width=1320,height=900');
+  };
+
   const fetchContent = useCallback(async () => {
     setLoadError(false);
     try {
       const res = await fetch('/api/admin/design-guide');
-      if (!res.ok) throw new Error('Could not load brochure');
-      if (res.ok) {
-        const data = await res.json();
-        setContent(data);
-        setSavedContent(JSON.stringify(data));
+      if (res.status === 404) {
+        setContent(null);
+        return;
       }
+      if (!res.ok) throw new Error('Could not load brochure');
+      const data = await res.json();
+      setContent(data);
+      setSavedContent(JSON.stringify(data));
     } catch (e) {
       setLoadError(true);
     } finally {
@@ -68,18 +96,18 @@ export default function DesignGuideAdmin() {
   useEffect(() => { fetchContent(); }, [fetchContent]);
 
   const handleSeed = async () => {
-    if (!confirm('This will seed initial Design Guide content. Continue?')) return;
+    if (!confirm('This will add the starting brochure content. Continue?')) return;
     setIsSeeding(true);
     try {
       const res = await fetch('/api/admin/design-guide/seed', { method: 'POST' });
       if (res.ok) {
-        setSaveMsg('Content seeded successfully!');
+        setSaveMsg('Starting content added.');
         fetchContent();
       } else {
-        setSaveMsg('Error seeding content.');
+        setSaveMsg('Error adding the starting content.');
       }
     } catch {
-      setSaveMsg('Error seeding content.');
+      setSaveMsg('Error adding the starting content.');
     } finally {
       setIsSeeding(false);
       setTimeout(() => setSaveMsg(''), 4000);
@@ -110,13 +138,14 @@ export default function DesignGuideAdmin() {
     }
   };
 
-  // Helper to update nested content
+  // Update a nested value by path, creating any missing objects on the way (older brochures lack newer fields).
   const updateField = (path: string, value: any) => {
     if (!content) return;
     const keys = path.split('.');
     const updated = JSON.parse(JSON.stringify(content));
     let obj: any = updated;
     for (let i = 0; i < keys.length - 1; i++) {
+      if (obj[keys[i]] === undefined || obj[keys[i]] === null) obj[keys[i]] = {};
       obj = obj[keys[i]];
     }
     obj[keys[keys.length - 1]] = value;
@@ -130,33 +159,65 @@ export default function DesignGuideAdmin() {
   if (!content) {
     return (
       <div className="admin-page">
-        <h1>Design Guide</h1>
-        <p style={{ marginBottom: '1rem' }}>No content found. Seed initial content to get started.</p>
+        <h1>Brochure builder</h1>
+        <p style={{ marginBottom: '1rem' }}>The brochure has no content yet. Add the starting content, then make it yours.</p>
         <button className="btn" onClick={handleSeed} disabled={isSeeding}>
-          {isSeeding ? 'Seeding...' : 'Seed Initial Content'}
+          {isSeeding ? 'Adding...' : 'Add starting content'}
         </button>
         {saveMsg && <p style={{ marginTop: '1rem', color: 'var(--sbd-gold)' }}>{saveMsg}</p>}
       </div>
     );
   }
 
+  /* ---------- Story order ---------- */
+  const story = content.story ?? {};
+  const order = orderedChapterKeys(story);
+  const hidden = story.hidden ?? [];
+  const moveChapter = (index: number, by: -1 | 1) => {
+    const target = index + by;
+    if (target < 0 || target >= order.length) return;
+    const next = [...order];
+    [next[index], next[target]] = [next[target], next[index]];
+    updateField('story.order', next);
+  };
+  const toggleChapter = (key: DGChapterKey, show: boolean) =>
+    updateField('story.hidden', show ? hidden.filter((k) => k !== key) : [...hidden, key]);
+  const chapterName = (key: DGChapterKey) => BROCHURE_CHAPTERS.find((c) => c.key === key)!;
+
+  const tabs: { key: TabKey; label: string }[] = [
+    { key: 'story', label: 'Story' },
+    { key: 'hero', label: 'Cover' },
+    ...order.map((key, index) => ({ key: key as TabKey, label: `${index + 1}. ${chapterName(key).name}` })),
+    { key: 'cta', label: 'Closing' },
+  ];
+
+  const image = (path: string, label: string, folder: string, value?: { src: string; alt: string }) => (
+    <ImageUploadField
+      label={label}
+      value={value?.src || ''}
+      onChange={(url) => updateField(path, { src: url, alt: value?.alt || '' })}
+      altValue={value?.alt || ''}
+      onAltChange={(alt) => updateField(path, { src: value?.src || '', alt })}
+      folder={folder}
+    />
+  );
+
   return (
     <div className="admin-page">
-      {/* Top Header & Cross links */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <h1 style={{ margin: 0 }}>Brochure builder</h1>
           <p style={{ margin: '0.25rem 0 0', fontSize: '14px', color: 'var(--text-muted)' }}>
-            Manage the content, imagery, and text for the interactive digital brochure.
+            Write and arrange the digital brochure. It reads as a story: a cover, your chapters, then a closing invitation.
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <a href="/admin/brochure" className="btn" style={{ textDecoration: 'none', background: '#fffefa', color: '#66533f' }}>
             Brochure Requests & Settings
           </a>
-          <a href="/v2/experience" target="_blank" rel="noopener noreferrer" className="btn" style={{ textDecoration: 'none', background: 'var(--sbd-brown)' }}>
-            Preview Digital Brochure
-          </a>
+          <button type="button" className="btn" onClick={openPreview} style={{ background: 'var(--sbd-brown)' }}>
+            Open live preview
+          </button>
           <button className="btn" onClick={handleSave} disabled={isSaving || !dirty}>
             {isSaving ? 'Saving...' : 'Save All Changes'}
           </button>
@@ -186,52 +247,103 @@ export default function DesignGuideAdmin() {
         </div>
       )}
 
-      {/* Tab navigation */}
       <div className="brochure-tabs" aria-label="Brochure sections">
-        {TABS.map(({ key, label }) => (
-          <button
-            key={key}
-            aria-pressed={activeTab === key}
-            onClick={() => setActiveTab(key)}
-
-          >
+        {tabs.map(({ key, label }) => (
+          <button key={key} aria-pressed={activeTab === key} onClick={() => setActiveTab(key)}>
             {label}
+            {key !== 'story' && key !== 'hero' && key !== 'cta' && hidden.includes(key) ? ' (hidden)' : ''}
           </button>
         ))}
       </div>
 
       <fieldset className="brochure-editor-panel" disabled={isSaving}>
-        {/* ============ HERO ============ */}
+        {/* ============ STORY ============ */}
+        {activeTab === 'story' && (
+          <div>
+            <PanelTitle>The story</PanelTitle>
+            <p style={hint}>
+              Readers open on the cover, move through the chapters in this order, and finish on the closing invitation.
+              Open the live preview beside this window: it redraws as you type, and nothing is public until you save.
+            </p>
+            <Field label="Line above the cover headline" help={`Leave empty to use "${DEFAULT_COVER_EYEBROW}".`}>
+              <input type="text" value={story.coverEyebrow || ''} placeholder={DEFAULT_COVER_EYEBROW} onChange={(e) => updateField('story.coverEyebrow', e.target.value)} />
+            </Field>
+
+            <h3 style={subhead}>Chapters</h3>
+            <p style={hint}>Reorder with the arrows, untick a chapter to leave it out, and rename the short title readers see above each chapter and in the contents.</p>
+            <div style={{ ...card, background: '#f4f0e7', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+              <strong style={{ minWidth: '1.5rem' }}>—</strong>
+              <span>Cover</span>
+              <button type="button" style={{ ...smallBtn, marginLeft: 'auto' }} onClick={() => setActiveTab('hero')}>Edit</button>
+            </div>
+            {order.map((key, index) => {
+              const info = chapterName(key);
+              const isHidden = hidden.includes(key);
+              return (
+                <div key={key} style={{ ...card, display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center', opacity: isHidden ? 0.6 : 1 }}>
+                  <strong style={{ minWidth: '1.5rem' }}>{index + 1}</strong>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', minWidth: '190px', minHeight: '40px' }}>
+                    <input type="checkbox" checked={!isHidden} onChange={(e) => toggleChapter(key, e.target.checked)} style={{ width: '20px', height: '20px' }} />
+                    {info.name}
+                  </label>
+                  <input
+                    type="text"
+                    aria-label={`Short title for ${info.name}`}
+                    value={story.labels?.[key] || ''}
+                    placeholder={info.label}
+                    onChange={(e) => updateField(`story.labels.${key}`, e.target.value)}
+                    style={{ flex: '1 1 200px' }}
+                  />
+                  <span style={{ display: 'flex', gap: '0.35rem' }}>
+                    <button type="button" style={smallBtn} onClick={() => moveChapter(index, -1)} disabled={index === 0} aria-label={`Move ${info.name} earlier`}>↑</button>
+                    <button type="button" style={smallBtn} onClick={() => moveChapter(index, 1)} disabled={index === order.length - 1} aria-label={`Move ${info.name} later`}>↓</button>
+                    <button type="button" style={smallBtn} onClick={() => setActiveTab(key)}>Edit</button>
+                  </span>
+                </div>
+              );
+            })}
+            <div style={{ ...card, background: '#f4f0e7', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+              <strong style={{ minWidth: '1.5rem' }}>{order.length + 1}</strong>
+              <span style={{ minWidth: '190px' }}>Closing</span>
+              <input
+                type="text"
+                aria-label="Short title for the closing"
+                value={story.labels?.cta || ''}
+                placeholder={DEFAULT_CLOSING_LABEL}
+                onChange={(e) => updateField('story.labels.cta', e.target.value)}
+                style={{ flex: '1 1 200px' }}
+              />
+              <button type="button" style={smallBtn} onClick={() => setActiveTab('cta')}>Edit</button>
+            </div>
+          </div>
+        )}
+
+        {/* ============ COVER ============ */}
         {activeTab === 'hero' && (
           <div>
-            <h2 style={{ color: 'var(--sbd-brown)', marginBottom: '1rem' }}>Hero Section</h2>
-            <FieldGroup label="Headline">
+            <PanelTitle>Cover</PanelTitle>
+            <Field label="Headline" help="Each line break starts a new line. The last line is set in italic gold.">
               <textarea rows={3} value={content.hero.headline} onChange={(e) => updateField('hero.headline', e.target.value)} />
-            </FieldGroup>
-            <FieldGroup label="Subheadline">
+            </Field>
+            <Field label="Opening sentence">
               <textarea rows={3} value={content.hero.subheadline} onChange={(e) => updateField('hero.subheadline', e.target.value)} />
-            </FieldGroup>
-            <ImageUploadField
-              label="Background Image"
-              value={content.hero.backgroundImage.src}
-              onChange={(url) => updateField('hero.backgroundImage.src', url)}
-              altValue={content.hero.backgroundImage.alt}
-              onAltChange={(alt) => updateField('hero.backgroundImage.alt', alt)}
-              folder="brochure/hero"
-            />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
-              <FieldGroup label="Primary CTA Label">
-                <input type="text" value={content.hero.ctaPrimary.label} onChange={(e) => updateField('hero.ctaPrimary.label', e.target.value)} />
-              </FieldGroup>
-              <FieldGroup label="Primary CTA Link">
-                <input type="text" value={content.hero.ctaPrimary.href} onChange={(e) => updateField('hero.ctaPrimary.href', e.target.value)} />
-              </FieldGroup>
-              <FieldGroup label="Secondary CTA Label">
-                <input type="text" value={content.hero.ctaSecondary.label} onChange={(e) => updateField('hero.ctaSecondary.label', e.target.value)} />
-              </FieldGroup>
-              <FieldGroup label="Secondary CTA Link">
-                <input type="text" value={content.hero.ctaSecondary.href} onChange={(e) => updateField('hero.ctaSecondary.href', e.target.value)} />
-              </FieldGroup>
+            </Field>
+            {image('hero.backgroundImage', 'Cover photograph', 'brochure/hero', content.hero.backgroundImage)}
+            <h3 style={subhead}>Links beside &ldquo;Begin the story&rdquo;</h3>
+            <p style={hint}>Leave a label empty to remove that link.</p>
+            <div style={grid2}>
+              <Field label="First link label">
+                <input type="text" value={content.hero.ctaPrimary?.label || ''} onChange={(e) => updateField('hero.ctaPrimary.label', e.target.value)} />
+              </Field>
+              <Field label="First link destination">
+                <input type="text" value={content.hero.ctaPrimary?.href || ''} onChange={(e) => updateField('hero.ctaPrimary.href', e.target.value)} />
+              </Field>
+              <Field label="Second link label">
+                <input type="text" value={content.hero.ctaSecondary?.label || ''} onChange={(e) => updateField('hero.ctaSecondary.label', e.target.value)} />
+              </Field>
+              <Field label="Second link destination">
+                <input type="text" value={content.hero.ctaSecondary?.href || ''} onChange={(e) => updateField('hero.ctaSecondary.href', e.target.value)} />
+              </Field>
             </div>
           </div>
         )}
@@ -239,133 +351,122 @@ export default function DesignGuideAdmin() {
         {/* ============ INTRODUCTION ============ */}
         {activeTab === 'intro' && (
           <div>
-            <h2 style={{ color: 'var(--sbd-brown)', marginBottom: '1rem' }}>Introduction</h2>
-            <FieldGroup label="Headline">
+            <PanelTitle>Introduction</PanelTitle>
+            <Field label="Headline">
               <input type="text" value={content.intro.headline} onChange={(e) => updateField('intro.headline', e.target.value)} />
-            </FieldGroup>
-            <FieldGroup label="Body Text">
-              <textarea rows={5} value={content.intro.body} onChange={(e) => updateField('intro.body', e.target.value)} />
-            </FieldGroup>
-            <h3 style={{ marginTop: '1.5rem', color: 'var(--sbd-brown)' }}>Statistics</h3>
-            {content.intro.stats.map((stat, i) => (
-              <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 0.5fr auto', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'end' }}>
-                <FieldGroup label={i === 0 ? 'Value' : undefined}>
-                  <input type="text" value={stat.value} onChange={(e) => { const stats = [...content.intro.stats]; stats[i] = { ...stats[i], value: e.target.value }; updateField('intro.stats', stats); }} />
-                </FieldGroup>
-                <FieldGroup label={i === 0 ? 'Label' : undefined}>
-                  <input type="text" value={stat.label} onChange={(e) => { const stats = [...content.intro.stats]; stats[i] = { ...stats[i], label: e.target.value }; updateField('intro.stats', stats); }} />
-                </FieldGroup>
-                <FieldGroup label={i === 0 ? 'Suffix' : undefined}>
-                  <input type="text" value={stat.suffix || ''} onChange={(e) => { const stats = [...content.intro.stats]; stats[i] = { ...stats[i], suffix: e.target.value }; updateField('intro.stats', stats); }} />
-                </FieldGroup>
-                <button onClick={() => { const stats = content.intro.stats.filter((_, j) => j !== i); updateField('intro.stats', stats); }} style={{ padding: '0.5rem', border: 'none', background: '#f8d7da', borderRadius: '4px', cursor: 'pointer', color: '#721c24', minHeight: '40px' }}>✕</button>
-              </div>
-            ))}
-            <button onClick={() => updateField('intro.stats', [...content.intro.stats, { value: '', label: '', suffix: '' }])} style={{ padding: '0.5rem 1rem', border: '1px dashed var(--warm-grey-3)', background: 'transparent', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', marginTop: '0.5rem' }}>
-              + Add Statistic
-            </button>
+            </Field>
+            <Field label="Body" help="Leave an empty line between paragraphs. The first paragraph is set larger.">
+              <textarea rows={6} value={content.intro.body} onChange={(e) => updateField('intro.body', e.target.value)} />
+            </Field>
+            {image('intro.image', 'Photograph', 'brochure/intro', content.intro.image)}
+            <h3 style={subhead}>Figures</h3>
+            <Repeater
+              items={content.intro.stats ?? []}
+              onChange={(items) => updateField('intro.stats', items)}
+              blank={{ value: '', label: '', suffix: '' }}
+              addLabel="Add a figure"
+              render={(stat, set) => <StatFields stat={stat} set={set} />}
+            />
+            <h3 style={subhead}>Strengths</h3>
+            <Repeater
+              items={content.intro.cards ?? []}
+              onChange={(items) => updateField('intro.cards', items)}
+              blank={{ icon: '', title: '', description: '' }}
+              addLabel="Add a strength"
+              render={(item, set) => <TitleDescriptionFields item={item} set={set} />}
+            />
           </div>
         )}
 
         {/* ============ WHY US ============ */}
         {activeTab === 'whyUs' && (
           <div>
-            <h2 style={{ color: 'var(--sbd-brown)', marginBottom: '1rem' }}>Why Senior By Design</h2>
-            <FieldGroup label="Headline">
+            <PanelTitle>Why Senior By Design</PanelTitle>
+            <Field label="Headline">
               <input type="text" value={content.whyUs.headline} onChange={(e) => updateField('whyUs.headline', e.target.value)} />
-            </FieldGroup>
-            <FieldGroup label="Subheadline">
+            </Field>
+            <Field label="Supporting sentence">
               <textarea rows={2} value={content.whyUs.subheadline || ''} onChange={(e) => updateField('whyUs.subheadline', e.target.value)} />
-            </FieldGroup>
-            <h3 style={{ marginTop: '1.5rem', color: 'var(--sbd-brown)' }}>Cards</h3>
-            {content.whyUs.cards.map((card, i) => (
-              <div key={i} style={{ padding: '1rem', border: '1px solid var(--warm-grey-1)', borderRadius: '8px', marginBottom: '0.75rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr auto', gap: '0.5rem', alignItems: 'end' }}>
-                  <FieldGroup label="Icon">
-                    <input type="text" value={card.icon} onChange={(e) => { const cards = [...content.whyUs.cards]; cards[i] = { ...cards[i], icon: e.target.value }; updateField('whyUs.cards', cards); }} />
-                  </FieldGroup>
-                  <FieldGroup label="Title">
-                    <input type="text" value={card.title} onChange={(e) => { const cards = [...content.whyUs.cards]; cards[i] = { ...cards[i], title: e.target.value }; updateField('whyUs.cards', cards); }} />
-                  </FieldGroup>
-                  <button onClick={() => updateField('whyUs.cards', content.whyUs.cards.filter((_, j) => j !== i))} style={{ padding: '0.5rem', border: 'none', background: '#f8d7da', borderRadius: '4px', cursor: 'pointer', color: '#721c24', minHeight: '40px' }}>✕</button>
-                </div>
-                <FieldGroup label="Description">
-                  <textarea rows={2} value={card.description} onChange={(e) => { const cards = [...content.whyUs.cards]; cards[i] = { ...cards[i], description: e.target.value }; updateField('whyUs.cards', cards); }} />
-                </FieldGroup>
-              </div>
-            ))}
-            <button onClick={() => updateField('whyUs.cards', [...content.whyUs.cards, { icon: '⭐', title: '', description: '' }])} style={{ padding: '0.5rem 1rem', border: '1px dashed var(--warm-grey-3)', background: 'transparent', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>
-              + Add Card
-            </button>
+            </Field>
+            <h3 style={subhead}>Reasons</h3>
+            <Repeater
+              items={content.whyUs.cards ?? []}
+              onChange={(items) => updateField('whyUs.cards', items)}
+              blank={{ icon: '', title: '', description: '' }}
+              addLabel="Add a reason"
+              render={(item, set) => <TitleDescriptionFields item={item} set={set} />}
+            />
           </div>
         )}
 
         {/* ============ SERVICES ============ */}
         {activeTab === 'services' && (
           <div>
-            <h2 style={{ color: 'var(--sbd-brown)', marginBottom: '1rem' }}>Services</h2>
-            <FieldGroup label="Headline">
+            <PanelTitle>Services</PanelTitle>
+            <Field label="Headline">
               <input type="text" value={content.services.headline} onChange={(e) => updateField('services.headline', e.target.value)} />
-            </FieldGroup>
-            <FieldGroup label="Subheadline">
+            </Field>
+            <Field label="Supporting sentence">
               <textarea rows={2} value={content.services.subheadline || ''} onChange={(e) => updateField('services.subheadline', e.target.value)} />
-            </FieldGroup>
-            {content.services.items.map((svc, i) => (
-              <div key={i} style={{ padding: '1rem', border: '1px solid var(--warm-grey-1)', borderRadius: '8px', marginBottom: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <strong>Service {svc.order}</strong>
-                  <button onClick={() => updateField('services.items', content.services.items.filter((_, j) => j !== i))} style={{ padding: '0.5rem', border: 'none', background: '#f8d7da', borderRadius: '4px', cursor: 'pointer', color: '#721c24' }}>✕</button>
-                </div>
-                <FieldGroup label="Title">
-                  <input type="text" value={svc.title} onChange={(e) => { const items = [...content.services.items]; items[i] = { ...items[i], title: e.target.value }; updateField('services.items', items); }} />
-                </FieldGroup>
-                <FieldGroup label="Description">
-                  <textarea rows={2} value={svc.description} onChange={(e) => { const items = [...content.services.items]; items[i] = { ...items[i], description: e.target.value }; updateField('services.items', items); }} />
-                </FieldGroup>
-                <FieldGroup label="Expanded Details">
-                  <textarea rows={3} value={svc.details} onChange={(e) => { const items = [...content.services.items]; items[i] = { ...items[i], details: e.target.value }; updateField('services.items', items); }} />
-                </FieldGroup>
-                <ImageUploadField
-                  label="Service Image"
-                  value={svc.image.src}
-                  onChange={(url) => {
-                    const items = [...content.services.items];
-                    items[i] = { ...items[i], image: { ...items[i].image, src: url } };
-                    updateField('services.items', items);
-                  }}
-                  altValue={svc.image.alt}
-                  onAltChange={(alt) => {
-                    const items = [...content.services.items];
-                    items[i] = { ...items[i], image: { ...items[i].image, alt } };
-                    updateField('services.items', items);
-                  }}
-                  folder="brochure/services"
-                />
-              </div>
-            ))}
-            <button onClick={() => updateField('services.items', [...content.services.items, { title: '', description: '', details: '', image: { src: '', alt: '' }, order: content.services.items.length + 1 }])} style={{ padding: '0.5rem 1rem', border: '1px dashed var(--warm-grey-3)', background: 'transparent', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>
-              + Add Service
-            </button>
+            </Field>
+            <h3 style={subhead}>Services</h3>
+            <p style={hint}>Each service has its own photograph. On a computer the photograph stays in view and changes as the reader moves down the list.</p>
+            <Repeater
+              items={[...(content.services.items ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))}
+              onChange={(items) => updateField('services.items', items.map((item, index) => ({ ...item, order: index + 1 })))}
+              blank={{ title: '', description: '', details: '', image: { src: '', alt: '' }, order: 0 }}
+              addLabel="Add a service"
+              render={(item, set) => (
+                <>
+                  <Field label="Title">
+                    <input type="text" value={item.title} onChange={(e) => set({ title: e.target.value })} />
+                  </Field>
+                  <Field label="Summary">
+                    <textarea rows={2} value={item.description} onChange={(e) => set({ description: e.target.value })} />
+                  </Field>
+                  <Field label="Detail">
+                    <textarea rows={3} value={item.details} onChange={(e) => set({ details: e.target.value })} />
+                  </Field>
+                  <ImageUploadField
+                    label="Photograph"
+                    value={item.image?.src || ''}
+                    onChange={(url) => set({ image: { src: url, alt: item.image?.alt || '' } })}
+                    altValue={item.image?.alt || ''}
+                    onAltChange={(alt) => set({ image: { src: item.image?.src || '', alt } })}
+                    folder="brochure/services"
+                  />
+                </>
+              )}
+            />
           </div>
         )}
 
-        {/* ============ AGING IN PLACE ============ */}
-        {activeTab === 'aging' && (
+        {/* ============ OUR APPROACH ============ */}
+        {activeTab === 'agingInPlace' && (
           <div>
-            <h2 style={{ color: 'var(--sbd-brown)', marginBottom: '1rem' }}>Aging in Place / Our Approach</h2>
-            <FieldGroup label="Headline">
+            <PanelTitle>Our approach</PanelTitle>
+            <Field label="Headline">
               <input type="text" value={content.agingInPlace.headline} onChange={(e) => updateField('agingInPlace.headline', e.target.value)} />
-            </FieldGroup>
-            <FieldGroup label="Body">
-              <textarea rows={5} value={content.agingInPlace.body} onChange={(e) => updateField('agingInPlace.body', e.target.value)} />
-            </FieldGroup>
-            <ImageUploadField
-              label="Section Featured Image"
-              value={content.agingInPlace.image?.src || ''}
-              onChange={(url) => updateField('agingInPlace.image', { src: url, alt: content.agingInPlace.image?.alt || '' })}
-              altValue={content.agingInPlace.image?.alt || ''}
-              onAltChange={(alt) => updateField('agingInPlace.image', { src: content.agingInPlace.image?.src || '', alt })}
-              folder="brochure/aging-in-place"
+            </Field>
+            <Field label="Body" help="Leave an empty line between paragraphs. The first paragraph is set as a large statement.">
+              <textarea rows={6} value={content.agingInPlace.body} onChange={(e) => updateField('agingInPlace.body', e.target.value)} />
+            </Field>
+            {image('agingInPlace.image', 'Photograph', 'brochure/aging-in-place', content.agingInPlace.image)}
+            <h3 style={subhead}>Figures</h3>
+            <Repeater
+              items={content.agingInPlace.stats ?? []}
+              onChange={(items) => updateField('agingInPlace.stats', items)}
+              blank={{ value: '', label: '', suffix: '' }}
+              addLabel="Add a figure"
+              render={(stat, set) => <StatFields stat={stat} set={set} />}
+            />
+            <h3 style={subhead}>Principles</h3>
+            <Repeater
+              items={content.agingInPlace.features ?? []}
+              onChange={(items) => updateField('agingInPlace.features', items)}
+              blank={{ icon: '', title: '', description: '' }}
+              addLabel="Add a principle"
+              render={(item, set) => <TitleDescriptionFields item={item} set={set} />}
             />
           </div>
         )}
@@ -373,189 +474,198 @@ export default function DesignGuideAdmin() {
         {/* ============ PROCESS ============ */}
         {activeTab === 'process' && (
           <div>
-            <h2 style={{ color: 'var(--sbd-brown)', marginBottom: '1rem' }}>Process Timeline</h2>
-            <FieldGroup label="Headline">
+            <PanelTitle>Process</PanelTitle>
+            <Field label="Headline">
               <input type="text" value={content.process.headline} onChange={(e) => updateField('process.headline', e.target.value)} />
-            </FieldGroup>
-            <FieldGroup label="Subheadline">
+            </Field>
+            <Field label="Supporting sentence">
               <textarea rows={2} value={content.process.subheadline || ''} onChange={(e) => updateField('process.subheadline', e.target.value)} />
-            </FieldGroup>
-            {content.process.steps.map((step, i) => (
-              <div key={i} style={{ display: 'grid', gridTemplateColumns: '60px 60px 1fr 2fr auto', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'end' }}>
-                <FieldGroup label={i === 0 ? 'Phase' : undefined}>
-                  <input type="text" value={step.phase} onChange={(e) => { const steps = [...content.process.steps]; steps[i] = { ...steps[i], phase: e.target.value }; updateField('process.steps', steps); }} />
-                </FieldGroup>
-                <FieldGroup label={i === 0 ? 'Icon' : undefined}>
-                  <input type="text" value={step.icon} onChange={(e) => { const steps = [...content.process.steps]; steps[i] = { ...steps[i], icon: e.target.value }; updateField('process.steps', steps); }} />
-                </FieldGroup>
-                <FieldGroup label={i === 0 ? 'Title' : undefined}>
-                  <input type="text" value={step.title} onChange={(e) => { const steps = [...content.process.steps]; steps[i] = { ...steps[i], title: e.target.value }; updateField('process.steps', steps); }} />
-                </FieldGroup>
-                <FieldGroup label={i === 0 ? 'Description' : undefined}>
-                  <input type="text" value={step.description} onChange={(e) => { const steps = [...content.process.steps]; steps[i] = { ...steps[i], description: e.target.value }; updateField('process.steps', steps); }} />
-                </FieldGroup>
-                <button onClick={() => updateField('process.steps', content.process.steps.filter((_, j) => j !== i))} style={{ padding: '0.5rem', border: 'none', background: '#f8d7da', borderRadius: '4px', cursor: 'pointer', color: '#721c24', minHeight: '40px' }}>✕</button>
-              </div>
-            ))}
-            <button onClick={() => updateField('process.steps', [...content.process.steps, { phase: String(content.process.steps.length + 1).padStart(2, '0'), title: '', description: '', icon: '📋' }])} style={{ padding: '0.5rem 1rem', border: '1px dashed var(--warm-grey-3)', background: 'transparent', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', marginTop: '0.5rem' }}>
-              + Add Step
-            </button>
-          </div>
-        )}
-
-        {/* ============ TESTIMONIALS ============ */}
-        {activeTab === 'testimonials' && (
-          <div>
-            <h2 style={{ color: 'var(--sbd-brown)', marginBottom: '1rem' }}>Testimonials</h2>
-            <FieldGroup label="Headline">
-              <input type="text" value={content.testimonials.headline} onChange={(e) => updateField('testimonials.headline', e.target.value)} />
-            </FieldGroup>
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={content.testimonials.useExistingTestimonials} onChange={(e) => updateField('testimonials.useExistingTestimonials', e.target.checked)} style={{ width: '20px', height: '20px' }} />
-                Use testimonials from Homepage Content
-              </label>
-              <p style={{ fontSize: '14px', color: 'var(--warm-grey-3)', marginLeft: '28px', marginTop: '0.25rem' }}>
-                {content.testimonials.useExistingTestimonials
-                  ? 'Testimonials will be pulled from the Homepage Content testimonials.'
-                  : 'Enter custom testimonials below.'}
-              </p>
-            </div>
-            {!content.testimonials.useExistingTestimonials && (
-              <>
-                {content.testimonials.items.map((t, i) => (
-                  <div key={i} style={{ padding: '1rem', border: '1px solid var(--warm-grey-1)', borderRadius: '8px', marginBottom: '0.75rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                      <strong>Testimonial {i + 1}</strong>
-                      <button onClick={() => updateField('testimonials.items', content.testimonials.items.filter((_, j) => j !== i))} style={{ padding: '0.25rem 0.5rem', border: 'none', background: '#f8d7da', borderRadius: '4px', cursor: 'pointer', color: '#721c24' }}>✕</button>
-                    </div>
-                    <FieldGroup label="Quote">
-                      <textarea rows={3} value={t.quote} onChange={(e) => { const items = [...content.testimonials.items]; items[i] = { ...items[i], quote: e.target.value }; updateField('testimonials.items', items); }} />
-                    </FieldGroup>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-                      <FieldGroup label="Name">
-                        <input type="text" value={t.name} onChange={(e) => { const items = [...content.testimonials.items]; items[i] = { ...items[i], name: e.target.value }; updateField('testimonials.items', items); }} />
-                      </FieldGroup>
-                      <FieldGroup label="Title/Company">
-                        <input type="text" value={t.title || ''} onChange={(e) => { const items = [...content.testimonials.items]; items[i] = { ...items[i], title: e.target.value }; updateField('testimonials.items', items); }} />
-                      </FieldGroup>
-                    </div>
-                  </div>
-                ))}
-                <button onClick={() => updateField('testimonials.items', [...content.testimonials.items, { quote: '', name: '', title: '' }])} style={{ padding: '0.5rem 1rem', border: '1px dashed var(--warm-grey-3)', background: 'transparent', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>
-                  + Add Testimonial
-                </button>
-              </>
-            )}
+            </Field>
+            <h3 style={subhead}>Steps</h3>
+            <Repeater
+              items={content.process.steps ?? []}
+              onChange={(items) => updateField('process.steps', items.map((step, index) => ({ ...step, phase: String(index + 1).padStart(2, '0') })))}
+              blank={{ phase: '', title: '', description: '', icon: '' }}
+              addLabel="Add a step"
+              render={(item, set) => <TitleDescriptionFields item={item} set={set} />}
+            />
           </div>
         )}
 
         {/* ============ PORTFOLIO ============ */}
         {activeTab === 'portfolio' && (
           <div>
-            <h2 style={{ color: 'var(--sbd-brown)', marginBottom: '1rem' }}>Portfolio</h2>
-            <FieldGroup label="Headline">
+            <PanelTitle>Portfolio</PanelTitle>
+            <Field label="Headline">
               <input type="text" value={content.portfolio.headline} onChange={(e) => updateField('portfolio.headline', e.target.value)} />
-            </FieldGroup>
-            <FieldGroup label="Subheadline">
+            </Field>
+            <Field label="Supporting sentence">
               <textarea rows={2} value={content.portfolio.subheadline || ''} onChange={(e) => updateField('portfolio.subheadline', e.target.value)} />
-            </FieldGroup>
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={content.portfolio.useExistingPortfolio} onChange={(e) => updateField('portfolio.useExistingPortfolio', e.target.checked)} style={{ width: '20px', height: '20px' }} />
-                Pull images from existing Portfolio categories
-              </label>
-            </div>
+            </Field>
+            <Toggle
+              checked={content.portfolio.useExistingPortfolio}
+              onChange={(checked) => updateField('portfolio.useExistingPortfolio', checked)}
+              label="Use the photographs from the website portfolio"
+              help={content.portfolio.useExistingPortfolio
+                ? 'The brochure shows a selection from each portfolio category, with a filter by category.'
+                : 'Choose the photographs for the brochure below.'}
+            />
+            {!content.portfolio.useExistingPortfolio && (
+              <Repeater
+                items={content.portfolio.images ?? []}
+                onChange={(items) => updateField('portfolio.images', items)}
+                blank={{ src: '', alt: '', category: '', caption: '' }}
+                addLabel="Add a photograph"
+                render={(item, set) => (
+                  <>
+                    <ImageUploadField
+                      label="Photograph"
+                      value={item.src}
+                      onChange={(url) => set({ src: url })}
+                      altValue={item.alt}
+                      onAltChange={(alt) => set({ alt })}
+                      folder="brochure/portfolio"
+                    />
+                    <div style={grid2}>
+                      <Field label="Community type" help="Photographs sharing a type are grouped in the filter.">
+                        <input type="text" value={item.category || ''} onChange={(e) => set({ category: e.target.value })} />
+                      </Field>
+                      <Field label="Caption">
+                        <input type="text" value={item.caption || ''} onChange={(e) => set({ caption: e.target.value })} />
+                      </Field>
+                    </div>
+                  </>
+                )}
+              />
+            )}
           </div>
         )}
 
-        {/* ============ FINANCING ============ */}
+        {/* ============ TESTIMONIALS ============ */}
+        {activeTab === 'testimonials' && (
+          <div>
+            <PanelTitle>Testimonials</PanelTitle>
+            <Field label="Headline">
+              <input type="text" value={content.testimonials.headline} onChange={(e) => updateField('testimonials.headline', e.target.value)} />
+            </Field>
+            <Field label="Supporting sentence">
+              <textarea rows={2} value={content.testimonials.subheadline || ''} onChange={(e) => updateField('testimonials.subheadline', e.target.value)} />
+            </Field>
+            <Toggle
+              checked={content.testimonials.useExistingTestimonials}
+              onChange={(checked) => updateField('testimonials.useExistingTestimonials', checked)}
+              label="Use the testimonials from the homepage"
+              help={content.testimonials.useExistingTestimonials
+                ? 'The brochure shows the homepage testimonials, one at a time.'
+                : 'Write the testimonials for the brochure below.'}
+            />
+            {!content.testimonials.useExistingTestimonials && (
+              <Repeater
+                items={content.testimonials.items ?? []}
+                onChange={(items) => updateField('testimonials.items', items)}
+                blank={{ quote: '', name: '', title: '' }}
+                addLabel="Add a testimonial"
+                render={(item, set) => (
+                  <>
+                    <Field label="Quote">
+                      <textarea rows={3} value={item.quote} onChange={(e) => set({ quote: e.target.value })} />
+                    </Field>
+                    <div style={grid2}>
+                      <Field label="Name">
+                        <input type="text" value={item.name} onChange={(e) => set({ name: e.target.value })} />
+                      </Field>
+                      <Field label="Title and company">
+                        <input type="text" value={item.title || ''} onChange={(e) => set({ title: e.target.value })} />
+                      </Field>
+                    </div>
+                  </>
+                )}
+              />
+            )}
+          </div>
+        )}
+
+        {/* ============ INVESTMENT ============ */}
         {activeTab === 'financing' && (
           <div>
-            <h2 style={{ color: 'var(--sbd-brown)', marginBottom: '1rem' }}>Financing / Investment</h2>
-            <FieldGroup label="Headline">
+            <PanelTitle>Investment</PanelTitle>
+            <Field label="Headline">
               <input type="text" value={content.financing.headline} onChange={(e) => updateField('financing.headline', e.target.value)} />
-            </FieldGroup>
-            <FieldGroup label="Body">
+            </Field>
+            <Field label="Body">
               <textarea rows={4} value={content.financing.body} onChange={(e) => updateField('financing.body', e.target.value)} />
-            </FieldGroup>
-            <h3 style={{ marginTop: '1rem', color: 'var(--sbd-brown)' }}>Pricing Examples</h3>
-            {(content.financing.examples || []).map((ex, i) => (
-              <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'end' }}>
-                <FieldGroup label={i === 0 ? 'Label' : undefined}>
-                  <input type="text" value={ex.label} onChange={(e) => { const examples = [...(content.financing.examples || [])]; examples[i] = { ...examples[i], label: e.target.value }; updateField('financing.examples', examples); }} />
-                </FieldGroup>
-                <FieldGroup label={i === 0 ? 'Value' : undefined}>
-                  <input type="text" value={ex.value} onChange={(e) => { const examples = [...(content.financing.examples || [])]; examples[i] = { ...examples[i], value: e.target.value }; updateField('financing.examples', examples); }} />
-                </FieldGroup>
-                <button onClick={() => updateField('financing.examples', (content.financing.examples || []).filter((_, j) => j !== i))} style={{ padding: '0.5rem', border: 'none', background: '#f8d7da', borderRadius: '4px', cursor: 'pointer', color: '#721c24', minHeight: '40px' }}>✕</button>
-              </div>
-            ))}
-            <button onClick={() => updateField('financing.examples', [...(content.financing.examples || []), { label: '', value: '' }])} style={{ padding: '0.5rem 1rem', border: '1px dashed var(--warm-grey-3)', background: 'transparent', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem', marginTop: '0.5rem' }}>
-              + Add Example
-            </button>
+            </Field>
+            <h3 style={subhead}>Examples</h3>
+            <Repeater
+              items={content.financing.examples ?? []}
+              onChange={(items) => updateField('financing.examples', items)}
+              blank={{ label: '', value: '' }}
+              addLabel="Add an example"
+              render={(item, set) => (
+                <div style={grid2}>
+                  <Field label="Project type">
+                    <input type="text" value={item.label} onChange={(e) => set({ label: e.target.value })} />
+                  </Field>
+                  <Field label="Price guide">
+                    <input type="text" value={item.value} onChange={(e) => set({ value: e.target.value })} />
+                  </Field>
+                </div>
+              )}
+            />
           </div>
         )}
 
-        {/* ============ FAQ ============ */}
+        {/* ============ QUESTIONS ============ */}
         {activeTab === 'faq' && (
           <div>
-            <h2 style={{ color: 'var(--sbd-brown)', marginBottom: '1rem' }}>FAQ</h2>
-            <FieldGroup label="Headline">
+            <PanelTitle>Questions</PanelTitle>
+            <Field label="Headline">
               <input type="text" value={content.faq.headline} onChange={(e) => updateField('faq.headline', e.target.value)} />
-            </FieldGroup>
-            {content.faq.items.map((item, i) => (
-              <div key={i} style={{ padding: '1rem', border: '1px solid var(--warm-grey-1)', borderRadius: '8px', marginBottom: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <strong>Q{i + 1}</strong>
-                  <button onClick={() => updateField('faq.items', content.faq.items.filter((_, j) => j !== i))} style={{ padding: '0.25rem 0.5rem', border: 'none', background: '#f8d7da', borderRadius: '4px', cursor: 'pointer', color: '#721c24' }}>✕</button>
-                </div>
-                <FieldGroup label="Question">
-                  <input type="text" value={item.question} onChange={(e) => { const items = [...content.faq.items]; items[i] = { ...items[i], question: e.target.value }; updateField('faq.items', items); }} />
-                </FieldGroup>
-                <FieldGroup label="Answer">
-                  <textarea rows={3} value={item.answer} onChange={(e) => { const items = [...content.faq.items]; items[i] = { ...items[i], answer: e.target.value }; updateField('faq.items', items); }} />
-                </FieldGroup>
-              </div>
-            ))}
-            <button onClick={() => updateField('faq.items', [...content.faq.items, { question: '', answer: '' }])} style={{ padding: '0.5rem 1rem', border: '1px dashed var(--warm-grey-3)', background: 'transparent', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>
-              + Add FAQ
-            </button>
+            </Field>
+            <Repeater
+              items={content.faq.items ?? []}
+              onChange={(items) => updateField('faq.items', items)}
+              blank={{ question: '', answer: '' }}
+              addLabel="Add a question"
+              render={(item, set) => (
+                <>
+                  <Field label="Question">
+                    <input type="text" value={item.question} onChange={(e) => set({ question: e.target.value })} />
+                  </Field>
+                  <Field label="Answer">
+                    <textarea rows={3} value={item.answer} onChange={(e) => set({ answer: e.target.value })} />
+                  </Field>
+                </>
+              )}
+            />
           </div>
         )}
 
-        {/* ============ CTA ============ */}
+        {/* ============ CLOSING ============ */}
         {activeTab === 'cta' && (
           <div>
-            <h2 style={{ color: 'var(--sbd-brown)', marginBottom: '1rem' }}>Call to Action</h2>
-            <FieldGroup label="Headline">
+            <PanelTitle>Closing</PanelTitle>
+            <Field label="Headline">
               <input type="text" value={content.cta.headline} onChange={(e) => updateField('cta.headline', e.target.value)} />
-            </FieldGroup>
-            <FieldGroup label="Subheadline">
+            </Field>
+            <Field label="Supporting sentence">
               <textarea rows={2} value={content.cta.subheadline} onChange={(e) => updateField('cta.subheadline', e.target.value)} />
-            </FieldGroup>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <FieldGroup label="Phone Number">
+            </Field>
+            <div style={grid2}>
+              <Field label="Phone number">
                 <input type="text" value={content.cta.phone} onChange={(e) => updateField('cta.phone', e.target.value)} />
-              </FieldGroup>
-              <FieldGroup label="Email">
+              </Field>
+              <Field label="Email">
                 <input type="text" value={content.cta.email} onChange={(e) => updateField('cta.email', e.target.value)} />
-              </FieldGroup>
+              </Field>
             </div>
-            <ImageUploadField
-              label="CTA Background Image"
-              value={content.cta.backgroundImage?.src || ''}
-              onChange={(url) => updateField('cta.backgroundImage', { src: url, alt: content.cta.backgroundImage?.alt || '' })}
-              altValue={content.cta.backgroundImage?.alt || ''}
-              onAltChange={(alt) => updateField('cta.backgroundImage', { src: content.cta.backgroundImage?.src || '', alt })}
-              folder="brochure/cta"
+            {image('cta.backgroundImage', 'Photograph', 'brochure/cta', content.cta.backgroundImage)}
+            <Toggle
+              checked={content.cta.showConsultationForm}
+              onChange={(checked) => updateField('cta.showConsultationForm', checked)}
+              label="Show the consultation form"
+              help="Notes sent from the form arrive the same way as the website contact form."
             />
-            <div style={{ marginTop: '0.5rem' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={content.cta.showConsultationForm} onChange={(e) => updateField('cta.showConsultationForm', e.target.checked)} style={{ width: '20px', height: '20px' }} />
-                Show consultation form
-              </label>
-            </div>
           </div>
         )}
       </fieldset>
@@ -569,12 +679,101 @@ export default function DesignGuideAdmin() {
   );
 }
 
-/* Reusable field group */
-function FieldGroup({ label, children }: { label?: string; children: React.ReactNode }) {
+/* ---------- Small building blocks ---------- */
+function PanelTitle({ children }: { children: ReactNode }) {
+  return <h2 style={{ color: 'var(--sbd-brown)', marginBottom: '1rem' }}>{children}</h2>;
+}
+
+function Field({ label, help, children }: { label?: string; help?: string; children: ReactNode }) {
   return (
     <div style={{ marginBottom: '0.75rem' }}>
-      {label && <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.85rem' }}>{label}</label>}
-      {children}
+      <label style={{ display: 'block' }}>
+        {label && <span style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.85rem' }}>{label}</span>}
+        {children}
+      </label>
+      {help && <p style={{ margin: '0.3rem 0 0', fontSize: '13px', color: '#7c705e' }}>{help}</p>}
     </div>
+  );
+}
+
+function Toggle({ checked, onChange, label, help }: { checked: boolean; onChange: (checked: boolean) => void; label: string; help?: string }) {
+  return (
+    <div style={{ margin: '1rem 0' }}>
+      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', minHeight: '40px' }}>
+        <input type="checkbox" checked={!!checked} onChange={(e) => onChange(e.target.checked)} style={{ width: '20px', height: '20px' }} />
+        {label}
+      </label>
+      {help && <p style={{ fontSize: '14px', color: '#7c705e', margin: '0.25rem 0 0 28px' }}>{help}</p>}
+    </div>
+  );
+}
+
+/** A list the editor can add to, remove from and reorder. */
+function Repeater<T>({
+  items,
+  onChange,
+  blank,
+  addLabel,
+  render,
+}: {
+  items: T[];
+  onChange: (items: T[]) => void;
+  blank: T;
+  addLabel: string;
+  render: (item: T, set: (patch: Partial<T>) => void, index: number) => ReactNode;
+}) {
+  const move = (index: number, by: -1 | 1) => {
+    const target = index + by;
+    if (target < 0 || target >= items.length) return;
+    const next = [...items];
+    [next[index], next[target]] = [next[target], next[index]];
+    onChange(next);
+  };
+  return (
+    <div>
+      {items.map((item, index) => (
+        <div key={index} style={card}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.6rem' }}>
+            <strong style={{ marginRight: 'auto' }}>{index + 1}</strong>
+            <button type="button" style={smallBtn} onClick={() => move(index, -1)} disabled={index === 0} aria-label={`Move item ${index + 1} up`}>↑</button>
+            <button type="button" style={smallBtn} onClick={() => move(index, 1)} disabled={index === items.length - 1} aria-label={`Move item ${index + 1} down`}>↓</button>
+            <button type="button" style={removeBtn} onClick={() => onChange(items.filter((_, i) => i !== index))} aria-label={`Remove item ${index + 1}`}>Remove</button>
+          </div>
+          {render(item, (patch) => onChange(items.map((existing, i) => (i === index ? { ...existing, ...patch } : existing))), index)}
+        </div>
+      ))}
+      <button type="button" style={addBtn} onClick={() => onChange([...items, { ...blank }])}>
+        + {addLabel}
+      </button>
+    </div>
+  );
+}
+
+function StatFields({ stat, set }: { stat: { value: string; label: string; suffix?: string }; set: (patch: { value?: string; label?: string; suffix?: string }) => void }) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(90px, 1fr) minmax(70px, 0.6fr) minmax(160px, 3fr)', gap: '0 0.75rem' }}>
+      <Field label="Number">
+        <input type="text" value={stat.value} onChange={(e) => set({ value: e.target.value })} />
+      </Field>
+      <Field label="After it">
+        <input type="text" value={stat.suffix || ''} placeholder="+ or %" onChange={(e) => set({ suffix: e.target.value })} />
+      </Field>
+      <Field label="What it counts">
+        <input type="text" value={stat.label} onChange={(e) => set({ label: e.target.value })} />
+      </Field>
+    </div>
+  );
+}
+
+function TitleDescriptionFields({ item, set }: { item: { title: string; description: string }; set: (patch: { title?: string; description?: string }) => void }) {
+  return (
+    <>
+      <Field label="Title">
+        <input type="text" value={item.title} onChange={(e) => set({ title: e.target.value })} />
+      </Field>
+      <Field label="Description">
+        <textarea rows={2} value={item.description} onChange={(e) => set({ description: e.target.value })} />
+      </Field>
+    </>
   );
 }

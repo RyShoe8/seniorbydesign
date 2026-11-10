@@ -1,5 +1,5 @@
 import { getDesignGuideContentCollection, getPortfolioCategoriesCollection, getHomepageContentCollection } from '@/lib/db';
-import ExperienceClient from './ExperienceClient';
+import StoryExperience from './StoryExperience';
 
 export const revalidate = 0;
 
@@ -7,13 +7,14 @@ export default async function ExperiencePage() {
   const col = await getDesignGuideContentCollection();
   const content = await col.findOne({});
 
-  // Fetch portfolio images if using existing portfolio
+  // Portfolio photographs and homepage testimonials are always loaded, so the builder's live
+  // draft preview can switch between them and custom content before anything is saved.
   let portfolioImages: Array<{ src: string; alt: string; category?: string; caption?: string }> = [];
-  if (content?.portfolio?.useExistingPortfolio) {
+  {
     const portCol = await getPortfolioCategoriesCollection();
     const categories = await portCol.find({}).sort({ order: 1 }).toArray();
     portfolioImages = categories.flatMap((cat) =>
-      (cat.images || []).map((img) => ({
+      (cat.images || []).slice(0, 14).map((img) => ({
         src: img.url,
         alt: img.altText || img.displayName || cat.name,
         category: cat.name,
@@ -24,7 +25,7 @@ export default async function ExperiencePage() {
 
   // Fetch testimonials if using existing ones
   let existingTestimonials: Array<{ quote: string; name: string; title?: string; rating?: number }> = [];
-  if (content?.testimonials?.useExistingTestimonials) {
+  {
     const homeCol = await getHomepageContentCollection();
     const homepageContent = await homeCol.findOne({});
     if (homepageContent?.testimonials) {
@@ -42,7 +43,7 @@ export default async function ExperiencePage() {
     : null;
 
   return (
-    <ExperienceClient
+    <StoryExperience
       content={serialized}
       portfolioImages={portfolioImages}
       existingTestimonials={existingTestimonials}
