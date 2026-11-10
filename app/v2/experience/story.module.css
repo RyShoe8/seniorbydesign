@@ -395,20 +395,34 @@
 
 /* ---------- Cover ---------- */
 .cover {
+  /* One screen: the words above, and the whole photograph beneath them, never cropped. */
+  display: grid;
+  grid-template-rows: auto minmax(300px, 1fr);
+  min-height: max(100vh, 660px);
+  min-height: max(100svh, 660px);
   padding-top: var(--bar);
   background: var(--stone-bg);
 }
 .coverCopy {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-  align-items: center;
-  gap: 28px clamp(36px, 6vw, 100px);
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  align-items: end;
+  gap: clamp(16px, 2.4vh, 26px) clamp(36px, 6vw, 100px);
   max-width: 1600px;
   margin: 0 auto;
-  padding: clamp(40px, 5vw, 80px) clamp(24px, 5vw, 92px);
+  width: 100%;
+  box-sizing: border-box;
+  padding: clamp(22px, 3.4vh, 44px) clamp(24px, 5vw, 92px) clamp(22px, 3.4vh, 40px);
 }
-.coverCopy > .eyebrow {
+.coverTop {
   grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 30px;
+  padding-bottom: clamp(14px, 2vh, 20px);
+  border-bottom: 1px solid #d9ccb6;
 }
 .coverDetails {
   min-width: 0;
@@ -422,8 +436,8 @@
 .coverCopy > :nth-child(5) { animation-delay: 0.62s; }
 .story .coverTitle {
   margin: 0;
-  font-size: clamp(40px, 4.4vw, 76px);
-  line-height: 1.02;
+  font-size: clamp(38px, 4vw, 66px);
+  line-height: 1.04;
   letter-spacing: -0.012em;
 }
 .coverTitle span {
@@ -435,24 +449,21 @@
   color: #7d5f2e;
 }
 .coverLead {
-  max-width: 480px;
-  font-size: clamp(17px, 1.35vw, 20px);
-  line-height: 1.75;
+  max-width: 520px;
+  font-size: clamp(16px, 1.2vw, 18px);
+  line-height: 1.7;
 }
 .coverActions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px 30px;
-  margin-top: 30px;
+  gap: 6px 28px;
+  margin-top: clamp(14px, 2vh, 22px);
 }
 .coverMeta {
   display: inline-flex;
   align-items: center;
   gap: 14px;
-  margin-top: clamp(24px, 4vh, 56px);
-  padding-top: 18px;
-  border-top: 1px solid #d9ccb6;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.24em;
@@ -467,16 +478,19 @@
 }
 .coverPhoto {
   position: relative;
-  overflow: hidden;
-  background: #e6dfd2;
   animation: storyVeil 1.8s ease both;
 }
 .coverPhoto img {
-  /* Group portraits must retain everyone at the edges at every screen size. */
-  display: block;
-  width: 100%;
-  height: auto;
+  /* The photograph is scaled to fit the space left on the screen, whole. Wide group portraits
+     keep everyone at the edges; the ground shows at the sides instead of the picture being cut. */
+  position: absolute;
+  top: 0;
+  left: clamp(24px, 5vw, 92px);
+  width: calc(100% - 2 * clamp(24px, 5vw, 92px));
+  height: calc(100% - clamp(28px, 5vh, 56px));
   object-fit: contain;
+  object-position: center top;
+  filter: drop-shadow(0 26px 44px #2b1e1630);
 }
 
 /* ---------- Chapter frame ---------- */
@@ -1424,8 +1438,15 @@
 /* ---------- Narrow screens ---------- */
 @media (max-width: 900px) {
   .cover {
-    grid-template-columns: minmax(0, 1fr);
+    display: block;
     min-height: 0;
+  }
+  .coverPhoto img {
+    position: static;
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: none;
   }
   .coverCopy {
     grid-template-columns: minmax(0, 1fr);

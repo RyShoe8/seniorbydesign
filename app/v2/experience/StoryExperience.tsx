@@ -317,7 +317,12 @@ function Story({
         {/* ---------- Cover ---------- */}
         <section className={s.cover} id="cover">
           <div className={s.coverCopy}>
-            <span className={s.eyebrow}>{content.story?.coverEyebrow?.trim() || DEFAULT_COVER_EYEBROW}</span>
+            <div className={s.coverTop}>
+              <span className={s.eyebrow}>{content.story?.coverEyebrow?.trim() || DEFAULT_COVER_EYEBROW}</span>
+              <span className={s.coverMeta}>
+                {chapters.length + 1} chapters <i aria-hidden="true" /> A few minutes to read
+              </span>
+            </div>
             <h1 className={s.coverTitle}>
               {headlineLines.map((line, index) => (
                 <span key={index} className={index > 0 && index === headlineLines.length - 1 ? s.coverTitleAccent : undefined}>
@@ -342,9 +347,6 @@ function Story({
                 </Link>
               )}
             </div>
-            <span className={s.coverMeta}>
-              {chapters.length + 1} chapters <i aria-hidden="true" /> A few minutes to read
-            </span>
             </div>
           </div>
           <div className={s.coverPhoto}>
