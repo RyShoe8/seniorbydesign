@@ -96,12 +96,12 @@ export default function SeniorLivingDesignFirmPage() {
           </div>
           <div>
             <dt>Senior living communities designed</dt>
-            <dd>300</dd>
+            <dd>300<small>+</small></dd>
           </div>
           <div>
             <dt>Procured in acquisitions</dt>
             <dd>
-              $30M<small>+</small>
+              $100M<small>+</small>
             </dd>
           </div>
         </dl>
@@ -119,7 +119,7 @@ export default function SeniorLivingDesignFirmPage() {
                 Senior By Design designs communities where residents want to live and professionals want to work—reflecting the family-centered values that inform the firm&apos;s work nationwide.
               </p>
               <p>
-                Having designed 300 senior living communities and procured over $30,000,000 in acquisitions, Senior By Design has built a niche in management-, owner-, and resident-focused senior living interiors through flexible, collaborative, and responsive project delivery.
+                Having designed 300+ senior living communities and procured $100M+ in acquisitions, Senior By Design has built a niche in management-, owner-, and resident-focused senior living interiors through flexible, collaborative, and responsive project delivery.
               </p>
               <blockquote className={styles.culturePullQuote}>
                 Senior By Design incorporates elegant details that fuse the familiar with the unexpected—from renowned local artists to antiques sourced worldwide.

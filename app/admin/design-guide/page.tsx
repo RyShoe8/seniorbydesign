@@ -29,6 +29,17 @@ export default function DesignGuideAdmin() {
   const [saveMsg, setSaveMsg] = useState('');
   const [savedContent, setSavedContent] = useState('');
   const [loadError, setLoadError] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const brochureLink = 'https://seniorbydesign.com/experience';
+  const copyBrochureLink = async () => {
+    try {
+      await navigator.clipboard.writeText(brochureLink);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      window.prompt('Copy the digital brochure link:', brochureLink);
+    }
+  };
   const dirty = !!content && JSON.stringify(content) !== savedContent;
   useEffect(() => {
     if (!dirty) return;
@@ -148,6 +159,23 @@ export default function DesignGuideAdmin() {
           </a>
           <button className="btn" onClick={handleSave} disabled={isSaving || !dirty}>
             {isSaving ? 'Saving...' : 'Save All Changes'}
+          </button>
+        </div>
+      </div>
+
+      <div className="brochure-share-link" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', padding: '0.9rem 1rem', marginBottom: '1.25rem', background: '#fffdf8', border: '1px solid #e3d7c3', borderLeft: '3px solid var(--sbd-gold, #b08d57)', borderRadius: '4px' }}>
+        <div style={{ flex: '1 1 260px', minWidth: 0 }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#806a4d' }}>Digital brochure link</div>
+          <a href={brochureLink} target="_blank" rel="noopener noreferrer" style={{ display: 'block', marginTop: '0.2rem', fontSize: '15px', color: '#593825', overflowWrap: 'anywhere' }}>
+            {brochureLink}
+          </a>
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+          <a href={brochureLink} target="_blank" rel="noopener noreferrer" className="btn" style={{ textDecoration: 'none', background: '#fffefa', color: '#66533f' }}>
+            Open
+          </a>
+          <button type="button" className="btn" onClick={copyBrochureLink} aria-live="polite">
+            {linkCopied ? 'Copied' : 'Copy link'}
           </button>
         </div>
       </div>
