@@ -700,7 +700,7 @@ function ApproachChapter({ content, number, label }: ChapterProps) {
 function ProcessChapter({ content, number, label }: ChapterProps) {
   const process = content.process;
   return (
-    <div className={s.wrap}>
+    <div className={`${s.wrap} ${s.split} ${s.processGrid}`}>
       <Opener number={number} label={label} headline={process.headline} sub={process.subheadline} />
       <ol className={s.journey} data-scroll-line>
         {(process.steps ?? []).map((step, index) => (
@@ -869,15 +869,40 @@ function VoicesChapter({ content, quotes, number, label }: ChapterProps & { quot
   const [held, setHeld] = useState(false);
   const count = quotes.length;
   const safe = index % Math.max(1, count);
+  const stackRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+
+  // Quotes only change by themselves while they are on screen, so the page never moves under a reader elsewhere.
+  useEffect(() => {
+    const stack = stackRef.current;
+    if (!stack) return;
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.3 });
+    observer.observe(stack);
+    return () => observer.disconnect();
+  }, []);
+
+  // The block is as tall as the quote on show, not the longest one, so a short quote leaves no empty space.
+  useEffect(() => {
+    const stack = stackRef.current;
+    const active = stack?.children[safe] as HTMLElement | undefined;
+    if (!stack || !active) return;
+    const sync = () => {
+      stack.style.height = `${active.offsetHeight}px`;
+    };
+    sync();
+    const observer = new ResizeObserver(sync);
+    observer.observe(active);
+    return () => observer.disconnect();
+  }, [safe, count]);
 
   useEffect(() => {
-    if (held || count < 2) return;
+    if (held || !inView || count < 2) return;
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
     const timer = window.setInterval(() => {
       if (!document.hidden) setIndex((i) => (i + 1) % count);
     }, 9000);
     return () => window.clearInterval(timer);
-  }, [held, count]);
+  }, [held, inView, count]);
 
   return (
     <div className={s.wrap}>
@@ -894,7 +919,7 @@ function VoicesChapter({ content, quotes, number, label }: ChapterProps & { quot
         <span className={s.voicesMark} aria-hidden="true">
           “
         </span>
-        <div className={s.voicesStack}>
+        <div className={s.voicesStack} ref={stackRef}>
           {quotes.map((quote, i) => (
             <blockquote key={i} className={i === safe ? s.voiceOn : undefined} aria-hidden={i !== safe}>
               <p>{quote.quote}</p>
