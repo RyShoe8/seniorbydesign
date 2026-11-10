@@ -45,3 +45,6 @@ next-env.d.ts
 /.next-validation/
 
 /.next-integration/
+
+# second local preview build folders
+/.next-preview-*/

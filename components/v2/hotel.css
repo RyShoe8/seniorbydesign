@@ -255,3 +255,10 @@
   .sbd-marketing .sbd-page-hero h1 { font-size: clamp(30px, 8.4vw, 40px); max-width: none; }
   .sbd-marketing .sbd-page-hero h1::before { height: 48px; top: -20px; }
 }
+
+/* The site sets overflow-x: hidden on html and body, which turns body into a scroll box and stops the
+   contact and brochure panels from staying in view while the form scrolls. Clip instead, on v2 only. */
+html:has(.sbd-marketing),
+html:has(.sbd-marketing) body {
+  overflow-x: clip;
+}

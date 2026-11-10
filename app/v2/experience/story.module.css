@@ -395,19 +395,23 @@
 
 /* ---------- Cover ---------- */
 .cover {
-  display: grid;
-  grid-template-columns: minmax(0, 48fr) minmax(0, 52fr);
-  min-height: 100vh;
-  min-height: 100svh;
   padding-top: var(--bar);
   background: var(--stone-bg);
 }
 .coverCopy {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  padding: clamp(28px, 4vh, 64px) clamp(24px, 5vw, 92px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 28px clamp(36px, 6vw, 100px);
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: clamp(40px, 5vw, 80px) clamp(24px, 5vw, 92px);
+}
+.coverCopy > .eyebrow {
+  grid-column: 1 / -1;
+}
+.coverDetails {
+  min-width: 0;
 }
 .coverCopy > * {
   animation: storyRise 1.2s var(--ease) both;
@@ -417,7 +421,7 @@
 .coverCopy > :nth-child(4) { animation-delay: 0.46s; }
 .coverCopy > :nth-child(5) { animation-delay: 0.62s; }
 .story .coverTitle {
-  margin: 24px 0 24px;
+  margin: 0;
   font-size: clamp(40px, 4.4vw, 76px);
   line-height: 1.02;
   letter-spacing: -0.012em;
@@ -463,18 +467,16 @@
 }
 .coverPhoto {
   position: relative;
-  min-height: 320px;
   overflow: hidden;
   background: #e6dfd2;
   animation: storyVeil 1.8s ease both;
 }
-@keyframes storyDrift {
-  from { transform: scale(1.1); }
-  to { transform: scale(1); }
-}
 .coverPhoto img {
-  object-fit: cover;
-  animation: storyDrift 14s var(--ease) both;
+  /* Group portraits must retain everyone at the edges at every screen size. */
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 /* ---------- Chapter frame ---------- */
@@ -1426,12 +1428,9 @@
     min-height: 0;
   }
   .coverCopy {
+    grid-template-columns: minmax(0, 1fr);
     padding-top: 48px;
     padding-bottom: 44px;
-  }
-  .coverPhoto {
-    min-height: 0;
-    aspect-ratio: 4 / 3;
   }
   .split,
   .approach,

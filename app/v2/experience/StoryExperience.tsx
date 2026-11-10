@@ -325,6 +325,7 @@ function Story({
                 </span>
               ))}
             </h1>
+            <div className={s.coverDetails}>
             {hero?.subheadline && <p className={s.coverLead}>{hero.subheadline}</p>}
             <div className={s.coverActions}>
               <button type="button" className={s.button} onClick={() => go(stops[1].id)}>
@@ -344,15 +345,17 @@ function Story({
             <span className={s.coverMeta}>
               {chapters.length + 1} chapters <i aria-hidden="true" /> A few minutes to read
             </span>
+            </div>
           </div>
           <div className={s.coverPhoto}>
             {hero?.backgroundImage?.src && (
               <Image
                 src={hero.backgroundImage.src}
                 alt={hero.backgroundImage.alt || ''}
-                fill
+                width={3529}
+                height={1813}
                 priority
-                sizes="(max-width: 900px) 100vw, 56vw"
+                sizes="100vw"
               />
             )}
           </div>
