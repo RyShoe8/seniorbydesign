@@ -40,9 +40,9 @@ export function validEmail(v: unknown) {
 export function passwordValue(v: unknown) {
   if (typeof v !== "string") throw new PortalError("Enter a password");
   const password = v;
-  if (password.length < 12 || Buffer.byteLength(password) > 72)
+  if (password.length < 8 || Buffer.byteLength(password) > 72)
     throw new PortalError(
-      "Use at least 12 characters and at most 72 bytes for your password",
+      "Use at least 8 characters and at most 72 bytes for your password",
     );
   return password;
 }
@@ -302,6 +302,7 @@ export async function acceptToken(
         );
       }
     }
-    return { success: true };
+    // The form signs the person in straight away, so it needs to know who they are and where they belong.
+    return { success: true, email: token.email, staff: Boolean(token.staff) };
   });
 }

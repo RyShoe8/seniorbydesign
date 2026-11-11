@@ -258,19 +258,22 @@ export function PortalShell({
               <strong>{organization}</strong>
               <span>{email}</span>
             </div>
-            <a
-              href="/account/change"
-              className="portal-avatar"
-              aria-label="Account and password"
-            >
-              {(organization || email || "SBD")
-                .split(/[ @]/)
-                .filter(Boolean)
-                .slice(0, 2)
-                .map((w) => w[0])
-                .join("")
-                .toUpperCase()}
-            </a>
+            <details className="portal-account-menu">
+              <summary className="portal-avatar" aria-label="Account menu">
+                {(organization || email || "SBD")
+                  .split(/[ @]/)
+                  .filter(Boolean)
+                  .slice(0, 2)
+                  .map((w) => w[0])
+                  .join("")
+                  .toUpperCase()}
+              </summary>
+              <div className="portal-account-menu-list">
+                <span>{email}</span>
+                <a href="/account/change">Account settings</a>
+                <button type="button" onClick={signOut}>Sign out</button>
+              </div>
+            </details>
           </div>
         </header>
         <main id="portal-content" className="portal-content">

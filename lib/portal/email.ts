@@ -95,7 +95,26 @@ function content(email: AccountEmail): Content {
 }
 
 export function renderAccountEmail(email: AccountEmail, url: string, origin: string) {
-  const c = content(email);
+  return renderEmail(content(email), url, origin);
+}
+
+/** Sent to a project's client contacts when its status, phase or client note changes. */
+export function renderProjectUpdateEmail(update: { project: string; lines: string[]; note?: string }, url: string, origin: string) {
+  return renderEmail({
+    subject: `Update on ${update.project}`,
+    preview: update.lines[0] || "Senior By Design has added a note to your project.",
+    eyebrow: "SBD CLIENT PORTAL",
+    heading: `An update on ${update.project}`,
+    intro: "Senior By Design has updated your project. Here is what changed.",
+    ...(update.lines.length ? { listTitle: "What changed", list: update.lines } : {}),
+    ...(update.note ? { note: `A note from SBD: ${update.note}` } : {}),
+    button: "View your project",
+    expiry: "",
+    ignore: "You are receiving this because you have access to this project in the SBD client portal.",
+  }, url, origin);
+}
+
+function renderEmail(c: Content, url: string, origin: string) {
   const link = escapeHtml(url);
   const paragraph = (text: string, color = INK, size = 15) =>
     `<p style="margin:0 0 16px;font:${size}px/1.6 ${SANS};color:${color};">${escapeHtml(text)}</p>`;
@@ -121,7 +140,7 @@ export function renderAccountEmail(email: AccountEmail, url: string, origin: str
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 18px;"><tr><td align="center" bgcolor="${BROWN}" style="border-radius:6px;">
         <a href="${link}" style="display:inline-block;padding:14px 26px;font:bold 15px/1.2 ${SANS};color:#fff8eb;text-decoration:none;border-radius:6px;">${escapeHtml(c.button)}</a>
       </td></tr></table>
-      ${paragraph(c.expiry, MUTED, 13)}
+      ${c.expiry ? paragraph(c.expiry, MUTED, 13) : ""}
       <p style="margin:0 0 4px;font:13px/1.5 ${SANS};color:${MUTED};">Button not working? Copy this link into your browser:</p>
       <p style="margin:0 0 18px;font:12px/1.5 ${SANS};word-break:break-all;"><a href="${link}" style="color:#6e5128;">${link}</a></p>
       <p style="margin:0;padding-top:16px;border-top:1px solid ${LINE};font:13px/1.6 ${SANS};color:${MUTED};">${escapeHtml(c.ignore)} Questions? Write to <a href="mailto:${CONTACT}" style="color:#6e5128;">${CONTACT}</a>.</p>
@@ -139,7 +158,7 @@ export function renderAccountEmail(email: AccountEmail, url: string, origin: str
     "",
     `${c.button}: ${url}`,
     "",
-    c.expiry,
+    ...(c.expiry ? [c.expiry] : []),
     c.ignore,
     `Questions? Write to ${CONTACT}.`,
     "",

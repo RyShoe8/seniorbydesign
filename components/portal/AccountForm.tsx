@@ -20,6 +20,7 @@ export default function AccountForm({
     [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false);
   useEffect(() => {
+    if (mode === "login" && new URLSearchParams(location.search).has("ready")) setMessage("Your account is ready. Sign in below.");
     if (mode === "accept") {
       const raw = location.hash.slice(1);
       setToken(raw);
@@ -60,6 +61,15 @@ export default function AccountForm({
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error);
+        if (mode === "accept") {
+          // Verified: go straight in, with no second trip to the sign-in page.
+          const home = data.staff ? "/admin" : "/portal";
+          if (password && data.email) {
+            const result = await signIn("credentials", { email: data.email, password, redirect: false });
+            location.href = result?.error ? "/account/login?ready=1" : home;
+          } else location.href = home;
+          return;
+        }
         setMessage(
           data.message || "Your account is ready. You can now sign in.",
         );
@@ -128,12 +138,12 @@ export default function AccountForm({
           )}
           {mode !== "reset" && (
             <label>
-              {mode === "login" ? "Password" : mode === "accept" ? "Choose a password (at least 12 characters)" : "New password (at least 12 characters)"}
+              {mode === "login" ? "Password" : mode === "accept" ? "Choose a password (at least 8 characters)" : "New password (at least 8 characters)"}
               <PasswordInput
                 autoComplete={
                   mode === "login" ? "current-password" : "new-password"
                 }
-                minLength={mode === "login" ? undefined : 12}
+                minLength={mode === "login" ? undefined : 8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required={mode !== "accept"}

@@ -1524,3 +1524,28 @@ a.portal-project-open { display: flex; align-items: center; justify-content: spa
  .portal-workspace .portal-simple-tracker td::before {content:attr(data-label);display:block;font-size:12px;font-weight:600;color:#877154;margin-bottom:7px;}
 }
 @media(max-width:480px){.portal-workspace .portal-simple-tracker tr{grid-template-columns:1fr;padding:18px;}.portal-workspace .portal-next-action{padding:18px;}.portal-workspace .portal-next-action p{font-size:18px;}}
+
+/* Account menu under the initials: settings and sign out. */
+.portal-account-menu { position: relative; }
+.portal-account-menu > summary { list-style: none; cursor: pointer; }
+.portal-account-menu > summary::-webkit-details-marker { display: none; }
+.portal-account-menu-list {
+  position: absolute; right: 0; top: calc(100% + 10px); z-index: 30; min-width: 230px;
+  display: flex; flex-direction: column; padding: 8px;
+  background: #fffefa; border: 1px solid #e4dccf; border-radius: 12px; box-shadow: 0 14px 40px #3b2a1a26;
+}
+.portal-account-menu-list > span { padding: 8px 12px 10px; font-size: 12px; color: #7c705e; border-bottom: 1px solid #eee7da; margin-bottom: 6px; overflow-wrap: anywhere; }
+.portal-account-menu-list :is(a, button) {
+  display: flex; align-items: center; min-height: 44px; padding: 0 12px; border: 0; border-radius: 8px;
+  background: none; color: #45382d; font: inherit; font-size: 14px; text-align: left; text-decoration: none; cursor: pointer;
+}
+.portal-account-menu-list :is(a, button):hover { background: #f4efe5; }
+
+/* Notes written for the client, shown on the project to everyone who can see it. */
+.portal-client-notes { margin: 18px 0; padding: 16px 18px; background: #f6f1e7; border-left: 3px solid #b88e48; border-radius: 6px; }
+.portal-client-notes h3 { margin: 0 0 6px; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6037; }
+.portal-client-notes p { margin: 0; white-space: pre-wrap; }
+
+/* Account settings: three short forms on one page. */
+.portal-account-settings form { margin-top: 22px; padding-top: 20px; border-top: 1px solid #e7e0d3; }
+.portal-account-settings form h2 { margin: 0 0 12px; font-size: 20px; }

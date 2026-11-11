@@ -46,9 +46,12 @@ export interface ProjectRequest {
   sheetStatus?: string;
   /** From the sheet's Notes column. Staff only: never sent to client accounts. */
   internalNotes?: string;
+  /** From the sheet's Client Notes column. Written for the client, shown in the portal and emailed when it changes. */
+  clientNotes?: string;
   contactName?: string;
   contactEmail?: string;
   progressEstimate?: number;
+  /** Staff notes typed in the portal. Staff only: never sent to client accounts. */
   notes?: string;
   summary: string;
   receivedAt: string;
@@ -81,6 +84,8 @@ export interface Project {
   workflowTouched: boolean;
   updatedAt: Date;
   smartsheet?: SmartsheetLink;
+  /** What clients were last emailed about: see lib/portal/client-updates.ts. */
+  clientNotified?: { stage: string; phase: string; note: string };
   /** Sheet rows for this project's quotes. Read-only reference, rebuilt on every sync. */
   sheetQuoteRows?: SheetQuoteRow[];
 }
@@ -108,6 +113,7 @@ export interface ImportProject extends Omit<
   | "version"
   | "updatedAt"
   | "smartsheet"
+  | "clientNotified"
   | "sheetQuoteRows"
   | "operatorApproval"
   | "workflowTouched"

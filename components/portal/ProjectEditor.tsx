@@ -57,7 +57,8 @@ export function ProjectEditor({ project, organizations, onSaved, buttonLabel }: 
               <label>Progress estimate %<input name="progressEstimate" type="number" min="0" max="100" defaultValue={request?.progressEstimate ?? 0} /></label>
             </div>
             <label>Project summary<textarea name="summary" rows={2} maxLength={4000} defaultValue={project?.summary} /></label>
-            <label>Notes<textarea name="notes" rows={2} maxLength={2000} defaultValue={request?.notes} /></label>
+            <label>Client notes<textarea name="clientNotes" rows={2} maxLength={4000} defaultValue={request?.clientNotes} /><small>Shown to the client and emailed to them when it changes. On projects linked to Smartsheet, the sheet&apos;s Client Notes column replaces this.</small></label>
+            <label>SBD notes (staff only)<textarea name="notes" rows={2} maxLength={2000} defaultValue={request?.notes} /><small>Never shown to clients.</small></label>
             {project && <label className="portal-review-confirm"><input name="archived" type="checkbox" defaultChecked={project.archived} />Archive project (removes external access)</label>}
           </fieldset>
           <div className="portal-dialog-footer"><button type="button" className="secondary" disabled={busy} onClick={() => dialog.current?.close()}>Cancel</button><button disabled={busy}>{busy ? "Saving…" : project ? "Save changes" : "Add request"}</button></div>

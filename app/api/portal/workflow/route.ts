@@ -1,3 +1,4 @@
+import { announceProject } from "@/lib/portal/client-updates";
 import { collections, transaction } from "@/lib/portal/db";
 import { body, failure, json, requirePortalActor } from "@/lib/portal/server";
 import {
@@ -353,6 +354,7 @@ export async function POST(request: Request) {
       return { success: true };
     });
     await pushProjectSafely(id);
+    await announceProject(id);
     return json(result);
   } catch (error) {
     return failure(error);

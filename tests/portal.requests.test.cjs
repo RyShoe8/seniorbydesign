@@ -78,7 +78,7 @@ test("Requests & Quotes: SBD/client workflow, revision safety, isolation and pri
       const filename = path.resolve(__dirname, "..", file);
       const routeModule = new Module(filename);
       const nativeRequire = Module.createRequire(filename);
-      routeModule.require = id => ({ "@/lib/portal/db": database, "@/lib/portal/server": server, "@/lib/portal/policy": policy, "@/lib/portal/requests": requestHelpers, "@/lib/portal/project-fields": require("../lib/portal/project-fields.ts"), "@/lib/smartsheet/sync": { pushProjectSafely: async () => {} } }[id] || nativeRequire(id));
+      routeModule.require = id => ({ "@/lib/portal/client-updates": { announceProject: async () => {} }, "@/lib/portal/db": database, "@/lib/portal/server": server, "@/lib/portal/policy": policy, "@/lib/portal/requests": requestHelpers, "@/lib/portal/project-fields": require("../lib/portal/project-fields.ts"), "@/lib/smartsheet/sync": { pushProjectSafely: async () => {} } }[id] || nativeRequire(id));
       routeModule._compile(ts.transpileModule(fs.readFileSync(filename, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText, filename);
       return routeModule.exports;
     };

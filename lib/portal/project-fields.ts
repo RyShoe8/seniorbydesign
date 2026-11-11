@@ -19,6 +19,7 @@ export function requestFields(data: Record<string, unknown>, prior?: ProjectRequ
     quoteReference: text(data.quoteReference ?? prior?.quoteReference ?? "", "Quote reference", 100, true),
     contactName: text(data.contactName ?? prior?.contactName ?? "", "Client contact", 200, true), contactEmail, progressEstimate,
     notes: text(data.notes ?? prior?.notes ?? "", "Notes", 2000, true),
+    clientNotes: text(data.clientNotes ?? prior?.clientNotes ?? "", "Client notes", 4000, true),
   };
   if (data.quotedAmount !== undefined) {
     if (data.quotedAmount === "") delete request.quotedAmount;

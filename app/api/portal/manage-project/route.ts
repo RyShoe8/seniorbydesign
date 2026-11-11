@@ -1,3 +1,4 @@
+import { announceProject } from "@/lib/portal/client-updates";
 import { randomUUID } from "crypto";
 import { collections, transaction } from "@/lib/portal/db";
 import { body, failure, json, requirePortalActor } from "@/lib/portal/server";
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
           actorId: actor.id, email: actor.email, at: new Date(), note: "Project created", before: null, after: project }, { session });
       });
       await pushProjectSafely(id);
+      await announceProject(id);
       return json({ id });
     }
     if (data.action === "quick-update") {
@@ -58,6 +60,7 @@ export async function POST(request: Request) {
         return p.version;
       });
       await pushProjectSafely(id);
+      await announceProject(id);
       return json({ success: true, version: updated });
     }
     await transaction(async (session) => {
@@ -111,6 +114,7 @@ export async function POST(request: Request) {
       );
     });
     await pushProjectSafely(String(data.id));
+    await announceProject(String(data.id));
     return json({ success: true, id: data.id });
   } catch (error) {
     return failure(error);

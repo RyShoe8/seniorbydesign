@@ -42,11 +42,20 @@ How it behaves:
 | SBD owner | Assigned to | From sheet |
 | Date requested | Date Requested | From sheet |
 | SBD notes (staff only) | Notes | From sheet |
+| Client notes (shown to clients, emailed when changed) | Client Notes | From sheet |
 | Hidden from clients | Portal Visible (unticked) | From sheet |
 
 Every other column appears read-only for staff under "All Smartsheet details" on each project. The field map and the Status table are in `lib/smartsheet/mapping.ts`.
 
 `Status` is from-sheet because it drives automations on the sheet, which a portal edit must not set off.
+
+A `Status` value the portal has not been told about leaves the project's stage as it is and is listed under rows needing attention on the Smartsheet page, so it can be added to the Status table in `lib/smartsheet/mapping.ts`.
+
+## Client update emails
+
+A project's client contacts (active members of its company and operator) are emailed when its stage, its project phase or its client notes change, whether the change came from the sheet or was made in the portal. The first time a project is seen only its current state is recorded, so linking rows never sends a burst of email. Each send is logged in the `portalClientEmails` collection. Set `PORTAL_CLIENT_EMAILS=off` to stop these emails. See `lib/portal/client-updates.ts`.
+
+Staff notes (the sheet's `Notes`, every other sheet column including `Status Prep Notes`, and the "SBD notes" box in the portal) are never sent to client accounts.
 
 Sheet data is protected:
 

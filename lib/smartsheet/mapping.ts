@@ -36,6 +36,13 @@ const STATUS_STAGES: Record<string, Stage> = {
 };
 export const stageFromStatus = (status: string): Stage | null => STATUS_STAGES[normalizeTitle(status)] ?? null;
 const STATUS_PAYMENTS: Record<string, string> = { "invoiced np": "Deposit requested", paid: "Paid" };
+/** Statuses that say how a job is being handled, not where it stands, so they leave the stage as it is. */
+const STATUS_NEUTRAL = ["active", "rush", "on hold"];
+/** False for a Status the portal has never been told about, so staff can be shown it needs mapping. */
+export const statusKnown = (status: string) => {
+  const key = normalizeTitle(status);
+  return !key || key in STATUS_STAGES || STATUS_NEUTRAL.includes(key);
+};
 
 /** Sheet multi-select values, reduced to the portal's single project type. */
 function projectType(value: string): (typeof requestTypes)[number] {
@@ -209,6 +216,8 @@ export const FIELD_MAP: MappedField[] = [
   },
   requestField("contactName", "Client contact", ["Client Contact"], asText(200, "Client contact")),
   requestField("internalNotes", "SBD notes", ["Notes"], asText(10000, "SBD notes"), true),
+  // The one notes column written for the client. Sheet to portal only; a new note is emailed to the client.
+  requestField("clientNotes", "Client notes", ["Client Notes", "Client Note"], asText(4000, "Client notes"), true),
   {
     key: "install", label: "Install date", columns: ["SBD install week"], parse: asDate,
     read: (project) => project.install,

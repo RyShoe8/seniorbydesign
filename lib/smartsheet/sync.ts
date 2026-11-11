@@ -3,12 +3,13 @@ import { collections, transaction } from "../portal/db";
 import { PortalError } from "../portal/policy";
 import { accountOrigin } from "../portal/origins";
 import type { Organization, Project, SheetQuoteRow } from "../portal/types";
+import { announceProject, baselineProjects } from "../portal/client-updates";
 import {
   createSheetWebhook, enableWebhook, findSheetIdByPermalink, getSheet,
   sheetWritesEnabled, smartsheetConfigured, updateRowCells,
 } from "./client";
 import {
-  cellValue, columnReport, FIELD_MAP, findColumn, isSyncTicked, ownerName, quoteRow, reconcile, rowDetails, SYNC_COLUMN,
+  cellValue, columnReport, FIELD_MAP, findColumn, isSyncTicked, ownerName, quoteRow, reconcile, rowDetails, statusKnown, SYNC_COLUMN,
   type CellWrite, type MapContext,
 } from "./mapping";
 
@@ -110,6 +111,7 @@ export async function syncSheet({ dryRun = false }: { dryRun?: boolean } = {}) {
   const nameColumn = findColumn(sheet.columns, ["Community Name"]);
   const ownerColumn = findColumn(sheet.columns, ["Owner Group"]);
   const quoteColumn = findColumn(sheet.columns, ["Quote No"]);
+  const statusColumn = findColumn(sheet.columns, ["Status"]);
   const plan: PlannedChange[] = [];
   const updates: { id: number; cells: CellWrite[] }[] = [];
   const quoteRows = new Map<string, SheetQuoteRow[]>();
@@ -139,6 +141,8 @@ export async function syncSheet({ dryRun = false }: { dryRun?: boolean } = {}) {
     }
     const firstTime = !linked;
     const merged = reconcile({ project: existing ?? blankProject(), snapshot: existing?.smartsheet?.snapshot, row, columns: sheet.columns, ctx, ingest: firstTime });
+    const status = String(cellValue(row, statusColumn) ?? "");
+    if (!statusKnown(status)) merged.issues.push(`Status "${status}" is new to the portal, so the project's stage was left as it is`);
     const label = merged.project.name || `Row ${row.id}`;
     plan.push({ project: label, rowId: row.id, action: !existing ? "create" : firstTime ? "link" : "update", portal: merged.changed, sheetCells: merged.cells.length, issues: merged.issues });
     if (dryRun) continue;
@@ -147,8 +151,10 @@ export async function syncSheet({ dryRun = false }: { dryRun?: boolean } = {}) {
     const link = { rowId: row.id, snapshot: merged.snapshot, details, syncedAt: new Date() };
     merged.project.smartsheet = link;
     try {
-      if (merged.changed.length || firstTime)
+      if (merged.changed.length || firstTime) {
         await storeProject(merged.project, existing, `Updated from Smartsheet: ${merged.changed.join(", ") || "linked to row"}`, [...pending.values()]);
+        await announceProject(merged.project._id);
+      }
       else if (JSON.stringify([existing!.smartsheet?.snapshot, existing!.smartsheet?.details]) !== JSON.stringify([merged.snapshot, details]))
         await c.projects.updateOne({ _id: existing!._id }, { $set: { smartsheet: link } });
     } catch (error) {
@@ -168,6 +174,7 @@ export async function syncSheet({ dryRun = false }: { dryRun?: boolean } = {}) {
   }
   const result = { plan, writesEnabled: sheetWritesEnabled() };
   if (dryRun) return result;
+  await baselineProjects(projects);
   // Rebuilt each time, so an unticked or removed row drops off. Not a project edit, so the version stays put.
   for (const project of projects) {
     const next = quoteRows.get(project._id) || [];
@@ -199,6 +206,7 @@ export async function pushProjectSafely(projectId: string) {
     if (merged.changed.length) {
       merged.project.smartsheet = link;
       await storeProject(merged.project, project, `Updated from Smartsheet: ${merged.changed.join(", ")}`, [...pending.values()]);
+      await announceProject(project._id);
     }
     if (merged.cells.length) await updateRowCells(sheetId, [{ id: row.id, cells: merged.cells }]);
     await c.projects.updateOne({ _id: project._id }, { $set: { smartsheet: { ...link, snapshot: { ...merged.snapshot, ...merged.pushed } } } });

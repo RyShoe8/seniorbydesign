@@ -10,7 +10,7 @@ require.extensions[".ts"] = (module, filename) =>
     }).outputText,
     filename,
   );
-const { reconcile, stageFromStatus, columnReport, FIELD_MAP, isSyncTicked, ownerName, rowDetails } = require("../lib/smartsheet/mapping.ts");
+const { reconcile, stageFromStatus, statusKnown, columnReport, FIELD_MAP, isSyncTicked, ownerName, rowDetails } = require("../lib/smartsheet/mapping.ts");
 const { safeCells } = require("../lib/smartsheet/client.ts");
 const { projectPhases } = require("../lib/portal/requests.ts");
 const { accountOrigin, sameSiteRequest } = require("../lib/portal/origins.ts");
@@ -29,7 +29,7 @@ const ingested = () => reconcile({ project: { _id: "p", sourceId: "p", name: "",
 
 test("every mapped field finds its column on the real sheet; the rest are staff reference only", () => {
   const report = columnReport(columns);
-  assert.deepEqual(report.fields.filter((field) => !field.column).map((field) => field.key), ["request.summary"]);
+  assert.deepEqual(report.fields.filter((field) => !field.column).map((field) => field.key), ["request.summary", "request.clientNotes"]);
   assert.equal(report.reference.length + new Set(FIELD_MAP.flatMap((field) => field.columns).filter((title) => TITLES.includes(title))).size, 63);
   assert.ok(report.reference.includes("Purchase Order"));
   assert.ok(!report.reference.includes("Notes"));
@@ -141,7 +141,7 @@ test("the Smartsheet client can only update existing cells: no deletes, no new r
 });
 test("internal notes and sheet status never reach client accounts", () => {
   const route = fs.readFileSync(path.join(__dirname, "../app/api/portal/projects/route.ts"), "utf8");
-  assert.match(route, /quotedAmount, internalNotes, sheetStatus, \.\.\.request/);
+  assert.match(route, /quotedAmount, internalNotes, notes, sheetStatus, \.\.\.request/);
   assert.match(route, /isStaff\(actor\) && smartsheet\?\.details/);
   assert.match(route, /isStaff\(actor\) \? sheetQuoteRows : sheetQuoteRows\.map\(clientQuoteRow\)/);
 });
@@ -171,4 +171,19 @@ test("same-site check accepts proxied hosts and refuses other sites", () => {
   assert.equal(sameSiteRequest("https://a.com", "http://internal:3000/x", headers({ "x-forwarded-host": "a.com" })), true);
   assert.equal(sameSiteRequest("https://evil.com", "https://a.com/x", headers({ host: "a.com" })), false);
   assert.equal(sameSiteRequest(null, "https://a.com/x", headers({ host: "a.com" })), false);
+});
+
+test("a Client Notes column, once added to the sheet, reaches the client-facing field", () => {
+  const withNotes = [...columns, { id: 900, title: "Client Notes" }];
+  const noteRow = sheetRow();
+  noteRow.cells.push({ columnId: 900, value: "Fabric samples ship Friday.", displayValue: "Fabric samples ship Friday." });
+  const base = { _id: "p", sourceId: "p", name: "", companyId: "", operatorId: "", location: "", address: "", summary: "", scopes: [], documents: [], payment: "Awaiting Confirmation", order: "Awaiting Confirmation", install: null, version: 1, archived: false, operatorApproval: false, workflowTouched: false, updatedAt: new Date() };
+  const { project, cells } = reconcile({ project: base, row: noteRow, columns: withNotes, ctx, ingest: true });
+  assert.equal(project.request.clientNotes, "Fabric samples ship Friday.");
+  assert.notEqual(project.request.internalNotes, "Fabric samples ship Friday.");
+  assert.deepEqual(cells, []);
+});
+test("a Status the portal has not been told about is recognised as new", () => {
+  for (const known of ["Quoting", "Paid", "Active", "RUSH", "On Hold", ""]) assert.ok(statusKnown(known), known);
+  assert.equal(statusKnown("Some Brand New Status"), false);
 });

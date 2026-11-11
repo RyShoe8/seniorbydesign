@@ -503,6 +503,7 @@ export default function PortalApp({
               <div><dt>Stage</dt><dd>{projectPhase(project)}</dd></div>
               <div><dt>Estimated installation</dt><dd>{displayDate(projectInstall(project))}</dd></div>
             </dl>
+            {project.request?.clientNotes && <div className="portal-client-notes"><h3>Notes from SBD</h3><p>{project.request.clientNotes}</p></div>}
             <QuoteRows project={project} staff={staff} />
             <p className="portal-project-reference">Project ID: <span>{project.sourceId}</span></p>
             {staff && project.request?.internalNotes && <div className="portal-internal-notes"><h3>SBD notes <small>Staff only</small></h3><p>{project.request.internalNotes}</p></div>}
@@ -584,7 +585,7 @@ export default function PortalApp({
                 </button>
               )}
           </section>}
-          {project.request?.notes && <p className="portal-project-notes">{project.request.notes}</p>}
+          {staff && project.request?.notes && <div className="portal-internal-notes"><h3>SBD notes <small>Staff only</small></h3><p>{project.request.notes}</p></div>}
           <section className="portal-panel" id="activity" hidden={detailSection !== "activity"}>
             <h2>Project activity</h2>
             {events.map((e) => (
