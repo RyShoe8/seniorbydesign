@@ -187,3 +187,11 @@ test("a Status the portal has not been told about is recognised as new", () => {
   for (const known of ["Quoting", "Paid", "Active", "RUSH", "On Hold", ""]) assert.ok(statusKnown(known), known);
   assert.equal(statusKnown("Some Brand New Status"), false);
 });
+
+test("every choice in the live sheet's Status dropdown is understood, numbered or not", () => {
+  const live = { "1. Prospect": "New Request", "2. Not Started": "New Request", "3. NTQ - Need to Quote": "Scoping", "4. Quoted/ Pend Approval": "Awaiting Approval", "5. Approved": "Ordering", "6. Active": null, "7. Invoiced / NP": "Awaiting Deposit", "8. Paid": "Procurement", RUSH: null, "8. On Hold": null, Paid: "Procurement", Ordered: "Procurement", "Prep for Install": "Installation Planning", Completed: "Closed", Installed: "Installed", Cancelled: "Closed", "FFE Pres": "Presentation" };
+  for (const [status, stage] of Object.entries(live)) {
+    assert.equal(stageFromStatus(status), stage, status);
+    assert.ok(statusKnown(status), status);
+  }
+});

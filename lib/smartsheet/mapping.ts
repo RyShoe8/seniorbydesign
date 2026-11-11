@@ -31,16 +31,20 @@ type Stage = ProjectRequest["stage"];
  */
 const STATUS_STAGES: Record<string, Stage> = {
   prospect: "New Request", "not started": "New Request", "ntq need to quote": "Scoping", quoting: "Quote in Progress",
-  "ffe pres": "Presentation", "awaiting approval": "Awaiting Approval", approved: "Ordering", "invoiced np": "Awaiting Deposit",
-  paid: "Procurement", installed: "Installed", completed: "Closed", cancelled: "Closed",
+  "ffe pres": "Presentation", "awaiting approval": "Awaiting Approval", "quoted pend approval": "Awaiting Approval",
+  approved: "Ordering", "invoiced np": "Awaiting Deposit",
+  paid: "Procurement", ordered: "Procurement", "prep for install": "Installation Planning",
+  installed: "Installed", completed: "Closed", cancelled: "Closed",
 };
-export const stageFromStatus = (status: string): Stage | null => STATUS_STAGES[normalizeTitle(status)] ?? null;
+/** The sheet numbers some choices ("4. Quoted/ Pend Approval", "8. Paid"); the number is not part of the status. */
+const statusKey = (status: string) => normalizeTitle(status.replace(/^\s*\d+\s*\.\s*/, ""));
+export const stageFromStatus = (status: string): Stage | null => STATUS_STAGES[statusKey(status)] ?? null;
 const STATUS_PAYMENTS: Record<string, string> = { "invoiced np": "Deposit requested", paid: "Paid" };
 /** Statuses that say how a job is being handled, not where it stands, so they leave the stage as it is. */
 const STATUS_NEUTRAL = ["active", "rush", "on hold"];
 /** False for a Status the portal has never been told about, so staff can be shown it needs mapping. */
 export const statusKnown = (status: string) => {
-  const key = normalizeTitle(status);
+  const key = statusKey(status);
   return !key || key in STATUS_STAGES || STATUS_NEUTRAL.includes(key);
 };
 
@@ -191,7 +195,7 @@ export const FIELD_MAP: MappedField[] = [
   },
   {
     key: "payment", label: "Payment", columns: ["Status"], pullOnly: true,
-    parse: (value) => (value === null ? null : STATUS_PAYMENTS[normalizeTitle(String(value))] ?? null),
+    parse: (value) => (value === null ? null : STATUS_PAYMENTS[statusKey(String(value))] ?? null),
     read: (project) => paymentLabel(project) || null,
     write: (project, value) => {
       const detail = required(value, "Payment");
