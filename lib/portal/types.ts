@@ -42,7 +42,7 @@ export interface ProjectRequest {
   quoteReference?: string;
   /** Word for word from the sheet's Project Phase dropdown. */
   projectPhase?: string;
-  /** Word for word from the sheet's Status column. */
+  /** Word for word from the sheet's Status column. Shown to staff and clients as the project's stage. */
   sheetStatus?: string;
   /** From the sheet's Notes column. Staff only: never sent to client accounts. */
   internalNotes?: string;
@@ -85,7 +85,7 @@ export interface Project {
   updatedAt: Date;
   smartsheet?: SmartsheetLink;
   /** What clients were last emailed about: see lib/portal/client-updates.ts. */
-  clientNotified?: { stage: string; phase: string; note: string };
+  clientNotified?: { v?: number; stage: string; phase: string; note: string };
   /** Sheet rows for this project's quotes. Read-only reference, rebuilt on every sync. */
   sheetQuoteRows?: SheetQuoteRow[];
 }

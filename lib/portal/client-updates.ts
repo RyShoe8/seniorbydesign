@@ -2,13 +2,18 @@ import { sendTransactionalEmail } from "../brevo";
 import { collections } from "./db";
 import { renderProjectUpdateEmail } from "./email";
 import { accountOrigin } from "./origins";
+import { stageLabel } from "./requests";
 import type { Project } from "./types";
 
 /** What clients were last told about a project. Kept on the project so every way of editing it is covered. */
-export interface ClientNotified { stage: string; phase: string; note: string }
+/** Bumped when what "stage" means changes, so older records are replaced quietly instead of emailing everyone. */
+const VIEW = 2;
+export interface ClientNotified { v?: number; stage: string; phase: string; note: string }
 
 export const clientView = (project: Pick<Project, "request">): ClientNotified => ({
-  stage: project.request?.stage || "",
+  v: VIEW,
+  // The same words the client sees: the sheet's Status on linked projects.
+  stage: stageLabel(project),
   phase: project.request?.projectPhase || "",
   note: (project.request?.clientNotes || "").trim(),
 });
@@ -37,7 +42,7 @@ export async function announceProject(projectId: string) {
     const project = await c.projects.findOne({ _id: projectId });
     if (!project) return;
     const now = clientView(project);
-    const prior = project.clientNotified;
+    const prior = project.clientNotified?.v === VIEW ? project.clientNotified : undefined;
     if (prior && prior.stage === now.stage && prior.phase === now.phase && prior.note === now.note) return;
     await c.projects.updateOne({ _id: projectId }, { $set: { clientNotified: now } });
     if (!prior || project.archived || !emailsOn()) return;
@@ -69,9 +74,9 @@ export async function announceProject(projectId: string) {
 export async function baselineProjects(projects: Project[]) {
   const c = await collections();
   for (const project of projects) {
-    if (project.clientNotified) continue;
+    if (project.clientNotified?.v === VIEW) continue;
     await c.projects.updateOne(
-      { _id: project._id, clientNotified: { $exists: false } },
+      { _id: project._id, "clientNotified.v": { $ne: VIEW } },
       { $set: { clientNotified: clientView(project) } },
     );
   }

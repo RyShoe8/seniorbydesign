@@ -1549,3 +1549,7 @@ a.portal-project-open { display: flex; align-items: center; justify-content: spa
 /* Account settings: three short forms on one page. */
 .portal-account-settings form { margin-top: 22px; padding-top: 20px; border-top: 1px solid #e7e0d3; }
 .portal-account-settings form h2 { margin: 0 0 12px; font-size: 20px; }
+
+/* A stage that comes from Smartsheet: shown, not editable here. */
+.portal-sheet-stage { display: inline-flex; flex-direction: column; gap: 2px; }
+.portal-sheet-stage small { font-size: 11px; color: #8a7c68; }

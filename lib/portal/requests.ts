@@ -28,8 +28,15 @@ export function approvalState(project: WorkflowProject) {
   if (scopes.every(scope => scope.approval === "Approved")) return "Approved";
   return "Pending";
 }
-export function projectPhase(project: WorkflowProject) {
-  return project.request?.stage || "Not recorded";
+/**
+ * The stage people read. On a project linked to Smartsheet it is the sheet's Status, word for word,
+ * so the portal and the sheet always say the same thing. Other projects show the stage set in the portal.
+ */
+export function stageLabel(project: Pick<Project, "request">) {
+  return project.request?.sheetStatus?.trim() || project.request?.stage || "";
+}
+export function projectPhase(project: Pick<Project, "request">) {
+  return stageLabel(project) || "Not recorded";
 }
 export function projectWorkflow(project: WorkflowProject) {
   const phase = project.request?.stage;

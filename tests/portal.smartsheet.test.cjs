@@ -141,7 +141,7 @@ test("the Smartsheet client can only update existing cells: no deletes, no new r
 });
 test("internal notes and sheet status never reach client accounts", () => {
   const route = fs.readFileSync(path.join(__dirname, "../app/api/portal/projects/route.ts"), "utf8");
-  assert.match(route, /quotedAmount, internalNotes, notes, sheetStatus, \.\.\.request/);
+  assert.match(route, /quotedAmount, internalNotes, notes, \.\.\.request/);
   assert.match(route, /isStaff\(actor\) && smartsheet\?\.details/);
   assert.match(route, /isStaff\(actor\) \? sheetQuoteRows : sheetQuoteRows\.map\(clientQuoteRow\)/);
 });
@@ -194,4 +194,16 @@ test("every choice in the live sheet's Status dropdown is understood, numbered o
     assert.equal(stageFromStatus(status), stage, status);
     assert.ok(statusKnown(status), status);
   }
+});
+
+test("the stage people read is the sheet's Status, word for word", () => {
+  const { stageLabel, projectPhase: shownStage } = require("../lib/portal/requests.ts");
+  for (const status of ["4. Quoted/ Pend Approval", "Prep for Install", "RUSH", "8. On Hold"]) {
+    const { project } = reconcile({ project: ingested().project, snapshot: ingested().snapshot, row: sheetRow({ Status: status }), columns, ctx });
+    assert.equal(stageLabel(project), status);
+    assert.equal(shownStage(project), status);
+  }
+  // A project that is not on the sheet still shows the stage set in the portal.
+  assert.equal(stageLabel({ request: { stage: "Scoping" } }), "Scoping");
+  assert.equal(shownStage({}), "Not recorded");
 });

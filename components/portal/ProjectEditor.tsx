@@ -45,7 +45,9 @@ export function ProjectEditor({ project, organizations, onSaved, buttonLabel }: 
               <label>Request date<input name="receivedAt" type="date" required defaultValue={request?.receivedAt || today} /></label>
               <label>Quote reference<input name="quoteReference" maxLength={100} defaultValue={request?.quoteReference || project?.scopes.map(scope => scope.quote).join(", ")} /></label>
               <label>Quoted amount · internal (USD)<input name="quotedAmount" type="number" min="0" max="10000000000" step="0.01" defaultValue={request?.quotedAmount} /></label>
-              {select("stage", "Current stage", requestStages, request?.stage)}
+              {request?.sheetStatus
+                ? <label>Current stage<input readOnly value={request.sheetStatus} /><input type="hidden" name="stage" value={request.stage} /><small>From the Status column in Smartsheet. Change it there.</small></label>
+                : select("stage", "Current stage", requestStages, request?.stage)}
               {select("presentation", "Presentation", presentationStages, request?.presentation)}
               <label>Approval<input readOnly value={project ? approvalState(project) : "Not requested"} /><small>Managed in the Approvals tab.</small></label>
               {select("paymentDetail", "Payment", paymentStages, project ? paymentLabel(project) : "Not invoiced")}

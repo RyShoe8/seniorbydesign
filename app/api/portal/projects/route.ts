@@ -33,7 +33,7 @@ export async function GET() {
         ...p,
         ...(sheetQuoteRows ? { sheetQuoteRows: isStaff(actor) ? sheetQuoteRows : sheetQuoteRows.map(clientQuoteRow) } : {}),
         ...(isStaff(actor) && smartsheet?.details ? { smartsheetDetails: smartsheet.details } : {}),
-        request: p.request ? (isStaff(actor) ? p.request : (({ quotedAmount, internalNotes, notes, sheetStatus, ...request }) => request)(p.request)) : undefined,
+        request: p.request ? (isStaff(actor) ? p.request : (({ quotedAmount, internalNotes, notes, ...request }) => request)(p.request)) : undefined,
         documents: p.documents.map(({ url, ...d }) => d),
       })),
       organizations,

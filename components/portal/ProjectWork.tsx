@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { orderLabel, orderStages, orderStatusText, pipelineGroupIndex, pipelineGroups, projectAction, projectPhases, requestStages } from "@/lib/portal/requests";
+import { orderLabel, orderStages, orderStatusText, pipelineGroupIndex, pipelineGroups, projectAction, projectPhases, requestStages, stageLabel } from "@/lib/portal/requests";
 import { displayDate, type DisplayProject } from "./PortalWorkspace";
 
 const projectHref = (project: DisplayProject, from: string, organizationId = "", section = "") =>
@@ -20,7 +20,7 @@ export function ProjectSteps({ project, showLabel = true }: { project: DisplayPr
           <i key={group.id} className={index < current || (done && index === current) ? "done" : index === current ? "current" : ""} />
         ))}
       </div>
-      {showLabel && <span>{project.request?.stage || label}</span>}
+      {showLabel && <span>{stageLabel(project) || label}</span>}
     </div>
   );
 }
@@ -130,6 +130,8 @@ export function QuickField({ project, field, label, value, type, options, placeh
 }
 
 export function QuickStage({ project, onChanged }: { project: DisplayProject; onChanged?: () => Promise<void> | void }) {
+  // Linked to Smartsheet: the Status is set on the sheet and shown here exactly as written there.
+  if (project.request?.sheetStatus) return <span className="portal-sheet-stage" title="Set in Smartsheet"><strong>{project.request.sheetStatus}</strong><small>From Smartsheet</small></span>;
   return <QuickField project={project} field="stage" label="Stage" type="select" value={project.request?.stage || ""} options={requestStages} placeholder={project.request?.stage ? undefined : "Set stage"} onChanged={onChanged} />;
 }
 export function QuickPhase({ project, onChanged }: { project: DisplayProject; onChanged?: () => Promise<void> | void }) {

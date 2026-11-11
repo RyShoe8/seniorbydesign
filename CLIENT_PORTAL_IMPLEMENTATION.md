@@ -34,7 +34,7 @@ How it behaves:
 | Approved budget (staff only) | Approved Budget | Both ways |
 | Quote number | Quote No | Both ways |
 | Client contact | Client Contact | Both ways |
-| Current stage, payment, status | Status | From sheet |
+| Stage shown to staff and clients (word for word), payment | Status | From sheet |
 | Company and operator | Owner Group | From sheet |
 | Location | City, State | From sheet |
 | Address | Address | From sheet |
@@ -48,6 +48,8 @@ How it behaves:
 Every other column appears read-only for staff under "All Smartsheet details" on each project. The field map and the Status table are in `lib/smartsheet/mapping.ts`.
 
 `Status` is from-sheet because it drives automations on the sheet, which a portal edit must not set off.
+
+The stage shown on a linked project is the sheet's `Status` exactly as written there, for staff and clients alike, and cannot be edited in the portal. The Status table in `lib/smartsheet/mapping.ts` is only used behind the scenes, to place the project on the six-step progress bar and to word the "next step" prompts.
 
 A `Status` value the portal has not been told about leaves the project's stage as it is and is listed under rows needing attention on the Smartsheet page, so it can be added to the Status table in `lib/smartsheet/mapping.ts`.
 
