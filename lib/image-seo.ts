@@ -200,7 +200,7 @@ export function serviceHeroAlt(serviceTitle: string): string {
 export const STATIC_IMAGES = {
   teamHero: '/images/senior-living-team-hero-design-sbd.jpg',
   portfolioHero: '/images/senior-living-portfolio-index-design-sbd.jpg',
-  servicesHero: '/images/senior-living-services-hero-design-sbd.jpg',
+  servicesHero: '/images/cherry-creek-piano-lounge.jpg',
   blogHero: '/images/senior-living-blog-journal-hero-design-sbd.jpg',
   firmHero: '/images/senior-living-firm-hero-design-sbd.webp',
   firmCulture: '/images/senior-living-firm-culture-design-sbd.webp',

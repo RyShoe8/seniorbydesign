@@ -606,7 +606,7 @@ export default function DesignGuideAdmin() {
                   <Field label="Project type">
                     <input type="text" value={item.label} onChange={(e) => set({ label: e.target.value })} />
                   </Field>
-                  <Field label="Price guide">
+                  <Field label="Price guide" help={'Enter a price, or "Request a quote" to show a button linking to the consultation section.'}>
                     <input type="text" value={item.value} onChange={(e) => set({ value: e.target.value })} />
                   </Field>
                 </div>

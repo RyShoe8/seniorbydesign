@@ -967,7 +967,11 @@ function InvestmentChapter({ content, number, label }: ChapterProps) {
             {examples.map((example, index) => (
               <div key={index} data-reveal style={{ transitionDelay: `${index * 100}ms` }}>
                 <dt>{example.label}</dt>
-                <dd>{example.value}</dd>
+                <dd>{/^request a quote$/i.test(example.value.trim()) ? (
+                  <a className={s.button} href="#ch-cta" aria-label={`Request a quote for ${example.label}`}>
+                    Request a quote <span aria-hidden="true">↗</span>
+                  </a>
+                ) : example.value}</dd>
               </div>
             ))}
           </dl>

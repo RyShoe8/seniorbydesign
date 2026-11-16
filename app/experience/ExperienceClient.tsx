@@ -339,7 +339,9 @@ export default function ExperienceClient({
                   <SectionReveal key={i} direction="up" delay={i * 120}>
                     <div className={styles.financingCard}>
                       <span className={styles.financingLabel}>{ex.label}</span>
-                      <span className={styles.financingValue}>{ex.value}</span>
+                      {/^request a quote$/i.test(ex.value.trim()) ? (
+                        <a className="btn" href="#contact" aria-label={`Request a quote for ${ex.label}`}>Request a quote</a>
+                      ) : <span className={styles.financingValue}>{ex.value}</span>}
                     </div>
                   </SectionReveal>
                 ))}
