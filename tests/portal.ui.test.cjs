@@ -33,7 +33,7 @@ test("staff change stage, order and install in the row; projects show who holds 
   const html = render(RequestPipeline, { projects: [project], organizations, staff: true, mode: "projects", onSaved() {} });
   assert.match(html, /aria-label="Stage for Community A"/);
   assert.match(html, /aria-label="Order status for Community A"/);
-  assert.match(html, /aria-label="Install date for Community A"/);
+  assert.match(html, /aria-label="Estimated installation for Community A"/);
   assert.match(html, /With client/);
   assert.match(html, /Waiting for the client to approve the quote/);
 });

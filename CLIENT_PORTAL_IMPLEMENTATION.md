@@ -43,6 +43,7 @@ How it behaves:
 | Date requested | Date Requested | From sheet |
 | SBD notes (staff only) | Notes | From sheet |
 | Client notes (shown to clients, emailed when changed) | Client Notes | From sheet |
+| SharePoint folder (staff only) | Portal Files Folder | From sheet |
 | Hidden from clients | Portal Visible (unticked) | From sheet |
 
 Every other column appears read-only for staff under "All Smartsheet details" on each project. The field map and the Status table are in `lib/smartsheet/mapping.ts`.
@@ -52,6 +53,23 @@ Every other column appears read-only for staff under "All Smartsheet details" on
 The stage shown on a linked project is the sheet's `Status` exactly as written there, for staff and clients alike, and cannot be edited in the portal. The Status table in `lib/smartsheet/mapping.ts` is only used behind the scenes, to place the project on the six-step progress bar and to word the "next step" prompts.
 
 A `Status` value the portal has not been told about leaves the project's stage as it is and is listed under rows needing attention on the Smartsheet page, so it can be added to the Status table in `lib/smartsheet/mapping.ts`.
+
+## Files from SharePoint
+
+Project files are brought into the portal from the `Comm - Remodels` library on the SBD Files SharePoint site, as private saved copies (MongoDB GridFS, bucket `portalFileSnapshots`) served only through `/api/portal/documents` to people who can see the project.
+
+Settings: `SHAREPOINT_TENANT_ID`, `SHAREPOINT_CLIENT_ID`, `SHAREPOINT_CLIENT_SECRET` (a Microsoft app registration with read access to the SBD Files site) and `CRON_SECRET` (for the daily scheduled check). Without the three Microsoft settings nothing is fetched automatically; staff can still upload a downloaded file of up to 4 MB.
+
+How it behaves:
+
+- Each project has a SharePoint folder: the sheet's `Portal Files Folder` column on linked projects, or the "SharePoint folder" box on the project form. It must be a project folder inside `Comm - Remodels`.
+- Folders are checked after every sheet sync, once a day on a schedule, and when an administrator presses "Check SharePoint now". Only projects that are on the sheet and not hidden are checked.
+- Presentations and project documents (floor plans, drawings, specifications) are saved automatically. A file is sorted by its own name first, then its folder.
+- Quotes and contracts are never published automatically, because a quote is tied to a client approval. They, and anything that looks internal (budgets, costing, vendor, drafts) or cannot be sorted, are listed on the project for a person to review and publish.
+- Versions: a changed file becomes the next version and the earlier one stays under "Earlier revisions". An unchanged file is skipped without being downloaded. Replacing a quote's document returns that quote to "Needs Approval".
+- Limits: 25 MB per file, and a few files per run so a large folder is brought in over several checks.
+
+The rules are in `lib/sharepoint/files.ts` (sorting and versions) and `lib/sharepoint/auto.ts` (the automatic check). Test them with `node --test tests/portal.files.test.cjs`.
 
 ## Client update emails
 

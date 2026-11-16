@@ -16,7 +16,7 @@ export function ProjectProgress({ project, staff = false, showStats = true, show
       <div><dt>Approval</dt><dd>{approvalState(project)}</dd></div>
       <div><dt>Payment</dt><dd>{paymentStatusText(project)}</dd></div>
       <div><dt>Order</dt><dd>{orderStatusText(project)}</dd></div>
-      <div><dt>Install</dt><dd>{displayDate(projectInstall(project))}</dd></div>
+      <div><dt>Estimated installation</dt><dd>{displayDate(projectInstall(project))}</dd></div>
     </dl>}
     {showTimeline && <section className="portal-workflow-panel" aria-labelledby="project-workflow-title">
       <h2 id="project-workflow-title">Workflow</h2>
@@ -37,7 +37,7 @@ export function ProjectOperations({ project, section, staff, canManage, busy, wo
     <dl className="portal-request-summary">
       <div><dt>{payment ? "Payment status" : "Order status"}</dt><dd><StatusBadge value={payment ? paymentStatusText(project) : orderStatusText(project)} /></dd></div>
       <div><dt>Stage</dt><dd>{projectPhase(project)}</dd></div>
-      <div><dt>{payment ? "Approval status" : "Anticipated installation"}</dt><dd>{payment ? approvalState(project) : displayDate(project.install)}</dd></div>
+      <div><dt>{payment ? "Approval status" : "Estimated installation"}</dt><dd>{payment ? approvalState(project) : displayDate(projectInstall(project))}</dd></div>
       <div><dt>SBD owner</dt><dd>{project.request?.assignedTo || "Unassigned"}</dd></div>
     </dl>
     <p>{staff ? "Confirm official project statuses below. Each change is recorded in the project activity." : "Send an update for SBD to review. SBD confirms the official payment, delivery, and installation status."}</p>
@@ -47,7 +47,7 @@ export function ProjectOperations({ project, section, staff, canManage, busy, wo
     }}>
       {staff ? <>
         {!payment && <label>Status field<select value={field} onChange={e => setField(e.target.value)}><option value="order">Order status</option><option value="install">Anticipated installation</option></select></label>}
-        <label>{field === "install" ? "Target installation date" : "Official status"}
+        <label>{field === "install" ? "Estimated installation date" : "Official status"}
           {field === "install" ? <input key="install" name="value" type="date" defaultValue={project.install || ""} /> : <select key={field} name="value" defaultValue={payment ? paymentLabel(project) : orderLabel(project)}>{(payment ? Array.from(new Set([paymentLabel(project), ...paymentStages])) : Array.from(new Set([orderLabel(project), ...orderStages]))).map(value => <option key={value}>{value}</option>)}</select>}
         </label>
       </> : <>

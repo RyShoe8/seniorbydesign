@@ -10,7 +10,7 @@ export type DisplayProject = Omit<Project, "documents" | "smartsheet" | "sheetQu
   documents: Omit<Project["documents"][number], "url">[];
   smartsheetDetails?: Record<string, string>;
   /** Clients receive these without `rowId` and `details`. */
-  sheetQuoteRows?: (Pick<SheetQuoteRow, "quote" | "name" | "install" | "projectPhase"> & Partial<Pick<SheetQuoteRow, "rowId" | "details">>)[];
+  sheetQuoteRows?: (Pick<SheetQuoteRow, "quote" | "name" | "install" | "projectPhase" | "status"> & Partial<Pick<SheetQuoteRow, "rowId" | "details">>)[];
 };
 export function PortalIcon({
   name,
@@ -407,7 +407,7 @@ export function PortalPortfolio({
               ))}
             </div>
           ) : (
-            <p className="portal-empty-copy">Installation dates will appear here as they are scheduled.</p>
+            <p className="portal-empty-copy">Estimated installation dates will appear here as they are planned.</p>
           )}
         </section>
       )}
@@ -467,7 +467,7 @@ export function PortalPortfolio({
                 </p>
                 <ProjectSteps project={p} />
                 <p className="portal-card-next-step">{projectAction(p, staff).label}</p>
-                <p className="portal-card-install">Install: {displayDate(projectInstall(p))}</p>
+                <p className="portal-card-install">Estimated install: {displayDate(projectInstall(p))}</p>
                 <Link
                   className="portal-project-open"
                   href={`/portal/projects/${encodeURIComponent(p._id)}?from=overview${org ? `&organization=${encodeURIComponent(org)}` : ""}`}
@@ -572,7 +572,7 @@ export function PortalPortfolio({
                       </span>
                       <span className="portal-row-main">
                         <strong>{d.name}</strong>
-                        <span>{d.category} · Current version</span>
+                        <span>{d.category} · {d.revision ? `Version ${d.revision}` : "Current version"}</span>
                       </span>
                       <PortalIcon name="arrow" size={17} />
                     </a>
@@ -604,8 +604,7 @@ export function PortalPortfolio({
             ) : null;
           })}
           <p className="portal-muted">
-            Documents open securely in SharePoint. Your Microsoft access
-            permissions apply.
+            Imported files are saved versions. Older SharePoint links use your Microsoft permissions.
           </p>
         </>
       )}

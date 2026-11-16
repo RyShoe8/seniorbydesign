@@ -6,12 +6,13 @@ import {
   displayDate,
   type DisplayProject,
 } from "./PortalWorkspace";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ProjectRequestsQuotes, RequestPipeline } from "./RequestsQuotes";
 import { ProjectEditor } from "./ProjectEditor";
 import OrganizationDirectory from "./OrganizationDirectory";
 import SmartsheetPanel from "./SmartsheetPanel";
+import FileIngest from "./FileIngest";
 import { QuoteRows } from "./ProjectWork";
 import Link from "next/link";
 
@@ -163,8 +164,11 @@ export default function PortalApp({
       expiresAt: string;
     }[]
   >([]);
+  const refreshing = useRef(false);
+  const hasDraft = useRef(false);
   const staff = actor?.role === "admin" || actor?.role === "team";
   const load = useCallback(async () => {
+    hasDraft.current = false;
     const [p, o] = await Promise.all([api("projects"), api("organizations")]);
     setProjects(p.projects);
     setActor(p.actor);
@@ -183,6 +187,31 @@ export default function PortalApp({
       .catch((e) => setMessage(e.message))
       .finally(() => setLoading(false));
   }, [load]);
+  useEffect(() => {
+    const refresh = async () => {
+      // Keep edits intact: forms use project versions as keys.
+      if (document.visibilityState !== "visible" || busy || refreshing.current || hasDraft.current ||
+          document.querySelector("dialog[open]") ||
+          document.activeElement?.closest("input, textarea, select, [contenteditable=true]")) return;
+      refreshing.current = true;
+      try {
+        const data = await api("projects");
+        setProjects(current => JSON.stringify(current) === JSON.stringify(data.projects) ? current : data.projects);
+      } catch { /* Keep the last good view; the next refresh retries. */ }
+      finally { refreshing.current = false; }
+    };
+    const markDraft = (event: Event) => {
+      if ((event.target as HTMLElement)?.closest("form")) hasDraft.current = true;
+    };
+    const onFocus = () => { void refresh(); };
+    document.addEventListener("input", markDraft);
+    document.addEventListener("change", markDraft);
+    const timer = window.setInterval(onFocus, 30000);
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    return () => { document.removeEventListener("input", markDraft); document.removeEventListener("change", markDraft); window.clearInterval(timer); window.removeEventListener("focus", onFocus); document.removeEventListener("visibilitychange", onFocus); };
+  }, [busy]);
+  useEffect(() => { hasDraft.current = false; }, [pathname]);
   useEffect(() => {
     if (staff)
       api("notification-jobs")
@@ -388,7 +417,7 @@ export default function PortalApp({
           </div>
         </div>
       )}
-      {staff && tab === "smartsheet" && <SmartsheetPanel admin={actor?.role === "admin"} />}
+      {staff && tab === "smartsheet" && <SmartsheetPanel admin={actor?.role === "admin"} onSynced={load} />}
       {staff && tab === "create" && (
         <nav className="portal-create-choices" aria-label="What to add">
           {[
@@ -489,7 +518,7 @@ export default function PortalApp({
           </div>
           <ProjectProgress project={project} staff={staff} showTimeline={false} />
           <nav className="portal-detail-nav portal-project-tabs" aria-label="Project sections">
-            {[["overview", "Overview"], ["quotes", "Quote"], ["approvals", "Approvals"], ["presentation", "Presentation"], ["payment", "Payment"], ["orders", "Order & install"], ["documents", "Documents"], ["contacts", "Contacts"], ["activity", "History"]].map(([key, label]) => <a key={key} href={`#${key}`} aria-current={detailSection === key ? "page" : undefined} className={detailSection === key ? "active" : ""} onClick={e => { e.preventDefault(); setDetailSection(key); window.history.pushState(null, "", `#${key}`); }}>{label}{key === "approvals" && (staff ? needsRevision(project) : needsDecision(project)) && <span className="portal-tab-dot"><span className="portal-sr-only"> (action needed)</span></span>}{key === "documents" && project.documents.filter(d => !d.historical).length > 0 && <span className="portal-tab-count">{project.documents.filter(d => !d.historical).length}</span>}</a>)}
+            {[["overview", "Overview"], ["quotes", "Quote"], ["approvals", "Approvals"], ["presentation", "Presentation"], ["payment", "Payment"], ["orders", "Order & install"], ["documents", "Documents"], ["contacts", "Contacts"], ["activity", "History"]].map(([key, label]) => <a key={key} href={`#${key}`} aria-current={detailSection === key ? "page" : undefined} className={detailSection === key ? "active" : ""} onClick={e => { e.preventDefault(); setDetailSection(key); window.history.pushState(null, "", `#${key}`); }}>{label}{key === "approvals" && (staff ? needsRevision(project) : needsDecision(project)) && <span className="portal-tab-dot"><span className="portal-sr-only"> (action needed)</span></span>}{key === "documents" && project.documents.filter(d => !d.historical && d.category !== "Presentations").length > 0 && <span className="portal-tab-count">{project.documents.filter(d => !d.historical && d.category !== "Presentations").length}</span>}</a>)}
           </nav>
           <div hidden={detailSection !== "overview"}>
           <div className="portal-panel portal-project-context">
@@ -500,8 +529,8 @@ export default function PortalApp({
               <div><dt>Operator</dt><dd>{name(project.operatorId)}</dd></div>
               <div><dt>Project type</dt><dd>{project.request?.type || "Not recorded"}</dd></div>
               <div><dt>Project manager</dt><dd>{project.request?.assignedTo || "Unassigned"}</dd></div>
-              <div><dt>Stage</dt><dd>{projectPhase(project)}</dd></div>
-              <div><dt>Estimated installation</dt><dd>{displayDate(projectInstall(project))}</dd></div>
+              <div><dt>Stage</dt><dd>{projectPhase(project)}</dd></div>{project.request?.projectPhase && <div><dt>Project phase</dt><dd>{project.request.projectPhase}</dd></div>}
+              <div className="portal-install-estimate"><dt>Estimated installation</dt><dd>{displayDate(projectInstall(project))}<small>Subject to confirmation</small></dd></div>
             </dl>
             {project.request?.clientNotes && <div className="portal-client-notes"><h3>Notes from SBD</h3><p>{project.request.clientNotes}</p></div>}
             <QuoteRows project={project} staff={staff} />
@@ -517,17 +546,17 @@ export default function PortalApp({
             <h2>{detailSection === "presentation" ? "Presentation" : "Documents"}</h2>
             {detailSection === "presentation" && <p>Presentation status: <StatusBadge value={project.request?.presentation || "Not recorded"} /></p>}
             <p className="portal-muted">
-              Documents open in SharePoint. Microsoft sign-in and sharing
-              permissions may be required.
+              Imported files open as saved versions. Older linked files open in SharePoint and may require Microsoft sign-in.
             </p>
-            {(detailSection === "presentation" ? ["Presentations"] : ["Quotes", "Contracts", "Presentations"]).map((category) => (
+            {actor?.role === "admin" && <FileIngest project={project} onChanged={load} />}
+            {(detailSection === "presentation" ? ["Presentations"] : ["Quotes", "Contracts", "Documents"]).map((category) => (
               <div key={category}>
                 <h3>{category}</h3>
                 {project.documents
                   .filter((d) => d.category === category && !d.historical)
                   .map((d) => (
                     <div className="portal-row" key={d.id}>
-                      <span>{d.name}</span>
+                      <span>{d.name}{d.revision && <small>Version {d.revision}</small>}</span>
                       <a
                         className="portal-link secondary"
                         target="_blank"
@@ -543,13 +572,13 @@ export default function PortalApp({
             <details>
               <summary>
                 Earlier revisions (
-                {project.documents.filter((d) => d.historical).length})
+                {project.documents.filter((d) => d.historical && (detailSection === "presentation" ? d.category === "Presentations" : d.category !== "Presentations")).length})
               </summary>
               {project.documents
-                .filter((d) => d.historical)
+                .filter((d) => d.historical && (detailSection === "presentation" ? d.category === "Presentations" : d.category !== "Presentations"))
                 .map((d) => (
                   <div className="portal-row" key={d.id}>
-                    <span>{d.name}</span>
+                    <span>{d.name}{d.revision && <small>Version {d.revision}</small>}</span>
                     <a
                       className="portal-link secondary"
                       target="_blank"

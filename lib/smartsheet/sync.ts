@@ -9,7 +9,7 @@ import {
   sheetWritesEnabled, smartsheetConfigured, updateRowCells,
 } from "./client";
 import {
-  cellValue, columnReport, FIELD_MAP, findColumn, isSyncTicked, ownerName, quoteRow, reconcile, rowDetails, statusKnown, SYNC_COLUMN,
+  cellValue, columnReport, FIELD_MAP, findColumn, isSyncTicked, ownerName, quoteRow, reconcile, rowDetails, stageFromStatus, statusKnown, SYNC_COLUMN,
   type CellWrite, type MapContext,
 } from "./mapping";
 
@@ -142,7 +142,7 @@ export async function syncSheet({ dryRun = false }: { dryRun?: boolean } = {}) {
     const firstTime = !linked;
     const merged = reconcile({ project: existing ?? blankProject(), snapshot: existing?.smartsheet?.snapshot, row, columns: sheet.columns, ctx, ingest: firstTime });
     const status = String(cellValue(row, statusColumn) ?? "");
-    if (!statusKnown(status)) merged.issues.push(`Status "${status}" is new to the portal, so the project's stage was left as it is`);
+    if (!statusKnown(status)) merged.issues.push(`Status "${status}" is displayed in the portal. Its progress-bar stage needs mapping`);
     const label = merged.project.name || `Row ${row.id}`;
     plan.push({ project: label, rowId: row.id, action: !existing ? "create" : firstTime ? "link" : "update", portal: merged.changed, sheetCells: merged.cells.length, issues: merged.issues });
     if (dryRun) continue;
@@ -230,6 +230,10 @@ export async function sheetStatus() {
     linked: (await c.projects.find({ $or: [{ smartsheet: { $exists: true } }, { sheetQuoteRows: { $exists: true } }] }).project({ smartsheet: 1, sheetQuoteRows: 1 }).toArray())
       .reduce((total, project) => total + (project.smartsheet ? 1 : 0) + (project.sheetQuoteRows?.length || 0), 0),
     report: columnReport(sheet.columns),
+    statusChoices: [...new Set([
+      ...(findColumn(sheet.columns, ["Status"])?.options || []),
+      ...sheet.rows.filter(row => isSyncTicked(cellValue(row, syncColumn))).map(row => String(cellValue(row, findColumn(sheet.columns, ["Status"])) || "")),
+    ])].filter(Boolean).map(value => ({ value, stage: stageFromStatus(value), known: statusKnown(value) })),
   };
 }
 export async function connectWebhook() {

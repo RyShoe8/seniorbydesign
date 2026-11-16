@@ -1,6 +1,7 @@
 import { dateOnly, PortalError } from "../portal/policy";
-import { normalizedPayment, paymentLabel, projectPhases, requestTypes } from "../portal/requests";
+import { normalizedPayment, paymentLabel, projectPhases, requestStages, requestTypes } from "../portal/requests";
 import type { Project, ProjectRequest, SheetQuoteRow } from "../portal/types";
+import { SOURCE_ROOT, sourcePath, sourceUrl } from "../sharepoint/files";
 
 export type SyncValue = string | number | boolean | null;
 export interface SheetColumn {
@@ -33,19 +34,19 @@ const STATUS_STAGES: Record<string, Stage> = {
   prospect: "New Request", "not started": "New Request", "ntq need to quote": "Scoping", quoting: "Quote in Progress",
   "ffe pres": "Presentation", "awaiting approval": "Awaiting Approval", "quoted pend approval": "Awaiting Approval",
   approved: "Ordering", "invoiced np": "Awaiting Deposit",
-  paid: "Procurement", ordered: "Procurement", "prep for install": "Installation Planning",
+  paid: "Ordering", "ordering items": "Ordering", ordered: "Procurement", "prep for install": "Installation Planning",
   installed: "Installed", completed: "Closed", cancelled: "Closed",
 };
 /** The sheet numbers some choices ("4. Quoted/ Pend Approval", "8. Paid"); the number is not part of the status. */
 const statusKey = (status: string) => normalizeTitle(status.replace(/^\s*\d+\s*\.\s*/, ""));
-export const stageFromStatus = (status: string): Stage | null => STATUS_STAGES[statusKey(status)] ?? null;
+export const stageFromStatus = (status: string): Stage | null => STATUS_STAGES[statusKey(status)] ?? requestStages.find(stage => normalizeTitle(stage) === statusKey(status)) ?? null;
 const STATUS_PAYMENTS: Record<string, string> = { "invoiced np": "Deposit requested", paid: "Paid" };
 /** Statuses that say how a job is being handled, not where it stands, so they leave the stage as it is. */
 const STATUS_NEUTRAL = ["active", "rush", "on hold"];
 /** False for a Status the portal has never been told about, so staff can be shown it needs mapping. */
 export const statusKnown = (status: string) => {
   const key = statusKey(status);
-  return !key || key in STATUS_STAGES || STATUS_NEUTRAL.includes(key);
+  return !key || stageFromStatus(status) !== null || STATUS_NEUTRAL.includes(key);
 };
 
 /** Sheet multi-select values, reduced to the portal's single project type. */
@@ -220,6 +221,18 @@ export const FIELD_MAP: MappedField[] = [
   },
   requestField("contactName", "Client contact", ["Client Contact"], asText(200, "Client contact")),
   requestField("internalNotes", "SBD notes", ["Notes"], asText(10000, "SBD notes"), true),
+  {
+    // Where the project's files live in SharePoint. Sheet to portal only; files in it are brought in automatically.
+    key: "filesFolder", label: "SharePoint folder", columns: ["Portal Files Folder", "Files Folder", "SharePoint Folder"], pullOnly: true,
+    parse: (value) => {
+      if (value === null || String(value).trim() === "") return null;
+      const path = sourcePath(String(value).trim());
+      if (path === SOURCE_ROOT) throw new PortalError("SharePoint folder must be a project folder inside Comm - Remodels");
+      return sourceUrl(path);
+    },
+    read: (project) => project.filesFolder || null,
+    write: (project, value) => { if (value !== null) project.filesFolder = String(value); },
+  },
   // The one notes column written for the client. Sheet to portal only; a new note is emailed to the client.
   requestField("clientNotes", "Client notes", ["Client Notes", "Client Note"], asText(4000, "Client notes"), true),
   {
@@ -254,6 +267,7 @@ export function quoteRow(row: SheetRow, columns: SheetColumn[], quote: string): 
   };
   const install = value("install"), projectPhase = value("request.projectPhase");
   return {
+    status: String(cellValue(row, findColumn(columns, ["Status"])) || ""),
     rowId: row.id, quote, name: String(cellValue(row, findColumn(columns, ["Community Name"])) ?? ""),
     ...(install ? { install } : {}), ...(projectPhase ? { projectPhase } : {}),
     details: rowDetails(row, columns),

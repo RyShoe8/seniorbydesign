@@ -36,6 +36,16 @@ export interface PortalDocument {
   url: string;
   category: string;
   historical: boolean;
+  storageId?: string;
+  contentHash?: string;
+  sourceKey?: string;
+  sourceItemId?: string;
+  /** SharePoint's change marker for the copy that was saved, so an unchanged file is not downloaded again. */
+  sourceETag?: string;
+  revision?: number;
+  ingestedAt?: string;
+  size?: number;
+  contentType?: string;
 }
 export interface ProjectRequest {
   quoteReferences?: string[];
@@ -84,12 +94,17 @@ export interface Project {
   workflowTouched: boolean;
   updatedAt: Date;
   smartsheet?: SmartsheetLink;
+  /** The project's SharePoint folder inside Comm - Remodels. Staff only. Files in it are brought in automatically. */
+  filesFolder?: string;
+  /** Result of the last automatic check of that folder. Staff only. */
+  filesSync?: { at: string; added: number; more: boolean; error: string; pending: { name: string; url: string; category: string; reason: string }[] };
   /** What clients were last emailed about: see lib/portal/client-updates.ts. */
   clientNotified?: { v?: number; stage: string; phase: string; note: string };
   /** Sheet rows for this project's quotes. Read-only reference, rebuilt on every sync. */
   sheetQuoteRows?: SheetQuoteRow[];
 }
 export interface SheetQuoteRow {
+  status?: string;
   rowId: number;
   quote: string;
   name: string;
@@ -113,6 +128,8 @@ export interface ImportProject extends Omit<
   | "version"
   | "updatedAt"
   | "smartsheet"
+  | "filesFolder"
+  | "filesSync"
   | "clientNotified"
   | "sheetQuoteRows"
   | "operatorApproval"

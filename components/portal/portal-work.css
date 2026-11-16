@@ -203,3 +203,6 @@
   .portal-workspace .portal-quick-field :is(select, input) { min-height: 44px; font-size: 16px; }
   .portal-workspace .portal-simple-tracker .portal-link { min-height: 44px; }
 }
+
+.portal-install-estimate { background: #fff6dd; border-left: 3px solid #b5965f; padding: 12px 16px; border-radius: 4px; }
+.portal-install-estimate small { display: block; color: #665532; }

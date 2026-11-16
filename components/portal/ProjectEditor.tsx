@@ -58,6 +58,7 @@ export function ProjectEditor({ project, organizations, onSaved, buttonLabel }: 
               <label>SBD owner<input name="assignedTo" maxLength={200} defaultValue={request?.assignedTo} /></label>
               <label>Progress estimate %<input name="progressEstimate" type="number" min="0" max="100" defaultValue={request?.progressEstimate ?? 0} /></label>
             </div>
+            {project && <label>SharePoint folder<input name="filesFolder" type="url" defaultValue={project.filesFolder || ""} placeholder="Link to this project's folder in Comm - Remodels" /><small>Presentations and project documents in this folder are brought into the portal automatically. On projects linked to Smartsheet, the sheet&apos;s Portal Files Folder column sets this.</small></label>}
             <label>Project summary<textarea name="summary" rows={2} maxLength={4000} defaultValue={project?.summary} /></label>
             <label>Client notes<textarea name="clientNotes" rows={2} maxLength={4000} defaultValue={request?.clientNotes} /><small>Shown to the client and emailed to them when it changes. On projects linked to Smartsheet, the sheet&apos;s Client Notes column replaces this.</small></label>
             <label>SBD notes (staff only)<textarea name="notes" rows={2} maxLength={2000} defaultValue={request?.notes} /><small>Never shown to clients.</small></label>

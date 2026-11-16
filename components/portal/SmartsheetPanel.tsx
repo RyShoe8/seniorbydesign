@@ -6,6 +6,7 @@ interface Status {
   configured: boolean; writesEnabled: boolean; webhookActive: boolean; lastSyncAt: string | null; lastError: string;
   issues: { rowId: number; project: string; messages: string[] }[];
   linked?: number;
+  statusChoices?: { value: string; stage: string | null; known: boolean }[];
   sheet: { name: string; rows: number } | null;
   report: {
     fields: { key: string; label: string; column: string | null; readOnly: boolean }[];
@@ -14,7 +15,7 @@ interface Status {
 }
 const actionLabel: Record<string, string> = { create: "New project", update: "Update", link: "Link to existing", unlink: "Unlink (row removed)", quote: "Attach to existing quote" };
 
-export default function SmartsheetPanel({ admin }: { admin: boolean }) {
+export default function SmartsheetPanel({ admin, onSynced }: { admin: boolean; onSynced?: () => Promise<void> }) {
   const [status, setStatus] = useState<Status | null>(null);
   const [plan, setPlan] = useState<Change[] | null>(null);
   const [message, setMessage] = useState("");
@@ -35,6 +36,7 @@ export default function SmartsheetPanel({ admin }: { admin: boolean }) {
       if (data.plan) setPlan(data.plan);
       setMessage(done);
       await load();
+      if (action === "sync") await onSynced?.();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Please try again.");
     } finally {
@@ -68,6 +70,11 @@ export default function SmartsheetPanel({ admin }: { admin: boolean }) {
         {status.issues.length > 0 && <>
           <h2>Needs attention</h2>
           <ul>{status.issues.map((issue) => <li key={issue.rowId}><strong>{issue.project}</strong>: {issue.messages.join("; ")}</li>)}</ul>
+        </>}
+        {status.statusChoices && <>
+          <h2>Sheet status choices</h2>
+          <p>New choices appear here automatically. Selecting one on a project row updates its displayed status; adding a dropdown choice alone does not change a project.</p>
+          <ul>{status.statusChoices.map(choice => <li key={choice.value}><strong>{choice.value}</strong> — {choice.stage || (choice.known ? "Keeps the current progress stage" : "Displayed as written; progress stage needs mapping")}</li>)}</ul>
         </>}
         {status.report && <>
           <h2>Field mapping</h2>

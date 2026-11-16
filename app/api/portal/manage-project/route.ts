@@ -1,3 +1,4 @@
+import { SOURCE_ROOT, sourcePath, sourceUrl } from "@/lib/sharepoint/files";
 import { announceProject } from "@/lib/portal/client-updates";
 import { randomUUID } from "crypto";
 import { collections, transaction } from "@/lib/portal/db";
@@ -89,6 +90,15 @@ export async function POST(request: Request) {
       if (typeof data.archived !== "boolean")
         throw new PortalError("Archive state required");
       p.archived = data.archived;
+      if (data.filesFolder !== undefined) {
+        const folder = String(data.filesFolder || "").trim();
+        if (!folder) delete p.filesFolder;
+        else {
+          const path = sourcePath(folder);
+          if (path === SOURCE_ROOT) throw new PortalError("Choose the project's own folder inside Comm - Remodels");
+          p.filesFolder = sourceUrl(path);
+        }
+      }
       if (data.type !== undefined) {
         p.request = requestFields(data, p.request);
         p.request.quoteReferences ??= p.scopes.map(scope => scope.quote);

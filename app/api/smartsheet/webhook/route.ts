@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 import { readState, syncSheet } from "@/lib/smartsheet/sync";
 import { smartsheetConfigured } from "@/lib/smartsheet/client";
+import { syncAllFiles } from "@/lib/sharepoint/auto";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -39,5 +40,7 @@ export async function POST(request: Request) {
     // A failure answered with 500 is retried by Smartsheet.
     return new NextResponse(null, { status: 500 });
   }
+  // Files follow the sheet: a short check after each change, so a newly ticked project gets its files without waiting.
+  await syncAllFiles({ files: 4, seconds: 20 }).catch(() => undefined);
   return new NextResponse(null, { status: 200 });
 }

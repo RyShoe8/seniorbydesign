@@ -82,7 +82,7 @@ test("sync against the sheet's real shape", async (t) => {
     assert.equal(p.install, "2026-11-18");
     assert.equal(p.payment, "Paid");
     assert.equal(p.request.projectPhase, "8. Procurement");
-    assert.equal(p.request.stage, "Procurement");
+    assert.equal(p.request.stage, "Ordering");
     assert.equal(p.request.internalNotes, "client unhappy, internal");
     assert.equal(p.smartsheet.details["Purchase Order"], "3106");
     assert.equal((await c.organizations.findOne({ _id: "company:renew-reit" })).name, "ReNew REIT");

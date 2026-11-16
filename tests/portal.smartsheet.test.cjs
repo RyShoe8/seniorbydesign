@@ -29,7 +29,7 @@ const ingested = () => reconcile({ project: { _id: "p", sourceId: "p", name: "",
 
 test("every mapped field finds its column on the real sheet; the rest are staff reference only", () => {
   const report = columnReport(columns);
-  assert.deepEqual(report.fields.filter((field) => !field.column).map((field) => field.key), ["request.summary", "request.clientNotes"]);
+  assert.deepEqual(report.fields.filter((field) => !field.column).map((field) => field.key), ["request.summary", "filesFolder", "request.clientNotes"]);
   assert.equal(report.reference.length + new Set(FIELD_MAP.flatMap((field) => field.columns).filter((title) => TITLES.includes(title))).size, 63);
   assert.ok(report.reference.includes("Purchase Order"));
   assert.ok(!report.reference.includes("Notes"));
@@ -77,7 +77,7 @@ test("Status updates the portal but is never written, because it drives sheet au
   assert.equal(stageFromStatus("RUSH"), null);
   const first = ingested();
   const paid = reconcile({ project: first.project, snapshot: first.snapshot, row: sheetRow({ ...after(), Status: "Paid" }), columns, ctx });
-  assert.equal(paid.project.request.stage, "Procurement");
+  assert.equal(paid.project.request.stage, "Ordering");
   assert.equal(paid.project.payment, "Paid");
   assert.equal(paid.project.request.sheetStatus, "Paid");
   const edited = structuredClone(first.project);
@@ -189,7 +189,7 @@ test("a Status the portal has not been told about is recognised as new", () => {
 });
 
 test("every choice in the live sheet's Status dropdown is understood, numbered or not", () => {
-  const live = { "1. Prospect": "New Request", "2. Not Started": "New Request", "3. NTQ - Need to Quote": "Scoping", "4. Quoted/ Pend Approval": "Awaiting Approval", "5. Approved": "Ordering", "6. Active": null, "7. Invoiced / NP": "Awaiting Deposit", "8. Paid": "Procurement", RUSH: null, "8. On Hold": null, Paid: "Procurement", Ordered: "Procurement", "Prep for Install": "Installation Planning", Completed: "Closed", Installed: "Installed", Cancelled: "Closed", "FFE Pres": "Presentation" };
+  const live = { "1. Prospect": "New Request", "2. Not Started": "New Request", "3. NTQ - Need to Quote": "Scoping", "4. Quoted/ Pend Approval": "Awaiting Approval", "5. Approved": "Ordering", "6. Active": null, "7. Invoiced / NP": "Awaiting Deposit", "8. Paid": "Ordering", RUSH: null, "8. On Hold": null, Paid: "Ordering", Ordered: "Procurement", "Prep for Install": "Installation Planning", Completed: "Closed", Installed: "Installed", Cancelled: "Closed", "FFE Pres": "Presentation" };
   for (const [status, stage] of Object.entries(live)) {
     assert.equal(stageFromStatus(status), stage, status);
     assert.ok(statusKnown(status), status);
@@ -206,4 +206,15 @@ test("the stage people read is the sheet's Status, word for word", () => {
   // A project that is not on the sheet still shows the stage set in the portal.
   assert.equal(stageLabel({ request: { stage: "Scoping" } }), "Scoping");
   assert.equal(shownStage({}), "Not recorded");
+});
+
+ test("new canonical Status choices sync without losing the raw sheet label", () => {
+  const first = ingested();
+  for (const status of ["Presentation", "Quote Sent", "Ordering", "Ordering items", "8. Paid"]) {
+    const result = reconcile({project:first.project, snapshot:first.snapshot, row:sheetRow({...after(), Status:status}),columns,ctx});
+    assert.equal(statusKnown(status),true);
+    assert.equal(result.project.request.sheetStatus,status);
+    assert.equal(result.project.request.stage, status === "Ordering items" || status === "8. Paid" ? "Ordering" : status);
+    assert.deepEqual(result.cells,[]);
+  }
 });

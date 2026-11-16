@@ -238,7 +238,7 @@ export function parseImport(input: unknown): {
             url,
             category: enumValue(
               d.category,
-              ["Quotes", "Contracts", "Presentations"] as const,
+              ["Quotes", "Contracts", "Presentations", "Documents"] as const,
               "Document category",
             ),
             historical: d.historical === true,

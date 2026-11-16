@@ -118,8 +118,8 @@ export function pipelineGroupIndex(project: Pick<Project, "request">) {
   return stage ? pipelineGroups.findIndex(group => (group.stages as readonly string[]).includes(stage)) : -1;
 }
 /** What a client may see of a quote's sheet row. Details hold internal notes and budgets. */
-export function clientQuoteRow({ quote, name, install, projectPhase }: SheetQuoteRow) {
-  return { quote, name, install, projectPhase };
+export function clientQuoteRow({ quote, name, install, projectPhase, status }: SheetQuoteRow) {
+  return { quote, name, install, projectPhase, ...(status ? { status } : {}) };
 }
 /** The project's own install date, or the soonest one from its quote rows. */
 export function projectInstall(project: Pick<Project, "install"> & { sheetQuoteRows?: { install?: string }[] }) {

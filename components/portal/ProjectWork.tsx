@@ -144,7 +144,7 @@ export function QuickOrder({ project, onChanged }: { project: DisplayProject; on
   return <QuickField project={project} field="order" label="Order status" type="select" value={known ? current : ""} options={orderStages} placeholder={known ? undefined : orderStatusText(project)} onChanged={onChanged} />;
 }
 export function QuickInstall({ project, onChanged }: { project: DisplayProject; onChanged?: () => Promise<void> | void }) {
-  return <QuickField project={project} field="install" label="Install date" type="date" value={project.install || ""} onChanged={onChanged} />;
+  return <QuickField project={project} field="install" label="Estimated installation" type="date" value={project.install || ""} onChanged={onChanged} />;
 }
 
 /** Sheet details for each quote on a project. Clients see only the phase and install date. */
@@ -159,8 +159,8 @@ export function QuoteRows({ project, staff }: { project: DisplayProject; staff: 
           <h4>{row.name} <small>Quote {row.quote}</small></h4>
           <dl>
             <div><dt>Phase</dt><dd>{row.projectPhase || "Not recorded"}</dd></div>
-            <div><dt>Install</dt><dd>{displayDate(row.install || null)}</dd></div>
-            {staff && row.details?.Status && <div><dt>Status</dt><dd>{row.details.Status}</dd></div>}
+            <div><dt>Estimated installation</dt><dd>{displayDate(row.install || null)}</dd></div>
+            {(row.status || (staff && row.details?.Status)) && <div><dt>Status</dt><dd>{row.status || row.details?.Status}</dd></div>}
             {staff && row.details?.["Assigned to"] && <div><dt>SBD owner</dt><dd>{row.details["Assigned to"]}</dd></div>}
             {staff && row.details?.["Approved Budget"] && <div><dt>Approved budget</dt><dd>{row.details["Approved Budget"]}</dd></div>}
           </dl>

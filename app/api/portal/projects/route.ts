@@ -29,12 +29,15 @@ export async function GET() {
     return json({
       actor,
       // Sync bookkeeping is internal and can hold staff-only values such as quoted amounts.
-      projects: projects.map(({ smartsheet, sheetQuoteRows, clientNotified, ...p }) => ({
+      projects: projects.map(({ smartsheet, sheetQuoteRows, clientNotified, filesFolder, filesSync, ...p }) => ({
         ...p,
         ...(sheetQuoteRows ? { sheetQuoteRows: isStaff(actor) ? sheetQuoteRows : sheetQuoteRows.map(clientQuoteRow) } : {}),
         ...(isStaff(actor) && smartsheet?.details ? { smartsheetDetails: smartsheet.details } : {}),
+        ...(isStaff(actor) && filesFolder ? { filesFolder } : {}),
+        ...(isStaff(actor) && filesSync ? { filesSync } : {}),
         request: p.request ? (isStaff(actor) ? p.request : (({ quotedAmount, internalNotes, notes, ...request }) => request)(p.request)) : undefined,
-        documents: p.documents.map(({ url, ...d }) => d),
+        // Where a file came from and where its bytes are kept stay on the server; files open through /api/portal/documents.
+        documents: p.documents.map(({ url, storageId, contentHash, sourceKey, sourceItemId, ...d }) => d),
       })),
       organizations,
     });
