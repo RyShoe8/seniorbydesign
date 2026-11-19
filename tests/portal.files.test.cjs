@@ -185,3 +185,9 @@ test("an automatic check saves a document's revisions oldest first, and later sk
   const newer = planFiles([saved], [scan("Lake MC FFE Presentation REV 4.pdf", "2026-10-01")]);
   assert.deepEqual(newer.ingest.map((file) => file.replacesId), ["r3"]);
 });
+
+test("an FF&E file is a presentation unless it is a quote or contract", () => {
+  assert.equal(classifyFile("Demaree Crossing Communities  FFE.pdf").category, "Presentations");
+  assert.equal(classifyFile("SBD FFE Agreement Phoenix Lake Lanier MC.pdf").category, "Contracts");
+  assert.equal(classifyFile("SBD FFE MC Budget in Excel.xlsx").category, "");
+});

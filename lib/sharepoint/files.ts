@@ -36,6 +36,8 @@ export function classifyFile(name: string, path = ""): { category: FileCategory 
     if (/\b(quotes?|proposals?)\b/.test(text)) return { category: "Quotes", reason: "Quote or proposal" };
     if (/\b(contracts?|agree?ments?|ageements?)\b/.test(text)) return { category: "Contracts", reason: "Contract or agreement" };
   }
+  // "Crossing Communities FFE.pdf" is the FF&E presentation; quotes and contracts naming FFE were caught above.
+  if (/\bff&?e\b/.test(name.toLowerCase())) return { category: "Presentations", reason: "FF&E file" };
   if (/\b(floor[ -]?plans?|drawings?|specifications?|flooring|paint schedule)\b/i.test(words)) return { category: "Documents", reason: "Project drawing or specification" };
   // SBD keeps files meant for the client in a "Share External" folder.
   if (/\/share(d)? external\//i.test(words)) return { category: "Documents", reason: "In the Share External folder" };
