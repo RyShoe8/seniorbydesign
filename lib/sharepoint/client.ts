@@ -96,7 +96,7 @@ export async function scanFolder(url: string) {
       const page: Page = await get<Page>(next);
       for (const item of page.value) {
         // Built from the folder walked, not webUrl: Word and Excel files report an "open in browser" address instead of their path.
-        if (/[\/\]|^\.\.?$/.test(item.name)) continue;
+        if (/[/\\]|^\.\.?$/.test(item.name)) continue;
         const itemPath = `${folder.path}/${item.name}`;
         // Photos, notes, budgets and archives are working material, never client files: not even listed.
         if (item.folder) { if (!SKIP_FOLDER.test(item.name)) queue.push({ id: item.id, path: itemPath }); }
