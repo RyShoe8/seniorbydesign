@@ -117,7 +117,7 @@ export async function readSourceFile(url: string) {
   const relative = path.slice("/sites/SBDFiles/Shared Documents/".length);
   type FileInfo = { id: string; eTag: string; size: number; webUrl: string; file?: { mimeType: string } };
   const before = await get<FileInfo>(`drives/${encodeURIComponent(drive.id)}/root:/${relative.split("/").map(encodeURIComponent).join("/")}`);
-  if (!before.file || before.size > 25 * 1024 * 1024) throw new PortalError("Choose a file no larger than 25 MB");
+  if (!before.file || before.size > 100 * 1024 * 1024) throw new PortalError("Choose a file no larger than 100 MB");
   const itemRoute = `drives/${encodeURIComponent(drive.id)}/items/${encodeURIComponent(before.id)}`;
   const redirect = await fetch(`https://graph.microsoft.com/v1.0/${itemRoute}/content`, {
     headers: { Authorization: `Bearer ${token}` }, redirect: "manual", cache: "no-store", signal: AbortSignal.timeout(15000),
@@ -132,7 +132,7 @@ export async function readSourceFile(url: string) {
   while (true) {
     const { done, value } = await reader.read(); if (done) break;
     size += value.byteLength;
-    if (size > 25 * 1024 * 1024) { await reader.cancel(); throw new PortalError("File exceeds 25 MB"); }
+    if (size > 100 * 1024 * 1024) { await reader.cancel(); throw new PortalError("File exceeds 100 MB"); }
     chunks.push(value);
   }
   const after = await get<FileInfo>(itemRoute);

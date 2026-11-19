@@ -72,7 +72,7 @@ export default function FileIngest({ project, onChanged }: { project: DisplayPro
       <label>Version of<select name="replacesId"><option value="">Match the source file, or add as a new document</option>{project.documents.filter(file => !file.historical).map(file => <option key={file.id} value={file.id}>{file.name}{file.revision ? ` — version ${file.revision}` : ""}</option>)}</select></label>
       <p className="portal-muted">If the filename changed (for example, a new date or “Rev 2”), choose the earlier document above to keep its version history together. Replacing a quote requires a new approval.</p>
       <label>Downloaded source file{configured ? " (optional)" : ""}<input name="file" type="file" required={!configured} accept=".pdf,.ppt,.pptx,.pps,.ppsx,.doc,.docx,.xls,.xlsx,.csv,.txt,.png,.jpg,.jpeg,.webp" /></label>
-      <small>Uploads up to 4 MB; connected SharePoint imports up to 25 MB.</small>
+      <small>Uploads up to 4 MB; connected SharePoint imports up to 100 MB.</small>
       <button disabled={busy}>Publish reviewed file</button>
     </form>
   </details>;

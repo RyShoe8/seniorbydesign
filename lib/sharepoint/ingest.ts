@@ -16,7 +16,7 @@ export function reviseProject(project: Project, documents: Project["documents"])
 }
 
 export async function ingestFile(projectId: string, version: unknown, input: Record<string, unknown>, bytes: Buffer, actor: Actor, sourceItemId?: string, sourceETag?: string) {
-  if (!bytes.length || bytes.length > 25 * 1024 * 1024) throw new PortalError("File must be between 1 byte and 25 MB");
+  if (!bytes.length || bytes.length > 100 * 1024 * 1024) throw new PortalError("File must be between 1 byte and 100 MB");
   if (typeof version !== "number" || !Number.isInteger(version)) throw new PortalError("Project changed. Refresh and review the file again.", 409);
   const file = importedFile(input);
   const extension = file.name.split(".").pop()!.toLowerCase();

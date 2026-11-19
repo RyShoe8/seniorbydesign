@@ -8,7 +8,7 @@ import { ingestFile } from "./ingest";
 
 /** Automatic imports are recorded against this name in each project's history. */
 const ROBOT: Actor = { id: "sharepoint", email: "SharePoint file sync", memberships: [] };
-const MAX_BYTES = 25 * 1024 * 1024;
+const MAX_BYTES = 100 * 1024 * 1024;
 
 export interface FileBudget { files: number; until: number }
 
@@ -64,9 +64,11 @@ export async function syncProjectFiles(project: Project, budget: FileBudget, ind
     for (const file of plan.ingest) {
       if (spent(budget)) { more = true; break; }
       if (file.size && file.size > MAX_BYTES) {
-        pending.push({ name: file.name, url: file.url, category: file.category, reason: "Larger than 25 MB: too large to save in the portal" });
+        pending.push({ name: file.name, url: file.url, category: file.category, reason: "Larger than 100 MB: too large to save in the portal" });
         continue;
       }
+      // A large presentation takes a while to copy: leave it for the next run rather than run out of time mid-copy.
+      if ((file.size || 0) > 30 * 1024 * 1024 && budget.until - Date.now() < 30000) { more = true; break; }
       budget.files--;
       const source = await readSourceFile(file.url);
       const fresh = await c.projects.findOne({ _id: project._id, archived: false });
