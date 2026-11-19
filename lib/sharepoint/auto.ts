@@ -100,8 +100,8 @@ export async function syncProjectFiles(project: Project, budget: FileBudget, ind
  */
 export async function syncAllFiles(limit: { files?: number; seconds?: number } = {}) {
   if (!sharepointConfigured()) return { configured: false, results: [] };
-  // Paused: file copies filled the database. Turned back on once files are kept outside it.
-  if (process.env.SHAREPOINT_FILE_SYNC !== "on") return { configured: true, paused: true, results: [] };
+  // Set SHAREPOINT_FILE_SYNC=off to pause file copying without a code change.
+  if (process.env.SHAREPOINT_FILE_SYNC === "off") return { configured: true, paused: true, results: [] };
   const budget: FileBudget = { files: limit.files ?? 8, until: Date.now() + (limit.seconds ?? 40) * 1000 };
   const c = await collections();
   const projects = (await c.projects.find({

@@ -1,11 +1,9 @@
 import { createHash, randomUUID } from "crypto";
-import { GridFSBucket } from "mongodb";
-import { Readable } from "stream";
-import { pipeline } from "stream/promises";
 import { collections, transaction } from "../portal/db";
 import { PortalError } from "../portal/policy";
 import type { Actor, Project } from "../portal/types";
 import { importedFile, mergeFiles } from "./files";
+import { storeFile } from "../portal/file-store";
 
 export function reviseProject(project: Project, documents: Project["documents"]) {
   const replaced = new Set(project.documents.filter(old => !old.historical && documents.find(doc => doc.id === old.id)?.historical).map(doc => doc.id));
@@ -23,19 +21,16 @@ export async function ingestFile(projectId: string, version: unknown, input: Rec
   const types: Record<string, string> = { pdf: "application/pdf", png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp" };
   if (extension === "pdf" && !bytes.subarray(0, 1024).includes(Buffer.from("%PDF-"))) throw new PortalError("The selected file is not a PDF");
   const c = await collections();
-  const bucket = new GridFSBucket(c.db, { bucketName: "portalFileSnapshots" });
-  const upload = bucket.openUploadStream(file.name, { metadata: { projectId, actorId: actor.id } });
-  await pipeline(Readable.from([bytes]), upload);
-  file.storageId = upload.id.toHexString();
   file.contentHash = createHash("sha256").update(bytes).digest("hex");
   file.size = bytes.length;
   file.contentType = types[extension] || "application/octet-stream";
+  // Stored once in Vercel Blob by its fingerprint; the database keeps only this small record.
+  file.storageId = await storeFile(bytes, file.contentHash, extension, file.contentType);
   file.ingestedAt = new Date().toISOString();
   if (sourceItemId) file.sourceItemId = sourceItemId;
   if (sourceETag) file.sourceETag = sourceETag;
-  let retained = false;
-  try {
-    const result = await transaction(async session => {
+  {
+    return await transaction(async session => {
       const current = await c.projects.findOne({ _id: projectId, version, archived: false }, { session });
       if (!current) throw new PortalError("Project changed. Refresh and review the file again.", 409);
       if (input.replacesId) {
@@ -53,9 +48,5 @@ export async function ingestFile(projectId: string, version: unknown, input: Rec
       await c.events.insertOne({ _id: randomUUID(), projectId, action: "files-imported", actorId: actor.id, email: actor.email, at: new Date(), note: `Saved ${file.name} as version ${merged.documents.at(-1)?.revision}`, before: { documents: current.documents, scopes: current.scopes }, after: { documents: merged.documents, scopes } }, { session });
       return { added: 1, version: current.version + 1 };
     });
-    retained = result.added > 0;
-    return result;
-  } finally {
-    if (!retained) await bucket.delete(upload.id).catch(() => {});
   }
 }
