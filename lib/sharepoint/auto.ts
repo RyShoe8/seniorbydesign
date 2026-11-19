@@ -75,7 +75,8 @@ export async function syncProjectFiles(project: Project, budget: FileBudget, ind
       if (!fresh) break;
       const result = await ingestFile(
         fresh._id, fresh.version,
-        { url: file.url, name: file.name, category: file.category, replacesId: file.replacesId, family: file.family, sourceModified: file.modified, sourceRev: file.sourceRev },
+        // Earlier files in this run may already have moved the document on a version; the family keeps them together.
+        { url: file.url, name: file.name, category: file.category, replacesId: fresh.documents.some((doc) => doc.id === file.replacesId && !doc.historical) ? file.replacesId : undefined, family: file.family, sourceModified: file.modified, sourceRev: file.sourceRev },
         source.bytes, ROBOT, source.sourceItemId, source.eTag,
       );
       if (result.added) added++;

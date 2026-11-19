@@ -38,7 +38,15 @@ export async function POST(request: Request) {
     // Checks every synced project at once, from the Smartsheet sync page.
     if (data.action === "sync-all") {
       if (!sharepointConfigured()) throw new PortalError("Automatic file sync needs the Microsoft connection to be set up first", 503);
-      return json(await syncAllFiles({ files: 10, seconds: 45 }));
+      try {
+        return json(await syncAllFiles({ files: 10, seconds: 40 }));
+      } catch (problem) {
+        // Administrators see what went wrong, so a failed run can be fixed rather than guessed at.
+        if (problem instanceof PortalError) throw problem;
+        const detail = problem instanceof Error ? `${problem.name}: ${problem.message}` : String(problem);
+        console.error("File sync failed", problem);
+        return json({ error: `File sync failed (${detail.replace(/mongodb(\+srv)?:\/\/\S+/gi, "[database]").slice(0, 200)})` }, 500);
+      }
     }
     const id = String(data.projectId || "");
     const target = await (await collections()).projects.findOne({ _id: id, archived: false });
