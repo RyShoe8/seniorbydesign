@@ -56,9 +56,9 @@ A `Status` value the portal has not been told about leaves the project's stage a
 
 ## Files from SharePoint
 
-Project files are brought into the portal from the `Comm - Remodels` library on the SBD Files SharePoint site, as private saved copies (MongoDB GridFS, bucket `portalFileSnapshots`) served only through `/api/portal/documents` to people who can see the project.
+Project files are brought into the portal from the `Comm - Remodels` library on the SBD Files SharePoint site, as private saved copies in a private Vercel Blob store (`PORTAL_FILES_BLOB_TOKEN`), each file stored once by a fingerprint of its contents and never in the database, served only through `/api/portal/documents` to people who can see the project.
 
-Settings: `SHAREPOINT_TENANT_ID`, `SHAREPOINT_CLIENT_ID`, `SHAREPOINT_CLIENT_SECRET` (a Microsoft app registration with read access to the SBD Files site) and `CRON_SECRET` (for the daily scheduled check). Without the three Microsoft settings nothing is fetched automatically; staff can still upload a downloaded file of up to 4 MB.
+Settings: `SHAREPOINT_TENANT_ID`, `SHAREPOINT_CLIENT_ID`, `SHAREPOINT_CLIENT_SECRET` (a Microsoft app registration with read access to the SBD Files site) `CRON_SECRET` (for the daily scheduled check) and `PORTAL_FILES_BLOB_TOKEN` (a private Blob store; the site's image store is public and is not used). `SHAREPOINT_FILE_SYNC=off` pauses copying. Without the three Microsoft settings nothing is fetched automatically; staff can still upload a downloaded file of up to 4 MB.
 
 How it behaves:
 
@@ -69,7 +69,7 @@ How it behaves:
 - Presentations and project documents (floor plans, drawings, specifications) are saved automatically. A file is sorted by its own name first, then its folder.
 - Quotes and contracts are never published automatically, because a quote is tied to a client approval. They, and anything that looks internal (budgets, costing, vendor, drafts) or cannot be sorted, are listed on the project for a person to review and publish.
 - Versions: a changed file becomes the next version and the earlier one stays under "Earlier revisions". An unchanged file is skipped without being downloaded. Replacing a quote's document returns that quote to "Needs Approval".
-- Limits: 25 MB per file, and a few files per run so a large folder is brought in over several checks.
+- Limits: 100 MB per file, and a few files per run so a large folder is brought in over several checks.
 
 The rules are in `lib/sharepoint/files.ts` (sorting and versions) and `lib/sharepoint/auto.ts` (the automatic check). Test them with `node --test tests/portal.files.test.cjs`.
 
