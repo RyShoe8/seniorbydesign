@@ -3,7 +3,7 @@ import { collections } from "@/lib/portal/db";
 import { PortalError } from "@/lib/portal/policy";
 import { ingestFile } from "@/lib/sharepoint/ingest";
 import { readSourceFile, scanFolder, sharepointConfigured } from "@/lib/sharepoint/client";
-import { syncProjectFiles } from "@/lib/sharepoint/auto";
+import { syncAllFiles, syncProjectFiles } from "@/lib/sharepoint/auto";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -35,12 +35,16 @@ export async function POST(request: Request) {
       uploaded = file;
       data.version = Number(data.version);
     } else data = await body(request, 10000);
+    // Checks every synced project at once, from the Smartsheet sync page.
+    if (data.action === "sync-all") {
+      if (!sharepointConfigured()) throw new PortalError("Automatic file sync needs the Microsoft connection to be set up first", 503);
+      return json(await syncAllFiles({ files: 10, seconds: 45 }));
+    }
     const id = String(data.projectId || "");
     const target = await (await collections()).projects.findOne({ _id: id, archived: false });
     if (!target) throw new PortalError("Active project not found", 404);
     if (data.action === "sync") {
       if (!sharepointConfigured()) throw new PortalError("Automatic file sync needs the Microsoft connection to be set up first", 503);
-      if (!target.filesFolder) throw new PortalError("Set this project's SharePoint folder first");
       return json(await syncProjectFiles(target, { files: 10, until: Date.now() + 45000 }));
     }
     if (data.action === "scan") return json({ files: await scanFolder(String(data.folder || "")) });

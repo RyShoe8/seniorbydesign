@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { hash, PortalError } from "../portal/policy";
 import type { PortalDocument } from "../portal/types";
+import { documentFamily, revisionNumber } from "./match";
 
 export const SOURCE_ROOT = "/sites/SBDFiles/Shared Documents/Comm - Remodels";
 export const SOURCE_HOST = "seniorbydesign.sharepoint.com";
@@ -30,12 +31,14 @@ export function classifyFile(name: string, path = ""): { category: FileCategory 
   // so "FFE" by itself says nothing. The folder is only a fallback.
   const title = name.toLowerCase();
   for (const text of [title, words]) {
-    if (/\b(presentations?|finish boards?)\b/.test(text) || (text === title && /\.(pptx?|ppsx?)$/.test(title)))
+    if (/\b(presentations?|presenations?|finish boards?|ff&?e boards?)\b/.test(text) || (text === title && /\.(pptx?|ppsx?)$/.test(title)))
       return { category: "Presentations", reason: "Presentation name or file type" };
     if (/\b(quotes?|proposals?)\b/.test(text)) return { category: "Quotes", reason: "Quote or proposal" };
     if (/\b(contracts?|agree?ments?|ageements?)\b/.test(text)) return { category: "Contracts", reason: "Contract or agreement" };
   }
-  if (/\b(floor[ -]?plans?|drawings?|specifications?)\b/i.test(words)) return { category: "Documents", reason: "Project drawing or specification" };
+  if (/\b(floor[ -]?plans?|drawings?|specifications?|flooring|paint schedule)\b/i.test(words)) return { category: "Documents", reason: "Project drawing or specification" };
+  // SBD keeps files meant for the client in a "Share External" folder.
+  if (/\/share(d)? external\//i.test(words)) return { category: "Documents", reason: "In the Share External folder" };
   return { category: "", reason: "Choose a category after reviewing this file" };
 }
 export function importedFile(input: Record<string, unknown>): PortalDocument {
@@ -47,7 +50,13 @@ export function importedFile(input: Record<string, unknown>): PortalDocument {
   const category = String(input.category || "") as FileCategory;
   if (!fileCategories.includes(category)) throw new PortalError(`Choose a category for ${name}`);
   const url = sourceUrl(path);
-  return { id: randomUUID(), sourceKey: hash(url), name, url, category, historical: false };
+  // Files read from a project folder are grouped by document, so "REV 2" follows "REV 1" whatever the file is called.
+  const family = typeof input.family === "string" && input.family ? input.family : "";
+  return {
+    id: randomUUID(), sourceKey: family ? hash(`family:${family}`) : hash(url), name, url, category, historical: false,
+    ...(typeof input.sourceModified === "string" ? { sourceModified: input.sourceModified } : {}),
+    ...(typeof input.sourceRev === "number" ? { sourceRev: input.sourceRev } : {}),
+  };
 }
 
 /** Older documents were saved as typed or pasted links, so compare where they point, not how they were written. */
@@ -64,32 +73,42 @@ export function mergeFiles(existing: PortalDocument[], incoming: PortalDocument[
     if (!file.storageId || !file.contentHash) throw new PortalError("A saved file snapshot is required");
     const family = documents.filter(doc => doc.sourceKey === file.sourceKey || sameAddress(doc.url, file.url) ||
       (file.sourceItemId && doc.sourceItemId === file.sourceItemId));
-    const prior = family.find(doc => !doc.historical);
+    const current = family.filter(doc => !doc.historical);
+    const prior = current[0];
     if (prior) {
-      if (prior.category !== file.category)
+      if (current.some(doc => doc.category !== file.category))
         throw new PortalError(`${file.name} is already registered in ${prior.category}; keep the category when adding a revision`, 409);
-      if (prior.contentHash === file.contentHash) continue;
-      prior.historical = true;
+      // The same bytes again (for example the same file in two folders) is not a new version.
+      if (family.some(doc => doc.contentHash && doc.contentHash === file.contentHash)) continue;
+      for (const doc of current) doc.historical = true;
     }
     documents.push({ ...file, revision: Math.max(0, ...family.map(doc => doc.revision || 1)) + 1 }); added++;
   }
   return { documents, added };
 }
 
-export interface ScannedFile { name: string; url: string; category: string; reason: string; eTag?: string; size?: number }
+export interface ScannedFile { name: string; url: string; category: string; reason: string; eTag?: string; size?: number; modified?: string }
 /** Categories that are safe to publish without a person looking first. Quotes and contracts are not: a quote is tied to an approval. */
 export const AUTOMATIC: readonly string[] = ["Presentations", "Documents"];
 
+/** Orders versions: the revision number in the name first, then when the file was last changed. */
+const rank = (rev: number | null | undefined, modified: string | undefined) => [rev ?? -1, modified || ""] as const;
+const newer = (a: readonly [number, string], b: readonly [number, string]) => a[0] !== b[0] ? a[0] > b[0] : a[1] > b[1];
+
 /**
- * Decides what an automatic folder check should do with each file found:
- * save it (new, or changed since the saved copy), skip it (unchanged), or leave it for a person to review.
+ * Decides what an automatic folder check should do with each file found: save it (new, or a newer
+ * version of a document already here), skip it (unchanged, or an older revision), or leave it for a
+ * person to review. Files are returned oldest first, so a document's versions are saved in order.
  */
 export function planFiles(documents: PortalDocument[], scanned: ScannedFile[]) {
-  const ingest: (ScannedFile & { replacesId?: string })[] = [];
+  const ingest: (ScannedFile & { replacesId?: string; family: string; sourceRev?: number })[] = [];
   const review: { name: string; url: string; category: string; reason: string }[] = [];
   let unchanged = 0;
   for (const file of scanned) {
-    const current = documents.find(doc => !doc.historical && sameAddress(doc.url, file.url));
+    const family = documentFamily(file.name);
+    const familyKey = hash(`family:${family}`);
+    const sameFile = documents.find(doc => !doc.historical && sameAddress(doc.url, file.url));
+    const current = sameFile || documents.find(doc => !doc.historical && doc.sourceKey === familyKey);
     if (!AUTOMATIC.includes(file.category)) {
       // Already published by a person: nothing more to ask them.
       if (!current) review.push({ name: file.name, url: file.url, category: file.category, reason: file.category ? `${file.category} are published after review` : file.reason });
@@ -99,8 +118,12 @@ export function planFiles(documents: PortalDocument[], scanned: ScannedFile[]) {
       review.push({ name: file.name, url: file.url, category: current.category, reason: `Published as ${current.category}; the name now suggests ${file.category}` });
       continue;
     }
-    if (current?.storageId && current.sourceETag && current.sourceETag === file.eTag) { unchanged++; continue; }
-    ingest.push({ ...file, ...(current ? { replacesId: current.id } : {}) });
+    if (sameFile?.storageId && sameFile.sourceETag && sameFile.sourceETag === file.eTag) { unchanged++; continue; }
+    const rev = revisionNumber(file.name);
+    // An older revision of a document already here adds nothing for the client.
+    if (current && !sameFile && current.storageId && !newer(rank(rev, file.modified), rank(current.sourceRev, current.sourceModified))) { unchanged++; continue; }
+    ingest.push({ ...file, family, ...(rev !== null ? { sourceRev: rev } : {}), ...(current ? { replacesId: current.id } : {}) });
   }
+  ingest.sort((a, b) => a.family.localeCompare(b.family) || (newer(rank(a.sourceRev, a.modified), rank(b.sourceRev, b.modified)) ? 1 : -1));
   return { ingest, review, unchanged };
 }

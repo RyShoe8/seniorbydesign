@@ -1,5 +1,6 @@
 import { PortalError } from "../portal/policy";
 import { classifyFile, SOURCE_ROOT, sourcePath, sourceUrl } from "./files";
+import type { FolderEntry } from "./match";
 
 /** What the common Microsoft sign-in codes mean, in words IT can act on. */
 const SIGN_IN_HINTS: Record<string, string> = {
@@ -44,16 +45,48 @@ async function connection() {
   const drive = await get<{ id: string }>(`sites/${encodeURIComponent(site.id)}/drive`);
   return { get, drive, token };
 }
+const SKIP_FOLDER = /(photo|video|note|meeting|archive|budget|for ai|walk|template|original|\bold\b|^~)/i;
+/** Office lock files, and the copies OneDrive makes when two computers edit at once ("...-LAPTOP-7CM8A8US.pdf"). */
+const SKIP_FILE = /^~\$|-(laptop|desktop)-[a-z0-9]{4,}\./i;
+
+/** Every folder one and two levels into Comm - Remodels: client folders and the community folders inside them. */
+export async function listProjectFolders(): Promise<FolderEntry[]> {
+  const { get, drive } = await connection();
+  type Item = { id: string; name: string; folder?: object };
+  type Page = { value: Item[]; "@odata.nextLink"?: string };
+  const children = async (route: string) => {
+    const items: Item[] = [];
+    let next: string | undefined = `${route}/children?$select=id,name,folder&$top=200`;
+    for (let pages = 0; next && pages < 10; pages++) {
+      const page: Page = await get<Page>(next);
+      items.push(...page.value.filter((item) => item.folder));
+      next = page["@odata.nextLink"];
+    }
+    return items;
+  };
+  const relative = SOURCE_ROOT.slice("/sites/SBDFiles/Shared Documents/".length);
+  const top = await children(`drives/${encodeURIComponent(drive.id)}/root:/${relative.split("/").map(encodeURIComponent).join("/")}:`);
+  const entries: FolderEntry[] = [];
+  for (const folder of top) {
+    const path = `${SOURCE_ROOT}/${folder.name}`;
+    entries.push({ path, name: folder.name, parent: null });
+    if (/^~|do not use|completed/i.test(folder.name)) continue;
+    for (const inner of await children(`drives/${encodeURIComponent(drive.id)}/items/${encodeURIComponent(folder.id)}`))
+      entries.push({ path: `${path}/${inner.name}`, name: inner.name, parent: path });
+  }
+  return entries;
+}
+
 export async function scanFolder(url: string) {
   const path = sourcePath(url);
   if (path === SOURCE_ROOT) throw new PortalError("Choose a specific client or project folder inside Comm - Remodels");
   const { get, drive } = await connection();
   const relative = path.slice("/sites/SBDFiles/Shared Documents/".length);
-  type Item = { id: string; name: string; folder?: object; file?: object; webUrl: string; eTag?: string; size?: number };
+  type Item = { id: string; name: string; folder?: object; file?: object; webUrl: string; eTag?: string; size?: number; lastModifiedDateTime?: string };
   type Page = { value: Item[]; "@odata.nextLink"?: string };
   const root = await get<Item>(`drives/${encodeURIComponent(drive.id)}/root:/${relative.split("/").map(encodeURIComponent).join("/")}`);
   const queue = [{ id: root.id, path }];
-  const files: { name: string; url: string; category: string; reason: string; eTag?: string; size?: number }[] = [];
+  const files: { name: string; url: string; category: string; reason: string; eTag?: string; size?: number; modified?: string }[] = [];
   let pages = 0;
   while (queue.length) {
     const folder = queue.shift()!;
@@ -64,9 +97,10 @@ export async function scanFolder(url: string) {
       for (const item of page.value) {
         const itemPath = sourcePath(item.webUrl);
         if (!itemPath.startsWith(`${path}/`)) throw new PortalError("A file was outside the selected folder", 502);
-        if (item.folder) queue.push({ id: item.id, path: itemPath });
-        else if (item.file && /\.(pdf|pptx?|ppsx?|docx?|xlsx?|csv|txt)$/i.test(item.name)) {
-          files.push({ name: item.name, url: sourceUrl(itemPath), eTag: item.eTag, size: item.size, ...classifyFile(item.name, itemPath) });
+        // Photos, notes, budgets and archives are working material, never client files: not even listed.
+        if (item.folder) { if (!SKIP_FOLDER.test(item.name)) queue.push({ id: item.id, path: itemPath }); }
+        else if (item.file && /\.(pdf|pptx?|ppsx?|docx?|xlsx?|csv|txt)$/i.test(item.name) && !SKIP_FILE.test(item.name)) {
+          files.push({ name: item.name, url: sourceUrl(itemPath), eTag: item.eTag, size: item.size, modified: item.lastModifiedDateTime, ...classifyFile(item.name, itemPath) });
           if (files.length > 500) throw new PortalError("More than 500 documents found. Choose a smaller project folder.");
         }
       }

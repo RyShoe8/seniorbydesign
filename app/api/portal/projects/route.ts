@@ -29,7 +29,7 @@ export async function GET() {
     return json({
       actor,
       // Sync bookkeeping is internal and can hold staff-only values such as quoted amounts.
-      projects: projects.map(({ smartsheet, sheetQuoteRows, clientNotified, filesFolder, filesSync, ...p }) => ({
+      projects: projects.map(({ smartsheet, sheetQuoteRows, clientNotified, filesFolder, filesFolderAuto, filesSync, ...p }) => ({
         ...p,
         ...(sheetQuoteRows ? { sheetQuoteRows: isStaff(actor) ? sheetQuoteRows : sheetQuoteRows.map(clientQuoteRow) } : {}),
         ...(isStaff(actor) && smartsheet?.details ? { smartsheetDetails: smartsheet.details } : {}),

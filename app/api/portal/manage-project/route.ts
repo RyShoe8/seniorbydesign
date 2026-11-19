@@ -92,11 +92,13 @@ export async function POST(request: Request) {
       p.archived = data.archived;
       if (data.filesFolder !== undefined) {
         const folder = String(data.filesFolder || "").trim();
-        if (!folder) delete p.filesFolder;
+        // Emptying the box hands the folder back to automatic matching.
+        if (!folder) { delete p.filesFolder; delete p.filesFolderAuto; }
         else {
           const path = sourcePath(folder);
           if (path === SOURCE_ROOT) throw new PortalError("Choose the project's own folder inside Comm - Remodels");
-          p.filesFolder = sourceUrl(path);
+          // A folder a person chose is kept as it is; saving the one the portal found changes nothing.
+          if (sourceUrl(path) !== p.filesFolder) { p.filesFolder = sourceUrl(path); delete p.filesFolderAuto; }
         }
       }
       if (data.type !== undefined) {

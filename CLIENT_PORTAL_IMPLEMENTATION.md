@@ -62,7 +62,9 @@ Settings: `SHAREPOINT_TENANT_ID`, `SHAREPOINT_CLIENT_ID`, `SHAREPOINT_CLIENT_SEC
 
 How it behaves:
 
-- Each project has a SharePoint folder: the sheet's `Portal Files Folder` column on linked projects, or the "SharePoint folder" box on the project form. It must be a project folder inside `Comm - Remodels`.
+- Each project's folder is found automatically from its name and client: a folder inside the client's folder ("ReNew REIT / Phoenix at Lake Lanier", "ESL / OH - Heritage Crossing") or a community folder at the top level. Every distinctive word in the folder's name must appear in the project's name; state codes and the client's own name or initials are ignored. Only one clear match is used: none or several are shown on the project for staff, and a folder inside one client's folder is never used for another client. A folder set in the sheet's `Portal Files Folder` column or on the project form overrides the automatic one; emptying the form box returns to automatic.
+- Photos, notes, meeting notes, budgets, archives and OneDrive conflict copies are skipped entirely.
+- Revisions of one document are grouped by name ("REV 1", "Rev. 2", dates and copy marks ignored) and saved oldest first, so the newest is current and the rest are earlier versions. An older revision that turns up later is not published over a newer one.
 - Folders are checked after every sheet sync, once a day on a schedule, and when an administrator presses "Check SharePoint now". Only projects that are on the sheet and not hidden are checked.
 - Presentations and project documents (floor plans, drawings, specifications) are saved automatically. A file is sorted by its own name first, then its folder.
 - Quotes and contracts are never published automatically, because a quote is tied to a client approval. They, and anything that looks internal (budgets, costing, vendor, drafts) or cannot be sorted, are listed on the project for a person to review and publish.

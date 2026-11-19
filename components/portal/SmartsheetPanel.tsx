@@ -43,6 +43,25 @@ export default function SmartsheetPanel({ admin, onSynced }: { admin: boolean; o
       setBusy(false);
     }
   }
+  // Files also sync by themselves after each sheet change and daily; this runs a check now.
+  async function syncFiles() {
+    setBusy(true); setMessage("");
+    try {
+      const response = await fetch("/api/portal/files", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "sync-all" }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      const results: { project: string; added: number; review: number; more: boolean; error: string }[] = data.results || [];
+      const added = results.reduce((total, result) => total + result.added, 0);
+      const more = results.some((result) => result.more);
+      const problems = results.filter((result) => result.error);
+      setMessage(`Checked ${results.length} project${results.length === 1 ? "" : "s"}: ${added} file${added === 1 ? "" : "s"} saved.${more ? " More files are waiting; press again or they follow on the next automatic check." : ""}${problems.length ? ` Needs attention: ${problems.map((result) => `${result.project} (${result.error})`).join("; ")}` : ""}`);
+      await onSynced?.();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <section className="portal-panel portal-smartsheet">
       {message && <p className="portal-alert" role="status">{message}</p>}
@@ -61,6 +80,7 @@ export default function SmartsheetPanel({ admin, onSynced }: { admin: boolean; o
           <button disabled={busy} onClick={() => act("preview", "Preview ready. Nothing was changed.")}>Preview sync</button>
           {admin && <button className="secondary" disabled={busy} onClick={() => act("sync", "Sync finished.")}>Sync now</button>}
           {admin && !status.webhookActive && <button className="secondary" disabled={busy} onClick={() => act("connect-webhook", "Live updates are on.")}>Turn on live updates</button>}
+          {admin && <button className="secondary" disabled={busy} onClick={syncFiles}>Sync files from SharePoint</button>}
         </div>
         {plan && <>
           <h2>Preview</h2>

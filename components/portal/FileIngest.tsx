@@ -24,8 +24,9 @@ export default function FileIngest({ project, onChanged }: { project: DisplayPro
   };
   return <details className="portal-file-ingest" open={Boolean(sync?.pending.length || sync?.error)}>
     <summary>Files from SharePoint{sync?.pending.length ? ` (${sync.pending.length} waiting for review)` : ""}</summary>
-    {project.filesFolder ? <div className="portal-files-auto">
+    {project.filesFolder || sync ? <div className="portal-files-auto">
       <p><strong>Automatic sync is {configured ? "on" : "waiting for the Microsoft connection"}.</strong> Presentations and project documents in this project&apos;s SharePoint folder are saved here by themselves, and a changed file becomes a new version. Quotes, contracts and anything that looks internal wait for you below.</p>
+      {project.filesFolder && <p className="portal-muted">Folder{project.filesFolderAuto ? " (found automatically)" : ""}: {decodeURIComponent(project.filesFolder.split("/Comm%20-%20Remodels/")[1] || project.filesFolder)}</p>}
       <p className="portal-muted">{sync ? `Last checked ${new Date(sync.at).toLocaleString()}. ${sync.added} saved on that check.` : "Not checked yet."}{sync?.more ? " More files remain for the next check." : ""}</p>
       {sync?.error && <p role="alert" className="portal-alert">{sync.error}</p>}
       {configured && <button type="button" className="secondary" disabled={busy} onClick={check}>Check SharePoint now</button>}
@@ -33,7 +34,7 @@ export default function FileIngest({ project, onChanged }: { project: DisplayPro
         <h4>Waiting for your review</h4>
         <ul>{sync.pending.map(file => <li key={file.url}><button type="button" className="portal-text-button" onClick={() => setPicked(file)}>{file.name}</button> — {file.category || "Needs a category"}<small>{file.reason}</small></li>)}</ul>
       </>}
-    </div> : <p className="portal-muted">No SharePoint folder is set for this project yet. Add its folder link under Edit project, or in the sheet&apos;s Portal Files Folder column, and its presentations and documents will be brought in automatically.</p>}
+    </div> : <p className="portal-muted">Not checked yet. The portal finds this project&apos;s folder in Comm - Remodels by itself on the next check.</p>}
     <p>Files are saved as private, versioned copies for <strong>{project.name}</strong>. To publish one yourself, review the file and its category below. Earlier versions stay available; unchanged copies are skipped.</p>
     {message && <p role="status" className="portal-alert">{message}</p>}
     {configured ? <form onSubmit={async event => {

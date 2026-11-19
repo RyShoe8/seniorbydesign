@@ -231,7 +231,7 @@ export const FIELD_MAP: MappedField[] = [
       return sourceUrl(path);
     },
     read: (project) => project.filesFolder || null,
-    write: (project, value) => { if (value !== null) project.filesFolder = String(value); },
+    write: (project, value) => { if (value !== null) { project.filesFolder = String(value); delete project.filesFolderAuto; } },
   },
   // The one notes column written for the client. Sheet to portal only; a new note is emailed to the client.
   requestField("clientNotes", "Client notes", ["Client Notes", "Client Note"], asText(4000, "Client notes"), true),

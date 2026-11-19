@@ -42,6 +42,9 @@ export interface PortalDocument {
   sourceItemId?: string;
   /** SharePoint's change marker for the copy that was saved, so an unchanged file is not downloaded again. */
   sourceETag?: string;
+  /** When the SharePoint file was last changed, and its revision number from the name: orders a document's versions. */
+  sourceModified?: string;
+  sourceRev?: number;
   revision?: number;
   ingestedAt?: string;
   size?: number;
@@ -96,6 +99,8 @@ export interface Project {
   smartsheet?: SmartsheetLink;
   /** The project's SharePoint folder inside Comm - Remodels. Staff only. Files in it are brought in automatically. */
   filesFolder?: string;
+  /** True when the portal found the folder itself; a folder set by a person or the sheet is never replaced. */
+  filesFolderAuto?: boolean;
   /** Result of the last automatic check of that folder. Staff only. */
   filesSync?: { at: string; added: number; more: boolean; error: string; pending: { name: string; url: string; category: string; reason: string }[] };
   /** What clients were last emailed about: see lib/portal/client-updates.ts. */
@@ -129,6 +134,7 @@ export interface ImportProject extends Omit<
   | "updatedAt"
   | "smartsheet"
   | "filesFolder"
+  | "filesFolderAuto"
   | "filesSync"
   | "clientNotified"
   | "sheetQuoteRows"
