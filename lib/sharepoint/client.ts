@@ -95,8 +95,9 @@ export async function scanFolder(url: string) {
       if (++pages > 30) throw new PortalError("This folder is too large for one scan. Choose a project subfolder.");
       const page: Page = await get<Page>(next);
       for (const item of page.value) {
-        const itemPath = sourcePath(item.webUrl);
-        if (!itemPath.startsWith(`${path}/`)) throw new PortalError("A file was outside the selected folder", 502);
+        // Built from the folder walked, not webUrl: Word and Excel files report an "open in browser" address instead of their path.
+        if (/[\/\]|^\.\.?$/.test(item.name)) continue;
+        const itemPath = `${folder.path}/${item.name}`;
         // Photos, notes, budgets and archives are working material, never client files: not even listed.
         if (item.folder) { if (!SKIP_FOLDER.test(item.name)) queue.push({ id: item.id, path: itemPath }); }
         else if (item.file && /\.(pdf|pptx?|ppsx?|docx?|xlsx?|csv|txt)$/i.test(item.name) && !SKIP_FILE.test(item.name)) {
