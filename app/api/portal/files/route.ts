@@ -4,6 +4,7 @@ import { PortalError } from "@/lib/portal/policy";
 import { ingestFile } from "@/lib/sharepoint/ingest";
 import { readSourceFile, scanFolder, sharepointConfigured } from "@/lib/sharepoint/client";
 import { syncAllFiles, syncProjectFiles } from "@/lib/sharepoint/auto";
+import { purgeFileCopies } from "@/lib/sharepoint/purge";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -35,6 +36,11 @@ export async function POST(request: Request) {
       uploaded = file;
       data.version = Number(data.version);
     } else data = await body(request, 10000);
+    // Removes every file copy kept in the database; the originals stay in SharePoint.
+    if (data.action === "purge-copies") {
+      if (data.confirm !== "DELETE COPIES") throw new PortalError("Confirmation required");
+      return json(await purgeFileCopies());
+    }
     // Checks every synced project at once, from the Smartsheet sync page.
     if (data.action === "sync-all") {
       if (!sharepointConfigured()) throw new PortalError("Automatic file sync needs the Microsoft connection to be set up first", 503);
@@ -52,6 +58,7 @@ export async function POST(request: Request) {
     const target = await (await collections()).projects.findOne({ _id: id, archived: false });
     if (!target) throw new PortalError("Active project not found", 404);
     if (data.action === "sync") {
+      if (process.env.SHAREPOINT_FILE_SYNC !== "on") throw new PortalError("File sync is paused while file storage is moved out of the database", 503);
       if (!sharepointConfigured()) throw new PortalError("Automatic file sync needs the Microsoft connection to be set up first", 503);
       return json(await syncProjectFiles(target, { files: 10, until: Date.now() + 45000 }));
     }
